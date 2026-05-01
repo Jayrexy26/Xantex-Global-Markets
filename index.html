@@ -5,206 +5,190 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
-body{background:#eef1f5;color:#111;}
+body{background:#f4f6f9;color:#111;}
 
-/* FEATURES */
+.navbar{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:#fff;border-bottom:1px solid #ddd;}
+.logo{font-size:28px;font-weight:bold;color:#e60023;}
+.nav-center{display:flex;gap:40px;}
+.nav-right{display:flex;gap:20px;align-items:center;}
+.register{background:#1a5cff;color:#fff;padding:10px 25px;border-radius:25px;border:none;}
+.login{color:#1a5cff;}
+
+.hero{position:relative;height:520px;display:flex;align-items:center;color:#fff;}
+.hero::before{content:"";position:absolute;inset:0;background:url('/images/mt4-main.png') center/cover no-repeat;}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to right,black 45%,transparent 80%);}
+.hero-left{position:relative;padding:0 60px;}
+.hero-left h1{font-size:70px;margin-bottom:20px;}
+.hero-left p{font-size:22px;color:#ccc;}
+
+.info-section{display:flex;padding:80px 60px;background:#e9edf2;}
+.info-left{flex:1;font-size:40px;font-weight:bold;}
+.info-divider{width:2px;background:black;margin:0 40px;}
+.info-right{flex:1;font-size:18px;color:#333;}
+
+.mt4-section{position:relative;padding:120px 0;background:#f4f6f9;display:flex;justify-content:center;}
+.mt4-container{position:relative;width:700px;margin:auto;}
+.mt4-overlay{display:block;width:100%;border-radius:6px;box-shadow:0 25px 50px rgba(0,0,0,0.35);}
+
+.mt4-left-top,.mt4-left-bottom,.mt4-right-top,.mt4-right-bottom{
+position:absolute;width:220px;font-size:15px;border-left:2px solid #ccc;padding-left:15px;
+}
+.mt4-left-top{left:-260px;top:20px;}
+.mt4-left-bottom{left:-260px;bottom:20px;}
+.mt4-right-top{right:-260px;top:20px;}
+.mt4-right-bottom{right:-260px;bottom:20px;}
+
+/* FIXED FEATURES SECTION */
 .features{
 display:flex;
 justify-content:space-between;
-padding:100px 120px 40px;
 max-width:1200px;
-margin:auto;
+margin:100px auto 40px;
+padding:0 40px;
+background:#e9edf2;
 }
 
 .feature{
 display:flex;
 align-items:flex-start;
-gap:20px;
-width:22%;
+gap:15px;
+width:23%;
+text-align:left;
 }
 
 .feature::before{
 content:"";
 width:6px;
-height:60px;
+height:65px;
 background:#1a5cff;
-display:block;
+margin-top:5px;
 }
 
-.feature h2{
-font-size:40px;
+.feature strong{
+font-size:36px;
+display:block;
 margin-bottom:5px;
 }
 
-.feature p{
-font-size:15px;
+.feature-text{
+font-size:14px;
 color:#333;
 line-height:1.4;
 }
 
-/* DOWNLOAD BUTTONS */
-.downloads{
-display:flex;
-justify-content:center;
-gap:30px;
-margin:40px 0 80px;
-}
+/* DOWNLOADS */
+.downloads{display:flex;justify-content:center;gap:30px;margin:40px 0;}
+.download-btn{background:#1a5cff;color:#fff;padding:15px 30px;border-radius:30px;}
 
-.btn{
-display:flex;
-align-items:center;
-gap:10px;
-background:#1a5cff;
-color:#fff;
-padding:16px 35px;
-border-radius:35px;
-font-size:16px;
-font-weight:600;
-}
+.trading-central{text-align:center;padding:80px 20px;background:#f4f6f9;}
+.trading-central h2{font-size:28px;margin:20px 0;}
+.trading-central p{max-width:700px;margin:auto;color:#555;}
+.tc-btn{margin-top:20px;display:inline-block;padding:12px 25px;border:2px solid #1a5cff;border-radius:25px;color:#1a5cff;}
 
-/* USER GUIDE */
-.guide{
-display:flex;
-justify-content:center;
-align-items:center;
-gap:40px;
-margin-bottom:80px;
-}
+.cards{display:flex;gap:40px;padding:80px 60px;}
+.card{flex:1;background:#fff;padding:30px;border:1px solid #ddd;}
+.card img{width:100%;margin-top:20px;}
 
-.guide img{
-width:80px;
-}
-
-.guide-text{
-max-width:400px;
-font-size:14px;
-color:#333;
-}
-
-.guide-btn{
-margin-top:15px;
-display:inline-block;
-background:#e6e6e6;
-padding:12px 25px;
-border-radius:25px;
-}
-
-/* TRADING CENTRAL */
-.tc{
-text-align:center;
-padding:80px 20px;
-}
-
-.tc h2{
-font-size:28px;
-margin-bottom:15px;
-}
-
-.tc p{
-max-width:650px;
-margin:auto;
-font-size:14px;
-color:#555;
-line-height:1.6;
-}
-
-.tc-btn{
-margin-top:20px;
-display:inline-block;
-border:2px solid #1a5cff;
-color:#1a5cff;
-padding:12px 25px;
-border-radius:25px;
-}
-
-/* CARDS */
-.cards{
-display:flex;
-gap:40px;
-padding:80px 120px;
-}
-
-.card{
-flex:1;
-background:#fff;
-padding:30px;
-border:1px solid #ddd;
-}
-
-.card img{
-width:100%;
-margin-top:20px;
-}
+.footer{padding:40px;text-align:center;background:#111;color:#aaa;}
 </style>
 </head>
 
 <body>
 
-<section class="features">
-<div class="feature">
-<div>
-<h2>50+</h2>
-<p>preinstalled technical indicators</p>
+<div class="navbar">
+<div class="logo">Xantex</div>
+<div class="nav-center">
+<span>Markets ▼</span>
+<span>Platforms ▼</span>
+<span>Company ▼</span>
+</div>
+<div class="nav-right">
+<button class="register">Register</button>
+<span class="login">Login</span>
 </div>
 </div>
 
-<div class="feature">
-<div>
-<h2>24</h2>
-<p>analytical charting tools</p>
-</div>
-</div>
-
-<div class="feature">
-<div>
-<h2>3</h2>
-<p>chart types & 9 time-frames</p>
-</div>
-</div>
-
-<div class="feature">
-<div>
-<h2>1-click</h2>
-<p>trading & trade from charts</p>
-</div>
+<section class="hero">
+<div class="hero-left">
+<h1>MetaTrader 4</h1>
+<p>The industry classic, with everything a trader needs.</p>
 </div>
 </section>
 
+<section class="info-section">
+<div class="info-left">Platform for Web, Mac OS,<br>iOS, Android, Windows</div>
+<div class="info-divider"></div>
+<div class="info-right">Used by millions of traders worldwide since 2005.</div>
+</section>
+
+<section class="mt4-section">
+<div class="mt4-container">
+<img src="/images/mt4-overlay.png" class="mt4-overlay">
+<div class="mt4-left-top">Analyse markets in detail with powerful technical indicators</div>
+<div class="mt4-left-bottom">Trade with familiarity on a platform used by millions</div>
+<div class="mt4-right-top">Set Price Alerts & monitor market news headlines</div>
+<div class="mt4-right-bottom">Choose from a range of MT4 account types</div>
+</div>
+</section>
+
+<section class="features">
+
+<div class="feature">
+<div>
+<strong>50+</strong>
+<div class="feature-text">preinstalled technical indicators</div>
+</div>
+</div>
+
+<div class="feature">
+<div>
+<strong>24</strong>
+<div class="feature-text">analytical charting tools</div>
+</div>
+</div>
+
+<div class="feature">
+<div>
+<strong>3</strong>
+<div class="feature-text">chart types & 9 time-frames</div>
+</div>
+</div>
+
+<div class="feature">
+<div>
+<strong>1-click</strong>
+<div class="feature-text">trading & trade from charts</div>
+</div>
+</div>
+
+</section>
+
 <div class="downloads">
-<div class="btn">🪟 Download MT4 for Windows</div>
-<div class="btn">🍎 Download MT4 for Mac</div>
+<div class="download-btn">Download MT4 for Windows</div>
+<div class="download-btn">Download MT4 for Mac</div>
 </div>
 
-<div class="guide">
-<img src="/images/guide.png">
-<div class="guide-text">
-<p>Learn the basics of how the Metatrader 4 platform works with our MT4 User Guide.</p>
-<div class="guide-btn">Download MT4 User Guide</div>
-</div>
-</div>
-
-<section class="tc">
+<section class="trading-central">
 <h2>MT4 Trading Central Tools</h2>
-<p>
-Level up your trading with an exclusive range of technical analysis indicators from Trading Central.
-Identify new trade opportunities, improve your entry/exit timings and get an instant viewpoint.
-</p>
+<p>Level up your trading with an exclusive range of indicators.</p>
 <div class="tc-btn">Download Trading Central Plug-in</div>
 </section>
 
 <section class="cards">
 <div class="card">
 <h3>MetaEditor</h3>
-<p>Create, modify and compile indicators and expert advisors.</p>
+<p>Create and modify custom indicators.</p>
 <img src="/images/metaeditor.png">
 </div>
 
 <div class="card">
 <h3>MT4 Strategy Tester</h3>
-<p>Backtest and optimize your Expert Advisors using historical prices.</p>
+<p>Backtest and optimize strategies.</p>
 <img src="/images/strategy.png">
 </div>
 </section>
+
+<div class="footer">© 2026 Xantex Global Markets</div>
 
 </body>
 </html>

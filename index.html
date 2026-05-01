@@ -3,97 +3,109 @@
 <head>
 <title>Xantex Global Markets</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',Arial;}
+
 body{background:#f4f6f9;color:#111;}
 
+/* NAVBAR */
 .navbar{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:#fff;border-bottom:1px solid #ddd;}
-.logo{font-size:28px;font-weight:bold;color:#e60023;}
-.nav-center{display:flex;gap:40px;}
+.logo{font-size:28px;font-weight:700;color:#e60023;}
+.nav-center{display:flex;gap:40px;font-weight:500;}
 .nav-right{display:flex;gap:20px;align-items:center;}
-.register{background:#1a5cff;color:#fff;padding:10px 25px;border-radius:25px;border:none;}
-.login{color:#1a5cff;}
+.register{background:#1a5cff;color:#fff;padding:10px 25px;border-radius:25px;border:none;font-weight:600;}
+.login{color:#1a5cff;font-weight:500;}
 
 /* HERO */
 .hero{position:relative;height:520px;display:flex;align-items:center;color:#fff;overflow:hidden;}
 .hero::before{content:"";position:absolute;inset:0;background:url('/images/mt4-main.png') center/cover no-repeat;z-index:1;}
-.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to right,black 50%,transparent 85%);z-index:2;}
-.hero-left{position:relative;z-index:3;padding:0 60px;max-width:600px;}
-.hero-left h1{font-size:70px;margin-bottom:20px;}
-.hero-left p{font-size:22px;color:#ccc;}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to right,black 55%,transparent 90%);z-index:2;}
+.hero-left{position:relative;z-index:3;padding:0 60px;max-width:650px;}
+.hero-left h1{font-size:72px;font-weight:700;line-height:1.05;margin-bottom:18px;}
+.hero-left p{font-size:20px;font-weight:400;color:#ccc;line-height:1.5;}
 
 /* INFO */
-.info-section{display:flex;padding:80px 60px;background:#e9edf2;}
-.info-left{flex:1;font-size:40px;font-weight:bold;}
-.info-divider{width:2px;background:black;margin:0 40px;}
-.info-right{flex:1;font-size:18px;color:#333;}
+.info-section{display:flex;padding:90px 60px;background:#e9edf2;}
+.info-left{flex:1;font-size:42px;font-weight:700;line-height:1.2;}
+.info-divider{width:2px;background:black;margin:0 50px;}
+.info-right{flex:1;font-size:16px;color:#333;line-height:1.6;max-width:520px;}
 
 /* MT4 */
-.mt4-section{position:relative;padding:120px 0;background:#f4f6f9;display:flex;justify-content:center;}
-.mt4-container{position:relative;width:700px;margin:auto;}
-.mt4-overlay{display:block;width:100%;border-radius:6px;box-shadow:0 25px 50px rgba(0,0,0,0.35);}
-.mt4-left-top,.mt4-left-bottom,.mt4-right-top,.mt4-right-bottom{
-position:absolute;width:220px;font-size:15px;border-left:2px solid #ccc;padding-left:15px;
-}
-.mt4-left-top{left:-260px;top:20px;}
-.mt4-left-bottom{left:-260px;bottom:20px;}
-.mt4-right-top{right:-260px;top:20px;}
-.mt4-right-bottom{right:-260px;bottom:20px;}
+.mt4-section{position:relative;padding:140px 0;background:#f4f6f9;display:flex;justify-content:center;}
+.mt4-container{position:relative;width:720px;margin:auto;}
+.mt4-overlay{display:block;width:100%;border-radius:6px;box-shadow:0 30px 60px rgba(0,0,0,0.35);}
 
-/* ===== FEATURES FIX (EXACT LIKE IMAGE) ===== */
+.mt4-left-top,.mt4-left-bottom,.mt4-right-top,.mt4-right-bottom{
+position:absolute;width:230px;font-size:14px;color:#444;border-left:2px solid #d0d0d0;padding-left:15px;line-height:1.6;
+}
+.mt4-left-top{left:-270px;top:30px;}
+.mt4-left-bottom{left:-270px;bottom:30px;}
+.mt4-right-top{right:-270px;top:30px;}
+.mt4-right-bottom{right:-270px;bottom:30px;}
+
+/* ===== PERFECT FEATURES ===== */
 .features{
 display:flex;
 justify-content:space-between;
 max-width:1200px;
-margin:100px auto 40px;
+margin:120px auto 40px;
 padding:0 40px;
-background:none;
 }
 
 .feature{
 display:flex;
 align-items:flex-start;
-gap:18px;
+gap:22px;
 width:23%;
 }
 
 /* SLANTED LINE */
 .feature-line{
 width:6px;
-height:70px;
+height:78px;
 background:#1a5cff;
 transform:skewX(-20deg);
-margin-top:6px;
+margin-top:8px;
 }
 
 /* NUMBER */
 .feature-number{
-font-size:42px;
-font-weight:bold;
+font-size:46px;
+font-weight:700;
+letter-spacing:-1px;
+line-height:1;
 margin-bottom:6px;
 }
 
 /* TEXT */
 .feature-text{
-font-size:15px;
-color:#333;
-line-height:1.4;
+font-size:14px;
+font-weight:400;
+color:#444;
+line-height:1.55;
+max-width:160px;
 }
 
 /* BUTTONS */
-.downloads{display:flex;justify-content:center;gap:30px;margin:40px 0;}
-.download-btn{background:#1a5cff;color:#fff;padding:15px 30px;border-radius:30px;}
+.downloads{display:flex;justify-content:center;gap:30px;margin:60px 0;}
+.download-btn{background:#1a5cff;color:#fff;padding:16px 34px;border-radius:30px;font-weight:600;}
 
-.trading-central{text-align:center;padding:80px 20px;background:#f4f6f9;}
-.trading-central h2{font-size:28px;margin:20px 0;}
-.trading-central p{max-width:700px;margin:auto;color:#555;}
-.tc-btn{margin-top:20px;display:inline-block;padding:12px 25px;border:2px solid #1a5cff;border-radius:25px;color:#1a5cff;}
+.trading-central{text-align:center;padding:100px 20px;background:#f4f6f9;}
+.trading-central h2{font-size:28px;font-weight:600;margin:20px 0;}
+.trading-central p{max-width:650px;margin:auto;color:#555;line-height:1.6;}
+.tc-btn{margin-top:25px;display:inline-block;padding:13px 28px;border:2px solid #1a5cff;border-radius:25px;color:#1a5cff;font-weight:500;}
 
-.cards{display:flex;gap:40px;padding:80px 60px;}
+.cards{display:flex;gap:40px;padding:100px 60px;}
 .card{flex:1;background:#fff;padding:30px;border:1px solid #ddd;}
+.card h3{font-weight:600;margin-bottom:10px;}
+.card p{color:#555;font-size:14px;}
 .card img{width:100%;margin-top:20px;}
 
-.footer{padding:40px;text-align:center;background:#111;color:#aaa;}
+.footer{padding:40px;text-align:center;background:#111;color:#aaa;font-size:13px;}
+
 </style>
 </head>
 
@@ -135,7 +147,6 @@ line-height:1.4;
 </div>
 </section>
 
-<!-- FIXED FEATURES -->
 <section class="features">
 
 <div class="feature">

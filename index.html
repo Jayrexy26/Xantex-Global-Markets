@@ -3,94 +3,85 @@
 <head>
 <title>Xantex Global Markets</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',Arial;}
 body{background:#f4f6f9;color:#111;}
 
-/* NAVBAR */
 .navbar{display:flex;justify-content:space-between;align-items:center;padding:20px 60px;background:#fff;border-bottom:1px solid #ddd;}
 .logo{font-size:28px;font-weight:700;color:#e60023;}
-.nav-center{display:flex;gap:40px;font-weight:500;}
+.nav-center{display:flex;gap:40px;}
 .nav-right{display:flex;gap:20px;align-items:center;}
-.register{background:#1a5cff;color:#fff;padding:10px 25px;border-radius:25px;border:none;font-weight:600;}
-.login{color:#1a5cff;font-weight:500;}
+.register{background:#1a5cff;color:#fff;padding:10px 25px;border-radius:25px;border:none;}
+.login{color:#1a5cff;}
 
-/* HERO */
 .hero{position:relative;height:520px;display:flex;align-items:center;color:#fff;overflow:hidden;}
-.hero::before{content:"";position:absolute;inset:0;background:url('/images/mt4-main.png') center/cover no-repeat;z-index:1;}
-.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to right,black 55%,transparent 90%);z-index:2;}
-.hero-left{position:relative;z-index:3;padding:0 60px;max-width:650px;}
-.hero-left h1{font-size:72px;font-weight:700;line-height:1.05;margin-bottom:18px;}
+.hero::before{content:"";position:absolute;inset:0;background:url('/images/mt4-main.png') center/cover no-repeat;}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to right,black 55%,transparent 90%);}
+.hero-left{position:relative;z-index:2;padding:0 60px;}
+.hero-left h1{font-size:72px;}
 .hero-left p{font-size:20px;color:#ccc;}
 
-/* INFO */
 .info-section{display:flex;padding:90px 60px;background:#e9edf2;}
 .info-left{flex:1;font-size:42px;font-weight:700;}
 .info-divider{width:2px;background:black;margin:0 50px;}
-.info-right{flex:1;font-size:16px;color:#333;}
+.info-right{flex:1;font-size:16px;}
 
-/* MT4 */
-.mt4-section{position:relative;padding:140px 0;background:#f4f6f9;display:flex;justify-content:center;}
-.mt4-container{position:relative;width:720px;margin:auto;}
-.mt4-overlay{width:100%;border-radius:6px;box-shadow:0 30px 60px rgba(0,0,0,0.35);}
+.mt4-section{padding:140px 0;display:flex;justify-content:center;}
+.mt4-container{width:720px;}
+.mt4-overlay{width:100%;box-shadow:0 30px 60px rgba(0,0,0,0.35);}
 
 /* FEATURES */
-.features{display:flex;justify-content:space-between;max-width:1200px;margin:120px auto 40px;padding:0 40px;}
+.features{display:flex;justify-content:space-between;max-width:1200px;margin:120px auto;padding:0 40px;}
 .feature{display:flex;gap:22px;width:23%;}
 .feature-line{width:6px;height:78px;background:#1a5cff;transform:skewX(-20deg);}
 .feature-number{font-size:46px;font-weight:700;}
 .feature-text{font-size:14px;color:#444;}
 
-/* TRADING CENTRAL (NEW EXACT) */
-.trading-central{
-text-align:center;
-padding:120px 20px 80px;
-background:#f4f6f9;
-}
-
-.tc-logo{
-width:120px;
-margin-bottom:25px;
-}
-
-.trading-central h2{
-font-size:30px;
-font-weight:600;
-margin-bottom:20px;
-}
-
-.trading-central p{
-max-width:650px;
-margin:auto;
-line-height:1.6;
-color:#555;
-font-size:15px;
-}
-
-.tc-btn{
-margin-top:30px;
-display:inline-block;
-padding:14px 30px;
-border:2px solid #1a5cff;
-border-radius:30px;
-color:#1a5cff;
-font-weight:500;
-}
-
-.tc-link{
-display:block;
-margin-top:20px;
-color:#1a5cff;
-font-size:14px;
-}
+/* TRADING CENTRAL */
+.trading-central{text-align:center;padding:120px 20px;}
+.tc-logo{width:120px;margin-bottom:25px;}
+.tc-btn{margin-top:30px;display:inline-block;padding:14px 30px;border:2px solid #1a5cff;border-radius:30px;color:#1a5cff;}
+.tc-link{display:block;margin-top:20px;color:#1a5cff;}
 
 /* CARDS */
 .cards{display:flex;gap:40px;padding:80px 60px;}
 .card{flex:1;background:#fff;padding:30px;border:1px solid #ddd;}
 .card img{width:100%;margin-top:20px;}
+
+/* VPS SECTION */
+.vps-section{
+display:flex;
+align-items:center;
+background:#eef1f5;
+padding:100px 60px;
+}
+
+.vps-left{
+flex:1;
+max-width:500px;
+}
+
+.vps-left h2{
+font-size:32px;
+margin-bottom:20px;
+}
+
+.vps-left p{
+font-size:16px;
+line-height:1.6;
+color:#555;
+}
+
+.vps-right{
+flex:1;
+}
+
+.vps-right img{
+width:100%;
+height:auto;
+}
 
 .footer{padding:40px;text-align:center;background:#111;color:#aaa;}
 </style>
@@ -137,13 +128,12 @@ font-size:14px;
 <div class="feature"><div class="feature-line"></div><div><div class="feature-number">1-click</div><div class="feature-text">trading & trade from charts</div></div></div>
 </section>
 
-<!-- NEW SECTION ADDED -->
 <section class="trading-central">
 <img src="/images/trading-central.png" class="tc-logo">
 <h2>MT4 Trading Central Tools</h2>
-<p>Level up your trading with an exclusive range of technical analysis indicators from Trading Central. Identify new trade opportunities, improve your entry/exit timings and get an instant viewpoint on Trading Central’s preferred direction.</p>
-<a href="#" class="tc-btn">Download Trading Central Plug-in</a>
-<a href="#" class="tc-link">Learn more about Trading Central services</a>
+<p>Level up your trading with an exclusive range of indicators.</p>
+<a class="tc-btn">Download Trading Central Plug-in</a>
+<a class="tc-link">Learn more about Trading Central services</a>
 </section>
 
 <section class="cards">
@@ -157,6 +147,18 @@ font-size:14px;
 <h3>MT4 Strategy Tester</h3>
 <p>Backtest and optimize strategies.</p>
 <img src="/images/strategy.png">
+</div>
+</section>
+
+<!-- VPS SECTION ADDED -->
+<section class="vps-section">
+<div class="vps-left">
+<h2>VPS Guide</h2>
+<p>Automate your MT4 trading strategies with the Xantex Virtual Private Server. Run EAs (Expert Advisors) 24/5 with no downtime and reduced latency.</p>
+</div>
+
+<div class="vps-right">
+<img src="/images/vps.png">
 </div>
 </section>
 

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Xantex Global Markets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f4f6f9;
+      color: #111;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #e60023;
+    }
+
+    .nav-center {
+      display: flex;
+      gap: 40px;
+      font-size: 16px;
+    }
+
+    .nav-center span {
+      cursor: pointer;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .register {
+      background: #1a5cff;
+      color: white;
+      padding: 10px 25px;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .login {
+      color: #1a5cff;
+      cursor: pointer;
+    }
+
+    /* HERO */
+    .hero {
+      background: black;
+      color: white;
+      display: flex;
+      height: 500px;
+    }
+
+    .hero-left {
+      flex: 1;
+      padding: 80px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero-dot {
+      width: 12px;
+      height: 12px;
+      background: red;
+      margin-bottom: 20px;
+    }
+
+    .hero-left h1 {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .hero-left p {
+      font-size: 22px;
+      color: #ccc;
+    }
+
+    .hero-right {
+      flex: 1;
+      background: url('/images/mt4-main.png') center/cover no-repeat;
+    }
+
+    /* INFO SECTION */
+    .info-section {
+      display: flex;
+      padding: 80px 60px;
+      background: #e9edf2;
+    }
+
+    .info-left {
+      flex: 1;
+      font-size: 40px;
+      font-weight: bold;
+      line-height: 1.3;
+    }
+
+    .info-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: red;
+      margin-left: 10px;
+    }
+
+    .info-divider {
+      width: 2px;
+      background: black;
+      margin: 0 40px;
+    }
+
+    .info-right {
+      flex: 1;
+      font-size: 18px;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* IMAGE STACK SECTION */
+    .image-section {
+      position: relative;
+      padding: 100px 0;
+      display: flex;
+      justify-content: center;
+      background: white;
+    }
+
+    .main-img {
+      width: 750px;
+      border-radius: 6px;
+    }
+
+    .overlay-img {
+      position: absolute;
+      bottom: 20px;
+      left: 30%;
+      width: 500px;
+      border-radius: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .side-text-left {
+      position: absolute;
+      left: 60px;
+      bottom: 0;
+      width: 220px;
+      font-size: 15px;
+      color: #333;
+    }
+
+    .side-text-right {
+      position: absolute;
+      right: 60px;
+      bottom: 0;
+      width: 220px;
+      font-size: 15px;
+      color: #333;
+    }
+
+    /* FOOTER */
+    .footer {
+      padding: 40px;
+      text-align: center;
+      background: #111;
+      color: #aaa;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="logo">Xantex</div>
+
+  <div class="nav-center">
+    <span>Markets ▼</span>
+    <span>Platforms ▼</span>
+    <span>Company ▼</span>
+  </div>
+
+  <div class="nav-right">
+    <button class="register">Register</button>
+    <span class="login">Login</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-dot"></div>
+    <h1>MetaTrader 4</h1>
+    <p>The industry classic, with everything a trader needs.</p>
+  </div>
+
+  <div class="hero-right"></div>
+</section>
+
+<!-- INFO -->
+<section class="info-section">
+  <div class="info-left">
+    Platform for Web, Mac OS,<br>
+    iOS, Android, Windows
+    <span class="info-dot"></span>
+  </div>
+
+  <div class="info-divider"></div>
+
+  <div class="info-right">
+    Used by millions of traders worldwide since 2005, MT4 is the most popular retail trading platform, chosen by experienced and novice traders alike.
+  </div>
+</section>
+
+<!-- IMAGE STACK -->
+<section class="image-section">
+
+  <img src="/images/mt4-main.png" class="main-img">
+
+  <img src="/images/mt4-overlay.png" class="overlay-img">
+
+  <div class="side-text-left">
+    Analyse markets in detail with powerful indicators
+  </div>
+
+  <div class="side-text-right">
+    Set price alerts & monitor market headlines
+  </div>
+
+</section>
+
+<!-- FOOTER -->
+<div class="footer">
+  © 2026 Xantex Global Markets
+</div>
+
+</body>
+</html>

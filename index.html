@@ -26,65 +26,33 @@ body{background:#f4f6f9;color:#111;}
 .info-divider{width:2px;background:black;margin:0 40px;}
 .info-right{flex:1;font-size:18px;color:#333;}
 
-.mt4-section{
-position:relative;
-padding:120px 0;
-background:#f4f6f9;
-display:flex;
-justify-content:center;
-}
+.mt4-section{position:relative;padding:120px 0;background:#f4f6f9;display:flex;justify-content:center;}
+.mt4-container{position:relative;width:700px;margin:auto;}
+.mt4-overlay{display:block;width:100%;border-radius:6px;box-shadow:0 25px 50px rgba(0,0,0,0.35);}
 
-.mt4-container{
-position:relative;
-width:700px;
-margin:auto;
+.mt4-left-top,.mt4-left-bottom,.mt4-right-top,.mt4-right-bottom{
+position:absolute;width:220px;font-size:15px;border-left:2px solid #ccc;padding-left:15px;
 }
+.mt4-left-top{left:-260px;top:20px;}
+.mt4-left-bottom{left:-260px;bottom:20px;}
+.mt4-right-top{right:-260px;top:20px;}
+.mt4-right-bottom{right:-260px;bottom:20px;}
 
-/* ONLY OVERLAY IMAGE */
-.mt4-overlay{
-display:block;
-width:100%;
-border-radius:6px;
-box-shadow:0 25px 50px rgba(0,0,0,0.35);
-}
+.features{display:flex;justify-content:center;gap:80px;padding:80px 60px;background:#e9edf2;text-align:center;}
+.feature{font-size:18px;}
+.feature strong{font-size:28px;display:block;margin-bottom:10px;}
 
-/* side text */
-.mt4-left-top{
-position:absolute;
-left:-260px;
-top:20px;
-width:220px;
-font-size:15px;
-border-left:2px solid #ccc;
-padding-left:15px;
-}
-.mt4-left-bottom{
-position:absolute;
-left:-260px;
-bottom:20px;
-width:220px;
-font-size:15px;
-border-left:2px solid #ccc;
-padding-left:15px;
-}
-.mt4-right-top{
-position:absolute;
-right:-260px;
-top:20px;
-width:220px;
-font-size:15px;
-border-left:2px solid #ccc;
-padding-left:15px;
-}
-.mt4-right-bottom{
-position:absolute;
-right:-260px;
-bottom:20px;
-width:220px;
-font-size:15px;
-border-left:2px solid #ccc;
-padding-left:15px;
-}
+.downloads{display:flex;justify-content:center;gap:30px;margin:40px 0;}
+.download-btn{background:#1a5cff;color:#fff;padding:15px 30px;border-radius:30px;}
+
+.trading-central{text-align:center;padding:80px 20px;background:#f4f6f9;}
+.trading-central h2{font-size:28px;margin:20px 0;}
+.trading-central p{max-width:700px;margin:auto;color:#555;}
+.tc-btn{margin-top:20px;display:inline-block;padding:12px 25px;border:2px solid #1a5cff;border-radius:25px;color:#1a5cff;}
+
+.cards{display:flex;gap:40px;padding:80px 60px;}
+.card{flex:1;background:#fff;padding:30px;border:1px solid #ddd;}
+.card img{width:100%;margin-top:20px;}
 
 .footer{padding:40px;text-align:center;background:#111;color:#aaa;}
 </style>
@@ -113,25 +81,50 @@ padding-left:15px;
 </section>
 
 <section class="info-section">
-<div class="info-left">
-Platform for Web, Mac OS,<br>iOS, Android, Windows
-</div>
+<div class="info-left">Platform for Web, Mac OS,<br>iOS, Android, Windows</div>
 <div class="info-divider"></div>
-<div class="info-right">
-Used by millions of traders worldwide since 2005.
-</div>
+<div class="info-right">Used by millions of traders worldwide since 2005.</div>
 </section>
 
 <section class="mt4-section">
 <div class="mt4-container">
-
 <img src="/images/mt4-overlay.png" class="mt4-overlay">
-
 <div class="mt4-left-top">Analyse markets in detail with powerful technical indicators</div>
 <div class="mt4-left-bottom">Trade with familiarity on a platform used by millions</div>
 <div class="mt4-right-top">Set Price Alerts & monitor market news headlines</div>
 <div class="mt4-right-bottom">Choose from a range of MT4 account types</div>
+</div>
+</section>
 
+<section class="features">
+<div class="feature"><strong>50+</strong>preinstalled indicators</div>
+<div class="feature"><strong>24</strong>analytical tools</div>
+<div class="feature"><strong>3</strong>chart types</div>
+<div class="feature"><strong>1-click</strong>trading</div>
+</section>
+
+<div class="downloads">
+<div class="download-btn">Download MT4 for Windows</div>
+<div class="download-btn">Download MT4 for Mac</div>
+</div>
+
+<section class="trading-central">
+<h2>MT4 Trading Central Tools</h2>
+<p>Level up your trading with an exclusive range of indicators.</p>
+<div class="tc-btn">Download Trading Central Plug-in</div>
+</section>
+
+<section class="cards">
+<div class="card">
+<h3>MetaEditor</h3>
+<p>Create and modify custom indicators.</p>
+<img src="/images/metaeditor.png">
+</div>
+
+<div class="card">
+<h3>MT4 Strategy Tester</h3>
+<p>Backtest and optimize strategies.</p>
+<img src="/images/strategy.png">
 </div>
 </section>
 

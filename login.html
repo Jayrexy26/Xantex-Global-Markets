@@ -1,1 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL = "https://ywnpzjjpighjhhqoxtsj.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3bnB6ampwaWdoamhocW94dHNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1Mjc4OTUsImV4cCI6MjA5MzEwMzg5NX0.lfeKjFfNsCoy1UaQ0ASIUD08fUq8mhY-1gbMPzrjYDE";
+
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
+</head>
+
+<body>
+
+<h1>Login</h1>
+
+<input id="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
+
+<button onclick="login()">Login</button>
+
+<script>
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { error } = await client.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  // wait briefly to ensure session is saved
+  setTimeout(() => {
+    window.location.href = "dashboard.html";
+  }, 500);
+}
+</script>
+
+</body>
+</html>

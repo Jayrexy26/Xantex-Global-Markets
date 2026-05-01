@@ -8,7 +8,6 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',Arial;}
-
 body{background:#f4f6f9;color:#111;}
 
 /* NAVBAR */
@@ -25,87 +24,75 @@ body{background:#f4f6f9;color:#111;}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to right,black 55%,transparent 90%);z-index:2;}
 .hero-left{position:relative;z-index:3;padding:0 60px;max-width:650px;}
 .hero-left h1{font-size:72px;font-weight:700;line-height:1.05;margin-bottom:18px;}
-.hero-left p{font-size:20px;font-weight:400;color:#ccc;line-height:1.5;}
+.hero-left p{font-size:20px;color:#ccc;}
 
 /* INFO */
 .info-section{display:flex;padding:90px 60px;background:#e9edf2;}
-.info-left{flex:1;font-size:42px;font-weight:700;line-height:1.2;}
+.info-left{flex:1;font-size:42px;font-weight:700;}
 .info-divider{width:2px;background:black;margin:0 50px;}
-.info-right{flex:1;font-size:16px;color:#333;line-height:1.6;max-width:520px;}
+.info-right{flex:1;font-size:16px;color:#333;}
 
 /* MT4 */
 .mt4-section{position:relative;padding:140px 0;background:#f4f6f9;display:flex;justify-content:center;}
 .mt4-container{position:relative;width:720px;margin:auto;}
-.mt4-overlay{display:block;width:100%;border-radius:6px;box-shadow:0 30px 60px rgba(0,0,0,0.35);}
+.mt4-overlay{width:100%;border-radius:6px;box-shadow:0 30px 60px rgba(0,0,0,0.35);}
 
-.mt4-left-top,.mt4-left-bottom,.mt4-right-top,.mt4-right-bottom{
-position:absolute;width:230px;font-size:14px;color:#444;border-left:2px solid #d0d0d0;padding-left:15px;line-height:1.6;
-}
-.mt4-left-top{left:-270px;top:30px;}
-.mt4-left-bottom{left:-270px;bottom:30px;}
-.mt4-right-top{right:-270px;top:30px;}
-.mt4-right-bottom{right:-270px;bottom:30px;}
+/* FEATURES */
+.features{display:flex;justify-content:space-between;max-width:1200px;margin:120px auto 40px;padding:0 40px;}
+.feature{display:flex;gap:22px;width:23%;}
+.feature-line{width:6px;height:78px;background:#1a5cff;transform:skewX(-20deg);}
+.feature-number{font-size:46px;font-weight:700;}
+.feature-text{font-size:14px;color:#444;}
 
-/* ===== PERFECT FEATURES ===== */
-.features{
-display:flex;
-justify-content:space-between;
-max-width:1200px;
-margin:120px auto 40px;
-padding:0 40px;
+/* TRADING CENTRAL (NEW EXACT) */
+.trading-central{
+text-align:center;
+padding:120px 20px 80px;
+background:#f4f6f9;
 }
 
-.feature{
-display:flex;
-align-items:flex-start;
-gap:22px;
-width:23%;
+.tc-logo{
+width:120px;
+margin-bottom:25px;
 }
 
-/* SLANTED LINE */
-.feature-line{
-width:6px;
-height:78px;
-background:#1a5cff;
-transform:skewX(-20deg);
-margin-top:8px;
+.trading-central h2{
+font-size:30px;
+font-weight:600;
+margin-bottom:20px;
 }
 
-/* NUMBER */
-.feature-number{
-font-size:46px;
-font-weight:700;
-letter-spacing:-1px;
-line-height:1;
-margin-bottom:6px;
+.trading-central p{
+max-width:650px;
+margin:auto;
+line-height:1.6;
+color:#555;
+font-size:15px;
 }
 
-/* TEXT */
-.feature-text{
+.tc-btn{
+margin-top:30px;
+display:inline-block;
+padding:14px 30px;
+border:2px solid #1a5cff;
+border-radius:30px;
+color:#1a5cff;
+font-weight:500;
+}
+
+.tc-link{
+display:block;
+margin-top:20px;
+color:#1a5cff;
 font-size:14px;
-font-weight:400;
-color:#444;
-line-height:1.55;
-max-width:160px;
 }
 
-/* BUTTONS */
-.downloads{display:flex;justify-content:center;gap:30px;margin:60px 0;}
-.download-btn{background:#1a5cff;color:#fff;padding:16px 34px;border-radius:30px;font-weight:600;}
-
-.trading-central{text-align:center;padding:100px 20px;background:#f4f6f9;}
-.trading-central h2{font-size:28px;font-weight:600;margin:20px 0;}
-.trading-central p{max-width:650px;margin:auto;color:#555;line-height:1.6;}
-.tc-btn{margin-top:25px;display:inline-block;padding:13px 28px;border:2px solid #1a5cff;border-radius:25px;color:#1a5cff;font-weight:500;}
-
-.cards{display:flex;gap:40px;padding:100px 60px;}
+/* CARDS */
+.cards{display:flex;gap:40px;padding:80px 60px;}
 .card{flex:1;background:#fff;padding:30px;border:1px solid #ddd;}
-.card h3{font-weight:600;margin-bottom:10px;}
-.card p{color:#555;font-size:14px;}
 .card img{width:100%;margin-top:20px;}
 
-.footer{padding:40px;text-align:center;background:#111;color:#aaa;font-size:13px;}
-
+.footer{padding:40px;text-align:center;background:#111;color:#aaa;}
 </style>
 </head>
 
@@ -140,58 +127,23 @@ max-width:160px;
 <section class="mt4-section">
 <div class="mt4-container">
 <img src="/images/mt4-overlay.png" class="mt4-overlay">
-<div class="mt4-left-top">Analyse markets in detail with powerful technical indicators</div>
-<div class="mt4-left-bottom">Trade with familiarity on a platform used by millions</div>
-<div class="mt4-right-top">Set Price Alerts & monitor market news headlines</div>
-<div class="mt4-right-bottom">Choose from a range of MT4 account types</div>
 </div>
 </section>
 
 <section class="features">
-
-<div class="feature">
-<div class="feature-line"></div>
-<div>
-<div class="feature-number">50+</div>
-<div class="feature-text">preinstalled technical indicators</div>
-</div>
-</div>
-
-<div class="feature">
-<div class="feature-line"></div>
-<div>
-<div class="feature-number">24</div>
-<div class="feature-text">analytical charting tools</div>
-</div>
-</div>
-
-<div class="feature">
-<div class="feature-line"></div>
-<div>
-<div class="feature-number">3</div>
-<div class="feature-text">chart types & 9 time-frames</div>
-</div>
-</div>
-
-<div class="feature">
-<div class="feature-line"></div>
-<div>
-<div class="feature-number">1-click</div>
-<div class="feature-text">trading & trade from charts</div>
-</div>
-</div>
-
+<div class="feature"><div class="feature-line"></div><div><div class="feature-number">50+</div><div class="feature-text">preinstalled technical indicators</div></div></div>
+<div class="feature"><div class="feature-line"></div><div><div class="feature-number">24</div><div class="feature-text">analytical charting tools</div></div></div>
+<div class="feature"><div class="feature-line"></div><div><div class="feature-number">3</div><div class="feature-text">chart types & 9 time-frames</div></div></div>
+<div class="feature"><div class="feature-line"></div><div><div class="feature-number">1-click</div><div class="feature-text">trading & trade from charts</div></div></div>
 </section>
 
-<div class="downloads">
-<div class="download-btn">Download MT4 for Windows</div>
-<div class="download-btn">Download MT4 for Mac</div>
-</div>
-
+<!-- NEW SECTION ADDED -->
 <section class="trading-central">
+<img src="/images/trading-central.png" class="tc-logo">
 <h2>MT4 Trading Central Tools</h2>
-<p>Level up your trading with an exclusive range of indicators.</p>
-<div class="tc-btn">Download Trading Central Plug-in</div>
+<p>Level up your trading with an exclusive range of technical analysis indicators from Trading Central. Identify new trade opportunities, improve your entry/exit timings and get an instant viewpoint on Trading Central’s preferred direction.</p>
+<a href="#" class="tc-btn">Download Trading Central Plug-in</a>
+<a href="#" class="tc-link">Learn more about Trading Central services</a>
 </section>
 
 <section class="cards">

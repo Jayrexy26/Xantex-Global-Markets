@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Xantex Global Markets</title>
-  <meta name="viewport" content="width=device-width, initial-scale=a1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     * {
@@ -63,7 +63,7 @@
       cursor: pointer;
     }
 
-    /* HERO (FIXED) */
+    /* HERO */
     .hero {
       position: relative;
       height: 520px;
@@ -148,45 +148,77 @@
       line-height: 1.6;
     }
 
-    /* IMAGE STACK SECTION */
-    .image-section {
+    /* NEW MT4 IMAGE SECTION (LIKE FXPRO) */
+    .mt4-section {
       position: relative;
-      padding: 100px 0;
+      padding: 120px 0;
+      background: #f4f6f9;
       display: flex;
       justify-content: center;
-      background: white;
     }
 
-    .main-img {
-      width: 750px;
+    .mt4-container {
+      position: relative;
+      width: 900px;
+    }
+
+    .mt4-main {
+      width: 100%;
       border-radius: 6px;
     }
 
-    .overlay-img {
+    .mt4-overlay {
       position: absolute;
-      bottom: 20px;
-      left: 30%;
-      width: 500px;
+      top: 40px;
+      left: 120px;
+      width: 80%;
       border-radius: 6px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     }
 
-    .side-text-left {
+    /* SIDE TEXTS */
+    .mt4-left-top {
       position: absolute;
-      left: 60px;
-      bottom: 0;
+      left: -260px;
+      top: 60px;
       width: 220px;
       font-size: 15px;
       color: #333;
+      border-left: 2px solid #ccc;
+      padding-left: 15px;
     }
 
-    .side-text-right {
+    .mt4-left-bottom {
       position: absolute;
-      right: 60px;
-      bottom: 0;
+      left: -260px;
+      bottom: 60px;
       width: 220px;
       font-size: 15px;
       color: #333;
+      border-left: 2px solid #ccc;
+      padding-left: 15px;
+    }
+
+    .mt4-right-top {
+      position: absolute;
+      right: -260px;
+      top: 60px;
+      width: 220px;
+      font-size: 15px;
+      color: #333;
+      border-left: 2px solid #ccc;
+      padding-left: 15px;
+    }
+
+    .mt4-right-bottom {
+      position: absolute;
+      right: -260px;
+      bottom: 60px;
+      width: 220px;
+      font-size: 15px;
+      color: #333;
+      border-left: 2px solid #ccc;
+      padding-left: 15px;
     }
 
     /* FOOTER */
@@ -242,19 +274,32 @@
   </div>
 </section>
 
-<!-- IMAGE STACK -->
-<section class="image-section">
+<!-- MT4 IMAGE STACK (NEW) -->
+<section class="mt4-section">
 
-  <img src="/images/mt4-main.png" class="main-img">
+  <div class="mt4-container">
 
-  <img src="/images/mt4-overlay.png" class="overlay-img">
+    <!-- YOUR IMAGES -->
+    <img src="/images/mt4-main.png" class="mt4-main">
+    <img src="/images/mt4-overlay.png" class="mt4-overlay">
 
-  <div class="side-text-left">
-    Analyse markets in detail with powerful indicators
-  </div>
+    <!-- TEXTS -->
+    <div class="mt4-left-top">
+      Analyse markets in detail with powerful technical indicators
+    </div>
 
-  <div class="side-text-right">
-    Set price alerts & monitor market headlines
+    <div class="mt4-left-bottom">
+      Trade with familiarity on a platform used by millions
+    </div>
+
+    <div class="mt4-right-top">
+      Set Price Alerts & monitor market news headlines
+    </div>
+
+    <div class="mt4-right-bottom">
+      Choose from a range of MT4 account types
+    </div>
+
   </div>
 
 </section>

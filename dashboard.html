@@ -513,6 +513,54 @@
       .summary-cards { grid-template-columns: 1fr; }
       .quick-actions { grid-template-columns: repeat(2,1fr); }
     }
+    /* ============================================================
+       DARK MODE
+    ============================================================ */
+    body.dark {
+      --bg:       #0f1117;
+      --white:    #1a1d27;
+      --text:     #e8eaf0;
+      --muted:    #8b90a0;
+      --border:   #2a2d3a;
+      --blue-lt:  #1a2444;
+      --green-lt: #0d2b1e;
+    }
+    body.dark .sidebar             { background: #080b13; }
+    body.dark .topbar,
+    body.dark .card,
+    body.dark .summary-card,
+    body.dark .modal,
+    body.dark .account-row,
+    body.dark .testimonial         { background: #1a1d27; }
+    body.dark .summary-card--blue  { background: var(--blue); }
+    body.dark .topbar__search input { background: #0f1117; color: var(--text); }
+    body.dark .account-row:hover,
+    body.dark tbody tr:hover        { background: #0f1117; }
+    body.dark .chart-bar            { background: rgba(26,92,255,0.25); }
+    body.dark .chart-bar.up         { background: rgba(34,160,107,0.25); }
+    body.dark .chart-bar.down       { background: rgba(230,0,35,0.2); }
+    body.dark .chart-bar:hover      { background: var(--blue); }
+    body.dark .chart-bar.up:hover   { background: var(--green); }
+    body.dark .chart-bar.down:hover { background: var(--red); }
+    body.dark .modal .field input,
+    body.dark .modal .field select  { background: #0f1117; color: var(--text); }
+    body.dark .quick-action         { background: #0f1117; }
+    body.dark .pos-type--buy        { background: rgba(34,160,107,0.18); }
+    body.dark .pos-type--sell       { background: rgba(230,0,35,0.18); }
+    body.dark .account-icon--mt4    { background: rgba(230,92,0,0.18); }
+    body.dark .account-icon--mt5    { background: #1a2444; }
+    body.dark .account-icon--ct     { background: rgba(142,36,170,0.18); }
+    body.dark .account-icon--tv     { background: rgba(46,125,50,0.18); }
+    body.dark .topbar__icon-btn     { background: #0f1117; }
+
+    .dark-toggle {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--bg); border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    .dark-toggle:hover { border-color: var(--blue); }
+    .dark-toggle svg { width: 16px; height: 16px; fill: none; stroke: var(--text); stroke-width: 2; }
   </style>
 </head>
 <body>
@@ -612,6 +660,9 @@
         <input type="text" placeholder="Search instruments…">
       </div>
       <div class="topbar__right">
+        <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">
+          <svg id="dark-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
         <button class="topbar__icon-btn" title="Notifications">
           <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <div class="topbar__notif-dot"></div>
@@ -1056,6 +1107,22 @@
 </div>
 
 <script>
+  // ── Dark mode ─────────────────────────────────────────────
+  const sunIcon  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+  const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+  function toggleDark() {
+    const isDark = document.body.classList.toggle('dark');
+    document.getElementById('dark-icon').innerHTML = isDark ? sunIcon : moonIcon;
+    localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
+  }
+  if (localStorage.getItem('xantex-theme') === 'dark') {
+    document.body.classList.add('dark');
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('dark-icon');
+      if (el) el.innerHTML = sunIcon;
+    });
+  }
+
   // ── Sidebar toggle (mobile) ───────────────────────────────
   function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');

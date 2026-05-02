@@ -363,6 +363,8 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
 <script>
   // ── Password toggle ───────────────────────────────────────
   const pwInput  = document.getElementById('password');
@@ -379,49 +381,52 @@
   });
 
   // ── Login handler ─────────────────────────────────────────
-  function handleLogin() {
-    const email    = document.getElementById('email');
-    const password = document.getElementById('password');
-    const alert    = document.getElementById('login-alert');
-    const btn      = document.getElementById('btn-login');
+  async function handleLogin() {
+    const emailEl = document.getElementById('email');
+    const pwEl    = document.getElementById('password');
+    const alertEl = document.getElementById('login-alert');
+    const btn     = document.getElementById('btn-login');
 
-    // Hide alert
-    alert.className = 'alert';
+    alertEl.className = 'alert';
 
-    // Validate
     let valid = true;
-    if (!email.value.trim() || !/\S+@\S+\.\S+/.test(email.value)) {
-      email.classList.add('error'); valid = false;
-    } else {
-      email.classList.remove('error');
-    }
-    if (!password.value.trim()) {
-      password.classList.add('error'); valid = false;
-    } else {
-      password.classList.remove('error');
-    }
+    if (!emailEl.value.trim() || !/\S+@\S+\.\S+/.test(emailEl.value)) {
+      emailEl.classList.add('error'); valid = false;
+    } else { emailEl.classList.remove('error'); }
+    if (!pwEl.value.trim()) {
+      pwEl.classList.add('error'); valid = false;
+    } else { pwEl.classList.remove('error'); }
     if (!valid) return;
 
-    // Loading state
     btn.classList.add('loading');
     btn.disabled = true;
 
-    // Simulate auth (replace with real API call)
-    setTimeout(() => {
-      btn.classList.remove('loading');
-      btn.disabled = false;
+    const db = window.XANTEX_DB;
+    const { error } = await db.auth.signInWithPassword({
+      email:    emailEl.value.trim(),
+      password: pwEl.value,
+    });
 
-      // Demo: any credentials pass — swap this logic for real auth
-      if (email.value && password.value.length >= 6) {
-        // Success → redirect to dashboard or index
-        window.location.href = 'dashboard.html';
-      } else {
-        alert.className = 'alert error';
-        document.getElementById('alert-msg').textContent = 'Invalid email or password. Please try again.';
-        password.classList.add('error');
-      }
-    }, 1400);
+    btn.classList.remove('loading');
+    btn.disabled = false;
+
+    if (error) {
+      alertEl.className = 'alert error';
+      document.getElementById('alert-msg').textContent =
+        error.message || 'Invalid email or password. Please try again.';
+      pwEl.classList.add('error');
+    } else {
+      window.location.href = 'dashboard.html';
+    }
   }
+
+  // ── Redirect if already logged in ─────────────────────────
+  (async () => {
+    const db = window.XANTEX_DB;
+    if (!db) return;
+    const { data: { session } } = await db.auth.getSession();
+    if (session) window.location.href = 'dashboard.html';
+  })();
 
   // ── Clear errors on input ─────────────────────────────────
   document.querySelectorAll('.field input').forEach(el => {

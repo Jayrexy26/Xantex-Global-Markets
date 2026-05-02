@@ -1542,5 +1542,453 @@
     if (badge) badge.textContent = Math.floor(Math.random() * 5) + 10;
   }, 8000);
 </script>
+
+<!-- ═══ Supabase integration ═══ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+/* ============================================================
+   OPS PANEL — SUPABASE DATA LAYER
+   All render functions below override their static-data
+   counterparts. Static data is rendered first as a fallback,
+   then replaced with live Supabase rows when available.
+============================================================ */
+
+// ── Helpers ──────────────────────────────────────────────────
+function fmtDate(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleString('en-GB', {
+    day:'2-digit', month:'short', year:'numeric',
+    hour:'2-digit', minute:'2-digit',
+  });
+}
+
+// ── Upgrade adminLogin to use Supabase Auth ──────────────────
+const _origAdminLogin = adminLogin;
+window.adminLogin = async function() {
+  const emailOrUser = document.getElementById('admin-user').value.trim();
+  const pass        = document.getElementById('admin-pass').value;
+  const db = window.XANTEX_DB;
+
+  if (db && emailOrUser.includes('@')) {
+    const { error } = await db.auth.signInWithPassword({ email: emailOrUser, password: pass });
+    if (!error) {
+      document.getElementById('login-gate').style.display = 'none';
+      document.getElementById('main-app').style.display   = 'flex';
+      renderAll();
+      return;
+    }
+  }
+  _origAdminLogin(); // fallback to hardcoded admin/admin123
+};
+
+// ── Users ─────────────────────────────────────────────────────
+async function _loadUsers() {
+  const db = window.XANTEX_DB;
+  if (!db) return null;
+  const [{ data: profiles }, { data: accounts }] = await Promise.all([
+    db.from('profiles').select('id, first_name, last_name, email, country, kyc_status, status, created_at').order('created_at', { ascending: false }),
+    db.from('trading_accounts').select('user_id, balance, type'),
+  ]);
+  if (!profiles?.length) return null;
+  const COLORS = ['#1a5cff','#22a06b','#7c3aed','#f5a623','#e60023'];
+  return profiles.map((p, i) => {
+    const accs  = accounts?.filter(a => a.user_id === p.id) || [];
+    const total = accs.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
+    const live  = accs.some(a => a.type?.toLowerCase().includes('live'));
+    return {
+      id:      p.id,
+      name:    `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.email,
+      email:   p.email,
+      country: p.country || '—',
+      type:    live ? 'Live' : 'Demo',
+      balance: '$' + total.toLocaleString('en-US', { minimumFractionDigits: 2 }),
+      joined:  new Date(p.created_at).toLocaleDateString('en-GB'),
+      status:  p.status || 'active',
+      kyc:     p.kyc_status || 'pending',
+      color:   COLORS[i % COLORS.length],
+    };
+  });
+}
+
+async function renderUsersLive() {
+  renderRecentUsers(); renderUsers(); // static first
+  const users = await _loadUsers();
+  if (!users) return;
+  USERS.splice(0, USERS.length, ...users);
+  renderRecentUsers(); renderUsers();
+}
+window.renderUsersLive = renderUsersLive;
+
+// ── KYC ───────────────────────────────────────────────────────
+async function renderKYCLive() {
+  renderKYC();
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('kyc_submissions')
+    .select('id, document_type, submitted_at, status, profiles(first_name, last_name)')
+    .order('submitted_at', { ascending: false });
+  if (!data?.length) return;
+  document.getElementById('kyc-tbody').innerHTML = data.map(k => {
+    const name = k.profiles ? `${k.profiles.first_name} ${k.profiles.last_name}` : '—';
+    return `<tr>
+      <td><div class="user-name">${name}</div></td>
+      <td>${k.document_type || '—'}</td>
+      <td>${fmtDate(k.submitted_at)}</td>
+      <td><span class="badge-pill ${k.status==='pending'?'pill-orange':k.status==='verified'?'pill-green':'pill-red'}">${k.status}</span></td>
+      <td><div class="row-actions">
+        <button class="btn btn--sm btn--green" onclick="opsApproveKYC('${k.id}')">Approve</button>
+        <button class="btn btn--sm btn--red"   onclick="opsRejectKYC('${k.id}')">Reject</button>
+        <button class="btn btn--sm btn--outline">View Docs</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+window.renderKYCLive = renderKYCLive;
+window.opsApproveKYC = async id => {
+  await window.XANTEX_DB.from('kyc_submissions').update({ status:'verified' }).eq('id', id);
+  showToast('KYC approved','success'); renderKYCLive();
+};
+window.opsRejectKYC = async id => {
+  await window.XANTEX_DB.from('kyc_submissions').update({ status:'rejected' }).eq('id', id);
+  showToast('KYC rejected','error'); renderKYCLive();
+};
+
+// ── Trading Accounts ──────────────────────────────────────────
+async function renderAccountsLive() {
+  renderAccounts();
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('trading_accounts')
+    .select('*, profiles(first_name, last_name)')
+    .order('created_at', { ascending: false });
+  if (!data?.length) return;
+  document.getElementById('accounts-tbody').innerHTML = data.map(a => {
+    const name = a.profiles ? `${a.profiles.first_name} ${a.profiles.last_name}` : '—';
+    const bal  = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    const live = a.type?.toLowerCase().includes('live');
+    return `<tr>
+      <td style="font-weight:600;">#${a.account_number || a.id.slice(0,8)}</td>
+      <td>${name}</td>
+      <td><span class="badge-pill pill-blue">${a.platform || '—'}</span></td>
+      <td><span class="badge-pill ${live?'pill-green':'pill-blue'}">${live?'Live':'Demo'}</span></td>
+      <td style="font-weight:600;">$${bal}</td>
+      <td>$${bal}</td>
+      <td>${a.leverage || '1:200'}</td>
+      <td><span class="badge-pill pill-green">active</span></td>
+      <td><div class="row-actions">
+        <button class="btn btn--sm btn--outline" onclick="showPage('balances',null)">Adjust</button>
+        <button class="btn btn--sm btn--red" onclick="opsSuspendAccount('${a.id}')">Suspend</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+window.renderAccountsLive = renderAccountsLive;
+window.opsSuspendAccount = async id => {
+  await window.XANTEX_DB.from('trading_accounts').update({ status:'suspended' }).eq('id', id);
+  showToast('Account suspended','error'); renderAccountsLive();
+};
+
+// ── Positions ─────────────────────────────────────────────────
+async function renderPositionsLive() {
+  renderPositions();
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('positions')
+    .select('*, profiles(first_name, last_name)')
+    .eq('status','open').order('opened_at', { ascending: false });
+  if (!data?.length) return;
+  document.getElementById('positions-tbody').innerHTML = data.map(p => {
+    const pnl  = parseFloat(p.floating_pnl || 0);
+    const up   = pnl >= 0;
+    const name = p.profiles ? `${p.profiles.first_name} ${p.profiles.last_name}` : '—';
+    return `<tr>
+      <td style="font-weight:600;">#${p.id.slice(0,8)}</td>
+      <td>${name}</td>
+      <td>${p.account_number || '—'}</td>
+      <td style="font-weight:700;">${p.symbol}</td>
+      <td><span class="badge-pill ${p.direction==='buy'?'pill-green':'pill-red'}">${(p.direction||'').toUpperCase()}</span></td>
+      <td>${p.lots}</td>
+      <td>${p.open_price}</td>
+      <td>${p.current_price || p.open_price}</td>
+      <td style="color:var(--red);">${p.stop_loss || '—'}</td>
+      <td style="color:var(--green);">${p.take_profit || '—'}</td>
+      <td style="font-weight:700;color:${up?'var(--green)':'var(--red)'};">${up?'+':''}$${Math.abs(pnl).toFixed(2)}</td>
+      <td><button class="btn btn--sm btn--red" onclick="opsForceClose('${p.id}')">Force Close</button></td>
+    </tr>`;
+  }).join('');
+}
+window.renderPositionsLive = renderPositionsLive;
+window.opsForceClose = async id => {
+  if (!confirm('Force close this position?')) return;
+  await window.XANTEX_DB.from('positions').update({ status:'closed' }).eq('id', id);
+  showToast('Position closed','success'); renderPositionsLive();
+};
+
+// ── Deposits ──────────────────────────────────────────────────
+async function renderDepositsLive() {
+  renderDeposits();
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('transactions')
+    .select('*, profiles(first_name, last_name)')
+    .eq('type','deposit').order('created_at', { ascending: false });
+  if (!data?.length) return;
+  document.getElementById('deposits-tbody').innerHTML = data.map(d => {
+    const name = d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name}` : '—';
+    const amt  = parseFloat(d.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    return `<tr>
+      <td style="font-weight:600;">${d.id.slice(0,8).toUpperCase()}</td>
+      <td>${name}</td>
+      <td style="font-weight:700;">$${amt}</td>
+      <td>${d.payment_method || '—'}</td>
+      <td style="font-size:12px;">${fmtDate(d.created_at)}</td>
+      <td><span class="badge-pill ${d.status==='approved'?'pill-green':d.status==='pending'?'pill-orange':'pill-red'}">${d.status}</span></td>
+      <td><div class="row-actions">
+        ${d.status==='pending'
+          ? `<button class="btn btn--sm btn--green" onclick="opsApproveDeposit('${d.id}')">Approve</button>
+             <button class="btn btn--sm btn--red" onclick="opsRejectDeposit('${d.id}')">Reject</button>`
+          : `<button class="btn btn--sm btn--outline">View</button>`}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+window.renderDepositsLive = renderDepositsLive;
+window.opsApproveDeposit = async id => {
+  await window.XANTEX_DB.from('transactions').update({ status:'approved' }).eq('id', id);
+  showToast('Deposit approved','success'); renderDepositsLive();
+};
+window.opsRejectDeposit = async id => {
+  await window.XANTEX_DB.from('transactions').update({ status:'rejected' }).eq('id', id);
+  showToast('Deposit rejected','error'); renderDepositsLive();
+};
+
+// ── Withdrawals ───────────────────────────────────────────────
+async function renderWithdrawalsLive() {
+  renderWithdrawals();
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('transactions')
+    .select('*, profiles(first_name, last_name)')
+    .eq('type','withdrawal').order('created_at', { ascending: false });
+  if (!data?.length) return;
+  document.getElementById('withdrawals-tbody').innerHTML = data.map(w => {
+    const name = w.profiles ? `${w.profiles.first_name} ${w.profiles.last_name}` : '—';
+    const amt  = parseFloat(w.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    return `<tr>
+      <td style="font-weight:600;">${w.id.slice(0,8).toUpperCase()}</td>
+      <td>${name}</td>
+      <td style="font-weight:700;">$${amt}</td>
+      <td style="font-size:12px;">${w.destination || '—'}</td>
+      <td style="font-size:12px;">${fmtDate(w.created_at)}</td>
+      <td><span class="badge-pill ${w.status==='approved'?'pill-green':w.status==='pending'?'pill-orange':'pill-red'}">${w.status}</span></td>
+      <td><div class="row-actions">
+        ${w.status==='pending'
+          ? `<button class="btn btn--sm btn--green" onclick="opsApproveWithdrawal('${w.id}')">Approve</button>
+             <button class="btn btn--sm btn--red" onclick="opsRejectWithdrawal('${w.id}')">Reject</button>`
+          : `<button class="btn btn--sm btn--outline">View</button>`}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+window.renderWithdrawalsLive = renderWithdrawalsLive;
+window.opsApproveWithdrawal = async id => {
+  await window.XANTEX_DB.from('transactions').update({ status:'approved' }).eq('id', id);
+  showToast('Withdrawal approved','success'); renderWithdrawalsLive();
+};
+window.opsRejectWithdrawal = async id => {
+  await window.XANTEX_DB.from('transactions').update({ status:'rejected' }).eq('id', id);
+  showToast('Withdrawal rejected','error'); renderWithdrawalsLive();
+};
+
+// ── All Transactions ──────────────────────────────────────────
+async function renderTransactionsLive() {
+  renderTransactions();
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('transactions')
+    .select('*, profiles(first_name, last_name)')
+    .order('created_at', { ascending: false })
+    .limit(100);
+  if (!data?.length) return;
+  document.getElementById('txn-tbody').innerHTML = data.map(t => {
+    const name = t.profiles ? `${t.profiles.first_name} ${t.profiles.last_name}` : '—';
+    const amt  = parseFloat(t.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    const dep  = t.type === 'deposit';
+    return `<tr>
+      <td style="font-weight:600;">${t.id.slice(0,8).toUpperCase()}</td>
+      <td>${name}</td>
+      <td><span class="badge-pill ${dep?'pill-green':'pill-orange'}">${t.type}</span></td>
+      <td style="font-weight:700;">$${amt}</td>
+      <td style="font-size:12px;">${t.account_id || '—'}</td>
+      <td style="font-size:12px;">${fmtDate(t.created_at)}</td>
+      <td><span class="badge-pill ${t.status==='approved'?'pill-green':t.status==='pending'?'pill-orange':'pill-red'}">${t.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+window.renderTransactionsLive = renderTransactionsLive;
+
+// ── Audit Log ─────────────────────────────────────────────────
+async function renderAuditLive() {
+  renderAudit();
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('audit_log')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (!data?.length) return;
+  document.getElementById('audit-tbody').innerHTML = data.map(a => `
+    <tr>
+      <td style="font-size:12px;">${fmtDate(a.created_at)}</td>
+      <td><span class="badge-pill pill-purple">${a.admin_email || 'Admin'}</span></td>
+      <td style="font-weight:600;">${a.action}</td>
+      <td style="font-size:12px;">${a.target || '—'}</td>
+      <td style="font-size:12px;color:var(--muted);">${a.details || '—'}</td>
+      <td style="font-size:11px;color:var(--muted);">${a.ip_address || '—'}</td>
+    </tr>`).join('');
+}
+window.renderAuditLive = renderAuditLive;
+
+// ── Announcements ─────────────────────────────────────────────
+async function renderAnnouncementsLive() {
+  renderAnnouncements();
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('announcements')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(20);
+  if (!data?.length) return;
+  document.getElementById('ann-list').innerHTML = data.map(a => `
+    <div style="border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div style="font-size:13px;font-weight:700;">${a.title}</div>
+        <span class="badge-pill ${a.type==='warning'?'pill-orange':a.type==='success'?'pill-green':'pill-blue'}">${a.type}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);">${a.body || ''}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;">
+        ${fmtDate(a.created_at)} ·
+        <span style="color:var(--red);cursor:pointer;" onclick="opsDeleteAnnouncement('${a.id}')">Delete</span>
+      </div>
+    </div>`).join('');
+}
+window.renderAnnouncementsLive = renderAnnouncementsLive;
+window.opsDeleteAnnouncement = async id => {
+  await window.XANTEX_DB.from('announcements').delete().eq('id', id);
+  showToast('Deleted','error'); renderAnnouncementsLive();
+};
+
+// ── Patch publishAnnouncement ─────────────────────────────────
+const _origPublishAnnouncement = publishAnnouncement;
+window.publishAnnouncement = async function() {
+  const title    = document.getElementById('ann-title').value.trim();
+  const body     = document.getElementById('ann-body').value.trim();
+  const type     = document.getElementById('ann-type').value.toLowerCase();
+  const audience = document.getElementById('ann-audience').value;
+  const schedule = document.getElementById('ann-schedule').value;
+  if (!title) { showToast('Please enter a title','error'); return; }
+  const db = window.XANTEX_DB;
+  if (db) {
+    await db.from('announcements').insert({
+      title, body, type, audience,
+      scheduled_at: schedule || null,
+      published: !schedule,
+    });
+  }
+  showToast('Announcement published','success');
+  renderAnnouncementsLive();
+};
+
+// ── Patch applyAdjustment ─────────────────────────────────────
+const _origApplyAdjustment = applyAdjustment;
+window.applyAdjustment = async function() {
+  const accId   = document.getElementById('adj-account').value;
+  const adjType = document.getElementById('adj-type').value;
+  const amount  = parseFloat(document.getElementById('adj-amount').value);
+  const reason  = document.getElementById('adj-reason').value.trim();
+  if (!accId || !amount || !reason) { showToast('Please fill all required fields','error'); return; }
+  const db = window.XANTEX_DB;
+  if (!db) { showToast('Balance adjusted (offline)','success'); return; }
+
+  const { data: acc } = await db.from('trading_accounts').select('balance, user_id').eq('id', accId).single();
+  if (!acc) { showToast('Account not found','error'); return; }
+
+  const before = parseFloat(acc.balance || 0);
+  let after = before;
+  if (adjType.startsWith('Credit') || adjType.startsWith('Bonus')) after = before + amount;
+  else if (adjType.startsWith('Debit'))  after = Math.max(0, before - amount);
+  else if (adjType.startsWith('Set'))    after = amount;
+
+  const { error } = await db.from('trading_accounts').update({ balance: after }).eq('id', accId);
+  if (error) { showToast('Error: ' + error.message,'error'); return; }
+
+  await db.from('transactions').insert({
+    user_id: acc.user_id,
+    account_id: accId,
+    type: adjType.startsWith('Debit') ? 'withdrawal' : 'deposit',
+    amount,
+    status: 'approved',
+    description: reason,
+    payment_method: 'Admin Adjustment',
+  });
+
+  showToast('Balance adjusted successfully','success');
+  renderAccountsLive();
+  renderTransactionsLive();
+};
+
+// ── Patch saveUser ────────────────────────────────────────────
+const _origSaveUser = saveUser;
+window.saveUser = async function() {
+  const modal   = document.getElementById('modal-add-user');
+  const inputs  = modal.querySelectorAll('input, select');
+  const [firstName, lastName, email, phone] = [0,1,2,3].map(i => inputs[i].value.trim());
+  const country = inputs[4].value;
+  const accType = inputs[5].value;
+  const platform = inputs[6].value;
+  const initBal = parseFloat(inputs[7]?.value) || 0;
+
+  if (!email || !firstName) { showToast('First name and email are required','error'); return; }
+
+  const db = window.XANTEX_DB;
+  if (!db) { showToast('User created (offline mode)','success'); closeModal('modal-add-user'); return; }
+
+  const userId = crypto.randomUUID();
+  await db.from('profiles').upsert({
+    id: userId, first_name: firstName, last_name: lastName,
+    email, phone, country, kyc_status: 'pending', status: 'active',
+  });
+
+  if (initBal > 0) {
+    await db.from('trading_accounts').insert({
+      user_id: userId, platform,
+      type: accType.toLowerCase().includes('live') ? 'live' : 'demo',
+      account_type: 'Standard', currency: 'USD',
+      balance: initBal, leverage: '1:200',
+    });
+  }
+
+  showToast('User created successfully','success');
+  closeModal('modal-add-user');
+  renderUsersLive();
+};
+
+// ── Override renderAll to use live versions ───────────────────
+window.renderAll = function() {
+  renderUsersLive();
+  renderKYCLive();
+  renderAccountsLive();
+  renderPositionsLive();
+  renderDepositsLive();
+  renderWithdrawalsLive();
+  renderTransactionsLive();
+  renderAuditLive();
+  renderAnnouncementsLive();
+  renderAdjLog();
+  renderActivity();
+  renderMarketsControl();
+};
+</script>
 </body>
 </html>

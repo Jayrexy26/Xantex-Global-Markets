@@ -1151,5 +1151,49 @@
       `Live prices · ${now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' })}`;
   }, 1000);
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+// Merge Supabase market_prices rows into the static DATA object,
+// then re-render. Falls back gracefully if the table is empty or missing.
+(async () => {
+  const db = window.XANTEX_DB;
+  if (!db) return;
+
+  const { data: rows, error } = await db
+    .from('market_prices')
+    .select('*')
+    .order('category');
+
+  if (error || !rows || !rows.length) return;
+
+  // Merge rows by symbol into the matching DATA category
+  const catMap = { forex:'forex', crypto:'crypto', stocks:'stocks', indices:'indices', metals:'metals', energy:'energy', etfs:'etfs' };
+
+  rows.forEach(r => {
+    const cat = catMap[r.category];
+    if (!cat) return;
+    const idx = DATA[cat].findIndex(d => d.sym === r.symbol);
+    const merged = {
+      ...(idx >= 0 ? DATA[cat][idx] : {}),
+      sym:  r.symbol,
+      name: r.name || (idx >= 0 ? DATA[cat][idx].name : r.symbol),
+      bid:  r.bid   || r.price || (idx >= 0 ? DATA[cat][idx].bid  : '—'),
+      ask:  r.ask   || r.price || (idx >= 0 ? DATA[cat][idx].ask  : '—'),
+      price: r.price || (idx >= 0 ? DATA[cat][idx].price : '—'),
+      chg:  r.change_amount != null ? (r.change_amount >= 0 ? '+' : '') + r.change_amount : (idx >= 0 ? DATA[cat][idx].chg : '0'),
+      chgp: r.change_pct   != null ? (r.change_pct   >= 0 ? '+' : '') + r.change_pct + '%' : (idx >= 0 ? DATA[cat][idx].chgp : '0%'),
+      high: r.high_24h || (idx >= 0 ? DATA[cat][idx].high || DATA[cat][idx].high_24h : '—'),
+      low:  r.low_24h  || (idx >= 0 ? DATA[cat][idx].low  || DATA[cat][idx].low_24h  : '—'),
+    };
+    if (idx >= 0) DATA[cat][idx] = merged;
+    else           DATA[cat].push(merged);
+  });
+
+  renderAll();
+  document.getElementById('last-updated').textContent = 'Live prices · Updated from database';
+})();
+</script>
 </body>
 </html>

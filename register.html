@@ -688,6 +688,8 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
 <script>
   // ── Password strength ─────────────────────────────────────
   const pwInput   = document.getElementById('password');
@@ -747,7 +749,48 @@
     if (valid) setStep(2);
   }
   function goStep3() { setStep(3); }
-  function submitForm() {
+  async function submitForm() {
+    const email     = document.getElementById('email').value.trim();
+    const password  = document.getElementById('password').value;
+    const firstName = document.getElementById('first-name').value.trim();
+    const lastName  = document.getElementById('last-name').value.trim();
+    const country   = document.getElementById('country').value;
+    const phone     = document.getElementById('phone').value.trim();
+    const phoneCode = document.getElementById('phone-code').value;
+
+    const submitBtn = document.querySelector('#step-3 button.btn-submit:last-of-type');
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+
+    const db = window.XANTEX_DB;
+    const { data, error } = await db.auth.signUp({
+      email,
+      password,
+      options: { data: { first_name: firstName, last_name: lastName } },
+    });
+
+    if (error) {
+      submitBtn.classList.remove('loading');
+      submitBtn.disabled = false;
+      alert('Registration error: ' + error.message);
+      return;
+    }
+
+    if (data.user) {
+      await db.from('profiles').upsert({
+        id:         data.user.id,
+        first_name: firstName,
+        last_name:  lastName,
+        email,
+        phone:      phoneCode + phone,
+        country,
+        kyc_status: 'pending',
+      });
+    }
+
+    submitBtn.classList.remove('loading');
+    submitBtn.disabled = false;
+
     [1,2,3].forEach(i => document.getElementById('step-' + i).style.display = 'none');
     ['step-ind-1','step-ind-2','step-ind-3'].forEach(id => {
       const el = document.getElementById(id);

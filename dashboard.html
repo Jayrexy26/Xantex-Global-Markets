@@ -1180,5 +1180,169 @@
     });
   });
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+(async () => {
+  const db = window.XANTEX_DB;
+  if (!db) return;
+
+  // ── Auth guard ──────────────────────────────────────────
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
+
+  const userId = session.user.id;
+
+  // ── Load profile ────────────────────────────────────────
+  const { data: profile } = await db
+    .from('profiles')
+    .select('first_name, last_name, email, kyc_status')
+    .eq('id', userId)
+    .single();
+
+  if (profile) {
+    const name  = `${profile.first_name} ${profile.last_name}`;
+    const init  = (profile.first_name[0] + profile.last_name[0]).toUpperCase();
+    const first = profile.first_name;
+    const hour  = new Date().getHours();
+    const greet = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+
+    document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
+    document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => el.textContent = init);
+    document.querySelector('.page-header__title')?.textContent && (
+      document.querySelector('.page-header__title').textContent = `Good ${greet}, ${first} 👋`
+    );
+  }
+
+  // ── Load trading accounts ───────────────────────────────
+  const { data: accounts } = await db
+    .from('trading_accounts')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (accounts && accounts.length) {
+    const totalBalance = accounts.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
+    document.querySelector('.summary-card--blue .summary-card__value').textContent =
+      '$' + totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 });
+
+    const accountList = document.querySelector('.account-list');
+    if (accountList) {
+      const platformMap = { MT4: 'account-icon--mt4', MT5: 'account-icon--mt5', cTrader: 'account-icon--ct', TradingView: 'account-icon--tv' };
+      accountList.innerHTML = accounts.map(a => {
+        const cls = platformMap[a.platform] || 'account-icon--mt4';
+        const bal = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+        const live = a.type?.toLowerCase().includes('live');
+        return `<div class="account-row">
+          <div class="account-icon ${cls}">${a.platform?.slice(0,2).toUpperCase() || 'MT'}</div>
+          <div class="account-col">
+            <div class="account-col__id">#${a.account_number || a.id.slice(0,8)}</div>
+            <div class="account-col__type">${a.platform || '—'} · ${a.account_type || '—'} · ${a.currency || 'USD'}</div>
+          </div>
+          <span class="account-status ${live ? 'account-status--live' : 'account-status--demo'}">${live ? 'Live' : 'Demo'}</span>
+          <div class="account-balance">
+            <div class="account-balance__val">$${bal}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // Populate modal account selects
+    document.querySelectorAll('#modal-deposit select, #modal-withdraw select').forEach(sel => {
+      if (sel.options[0]?.text.includes('#') || sel.options[0]?.text.includes('MT')) {
+        sel.innerHTML = accounts
+          .filter(a => a.type?.toLowerCase().includes('live'))
+          .map(a => `<option value="${a.id}">#${a.account_number || a.id.slice(0,8)} — ${a.platform} ${a.account_type} $${parseFloat(a.balance||0).toLocaleString()}</option>`)
+          .join('');
+      }
+    });
+  }
+
+  // ── Load open positions ─────────────────────────────────
+  const { data: positions } = await db
+    .from('positions')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('status', 'open')
+    .order('opened_at', { ascending: false });
+
+  if (positions && positions.length) {
+    document.querySelectorAll('.summary-card')[1]?.querySelector('.summary-card__change')
+      ?.childNodes[1] && (
+        document.querySelectorAll('.summary-card')[1].querySelector('.summary-card__change').lastChild.textContent =
+          ` ${positions.length} open position${positions.length !== 1 ? 's' : ''}`
+      );
+
+    const tbody = document.querySelector('tbody');
+    if (tbody) {
+      tbody.innerHTML = positions.map(p => {
+        const isBuy = p.direction === 'buy';
+        const pnl   = parseFloat(p.floating_pnl || 0);
+        const pnlTxt = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
+        return `<tr>
+          <td class="pos-symbol">${p.symbol}</td>
+          <td><span class="pos-type ${isBuy ? 'pos-type--buy' : 'pos-type--sell'}">${isBuy ? 'Buy' : 'Sell'}</span></td>
+          <td>${p.lots}</td>
+          <td>${p.open_price}</td>
+          <td>${p.current_price || p.open_price}</td>
+          <td class="pos-pnl ${pnl >= 0 ? 'up' : 'down'}">${pnlTxt}</td>
+          <td><button class="pos-close" onclick="closePosition('${p.id}')">Close</button></td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  // ── Load recent transactions (activity) ─────────────────
+  const { data: txns } = await db
+    .from('transactions')
+    .select('type, amount, status, created_at, description')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  if (txns && txns.length) {
+    const dotColor = { deposit: 'green', withdrawal: 'orange', trade: 'blue', bonus: 'blue' };
+    const activityList = document.querySelector('.activity-list');
+    if (activityList) {
+      activityList.innerHTML = txns.map(t => {
+        const color = dotColor[t.type] || 'blue';
+        const amt   = parseFloat(t.amount || 0);
+        const sign  = t.type === 'deposit' || t.type === 'bonus' ? '+' : '-';
+        const ago   = timeSince(t.created_at);
+        const desc  = t.description || `${t.type} of <strong>$${Math.abs(amt).toLocaleString()}</strong>`;
+        return `<div class="activity-row">
+          <div class="activity-dot activity-dot--${color}"></div>
+          <div class="activity-text">${desc}</div>
+          <div class="activity-time">${ago}</div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // ── Sign out ────────────────────────────────────────────
+  document.querySelectorAll('.sidebar__logout').forEach(btn => {
+    btn.onclick = async () => {
+      await db.auth.signOut();
+      window.location.href = 'login.html';
+    };
+  });
+
+  // ── Close position ──────────────────────────────────────
+  window.closePosition = async (id) => {
+    if (!confirm('Close this position?')) return;
+    const { error } = await db.from('positions').update({ status: 'closed' }).eq('id', id);
+    if (!error) location.reload();
+  };
+
+  function timeSince(ts) {
+    const secs = Math.floor((Date.now() - new Date(ts)) / 1000);
+    if (secs < 60)   return secs + 's ago';
+    if (secs < 3600) return Math.floor(secs / 60) + 'm ago';
+    if (secs < 86400)return Math.floor(secs / 3600) + 'h ago';
+    return Math.floor(secs / 86400) + 'd ago';
+  }
+})();
+</script>
 </body>
 </html>

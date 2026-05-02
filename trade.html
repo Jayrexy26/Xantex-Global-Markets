@@ -420,41 +420,100 @@
       .instrument-panel { display: none; }
     }
     @media (max-width: 768px) {
-      /* Allow page to scroll naturally on mobile */
-      html, body { height: auto; overflow: auto; }
-      .layout    { height: auto; min-height: 100vh; overflow: visible; }
-      .main      { height: auto; min-height: 100vh; overflow: visible; margin-left: 0; }
-      .trade-body { flex-direction: column; height: auto; overflow: visible; }
+      /* Clamp everything to viewport — no horizontal scroll */
+      html, body {
+        height: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: 100%;
+      }
+      .layout {
+        height: auto;
+        min-height: 100vh;
+        overflow: hidden;
+        width: 100%;
+        max-width: 100vw;
+      }
+      .main {
+        margin-left: 0;
+        width: 100%;
+        max-width: 100vw;
+        height: auto;
+        overflow: hidden;
+      }
+      .trade-body {
+        flex-direction: column;
+        width: 100%;
+        max-width: 100vw;
+        overflow: hidden;
+      }
 
+      /* Sidebar off-canvas */
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
       .topbar__hamburger { display: flex; }
 
-      /* Chart fills most of the viewport */
+      /* Hide side panels completely */
+      .instrument-panel { display: none !important; }
+      .order-panel      { display: none !important; }
+
+      /* Chart: full viewport height minus topbar */
       .chart-panel {
+        width: 100%;
+        max-width: 100vw;
         height: calc(100vh - var(--topbar-h));
         min-height: calc(100vh - var(--topbar-h));
         display: flex;
         flex-direction: column;
         overflow: hidden;
       }
+      .chart-panel__head {
+        padding: 8px 12px;
+        gap: 6px;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+      .chart-panel__symbol { font-size: 15px; }
+      .chart-panel__price  { font-size: 16px; }
+      .chart-panel__meta   { display: none; }
+      .chart-tf            { margin-left: 0; }
+      .chart-tf button     { padding: 3px 7px; font-size: 11px; }
+
+      /* Chart container fills remaining height */
       .chart-container {
         flex: 1;
         min-height: 0;
+        position: relative;
+        width: 100%;
+      }
+      .chart-container .tradingview-widget-container,
+      .chart-container #tradingview_chart {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
       }
 
-      /* Positions panel fills fully below chart — no max-height cap */
+      /* Positions panel — full auto height, scroll within */
       .positions-panel {
-        max-height: none;
-        height: auto;
+        max-height: none !important;
+        height: auto !important;
+        width: 100%;
+        overflow-x: auto;
         overflow-y: auto;
         border-top: 1px solid var(--border);
       }
+      .positions-panel table { min-width: 600px; }
+      .positions-panel thead th,
+      .positions-panel tbody td { padding: 8px 10px; font-size: 11px; }
 
-      /* Hide order panel — FAB handles it */
-      .order-panel { display: none; }
+      /* Topbar fits screen */
+      .topbar { padding: 0 12px; width: 100%; }
+      .cat-tabs { gap: 2px; }
+      .cat-tab  { padding: 6px 10px; font-size: 12px; }
+      .cat-tab span { display: none; }
 
-      /* Floating Place Order button */
+      /* FAB — Place Order button */
       .fab-order {
         display: flex;
         position: fixed;
@@ -513,18 +572,6 @@
         background: none; border: none; color: var(--muted); padding: 4px;
       }
       .order-sheet__close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
-
-      /* Compact chart header */
-      .chart-panel__head { padding: 8px 12px; gap: 6px; }
-      .chart-panel__symbol { font-size: 15px; }
-      .chart-panel__price  { font-size: 17px; }
-      .chart-panel__meta   { display: none; }
-      .chart-tf button     { padding: 3px 7px; font-size: 11px; }
-
-      /* Positions table — show full height, no cap */
-      .positions-panel { max-height: none !important; height: auto !important; }
-      .positions-panel table thead th,
-      .positions-panel table tbody td { padding: 8px 10px; font-size: 11px; }
     }
 
     /* Hide FAB and sheet on desktop */

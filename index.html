@@ -123,6 +123,22 @@
       to   { opacity: 1; transform: translateX(0); }
     }
 
+    /* ============================================================
+       TICKER
+    ============================================================ */
+    .ticker-wrap {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 3;
+      height: 46px;
+      overflow: hidden;
+    }
+    .ticker-wrap .tradingview-widget-container,
+    .ticker-wrap .tradingview-widget-container__widget { height: 46px !important; }
+    @media (max-width: 600px) {
+      .ticker-wrap { height: 46px; }
+    }
+
     .hero {
       position: relative;
       min-height: 580px;
@@ -142,7 +158,8 @@
       z-index: 2;
       max-width: var(--max);
       margin: 0 auto;
-      padding: 80px var(--pad);
+      padding: 80px var(--pad) 80px;
+      padding-top: 120px;
       width: 100%;
     }
 
@@ -811,6 +828,31 @@
   ============================================================ -->
   <section class="hero" aria-label="Hero banner">
     <div class="hero__overlay" aria-hidden="true"></div>
+
+    <!-- TradingView Ticker -->
+    <div class="ticker-wrap">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {
+          "symbols": [
+            {"proName": "FOREXCOM:SPXUSD", "title": "S&P 500"},
+            {"proName": "FOREXCOM:NSXUSD", "title": "Nasdaq 100"},
+            {"proName": "FX_IDC:EURUSD",   "title": "EUR/USD"},
+            {"proName": "FX_IDC:GBPUSD",   "title": "GBP/USD"},
+            {"proName": "BITSTAMP:BTCUSD",  "title": "Bitcoin"},
+            {"proName": "BITSTAMP:ETHUSD",  "title": "Ethereum"},
+            {"proName": "FOREXCOM:XAUUSD",  "title": "Gold"}
+          ],
+          "showSymbolLogo": true,
+          "isTransparent": true,
+          "displayMode": "adaptive",
+          "colorTheme": "dark",
+          "locale": "en"
+        }
+        </script>
+      </div>
+    </div>
     <div class="hero__inner">
       <p class="hero__eyebrow">Award-winning broker since 2006</p>
       <h1 class="hero__h1">Trade Global<br>Markets with Confidence</h1>

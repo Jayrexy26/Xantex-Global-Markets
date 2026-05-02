@@ -539,46 +539,98 @@
     /* Sponsor strip */
     .footer-sponsors {
       background: #fff;
-      padding: 60px;
+      padding: 50px 60px;
       border-top: 1px solid #e5e5e5;
     }
 
     .footer-sponsors__inner {
-      max-width: 1200px;
+      max-width: 1300px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 40px;
     }
 
-    .footer-sponsors__group {
+    /* Each half: badge block + car/yacht */
+    .footer-sponsors__half {
       display: flex;
       align-items: center;
-      gap: 25px;
+      gap: 0;
+      flex: 1;
+    }
+
+    .footer-sponsors__half--right {
+      justify-content: flex-end;
+    }
+
+    /* The badge block: logo | divider | wordmark + label */
+    .footer-sponsors__badge {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .footer-sponsors__badge-logo {
+      display: block;
+    }
+
+    .footer-sponsors__badge-logo--mclaren {
+      height: 56px;
+      width: auto;
+    }
+
+    .footer-sponsors__badge-logo--flags {
+      height: 72px;
+      width: auto;
     }
 
     .footer-sponsors__divider {
       width: 1px;
-      height: 40px;
+      height: 48px;
       background: #ccc;
+      margin: 0 22px;
+      flex-shrink: 0;
     }
 
-    .footer-sponsors__logo {
-      height: 200px;
-      display: block;
+    /* FxPro red wordmark + caption stacked */
+    .footer-sponsors__wordmark {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
     }
 
-    .footer-sponsors__logo--sm {
-      height: 90px;
+    .footer-sponsors__wordmark-name {
+      font-size: 36px;
+      font-weight: 700;
+      color: #e60023;
+      line-height: 1;
+      letter-spacing: -1px;
     }
 
-    .footer-sponsors__video--sm {
-      height: 60px;
-      margin: 0 40px;
+    .footer-sponsors__wordmark-caption {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: #333;
+      text-transform: uppercase;
     }
 
-    .footer-sponsors__video--lg {
-      height: 180px;
+    /* F1 car / yacht media */
+    .footer-sponsors__media {
+      margin-left: 32px;
+    }
+
+    .footer-sponsors__media--car {
+      height: 110px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .footer-sponsors__media--yacht {
+      height: 160px;
+      width: auto;
       object-fit: contain;
     }
 
@@ -707,11 +759,23 @@
 
       .footer-sponsors__inner {
         flex-direction: column;
-        gap: 32px;
+        gap: 40px;
       }
 
-      .footer-sponsors__logo {
+      .footer-sponsors__half {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+      }
+
+      .footer-sponsors__half--right {
+        justify-content: flex-start;
+      }
+
+      .footer-sponsors__media--car,
+      .footer-sponsors__media--yacht {
         height: 80px;
+        margin-left: 0;
       }
 
       .footer-disclaimer {
@@ -997,43 +1061,55 @@
     <div class="footer-sponsors">
       <div class="footer-sponsors__inner">
 
-        <div class="footer-sponsors__group">
-          <img
-            src="/images/mclaren-logo.png"
-            alt="McLaren Racing logo"
-            class="footer-sponsors__logo"
-            width="200"
-            height="200"
-            loading="lazy"
-          >
-          <div class="footer-sponsors__divider" aria-hidden="true"></div>
+        <!-- Left: McLaren partnership -->
+        <div class="footer-sponsors__half">
+          <div class="footer-sponsors__badge">
+            <img
+              src="/images/mclaren-logo.png"
+              alt="McLaren Racing logo"
+              class="footer-sponsors__badge-logo footer-sponsors__badge-logo--mclaren"
+              loading="lazy"
+            >
+            <div class="footer-sponsors__divider" aria-hidden="true"></div>
+            <div class="footer-sponsors__wordmark">
+              <span class="footer-sponsors__wordmark-name">Xantex</span>
+              <span class="footer-sponsors__wordmark-caption">Official Partner</span>
+            </div>
+          </div>
+          <!-- F1 car animation -->
           <video
             autoplay muted loop playsinline
-            class="footer-sponsors__video--sm"
-            width="120"
-            height="60"
-            aria-label="McLaren sponsorship animation"
+            class="footer-sponsors__media footer-sponsors__media--car"
+            width="380"
+            height="110"
+            aria-label="McLaren F1 car sponsorship animation"
           >
             <source src="/images/mclaren.mp4" type="video/mp4">
           </video>
         </div>
 
-        <div class="footer-sponsors__group">
-          <img
-            src="/images/flag-logo.png"
-            alt="Xantex flag sponsorship logo"
-            class="footer-sponsors__logo--sm"
-            width="90"
-            height="90"
-            loading="lazy"
-          >
-          <div class="footer-sponsors__divider" aria-hidden="true"></div>
+        <!-- Right: Yacht Club de Monaco -->
+        <div class="footer-sponsors__half footer-sponsors__half--right">
+          <div class="footer-sponsors__badge">
+            <img
+              src="/images/flag-logo.png"
+              alt="Yacht Club de Monaco crossed flags logo"
+              class="footer-sponsors__badge-logo footer-sponsors__badge-logo--flags"
+              loading="lazy"
+            >
+            <div class="footer-sponsors__divider" aria-hidden="true"></div>
+            <div class="footer-sponsors__wordmark">
+              <span class="footer-sponsors__wordmark-name">Xantex</span>
+              <span class="footer-sponsors__wordmark-caption">Official Main Sponsor<br>Yacht Club de Monaco</span>
+            </div>
+          </div>
+          <!-- Yacht animation -->
           <video
             autoplay muted loop playsinline
-            class="footer-sponsors__video--lg"
-            width="280"
-            height="180"
-            aria-label="Xantex yacht sponsorship animation"
+            class="footer-sponsors__media footer-sponsors__media--yacht"
+            width="220"
+            height="160"
+            aria-label="Yacht Club de Monaco sponsorship animation"
           >
             <source src="/images/yacht.mp4" type="video/mp4">
           </video>

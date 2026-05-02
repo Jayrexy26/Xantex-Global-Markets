@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trade — Xantex Global Markets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       TOKENS
+    ============================================================ */
+    :root {
+      --red:       #e60023;
+      --blue:      #1a5cff;
+      --blue-dk:   #1244cc;
+      --blue-lt:   #e8eeff;
+      --green:     #22a06b;
+      --green-lt:  #e6f7ef;
+      --orange:    #f5a623;
+      --bg:        #f4f6f9;
+      --white:     #ffffff;
+      --text:      #111111;
+      --muted:     #666666;
+      --border:    #e0e3e8;
+      --sidebar-w: 240px;
+      --topbar-h:  64px;
+      --panel-w:   300px;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; height: 100%; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.6; height: 100%; overflow: hidden; }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+    ul { list-style: none; }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    .layout { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ============================================================
+       SIDEBAR
+    ============================================================ */
+    .sidebar {
+      width: var(--sidebar-w); background: #0d1120; color: #fff;
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 200;
+      transition: transform 0.25s ease;
+    }
+    .sidebar__logo {
+      height: var(--topbar-h); display: flex; align-items: center;
+      padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
+    }
+    .sidebar__logo img       { height: 130px; width: auto; }
+    .sidebar__logo-text      { font-size: 22px; font-weight: 700; color: var(--red); }
+    .sidebar__nav            { flex: 1; overflow-y: auto; padding: 12px 0; }
+    .sidebar__section-label  {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 16px 20px 6px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.6); cursor: pointer;
+      border: none; background: none; width: 100%; text-align: left;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-item:hover  { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-item.active { background: rgba(26,92,255,0.18); color: #fff; border-left: 3px solid var(--blue); }
+    .nav-item svg    { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; flex-shrink: 0; }
+    .nav-item__badge { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .sidebar__footer {
+      padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar__avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .sidebar__user-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .sidebar__user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .sidebar__logout    { margin-left: auto; background: none; border: none; color: rgba(255,255,255,0.4); padding: 4px; }
+    .sidebar__logout:hover { color: var(--red); }
+    .sidebar__logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* ============================================================
+       MAIN
+    ============================================================ */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1; display: flex; flex-direction: column;
+      height: 100vh; overflow: hidden;
+    }
+
+    /* ============================================================
+       TOPBAR
+    ============================================================ */
+    .topbar {
+      height: var(--topbar-h); background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 20px; gap: 12px;
+      flex-shrink: 0; z-index: 100;
+    }
+    .topbar__hamburger { display: none; background: none; border: none; flex-direction: column; gap: 4px; padding: 4px; }
+    .topbar__hamburger span { display: block; width: 20px; height: 2px; background: var(--text); border-radius: 2px; }
+
+    /* Category tabs */
+    .cat-tabs { display: flex; gap: 4px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+    .cat-tab {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      color: var(--muted); background: none; border: none;
+      white-space: nowrap; transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .cat-tab:hover { background: var(--bg); color: var(--text); }
+    .cat-tab.active { background: var(--blue); color: #fff; }
+    .cat-tab span { font-size: 16px; }
+
+    .topbar__right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; }
+    .topbar__icon-btn {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--bg);
+      border: none; display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .topbar__icon-btn svg { width: 17px; height: 17px; fill: none; stroke: var(--text); stroke-width: 2; }
+    .topbar__notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--red); border: 2px solid #fff; }
+    .topbar__avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+
+    /* ============================================================
+       TRADE BODY  (3 columns)
+    ============================================================ */
+    .trade-body {
+      flex: 1; display: flex; overflow: hidden;
+    }
+
+    /* ── LEFT: instrument list ── */
+    .instrument-panel {
+      width: var(--panel-w); background: #fff;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0;
+      overflow: hidden;
+    }
+    .instrument-panel__search {
+      padding: 12px 14px; border-bottom: 1px solid var(--border); position: relative;
+    }
+    .instrument-panel__search input {
+      width: 100%; height: 36px; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 0 12px 0 34px; font-size: 13px; outline: none; background: var(--bg);
+      transition: border-color 0.15s;
+    }
+    .instrument-panel__search input:focus { border-color: var(--blue); background: #fff; }
+    .instrument-panel__search svg { position: absolute; left: 26px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; fill: none; stroke: var(--muted); stroke-width: 2; }
+    .instrument-list { flex: 1; overflow-y: auto; }
+    .instrument-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px; border-bottom: 1px solid var(--border);
+      cursor: pointer; transition: background 0.12s;
+    }
+    .instrument-row:hover  { background: var(--bg); }
+    .instrument-row.active { background: var(--blue-lt); border-left: 3px solid var(--blue); }
+    .instrument-icon { font-size: 22px; flex-shrink: 0; width: 28px; text-align: center; }
+    .instrument-info { flex: 1; min-width: 0; }
+    .instrument-info__sym  { font-size: 13px; font-weight: 600; }
+    .instrument-info__name { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .instrument-price { text-align: right; flex-shrink: 0; }
+    .instrument-price__val { font-size: 12px; font-weight: 600; }
+    .instrument-price__chg { font-size: 11px; font-weight: 500; }
+    .instrument-price__chg.up   { color: var(--green); }
+    .instrument-price__chg.down { color: var(--red); }
+
+    /* ── CENTRE: chart ── */
+    .chart-panel {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #fff;
+    }
+    .chart-panel__head {
+      display: flex; align-items: center; gap: 16px;
+      padding: 12px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .chart-panel__symbol { font-size: 18px; font-weight: 700; }
+    .chart-panel__price  { font-size: 22px; font-weight: 700; }
+    .chart-panel__change { font-size: 13px; font-weight: 600; padding: 3px 10px; border-radius: 6px; }
+    .chart-panel__change.up   { background: var(--green-lt); color: var(--green); }
+    .chart-panel__change.down { background: #fff0f0; color: var(--red); }
+    .chart-panel__meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+    .chart-panel__meta span strong { color: var(--text); }
+    .chart-tf { display: flex; gap: 3px; margin-left: auto; }
+    .chart-tf button {
+      padding: 4px 10px; border-radius: 5px; font-size: 12px; font-weight: 500;
+      color: var(--muted); background: none; border: none; cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+    }
+    .chart-tf button:hover  { background: var(--bg); color: var(--text); }
+    .chart-tf button.active { background: var(--blue); color: #fff; }
+    .chart-container { flex: 1; position: relative; min-height: 0; }
+    .chart-container iframe,
+    .chart-container .tradingview-widget-container { width: 100%; height: 100%; }
+
+    /* ── RIGHT: order panel ── */
+    .order-panel {
+      width: var(--panel-w); background: #fff;
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0;
+      overflow-y: auto;
+    }
+    .order-panel__head {
+      padding: 14px 16px; border-bottom: 1px solid var(--border);
+      font-size: 14px; font-weight: 600;
+    }
+
+    /* Buy/Sell tabs */
+    .order-type-tabs { display: flex; margin: 14px 16px 0; border-radius: 8px; overflow: hidden; border: 1.5px solid var(--border); }
+    .order-type-tab {
+      flex: 1; padding: 10px; font-size: 14px; font-weight: 700;
+      border: none; background: none; cursor: pointer; transition: background 0.15s, color 0.15s;
+      color: var(--muted);
+    }
+    .order-type-tab.buy.active  { background: var(--green); color: #fff; }
+    .order-type-tab.sell.active { background: var(--red);   color: #fff; }
+
+    /* Bid / Ask display */
+    .bid-ask {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      padding: 12px 16px;
+    }
+    .bid-ask__box {
+      border-radius: 8px; padding: 10px 12px; text-align: center; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .bid-ask__box:hover { opacity: 0.85; }
+    .bid-ask__box--sell { background: #fff0f0; border: 1.5px solid var(--red); }
+    .bid-ask__box--buy  { background: var(--green-lt); border: 1.5px solid var(--green); }
+    .bid-ask__label     { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px; }
+    .bid-ask__box--sell .bid-ask__label { color: var(--red); }
+    .bid-ask__box--buy  .bid-ask__label { color: var(--green); }
+    .bid-ask__price     { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+    .bid-ask__box--sell .bid-ask__price { color: var(--red); }
+    .bid-ask__box--buy  .bid-ask__price { color: var(--green); }
+    .bid-ask__spread    { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+    /* Order form fields */
+    .order-form { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+    .order-field { display: flex; flex-direction: column; gap: 4px; }
+    .order-field label { font-size: 12px; font-weight: 500; color: var(--muted); }
+    .order-field__input-wrap { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color 0.15s; }
+    .order-field__input-wrap:focus-within { border-color: var(--blue); }
+    .order-field input {
+      flex: 1; height: 40px; border: none; padding: 0 12px;
+      font-size: 14px; font-weight: 600; font-family: inherit; outline: none;
+      background: none; width: 100%;
+    }
+    .order-field__unit  { padding: 0 12px; font-size: 12px; color: var(--muted); background: var(--bg); height: 40px; display: flex; align-items: center; border-left: 1px solid var(--border); flex-shrink: 0; }
+    .order-field__stepper { display: flex; flex-direction: column; border-left: 1px solid var(--border); }
+    .order-field__stepper button { flex: 1; width: 28px; background: none; border: none; color: var(--muted); font-size: 14px; line-height: 1; padding: 0 6px; }
+    .order-field__stepper button:hover { background: var(--bg); color: var(--text); }
+
+    .order-field select {
+      height: 40px; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 0 32px 0 12px; font-size: 13px; font-family: inherit;
+      outline: none; appearance: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;
+      transition: border-color 0.15s;
+    }
+    .order-field select:focus { border-color: var(--blue); }
+
+    /* Slider */
+    .order-slider { width: 100%; accent-color: var(--blue); }
+
+    /* TP/SL toggle */
+    .tpsl-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; font-weight: 500; color: var(--muted);
+    }
+    .toggle-switch { position: relative; width: 34px; height: 18px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: var(--border); border-radius: 18px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute; width: 12px; height: 12px;
+      background: #fff; border-radius: 50%; top: 3px; left: 3px;
+      transition: transform 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--blue); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+    /* Submit button */
+    .order-submit {
+      width: 100%; height: 46px; border: none; border-radius: 8px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity 0.15s;
+    }
+    .order-submit.buy  { background: var(--green); color: #fff; }
+    .order-submit.sell { background: var(--red);   color: #fff; }
+    .order-submit:hover { opacity: 0.88; }
+    .order-submit svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2.5; }
+
+    /* Margin info */
+    .margin-info {
+      background: var(--bg); border-radius: 8px; padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .margin-info__row { display: flex; justify-content: space-between; font-size: 12px; }
+    .margin-info__row span:first-child { color: var(--muted); }
+    .margin-info__row span:last-child  { font-weight: 600; }
+
+    /* Positions table at bottom */
+    .positions-panel {
+      border-top: 1px solid var(--border); flex-shrink: 0;
+      background: #fff; max-height: 220px; overflow-y: auto;
+    }
+    .positions-panel__head {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: #fff; z-index: 1;
+    }
+    .pos-tab {
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      padding: 4px 12px; border-radius: 6px; border: none; background: none; cursor: pointer;
+    }
+    .pos-tab.active { background: var(--blue-lt); color: var(--blue); }
+    .positions-count { font-size: 11px; color: var(--muted); margin-left: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); padding: 8px 16px;
+      border-bottom: 1px solid var(--border); white-space: nowrap; background: #fff;
+    }
+    tbody td { padding: 10px 16px; font-size: 12px; border-bottom: 1px solid var(--border); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--bg); }
+    .pos-sym  { font-weight: 600; font-size: 13px; }
+    .pos-type { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; }
+    .pos-type.buy  { background: var(--green-lt); color: var(--green); }
+    .pos-type.sell { background: #fff0f0; color: var(--red); }
+    .pos-pnl.up    { color: var(--green); font-weight: 600; }
+    .pos-pnl.down  { color: var(--red);   font-weight: 600; }
+    .pos-close-btn { background: none; border: 1px solid var(--border); border-radius: 5px; padding: 3px 10px; font-size: 11px; color: var(--text); cursor: pointer; }
+    .pos-close-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* ============================================================
+       MODAL
+    ============================================================ */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 14px; width: 100%; max-width: 380px; overflow: hidden; animation: modalIn 0.2s ease; }
+    @keyframes modalIn { from { opacity:0; transform:scale(0.95) translateY(12px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    .modal__head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+    .modal__title { font-size: 16px; font-weight: 700; }
+    .modal__close { background: none; border: none; color: var(--muted); padding: 4px; }
+    .modal__close svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .modal__body { padding: 22px; display: flex; flex-direction: column; gap: 14px; font-size: 14px; }
+    .modal__row { display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .modal__row:last-child { border-bottom: none; padding-bottom: 0; }
+    .modal__row-label { color: var(--muted); }
+    .modal__row-val   { font-weight: 600; }
+    .modal__foot { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+    .modal__foot .btn { flex: 1; justify-content: center; height: 42px; border-radius: 8px; font-size: 14px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; font-size: 13px; font-weight: 600; padding: 9px 18px; border: none; cursor: pointer; }
+    .btn--outline { background: #fff; color: var(--text); border: 1.5px solid var(--border); }
+    .btn--outline:hover { border-color: var(--blue); color: var(--blue); }
+    .btn--green { background: var(--green); color: #fff; }
+    .btn--red   { background: var(--red);   color: #fff; }
+
+    /* ============================================================
+       MOBILE
+    ============================================================ */
+    @media (max-width: 1100px) {
+      .order-panel { width: 260px; }
+      .instrument-panel { width: 230px; }
+    }
+    @media (max-width: 900px) {
+      :root { --panel-w: 220px; }
+      .instrument-panel { display: none; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .topbar__hamburger { display: flex; }
+      .order-panel { display: none; }
+      body { overflow: auto; }
+      .layout { height: auto; }
+      .main { height: auto; }
+      .trade-body { flex-direction: column; height: auto; }
+      .chart-panel { min-height: 400px; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ============================================================
+       SIDEBAR
+  ============================================================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <a href="index.html">
+        <img src="/images/logo.png" alt="Xantex"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="sidebar__logo-text" style="display:none;">Xantex</span>
+      </a>
+    </div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Main</div>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </a>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        My Accounts
+      </a>
+      <a class="nav-item active" href="trade.html">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Trade
+      </a>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Markets
+      </a>
+      <div class="sidebar__section-label">Finance</div>
+      <button class="nav-item" onclick="alert('Deposit modal')">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Deposit
+      </button>
+      <button class="nav-item" onclick="alert('Withdraw modal')">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
+        Withdraw
+      </button>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Transaction History
+        <span class="nav-item__badge">3</span>
+      </a>
+      <div class="sidebar__section-label">Account</div>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Verification
+        <span class="nav-item__badge" style="background:var(--orange);">!</span>
+      </a>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+      <a class="nav-item" href="index.html">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Main Site
+      </a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="sidebar__avatar">JD</div>
+      <div>
+        <div class="sidebar__user-name">John Doe</div>
+        <div class="sidebar__user-role">Live account</div>
+      </div>
+      <button class="sidebar__logout" onclick="window.location='login.html'" title="Sign out">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN
+  ============================================================ -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="topbar__hamburger" id="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+
+      <!-- Market category tabs -->
+      <div class="cat-tabs" id="cat-tabs">
+        <button class="cat-tab active" data-cat="forex"   onclick="switchCat(this,'forex')">  <span>💱</span> Forex</button>
+        <button class="cat-tab"        data-cat="crypto"  onclick="switchCat(this,'crypto')"> <span>₿</span>  Crypto</button>
+        <button class="cat-tab"        data-cat="stocks"  onclick="switchCat(this,'stocks')"> <span>🏢</span> Stocks</button>
+        <button class="cat-tab"        data-cat="indices" onclick="switchCat(this,'indices')"><span>📈</span> Indices</button>
+        <button class="cat-tab"        data-cat="metals"  onclick="switchCat(this,'metals')"> <span>🥇</span> Metals</button>
+        <button class="cat-tab"        data-cat="energy"  onclick="switchCat(this,'energy')"> <span>🛢️</span> Energy</button>
+        <button class="cat-tab"        data-cat="etfs"    onclick="switchCat(this,'etfs')">   <span>📦</span> ETFs</button>
+      </div>
+
+      <div class="topbar__right">
+        <button class="topbar__icon-btn">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="topbar__notif-dot"></div>
+        </button>
+        <div class="topbar__avatar">JD</div>
+      </div>
+    </div>
+
+    <!-- TRADE BODY -->
+    <div class="trade-body">
+
+      <!-- ── LEFT: Instrument List ── -->
+      <div class="instrument-panel">
+        <div class="instrument-panel__search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search symbol…" id="sym-search" oninput="filterInstruments()">
+        </div>
+        <div class="instrument-list" id="instrument-list"></div>
+      </div>
+
+      <!-- ── CENTRE: Chart ── -->
+      <div class="chart-panel" style="display:flex;flex-direction:column;">
+        <div class="chart-panel__head" id="chart-head">
+          <div>
+            <div class="chart-panel__symbol" id="chart-symbol">EUR/USD</div>
+            <div class="chart-panel__meta" id="chart-meta">
+              <span>O <strong id="c-open">1.0821</strong></span>
+              <span>H <strong id="c-high">1.0854</strong></span>
+              <span>L <strong id="c-low">1.0802</strong></span>
+              <span>Vol <strong id="c-vol">84.2K</strong></span>
+            </div>
+          </div>
+          <div id="chart-price" class="chart-panel__price">1.08432</div>
+          <div id="chart-change" class="chart-panel__change up">+0.42%</div>
+          <div class="chart-tf" id="chart-tf">
+            <button onclick="setTF(this,'1')" >1m</button>
+            <button onclick="setTF(this,'5')" >5m</button>
+            <button onclick="setTF(this,'15')">15m</button>
+            <button onclick="setTF(this,'60')" class="active">1H</button>
+            <button onclick="setTF(this,'D')" >1D</button>
+            <button onclick="setTF(this,'W')" >1W</button>
+          </div>
+        </div>
+
+        <!-- TradingView Advanced Chart -->
+        <div class="chart-container" id="chart-container">
+          <div class="tradingview-widget-container" style="height:100%;width:100%;">
+            <div id="tradingview_chart" style="height:100%;width:100%;"></div>
+          </div>
+        </div>
+
+        <!-- Open Positions strip -->
+        <div class="positions-panel">
+          <div class="positions-panel__head">
+            <button class="pos-tab active">Open Positions (6)</button>
+            <button class="pos-tab">Orders (2)</button>
+            <button class="pos-tab">History</button>
+            <span class="positions-count">Total P&L: <strong style="color:var(--green);">+$458.10</strong></span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Symbol</th><th>Type</th><th>Lots</th>
+                <th>Open</th><th>Current</th><th>SL</th><th>TP</th>
+                <th>P&L</th><th>Swap</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="pos-sym">EUR/USD</td><td><span class="pos-type buy">Buy</span></td><td>0.50</td><td>1.08210</td><td>1.08432</td><td>1.07800</td><td>1.09000</td><td class="pos-pnl up">+$111.00</td><td>-$0.20</td><td><button class="pos-close-btn" onclick="openCloseModal('EUR/USD','Buy','+$111.00')">Close</button></td></tr>
+              <tr><td class="pos-sym">XAU/USD</td><td><span class="pos-type buy">Buy</span></td><td>0.10</td><td>2,310.00</td><td>2,341.50</td><td>2,280.00</td><td>2,400.00</td><td class="pos-pnl up">+$315.00</td><td>-$0.80</td><td><button class="pos-close-btn" onclick="openCloseModal('XAU/USD','Buy','+$315.00')">Close</button></td></tr>
+              <tr><td class="pos-sym">GBP/USD</td><td><span class="pos-type sell">Sell</span></td><td>0.30</td><td>1.26900</td><td>1.26718</td><td>1.27500</td><td>1.25500</td><td class="pos-pnl up">+$54.60</td><td>-$0.10</td><td><button class="pos-close-btn" onclick="openCloseModal('GBP/USD','Sell','+$54.60')">Close</button></td></tr>
+              <tr><td class="pos-sym">BTC/USD</td><td><span class="pos-type sell">Sell</span></td><td>0.05</td><td>76,200</td><td>78,450</td><td>80,000</td><td>72,000</td><td class="pos-pnl down">-$112.50</td><td>-$1.20</td><td><button class="pos-close-btn" onclick="openCloseModal('BTC/USD','Sell','-$112.50')">Close</button></td></tr>
+              <tr><td class="pos-sym">US30</td><td><span class="pos-type buy">Buy</span></td><td>1.00</td><td>38,900</td><td>39,142</td><td>38,400</td><td>40,000</td><td class="pos-pnl up">+$242.00</td><td>-$0.50</td><td><button class="pos-close-btn" onclick="openCloseModal('US30','Buy','+$242.00')">Close</button></td></tr>
+              <tr><td class="pos-sym">WTI/USD</td><td><span class="pos-type buy">Buy</span></td><td>2.00</td><td>83.100</td><td>82.340</td><td>81.000</td><td>86.000</td><td class="pos-pnl down">-$152.00</td><td>-$0.30</td><td><button class="pos-close-btn" onclick="openCloseModal('WTI/USD','Buy','-$152.00')">Close</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── RIGHT: Order Panel ── -->
+      <div class="order-panel">
+        <div class="order-panel__head">Place Order</div>
+
+        <!-- Buy / Sell tabs -->
+        <div class="order-type-tabs">
+          <button class="order-type-tab buy active" id="tab-buy"  onclick="setOrderSide('buy')">BUY</button>
+          <button class="order-type-tab sell"        id="tab-sell" onclick="setOrderSide('sell')">SELL</button>
+        </div>
+
+        <!-- Bid / Ask -->
+        <div class="bid-ask">
+          <div class="bid-ask__box bid-ask__box--sell" onclick="setOrderSide('sell')">
+            <div class="bid-ask__label">Sell / Bid</div>
+            <div class="bid-ask__price" id="bid-price">1.08418</div>
+            <div class="bid-ask__spread">Spread: 1.4</div>
+          </div>
+          <div class="bid-ask__box bid-ask__box--buy" onclick="setOrderSide('buy')">
+            <div class="bid-ask__label">Buy / Ask</div>
+            <div class="bid-ask__price" id="ask-price">1.08432</div>
+            <div class="bid-ask__spread">Spread: 1.4</div>
+          </div>
+        </div>
+
+        <div class="order-form">
+
+          <!-- Order type -->
+          <div class="order-field">
+            <label>Order type</label>
+            <select id="order-type-sel" onchange="updateOrderType()">
+              <option value="market">Market Execution</option>
+              <option value="limit">Limit Order</option>
+              <option value="stop">Stop Order</option>
+            </select>
+          </div>
+
+          <!-- Volume / Lots -->
+          <div class="order-field">
+            <label>Volume (Lots)</label>
+            <div class="order-field__input-wrap">
+              <input type="number" id="vol-input" value="0.10" step="0.01" min="0.01" max="100" oninput="calcMargin()">
+              <div class="order-field__unit">Lots</div>
+              <div class="order-field__stepper">
+                <button onclick="stepVol(0.01)">▲</button>
+                <button onclick="stepVol(-0.01)">▼</button>
+              </div>
+            </div>
+            <input type="range" class="order-slider" min="0.01" max="10" step="0.01" value="0.10" id="vol-slider" oninput="document.getElementById('vol-input').value=parseFloat(this.value).toFixed(2);calcMargin()">
+          </div>
+
+          <!-- TP / SL -->
+          <div class="tpsl-toggle">
+            <span>Take Profit / Stop Loss</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="tpsl-toggle" onchange="toggleTPSL()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div id="tpsl-fields" style="display:none;display:flex;flex-direction:column;gap:10px;">
+            <div class="order-field">
+              <label>Take Profit (price)</label>
+              <div class="order-field__input-wrap">
+                <input type="number" id="tp-input" placeholder="0.00000" step="0.00001">
+                <div class="order-field__unit" style="color:var(--green);">TP</div>
+              </div>
+            </div>
+            <div class="order-field">
+              <label>Stop Loss (price)</label>
+              <div class="order-field__input-wrap">
+                <input type="number" id="sl-input" placeholder="0.00000" step="0.00001">
+                <div class="order-field__unit" style="color:var(--red);">SL</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account -->
+          <div class="order-field">
+            <label>Account</label>
+            <select>
+              <option>#10482931 MT4 Raw+ $14,830.50</option>
+              <option>#10483012 MT5 Instant $8,200.00</option>
+              <option>#10483144 TradingView $1,800.00</option>
+            </select>
+          </div>
+
+          <!-- Margin info -->
+          <div class="margin-info" id="margin-info">
+            <div class="margin-info__row"><span>Required margin</span><span id="m-margin">$108.43</span></div>
+            <div class="margin-info__row"><span>Pip value</span><span id="m-pip">$1.00</span></div>
+            <div class="margin-info__row"><span>Contract size</span><span id="m-contract">5,000</span></div>
+            <div class="margin-info__row"><span>Commission</span><span id="m-comm">$0.35</span></div>
+          </div>
+
+          <!-- Submit -->
+          <button class="order-submit buy" id="order-submit" onclick="submitOrder()">
+            <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+            <span id="submit-label">BUY EUR/USD</span>
+          </button>
+
+        </div>
+      </div>
+    </div><!-- /trade-body -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- Close Position Modal -->
+<div class="modal-overlay" id="modal-close">
+  <div class="modal">
+    <div class="modal__head">
+      <div class="modal__title">Close Position</div>
+      <button class="modal__close" onclick="document.getElementById('modal-close').classList.remove('open')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <div class="modal__row"><span class="modal__row-label">Symbol</span><span class="modal__row-val" id="mc-sym">EUR/USD</span></div>
+      <div class="modal__row"><span class="modal__row-label">Direction</span><span class="modal__row-val" id="mc-dir">Buy</span></div>
+      <div class="modal__row"><span class="modal__row-label">Current P&L</span><span class="modal__row-val" id="mc-pnl" style="color:var(--green);">+$111.00</span></div>
+      <div class="modal__row"><span class="modal__row-label">Close price</span><span class="modal__row-val">Market price</span></div>
+      <p style="font-size:12px;color:var(--muted);background:var(--bg);padding:10px;border-radius:8px;">Are you sure you want to close this position at the current market price?</p>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="document.getElementById('modal-close').classList.remove('open')">Cancel</button>
+      <button class="btn btn--red" onclick="confirmClose()">Close Position</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Confirmed Modal -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal">
+    <div class="modal__head">
+      <div class="modal__title">Order Placed ✓</div>
+      <button class="modal__close" onclick="document.getElementById('modal-confirm').classList.remove('open')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <div style="text-align:center;padding:12px 0;">
+        <div style="width:60px;height:60px;background:var(--green-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px;" id="conf-title">Buy EUR/USD</div>
+        <div style="font-size:13px;color:var(--muted);" id="conf-sub">0.10 lots at market price 1.08432</div>
+      </div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--green" style="width:100%;justify-content:center;" onclick="document.getElementById('modal-confirm').classList.remove('open')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- TradingView chart script -->
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
+<script>
+  // ── Instrument data ───────────────────────────────────────
+  const MARKETS = {
+    forex: [
+      { sym:'EURUSD',  tv:'FX:EURUSD',  icon:'💱', name:'Euro / US Dollar',        price:'1.08432',  chg:'+0.42%', up:true  },
+      { sym:'GBPUSD',  tv:'FX:GBPUSD',  icon:'💷', name:'Pound / US Dollar',       price:'1.26718',  chg:'-0.18%', up:false },
+      { sym:'USDJPY',  tv:'FX:USDJPY',  icon:'💴', name:'US Dollar / Yen',         price:'151.842',  chg:'+0.31%', up:true  },
+      { sym:'AUDUSD',  tv:'FX:AUDUSD',  icon:'🦘', name:'Australian / US Dollar',  price:'0.65214',  chg:'-0.09%', up:false },
+      { sym:'USDCAD',  tv:'FX:USDCAD',  icon:'🍁', name:'US Dollar / Canadian',    price:'1.36421',  chg:'+0.12%', up:true  },
+      { sym:'USDCHF',  tv:'FX:USDCHF',  icon:'🇨🇭', name:'US Dollar / Swiss Franc', price:'0.90142',  chg:'+0.05%', up:true  },
+      { sym:'NZDUSD',  tv:'FX:NZDUSD',  icon:'🥝', name:'New Zealand / US Dollar', price:'0.60321',  chg:'-0.21%', up:false },
+      { sym:'EURGBP',  tv:'FX:EURGBP',  icon:'💶', name:'Euro / Pound Sterling',   price:'0.85612',  chg:'+0.14%', up:true  },
+      { sym:'EURJPY',  tv:'FX:EURJPY',  icon:'💹', name:'Euro / Japanese Yen',     price:'164.521',  chg:'+0.58%', up:true  },
+      { sym:'GBPJPY',  tv:'FX:GBPJPY',  icon:'💸', name:'Pound / Japanese Yen',    price:'192.340',  chg:'+0.44%', up:true  },
+    ],
+    crypto: [
+      { sym:'BTCUSD',  tv:'BITSTAMP:BTCUSD',  icon:'₿',  name:'Bitcoin / US Dollar',  price:'78,450',  chg:'+2.14%', up:true  },
+      { sym:'ETHUSD',  tv:'BITSTAMP:ETHUSD',  icon:'Ξ',  name:'Ethereum / US Dollar', price:'2,301',   chg:'+1.88%', up:true  },
+      { sym:'SOLUSD',  tv:'BINANCE:SOLUSDT',  icon:'◎',  name:'Solana / US Dollar',   price:'142.80',  chg:'+3.21%', up:true  },
+      { sym:'XRPUSD',  tv:'BITSTAMP:XRPUSD',  icon:'✕',  name:'Ripple / US Dollar',   price:'0.5124',  chg:'-0.84%', up:false },
+      { sym:'BNBUSD',  tv:'BINANCE:BNBUSDT',  icon:'🔶', name:'BNB / US Dollar',      price:'412.30',  chg:'+0.72%', up:true  },
+      { sym:'ADAUSD',  tv:'BINANCE:ADAUSDT',  icon:'🔵', name:'Cardano / US Dollar',  price:'0.4821',  chg:'-1.12%', up:false },
+      { sym:'DOTUSD',  tv:'BINANCE:DOTUSDT',  icon:'⚫', name:'Polkadot / US Dollar', price:'7.2340',  chg:'+0.95%', up:true  },
+      { sym:'DOGEUSD', tv:'BINANCE:DOGEUSDT', icon:'🐕', name:'Dogecoin / US Dollar', price:'0.1482',  chg:'+4.21%', up:true  },
+    ],
+    stocks: [
+      { sym:'AAPL',   tv:'NASDAQ:AAPL',   icon:'🍎', name:'Apple Inc.',          price:'182.52',  chg:'+0.84%', up:true  },
+      { sym:'MSFT',   tv:'NASDAQ:MSFT',   icon:'🪟', name:'Microsoft Corp.',     price:'415.30',  chg:'+1.12%', up:true  },
+      { sym:'GOOGL',  tv:'NASDAQ:GOOGL',  icon:'🔍', name:'Alphabet Inc.',       price:'176.40',  chg:'-0.32%', up:false },
+      { sym:'AMZN',   tv:'NASDAQ:AMZN',   icon:'📦', name:'Amazon.com Inc.',     price:'192.80',  chg:'+1.54%', up:true  },
+      { sym:'TSLA',   tv:'NASDAQ:TSLA',   icon:'⚡', name:'Tesla Inc.',          price:'172.60',  chg:'-2.14%', up:false },
+      { sym:'NVDA',   tv:'NASDAQ:NVDA',   icon:'🎮', name:'NVIDIA Corp.',        price:'875.40',  chg:'+3.21%', up:true  },
+      { sym:'META',   tv:'NASDAQ:META',   icon:'👓', name:'Meta Platforms',      price:'510.20',  chg:'+0.91%', up:true  },
+      { sym:'JPM',    tv:'NYSE:JPM',      icon:'🏦', name:'JPMorgan Chase',      price:'198.30',  chg:'+0.54%', up:true  },
+      { sym:'BAC',    tv:'NYSE:BAC',      icon:'💵', name:'Bank of America',     price:'38.42',   chg:'-0.18%', up:false },
+      { sym:'V',      tv:'NYSE:V',        icon:'💳', name:'Visa Inc.',           price:'278.90',  chg:'+0.42%', up:true  },
+    ],
+    indices: [
+      { sym:'US30',   tv:'FOREXCOM:DJI',   icon:'🗽', name:'Dow Jones Industrial', price:'39,142', chg:'+0.31%', up:true  },
+      { sym:'SPX500', tv:'FOREXCOM:SPXUSD',icon:'🦅', name:'S&P 500',             price:'5,254',  chg:'+0.48%', up:true  },
+      { sym:'NAS100', tv:'FOREXCOM:NSXUSD',icon:'💻', name:'NASDAQ 100',          price:'18,241', chg:'+0.72%', up:true  },
+      { sym:'UK100',  tv:'SPREADEX:UK100', icon:'🎡', name:'FTSE 100',            price:'8,312',  chg:'-0.14%', up:false },
+      { sym:'GER40',  tv:'FOREXCOM:GER40', icon:'🏰', name:'DAX 40',             price:'18,074', chg:'+0.22%', up:true  },
+      { sym:'FRA40',  tv:'FOREXCOM:FRA40', icon:'🗼', name:'CAC 40',             price:'8,142',  chg:'-0.08%', up:false },
+      { sym:'JPN225', tv:'FOREXCOM:JPN225',icon:'🗾', name:'Nikkei 225',         price:'40,120', chg:'+0.81%', up:true  },
+      { sym:'AUS200', tv:'FOREXCOM:AUS200',icon:'🦘', name:'ASX 200',            price:'7,814',  chg:'+0.34%', up:true  },
+    ],
+    metals: [
+      { sym:'XAUUSD', tv:'FOREXCOM:XAUUSD', icon:'🥇', name:'Gold / US Dollar',    price:'2,341.5', chg:'+0.87%', up:true  },
+      { sym:'XAGUSD', tv:'FOREXCOM:XAGUSD', icon:'🥈', name:'Silver / US Dollar',  price:'27.842',  chg:'+1.24%', up:true  },
+      { sym:'XPTUSD', tv:'FOREXCOM:XPTUSD', icon:'⬜', name:'Platinum / USD',      price:'982.40',  chg:'-0.31%', up:false },
+      { sym:'XPDUSD', tv:'FOREXCOM:XPDUSD', icon:'🔩', name:'Palladium / USD',     price:'1,042.0', chg:'-0.54%', up:false },
+      { sym:'XBRUSD', tv:'TVC:COPPER',       icon:'🔶', name:'Copper / US Dollar',  price:'4.1240',  chg:'+0.62%', up:true  },
+    ],
+    energy: [
+      { sym:'WTIUSD', tv:'NYMEX:CL1!',      icon:'🛢️', name:'Crude Oil WTI',      price:'82.340', chg:'-0.55%', up:false },
+      { sym:'BRTUSD', tv:'NYMEX:BB1!',       icon:'⚫', name:'Brent Crude Oil',    price:'86.720', chg:'-0.42%', up:false },
+      { sym:'NGAS',   tv:'NYMEX:NG1!',       icon:'🔥', name:'Natural Gas',        price:'1.8420', chg:'+1.12%', up:true  },
+      { sym:'GASOLINE',tv:'NYMEX:RB1!',      icon:'⛽', name:'Gasoline RBOB',      price:'2.6840', chg:'-0.28%', up:false },
+      { sym:'HEATING', tv:'NYMEX:HO1!',      icon:'🌡️', name:'Heating Oil',        price:'2.8120', chg:'+0.18%', up:true  },
+    ],
+    etfs: [
+      { sym:'SPY',  tv:'AMEX:SPY',  icon:'📊', name:'SPDR S&P 500 ETF',     price:'524.80', chg:'+0.48%', up:true  },
+      { sym:'QQQ',  tv:'NASDAQ:QQQ',icon:'💡', name:'Invesco QQQ Trust',    price:'448.20', chg:'+0.71%', up:true  },
+      { sym:'GLD',  tv:'AMEX:GLD',  icon:'🟡', name:'SPDR Gold Shares',     price:'215.40', chg:'+0.84%', up:true  },
+      { sym:'SLV',  tv:'AMEX:SLV',  icon:'⚪', name:'iShares Silver Trust', price:'25.820', chg:'+1.21%', up:true  },
+      { sym:'VTI',  tv:'AMEX:VTI',  icon:'🌐', name:'Vanguard Total Market',price:'241.30', chg:'+0.36%', up:true  },
+      { sym:'XLE',  tv:'AMEX:XLE',  icon:'⚡', name:'Energy Select SPDR',   price:'91.420', chg:'-0.42%', up:false },
+      { sym:'ARKK', tv:'AMEX:ARKK', icon:'🚀', name:'ARK Innovation ETF',   price:'48.120', chg:'+2.14%', up:true  },
+    ],
+  };
+
+  let currentCat = 'forex';
+  let currentSym = MARKETS.forex[0];
+  let currentSide = 'buy';
+  let tvWidget = null;
+  let currentTF = '60';
+
+  // ── Build instrument list ─────────────────────────────────
+  function buildList(cat) {
+    const list = document.getElementById('instrument-list');
+    list.innerHTML = '';
+    MARKETS[cat].forEach((inst, i) => {
+      const row = document.createElement('div');
+      row.className = 'instrument-row' + (i === 0 ? ' active' : '');
+      row.innerHTML = `
+        <div class="instrument-icon">${inst.icon}</div>
+        <div class="instrument-info">
+          <div class="instrument-info__sym">${inst.sym}</div>
+          <div class="instrument-info__name">${inst.name}</div>
+        </div>
+        <div class="instrument-price">
+          <div class="instrument-price__val">${inst.price}</div>
+          <div class="instrument-price__chg ${inst.up ? 'up' : 'down'}">${inst.chg}</div>
+        </div>`;
+      row.addEventListener('click', () => selectInstrument(inst, row));
+      list.appendChild(row);
+    });
+  }
+
+  // ── Select instrument ─────────────────────────────────────
+  function selectInstrument(inst, rowEl) {
+    document.querySelectorAll('.instrument-row').forEach(r => r.classList.remove('active'));
+    if (rowEl) rowEl.classList.add('active');
+    currentSym = inst;
+
+    // Update chart header
+    document.getElementById('chart-symbol').textContent = inst.sym;
+    document.getElementById('chart-price').textContent  = inst.price;
+    const chgEl = document.getElementById('chart-change');
+    chgEl.textContent = inst.chg;
+    chgEl.className = 'chart-panel__change ' + (inst.up ? 'up' : 'down');
+
+    // Update bid/ask
+    const p = parseFloat(inst.price.replace(/,/g,''));
+    const spread = p > 1000 ? 2.0 : p > 10 ? 0.5 : p > 1 ? 0.00014 : 0.0002;
+    document.getElementById('bid-price').textContent = formatPrice(p - spread, inst.price);
+    document.getElementById('ask-price').textContent = formatPrice(p + spread, inst.price);
+
+    // Update submit label
+    updateSubmitLabel();
+
+    // Load TradingView chart
+    loadChart(inst.tv);
+  }
+
+  function formatPrice(val, ref) {
+    const decimals = ref.includes(',') ? 0 : ref.split('.')[1]?.length || 5;
+    return val.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  // ── Load TradingView chart ────────────────────────────────
+  function loadChart(symbol) {
+    if (tvWidget) {
+      try { tvWidget.remove(); } catch(e) {}
+    }
+    document.getElementById('tradingview_chart').innerHTML = '';
+    tvWidget = new TradingView.widget({
+      container_id: 'tradingview_chart',
+      symbol: symbol,
+      interval: currentTF,
+      timezone: 'Etc/UTC',
+      theme: 'light',
+      style: '1',
+      locale: 'en',
+      toolbar_bg: '#ffffff',
+      enable_publishing: false,
+      hide_top_toolbar: false,
+      hide_legend: false,
+      save_image: false,
+      withdateranges: true,
+      allow_symbol_change: true,
+      details: true,
+      hotlist: false,
+      calendar: false,
+      width: '100%',
+      height: '100%',
+    });
+  }
+
+  // ── Switch category ───────────────────────────────────────
+  function switchCat(btn, cat) {
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCat = cat;
+    buildList(cat);
+    selectInstrument(MARKETS[cat][0], document.querySelector('.instrument-row'));
+  }
+
+  // ── Timeframe ─────────────────────────────────────────────
+  function setTF(btn, tf) {
+    document.querySelectorAll('.chart-tf button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTF = tf;
+    loadChart(currentSym.tv);
+  }
+
+  // ── Order side ────────────────────────────────────────────
+  function setOrderSide(side) {
+    currentSide = side;
+    const buyTab  = document.getElementById('tab-buy');
+    const sellTab = document.getElementById('tab-sell');
+    const submit  = document.getElementById('order-submit');
+    if (side === 'buy') {
+      buyTab.classList.add('active');  sellTab.classList.remove('active');
+      submit.className = 'order-submit buy';
+    } else {
+      sellTab.classList.add('active'); buyTab.classList.remove('active');
+      submit.className = 'order-submit sell';
+    }
+    updateSubmitLabel();
+  }
+
+  function updateSubmitLabel() {
+    const side = currentSide.toUpperCase();
+    document.getElementById('submit-label').textContent = `${side} ${currentSym?.sym || 'EUR/USD'}`;
+  }
+
+  // ── Volume stepper ────────────────────────────────────────
+  function stepVol(delta) {
+    const inp = document.getElementById('vol-input');
+    const val = Math.max(0.01, Math.round((parseFloat(inp.value) + delta) * 100) / 100);
+    inp.value = val.toFixed(2);
+    document.getElementById('vol-slider').value = val;
+    calcMargin();
+  }
+
+  // ── Calc margin ───────────────────────────────────────────
+  function calcMargin() {
+    const lots = parseFloat(document.getElementById('vol-input').value) || 0.1;
+    const price = parseFloat((currentSym?.price || '1').replace(/,/g,'')) || 1;
+    const margin   = (lots * 100000 * price / 200).toFixed(2);
+    const pip      = (lots * 10).toFixed(2);
+    const contract = Math.round(lots * 100000).toLocaleString();
+    const comm     = (lots * 3.5).toFixed(2);
+    document.getElementById('m-margin').textContent   = '$' + parseFloat(margin).toLocaleString();
+    document.getElementById('m-pip').textContent      = '$' + pip;
+    document.getElementById('m-contract').textContent = contract;
+    document.getElementById('m-comm').textContent     = '$' + comm;
+  }
+
+  // ── TP/SL toggle ─────────────────────────────────────────
+  function toggleTPSL() {
+    const fields = document.getElementById('tpsl-fields');
+    fields.style.display = document.getElementById('tpsl-toggle').checked ? 'flex' : 'none';
+  }
+  document.getElementById('tpsl-fields').style.display = 'none';
+
+  // ── Submit order ──────────────────────────────────────────
+  function submitOrder() {
+    const side  = currentSide.toUpperCase();
+    const sym   = currentSym?.sym || 'EUR/USD';
+    const lots  = document.getElementById('vol-input').value;
+    const price = currentSide === 'buy'
+      ? document.getElementById('ask-price').textContent
+      : document.getElementById('bid-price').textContent;
+    document.getElementById('conf-title').textContent = `${side} ${sym}`;
+    document.getElementById('conf-sub').textContent   = `${lots} lots at market price ${price}`;
+    document.getElementById('modal-confirm').classList.add('open');
+  }
+
+  // ── Close position modal ──────────────────────────────────
+  function openCloseModal(sym, dir, pnl) {
+    document.getElementById('mc-sym').textContent = sym;
+    document.getElementById('mc-dir').textContent = dir;
+    const pnlEl = document.getElementById('mc-pnl');
+    pnlEl.textContent = pnl;
+    pnlEl.style.color = pnl.startsWith('+') ? 'var(--green)' : 'var(--red)';
+    document.getElementById('modal-close').classList.add('open');
+  }
+  function confirmClose() {
+    document.getElementById('modal-close').classList.remove('open');
+  }
+
+  // ── Filter instruments ────────────────────────────────────
+  function filterInstruments() {
+    const q = document.getElementById('sym-search').value.toLowerCase();
+    document.querySelectorAll('.instrument-row').forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(q) ? '' : 'none';
+    });
+  }
+
+  // ── Sidebar toggle ────────────────────────────────────────
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+  document.addEventListener('click', e => {
+    const sb = document.getElementById('sidebar');
+    const hb = document.getElementById('hamburger');
+    if (sb.classList.contains('open') && !sb.contains(e.target) && !hb.contains(e.target)) {
+      sb.classList.remove('open');
+    }
+  });
+
+  // ── Close modals on overlay click ─────────────────────────
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+  });
+
+  // ── Chart tab pos panel ───────────────────────────────────
+  document.querySelectorAll('.pos-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.pos-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // ── Init ──────────────────────────────────────────────────
+  buildList('forex');
+  loadChart(MARKETS.forex[0].tv);
+  calcMargin();
+</script>
+</body>
+</html>

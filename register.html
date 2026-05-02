@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Open an Account — Xantex Global Markets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       TOKENS
+    ============================================================ */
+    :root {
+      --red:       #e60023;
+      --blue:      #1a5cff;
+      --blue-dk:   #1244cc;
+      --blue-lt:   #e8eeff;
+      --bg:        #f4f6f9;
+      --white:     #ffffff;
+      --text:      #111111;
+      --muted:     #666666;
+      --border:    #e0e3e8;
+      --success:   #22a06b;
+      --error:     #e60023;
+      --max:       1240px;
+      --pad:       clamp(16px, 4vw, 60px);
+    }
+
+    /* ============================================================
+       RESET
+    ============================================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
+    .navbar {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 0 var(--pad);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar__inner {
+      width: 100%; max-width: var(--max); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .navbar__logo a { display: flex; align-items: center; }
+    .navbar__logo img { height: 36px; width: auto; }
+    .navbar__logo-text { font-size: 24px; font-weight: 700; color: var(--red); }
+    .navbar__back {
+      font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 6px;
+    }
+    .navbar__back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .navbar__back:hover { color: var(--blue); }
+    .navbar__login { font-size: 14px; color: var(--muted); }
+    .navbar__login a { color: var(--blue); font-weight: 500; }
+    .navbar__login a:hover { text-decoration: underline; }
+
+    /* ============================================================
+       PAGE LAYOUT
+    ============================================================ */
+    .page {
+      min-height: calc(100vh - 64px);
+      display: grid;
+      grid-template-columns: 1fr 480px;
+    }
+
+    /* ============================================================
+       LEFT PANEL — benefits
+    ============================================================ */
+    .panel-left {
+      background: #070f1c url('/images/mt4-main.png') center/cover no-repeat;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px var(--pad);
+      color: #fff;
+      overflow: hidden;
+    }
+    .panel-left__overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(4,8,20,0.96) 50%, rgba(4,8,20,0.75) 100%);
+    }
+    .panel-left__content { position: relative; z-index: 2; max-width: 480px; }
+    .panel-left__eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--red); margin-bottom: 16px;
+    }
+    .panel-left__h1 {
+      font-size: clamp(26px, 3vw, 40px); font-weight: 700;
+      line-height: 1.1; letter-spacing: -0.5px; margin-bottom: 14px;
+    }
+    .panel-left__sub {
+      font-size: 15px; color: rgba(255,255,255,0.65);
+      margin-bottom: 48px; line-height: 1.65;
+    }
+    .benefits { display: flex; flex-direction: column; gap: 24px; margin-bottom: 48px; }
+    .benefit { display: flex; align-items: flex-start; gap: 14px; }
+    .benefit__icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: rgba(26,92,255,0.18); border: 1px solid rgba(26,92,255,0.3);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .benefit__icon svg { width: 20px; height: 20px; fill: none; stroke: #6b9fff; stroke-width: 1.8; }
+    .benefit__title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .benefit__text  { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+    .panel-left__awards {
+      display: flex; gap: 20px; flex-wrap: wrap;
+      padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .award-chip {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .award-chip__year  { font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; }
+    .award-chip__label { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.75); }
+
+    /* ============================================================
+       RIGHT PANEL — form
+    ============================================================ */
+    .panel-right {
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px clamp(24px, 4vw, 48px);
+      border-left: 1px solid var(--border);
+    }
+
+    /* Steps indicator */
+    .steps {
+      display: flex; align-items: center; gap: 0;
+      margin-bottom: 36px;
+    }
+    .step {
+      display: flex; align-items: center; gap: 8px; flex: 1;
+    }
+    .step__dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+      border: 2px solid var(--border); color: var(--muted); background: #fff;
+      transition: all 0.2s;
+    }
+    .step.active   .step__dot { border-color: var(--blue); color: var(--blue); background: var(--blue-lt); }
+    .step.done     .step__dot { border-color: var(--blue); background: var(--blue); color: #fff; }
+    .step__label { font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+    .step.active .step__label { color: var(--blue); }
+    .step.done   .step__label { color: var(--text); }
+    .step__line { flex: 1; height: 1px; background: var(--border); margin: 0 8px; }
+    .step__line.done { background: var(--blue); }
+
+    /* Form heading */
+    .form-head { margin-bottom: 28px; }
+    .form-head__title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 6px; }
+    .form-head__sub   { font-size: 13px; color: var(--muted); }
+
+    /* Form fields */
+    .form { display: flex; flex-direction: column; gap: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 13px; font-weight: 500; color: var(--text); }
+    .field input,
+    .field select {
+      height: 46px; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 0 14px; font-size: 14px; font-family: inherit; color: var(--text);
+      background: #fff; outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+      appearance: none; width: 100%;
+    }
+    .field select {
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 14px center;
+      padding-right: 36px;
+    }
+    .field input:focus,
+    .field select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,92,255,0.1); }
+    .field input.error,
+    .field select.error { border-color: var(--error); }
+    .field__error { font-size: 11px; color: var(--error); display: none; }
+    .field input.error ~ .field__error,
+    .field select.error ~ .field__error { display: block; }
+
+    /* Phone field */
+    .phone-wrap { display: flex; gap: 8px; }
+    .phone-wrap select { width: 110px; flex-shrink: 0; }
+    .phone-wrap input  { flex: 1; }
+
+    /* Password strength */
+    .strength-bar { display: flex; gap: 4px; margin-top: 6px; }
+    .strength-bar span {
+      flex: 1; height: 3px; border-radius: 3px; background: var(--border);
+      transition: background 0.2s;
+    }
+    .strength-bar.s1 span:nth-child(1) { background: var(--error); }
+    .strength-bar.s2 span:nth-child(-n+2) { background: #f5a623; }
+    .strength-bar.s3 span:nth-child(-n+3) { background: #f5a623; }
+    .strength-bar.s4 span { background: var(--success); }
+    .strength-label { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    /* Checkbox / terms */
+    .check-field { display: flex; align-items: flex-start; gap: 10px; }
+    .check-field input[type=checkbox] {
+      width: 17px; height: 17px; flex-shrink: 0; margin-top: 2px;
+      accent-color: var(--blue); cursor: pointer;
+      border: 1.5px solid var(--border); border-radius: 4px;
+    }
+    .check-field label { font-size: 13px; color: var(--muted); line-height: 1.5; cursor: pointer; }
+    .check-field label a { color: var(--blue); }
+    .check-field label a:hover { text-decoration: underline; }
+
+    /* Submit */
+    .btn-submit {
+      width: 100%; height: 50px; background: var(--blue); color: #fff;
+      border: none; border-radius: 28px; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 4px;
+    }
+    .btn-submit:hover { background: var(--blue-dk); }
+    .btn-submit svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; }
+    .btn-submit.loading { opacity: 0.7; pointer-events: none; }
+
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 4px 0; color: var(--muted); font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Social login */
+    .social-btns { display: flex; gap: 10px; }
+    .social-btn {
+      flex: 1; height: 44px; border: 1.5px solid var(--border); border-radius: 8px;
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      gap: 8px; font-size: 13px; font-weight: 500; color: var(--text);
+      cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .social-btn:hover { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,92,255,0.08); }
+    .social-btn img { width: 18px; height: 18px; }
+    .social-btn svg { width: 18px; height: 18px; }
+
+    /* Sign-in link */
+    .signin-link {
+      text-align: center; font-size: 13px; color: var(--muted); margin-top: 20px;
+    }
+    .signin-link a { color: var(--blue); font-weight: 500; }
+    .signin-link a:hover { text-decoration: underline; }
+
+    /* Trust badges */
+    .trust-badges {
+      display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+      margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);
+    }
+    .trust-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--muted);
+    }
+    .trust-badge svg { width: 14px; height: 14px; fill: none; stroke: var(--success); stroke-width: 2; }
+
+    /* ============================================================
+       MOBILE
+    ============================================================ */
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      .panel-left { display: none; }
+      .panel-right {
+        border-left: none;
+        padding: 32px 20px 48px;
+      }
+    }
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; }
+      .social-btns { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar__inner">
+    <div class="navbar__logo">
+      <a href="/index.html">
+        <img src="/images/logo.png" alt="Xantex" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="navbar__logo-text" style="display:none;">Xantex</span>
+      </a>
+    </div>
+    <div class="navbar__login">Already have an account? <a href="/login.html">Log in</a></div>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- LEFT — Benefits -->
+  <div class="panel-left">
+    <div class="panel-left__overlay" aria-hidden="true"></div>
+    <div class="panel-left__content">
+      <p class="panel-left__eyebrow">Get started in minutes</p>
+      <h1 class="panel-left__h1">Open your free<br>trading account</h1>
+      <p class="panel-left__sub">Join over 2 million traders worldwide. No minimum deposit required to get started.</p>
+
+      <div class="benefits">
+        <div class="benefit">
+          <div class="benefit__icon">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div>
+            <div class="benefit__title">Ultra-tight spreads from 0.0 pips</div>
+            <div class="benefit__text">Raw interbank pricing with no mark-up on Instant accounts.</div>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit__icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <div class="benefit__title">FCA regulated &amp; segregated funds</div>
+            <div class="benefit__text">Your money is held in segregated accounts at tier-1 banks.</div>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit__icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <div>
+            <div class="benefit__title">6 platforms, 2,100+ instruments</div>
+            <div class="benefit__text">MT4, MT5, cTrader, TradingView and more — one account.</div>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="benefit__icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <div class="benefit__title">24/5 multilingual support</div>
+            <div class="benefit__text">Live chat, phone and email in 20+ languages.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-left__awards">
+        <div class="award-chip">
+          <span class="award-chip__year">2024</span>
+          <span class="award-chip__label">Best Forex Broker</span>
+        </div>
+        <div class="award-chip">
+          <span class="award-chip__year">2023</span>
+          <span class="award-chip__label">Most Trusted Broker</span>
+        </div>
+        <div class="award-chip">
+          <span class="award-chip__year">2023</span>
+          <span class="award-chip__label">Best Trading Platform</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT — Form -->
+  <div class="panel-right">
+
+    <!-- Step indicator -->
+    <div class="steps" aria-label="Registration steps">
+      <div class="step active" id="step-ind-1">
+        <div class="step__dot">1</div>
+        <span class="step__label">Personal info</span>
+      </div>
+      <div class="step__line" id="line-1"></div>
+      <div class="step" id="step-ind-2">
+        <div class="step__dot">2</div>
+        <span class="step__label">Account setup</span>
+      </div>
+      <div class="step__line" id="line-2"></div>
+      <div class="step" id="step-ind-3">
+        <div class="step__dot">3</div>
+        <span class="step__label">Verify</span>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div id="step-1">
+      <div class="form-head">
+        <div class="form-head__title">Create your account</div>
+        <div class="form-head__sub">Step 1 of 3 — Personal information</div>
+      </div>
+
+      <div class="form" id="form-1">
+
+        <div class="form-row">
+          <div class="field">
+            <label for="first-name">First name</label>
+            <input type="text" id="first-name" placeholder="John" autocomplete="given-name">
+            <span class="field__error">Please enter your first name</span>
+          </div>
+          <div class="field">
+            <label for="last-name">Last name</label>
+            <input type="text" id="last-name" placeholder="Smith" autocomplete="family-name">
+            <span class="field__error">Please enter your last name</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="john@example.com" autocomplete="email">
+          <span class="field__error">Please enter a valid email address</span>
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone number</label>
+          <div class="phone-wrap">
+            <select id="phone-code" aria-label="Country code">
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+234">🇳🇬 +234</option>
+              <option value="+27">🇿🇦 +27</option>
+              <option value="+971">🇦🇪 +971</option>
+              <option value="+91">🇮🇳 +91</option>
+              <option value="+49">🇩🇪 +49</option>
+              <option value="+33">🇫🇷 +33</option>
+              <option value="+61">🇦🇺 +61</option>
+              <option value="+55">🇧🇷 +55</option>
+              <option value="+7">🇷🇺 +7</option>
+              <option value="+86">🇨🇳 +86</option>
+              <option value="+81">🇯🇵 +81</option>
+            </select>
+            <input type="tel" id="phone" placeholder="800 000 0000" autocomplete="tel">
+          </div>
+          <span class="field__error">Please enter a valid phone number</span>
+        </div>
+
+        <div class="field">
+          <label for="country">Country of residence</label>
+          <select id="country" autocomplete="country">
+            <option value="" disabled selected>Select your country…</option>
+            <option>United Kingdom</option>
+            <option>United States</option>
+            <option>Nigeria</option>
+            <option>South Africa</option>
+            <option>United Arab Emirates</option>
+            <option>India</option>
+            <option>Germany</option>
+            <option>France</option>
+            <option>Australia</option>
+            <option>Canada</option>
+            <option>Brazil</option>
+            <option>Singapore</option>
+            <option>Kenya</option>
+            <option>Ghana</option>
+            <option>Other</option>
+          </select>
+          <span class="field__error">Please select your country</span>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password">
+          <div class="strength-bar" id="strength-bar">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="strength-label" id="strength-label"></div>
+          <span class="field__error">Password must be at least 8 characters</span>
+        </div>
+
+        <div class="check-field">
+          <input type="checkbox" id="terms">
+          <label for="terms">
+            I agree to the <a href="/terms">Terms &amp; Conditions</a>,
+            <a href="/privacy">Privacy Policy</a> and
+            <a href="/risk-disclosure">Risk Disclosure Notice</a>
+          </label>
+        </div>
+
+        <div class="check-field">
+          <input type="checkbox" id="marketing">
+          <label for="marketing">I'd like to receive trading news, promotions and market updates from Xantex</label>
+        </div>
+
+        <button class="btn-submit" id="btn-step1" type="button" onclick="goStep2()">
+          Continue
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+
+        <div class="divider">or sign up with</div>
+        <div class="social-btns">
+          <button class="social-btn" type="button">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Google
+          </button>
+          <button class="social-btn" type="button">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
+          </button>
+        </div>
+
+      </div>
+
+      <div class="signin-link">Already have an account? <a href="/login.html">Sign in</a></div>
+
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          FCA Regulated
+        </div>
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          SSL Secured
+        </div>
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Segregated Funds
+        </div>
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Negative Balance Protection
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step-2" style="display:none;">
+      <div class="form-head">
+        <div class="form-head__title">Account preferences</div>
+        <div class="form-head__sub">Step 2 of 3 — Customise your account</div>
+      </div>
+
+      <div class="form">
+        <div class="field">
+          <label for="account-type">Account type</label>
+          <select id="account-type">
+            <option value="" disabled selected>Select account type…</option>
+            <option>Instant — Spreads from 0.6 pips, no commission</option>
+            <option>Raw+ — Spreads from 0.0 pips, $3.5/lot commission</option>
+            <option>Elite — Spreads from 0.0 pips, $2/lot commission</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="platform">Preferred platform</label>
+          <select id="platform">
+            <option value="" disabled selected>Select platform…</option>
+            <option>MetaTrader 4</option>
+            <option>MetaTrader 5</option>
+            <option>cTrader</option>
+            <option>TradingView</option>
+            <option>Xantex Platform</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="currency">Account currency</label>
+          <select id="currency">
+            <option>USD — US Dollar</option>
+            <option>EUR — Euro</option>
+            <option>GBP — British Pound</option>
+            <option>AED — UAE Dirham</option>
+            <option>NGN — Nigerian Naira</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="leverage">Preferred leverage</label>
+          <select id="leverage">
+            <option>1:30</option>
+            <option>1:50</option>
+            <option>1:100</option>
+            <option selected>1:200</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="experience">Trading experience</label>
+          <select id="experience">
+            <option value="" disabled selected>Select experience level…</option>
+            <option>Beginner — Less than 1 year</option>
+            <option>Intermediate — 1 to 3 years</option>
+            <option>Advanced — 3 to 5 years</option>
+            <option>Expert — More than 5 years</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="deposit">Expected initial deposit</label>
+          <select id="deposit">
+            <option value="" disabled selected>Select amount…</option>
+            <option>Under $500</option>
+            <option>$500 – $5,000</option>
+            <option>$5,000 – $25,000</option>
+            <option>$25,000 – $100,000</option>
+            <option>Over $100,000</option>
+          </select>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn-submit" type="button" onclick="goStep1()"
+            style="background:var(--bg);color:var(--text);border:1.5px solid var(--border);flex:0 0 auto;width:auto;padding:0 24px;">
+            ← Back
+          </button>
+          <button class="btn-submit" type="button" onclick="goStep3()">
+            Continue
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step-3" style="display:none;">
+      <div class="form-head">
+        <div class="form-head__title">Verify your identity</div>
+        <div class="form-head__sub">Step 3 of 3 — Required by FCA regulations</div>
+      </div>
+
+      <div class="form">
+        <div class="field">
+          <label for="dob">Date of birth</label>
+          <input type="date" id="dob">
+        </div>
+
+        <div class="field">
+          <label for="id-type">Identity document type</label>
+          <select id="id-type">
+            <option value="" disabled selected>Select document type…</option>
+            <option>Passport</option>
+            <option>National ID card</option>
+            <option>Driver's licence</option>
+          </select>
+        </div>
+
+        <!-- Upload boxes -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="upload-box" onclick="document.getElementById('upload-id').click()" style="border:2px dashed var(--border);border-radius:10px;padding:24px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 8px;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-size:12px;font-weight:600;margin-bottom:3px;">ID Front</div>
+            <div style="font-size:11px;color:var(--muted);">JPG, PNG or PDF</div>
+            <input type="file" id="upload-id" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="fileChosen(this,'id-label')">
+            <div id="id-label" style="font-size:11px;color:var(--blue);margin-top:6px;"></div>
+          </div>
+          <div class="upload-box" onclick="document.getElementById('upload-selfie').click()" style="border:2px dashed var(--border);border-radius:10px;padding:24px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 8px;display:block;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <div style="font-size:12px;font-weight:600;margin-bottom:3px;">Proof of Address</div>
+            <div style="font-size:11px;color:var(--muted);">Utility bill or bank statement</div>
+            <input type="file" id="upload-selfie" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="fileChosen(this,'selfie-label')">
+            <div id="selfie-label" style="font-size:11px;color:var(--blue);margin-top:6px;"></div>
+          </div>
+        </div>
+
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;background:var(--bg);padding:12px 14px;border-radius:8px;">
+          🔒 Your documents are encrypted and processed securely. We will never share your information with third parties without your consent.
+        </p>
+
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn-submit" type="button" onclick="goStep2()"
+            style="background:var(--bg);color:var(--text);border:1.5px solid var(--border);flex:0 0 auto;width:auto;padding:0 24px;">
+            ← Back
+          </button>
+          <button class="btn-submit" type="button" onclick="submitForm()">
+            Open my account
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="step-success" style="display:none;text-align:center;padding:40px 0;">
+      <div style="width:72px;height:72px;background:#e6f7ef;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#22a06b" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2 style="font-size:22px;font-weight:700;margin-bottom:8px;">Account created!</h2>
+      <p style="font-size:14px;color:var(--muted);max-width:300px;margin:0 auto 28px;line-height:1.6;">
+        Welcome to Xantex. We've sent a confirmation email. Your account is being reviewed and will be ready shortly.
+      </p>
+      <a href="/index.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;padding:13px 32px;border-radius:28px;font-size:15px;font-weight:600;">
+        Go to dashboard
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── Password strength ─────────────────────────────────────
+  const pwInput   = document.getElementById('password');
+  const strengthB = document.getElementById('strength-bar');
+  const strengthL = document.getElementById('strength-label');
+  const levels    = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+  const levelCols = ['', '#e60023', '#f5a623', '#f5a623', '#22a06b'];
+
+  pwInput.addEventListener('input', () => {
+    const v = pwInput.value;
+    let score = 0;
+    if (v.length >= 8)                            score++;
+    if (/[A-Z]/.test(v) && /[a-z]/.test(v))     score++;
+    if (/\d/.test(v))                             score++;
+    if (/[^A-Za-z0-9]/.test(v))                  score++;
+    strengthB.className = 'strength-bar' + (v ? ' s' + score : '');
+    strengthL.textContent = v ? levels[score] : '';
+    strengthL.style.color = levelCols[score];
+  });
+
+  // ── Step navigation ───────────────────────────────────────
+  function setStep(n) {
+    [1,2,3].forEach(i => {
+      document.getElementById('step-' + i).style.display = i === n ? 'block' : 'none';
+      const ind = document.getElementById('step-ind-' + i);
+      ind.classList.remove('active','done');
+      if (i < n)  ind.classList.add('done');
+      if (i === n) ind.classList.add('active');
+      // Update step dot to checkmark when done
+      ind.querySelector('.step__dot').textContent = i < n ? '✓' : i;
+    });
+    [1,2].forEach(i => {
+      const line = document.getElementById('line-' + i);
+      if (line) line.classList.toggle('done', i < n);
+    });
+    document.getElementById('step-success').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goStep1() { setStep(1); }
+  function goStep2() {
+    // Validate step 1
+    let valid = true;
+    const required = ['first-name','last-name','email','country','password'];
+    required.forEach(id => {
+      const el = document.getElementById(id);
+      const empty = !el.value.trim();
+      el.classList.toggle('error', empty);
+      if (empty) valid = false;
+    });
+    if (!document.getElementById('terms').checked) {
+      valid = false;
+      document.getElementById('terms').style.outline = '2px solid var(--error)';
+    } else {
+      document.getElementById('terms').style.outline = '';
+    }
+    if (valid) setStep(2);
+  }
+  function goStep3() { setStep(3); }
+  function submitForm() {
+    [1,2,3].forEach(i => document.getElementById('step-' + i).style.display = 'none');
+    ['step-ind-1','step-ind-2','step-ind-3'].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.remove('active');
+      el.classList.add('done');
+      el.querySelector('.step__dot').textContent = '✓';
+    });
+    document.getElementById('line-1').classList.add('done');
+    document.getElementById('line-2').classList.add('done');
+    document.getElementById('step-success').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── File upload label ─────────────────────────────────────
+  function fileChosen(input, labelId) {
+    const label = document.getElementById(labelId);
+    label.textContent = input.files[0] ? '✓ ' + input.files[0].name : '';
+  }
+
+  // ── Clear error on input ──────────────────────────────────
+  document.querySelectorAll('.field input, .field select').forEach(el => {
+    el.addEventListener('input', () => el.classList.remove('error'));
+  });
+</script>
+</body>
+</html>

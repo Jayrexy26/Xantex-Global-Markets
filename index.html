@@ -111,19 +111,37 @@
     /* ============================================================
        HERO
     ============================================================ */
+    /* ============================================================
+       HERO ANIMATIONS
+    ============================================================ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
     .hero {
       position: relative;
       min-height: 580px;
       display: flex;
       align-items: center;
       overflow: hidden;
-      background: #070f1c url('/images/hero-bg.jpg') center/cover no-repeat;
+      /* Updated background */
+      background: #070f1c url('/images/mt4-main.png') center/cover no-repeat;
+      background-position: center right;
       color: var(--white);
     }
     .hero__overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(105deg, rgba(4,8,20,0.92) 40%, rgba(4,8,20,0.45) 75%, transparent 100%);
+      background: linear-gradient(105deg, rgba(4,8,20,0.95) 45%, rgba(4,8,20,0.6) 70%, rgba(4,8,20,0.2) 100%);
     }
     .hero__inner {
       position: relative;
@@ -133,6 +151,8 @@
       padding: 80px var(--pad);
       width: 100%;
     }
+
+    /* Animated elements */
     .hero__eyebrow {
       font-size: 12px;
       font-weight: 600;
@@ -140,6 +160,9 @@
       text-transform: uppercase;
       color: var(--red);
       margin-bottom: 18px;
+      opacity: 0;
+      animation: slideRight 0.6s ease forwards;
+      animation-delay: 0.1s;
     }
     .hero__h1 {
       font-size: 58px;
@@ -148,6 +171,9 @@
       letter-spacing: -1.5px;
       max-width: 600px;
       margin-bottom: 22px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards;
+      animation-delay: 0.3s;
     }
     .hero__sub {
       font-size: 18px;
@@ -155,23 +181,36 @@
       max-width: 480px;
       margin-bottom: 40px;
       line-height: 1.6;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards;
+      animation-delay: 0.55s;
     }
-    .hero__actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero__actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards;
+      animation-delay: 0.75s;
+    }
     .hero__awards {
       margin-top: 60px;
       display: flex;
       align-items: center;
       gap: 32px;
       flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeIn 0.8s ease forwards;
+      animation-delay: 1s;
     }
     .hero__award {
       display: flex;
       flex-direction: column;
       gap: 3px;
     }
-    .hero__award-year { font-size: 11px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; }
+    .hero__award-year  { font-size: 11px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; }
     .hero__award-title { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); }
-    .hero__award-sep { width: 1px; height: 36px; background: rgba(255,255,255,0.2); }
+    .hero__award-sep   { width: 1px; height: 36px; background: rgba(255,255,255,0.2); }
 
     /* ============================================================
        TRUST BAR
@@ -619,7 +658,7 @@
       .navbar__hamburger { display: flex; }
 
       /* --- Hero --- */
-      .hero { min-height: 480px; }
+      .hero { min-height: 480px; background-position: center right; }
       .hero__inner { padding: 56px 20px 48px; }
       .hero__h1 { font-size: 32px; letter-spacing: -0.5px; max-width: 100%; }
       .hero__sub { font-size: 15px; max-width: 100%; margin-bottom: 28px; }

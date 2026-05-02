@@ -385,6 +385,71 @@
       .main { height: auto; }
       .trade-body { flex-direction: column; height: auto; }
       .chart-panel { min-height: 400px; }
+
+      /* Floating Place Order button */
+      .fab-order {
+        display: flex;
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 300;
+        align-items: center;
+        gap: 8px;
+        background: var(--blue);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+        padding: 14px 32px;
+        border-radius: 32px;
+        border: none;
+        box-shadow: 0 6px 24px rgba(26,92,255,0.45);
+        white-space: nowrap;
+      }
+      .fab-order svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2.5; }
+
+      /* Bottom sheet overlay */
+      .sheet-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        z-index: 400;
+      }
+      .sheet-overlay.open { display: block; }
+
+      /* Bottom sheet */
+      .order-sheet {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: #fff;
+        border-radius: 20px 20px 0 0;
+        z-index: 401;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+        padding-bottom: 32px;
+      }
+      .order-sheet.open { transform: translateY(0); }
+      .order-sheet__handle {
+        width: 40px; height: 4px; background: var(--border);
+        border-radius: 4px; margin: 12px auto 0;
+      }
+      .order-sheet__head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 20px 10px; border-bottom: 1px solid var(--border);
+        font-size: 15px; font-weight: 700;
+      }
+      .order-sheet__close {
+        background: none; border: none; color: var(--muted); padding: 4px;
+      }
+      .order-sheet__close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+    }
+
+    /* Hide FAB and sheet on desktop */
+    @media (min-width: 769px) {
+      .fab-order, .sheet-overlay, .order-sheet { display: none !important; }
     }
   </style>
 </head>
@@ -669,7 +734,120 @@
   </div><!-- /main -->
 </div><!-- /layout -->
 
-<!-- Close Position Modal -->
+<!-- Floating Place Order button (mobile only) -->
+<button class="fab-order" onclick="openSheet()">
+  <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  Place Order
+</button>
+
+<!-- Sheet overlay -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+
+<!-- Bottom sheet — mirrors the desktop order panel -->
+<div class="order-sheet" id="order-sheet">
+  <div class="order-sheet__handle"></div>
+  <div class="order-sheet__head">
+    <span id="sheet-title">Place Order — EUR/USD</span>
+    <button class="order-sheet__close" onclick="closeSheet()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- Buy / Sell tabs -->
+  <div class="order-type-tabs" style="margin:14px 16px 0;">
+    <button class="order-type-tab buy active" id="sheet-tab-buy"  onclick="setSheetSide('buy')">BUY</button>
+    <button class="order-type-tab sell"        id="sheet-tab-sell" onclick="setSheetSide('sell')">SELL</button>
+  </div>
+
+  <!-- Bid / Ask -->
+  <div class="bid-ask">
+    <div class="bid-ask__box bid-ask__box--sell" onclick="setSheetSide('sell')">
+      <div class="bid-ask__label">Sell / Bid</div>
+      <div class="bid-ask__price" id="sheet-bid">1.08418</div>
+      <div class="bid-ask__spread">Spread: 1.4</div>
+    </div>
+    <div class="bid-ask__box bid-ask__box--buy" onclick="setSheetSide('buy')">
+      <div class="bid-ask__label">Buy / Ask</div>
+      <div class="bid-ask__price" id="sheet-ask">1.08432</div>
+      <div class="bid-ask__spread">Spread: 1.4</div>
+    </div>
+  </div>
+
+  <div class="order-form">
+    <!-- Order type -->
+    <div class="order-field">
+      <label>Order type</label>
+      <select>
+        <option>Market Execution</option>
+        <option>Limit Order</option>
+        <option>Stop Order</option>
+      </select>
+    </div>
+
+    <!-- Volume -->
+    <div class="order-field">
+      <label>Volume (Lots)</label>
+      <div class="order-field__input-wrap">
+        <input type="number" id="sheet-vol" value="0.10" step="0.01" min="0.01">
+        <div class="order-field__unit">Lots</div>
+        <div class="order-field__stepper">
+          <button onclick="stepSheetVol(0.01)">▲</button>
+          <button onclick="stepSheetVol(-0.01)">▼</button>
+        </div>
+      </div>
+      <input type="range" class="order-slider" min="0.01" max="10" step="0.01" value="0.10"
+        oninput="document.getElementById('sheet-vol').value=parseFloat(this.value).toFixed(2)">
+    </div>
+
+    <!-- TP / SL -->
+    <div class="tpsl-toggle">
+      <span>Take Profit / Stop Loss</span>
+      <label class="toggle-switch">
+        <input type="checkbox" onchange="this.closest('.order-form').querySelector('.sheet-tpsl').style.display=this.checked?'flex':'none'">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="sheet-tpsl" style="display:none;flex-direction:column;gap:10px;">
+      <div class="order-field">
+        <label>Take Profit</label>
+        <div class="order-field__input-wrap">
+          <input type="number" placeholder="0.00000" step="0.00001">
+          <div class="order-field__unit" style="color:var(--green);">TP</div>
+        </div>
+      </div>
+      <div class="order-field">
+        <label>Stop Loss</label>
+        <div class="order-field__input-wrap">
+          <input type="number" placeholder="0.00000" step="0.00001">
+          <div class="order-field__unit" style="color:var(--red);">SL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account -->
+    <div class="order-field">
+      <label>Account</label>
+      <select>
+        <option>#10482931 MT4 Raw+ $14,830.50</option>
+        <option>#10483012 MT5 Instant $8,200.00</option>
+        <option>#10483144 TradingView $1,800.00</option>
+      </select>
+    </div>
+
+    <!-- Margin info -->
+    <div class="margin-info">
+      <div class="margin-info__row"><span>Required margin</span><span>$108.43</span></div>
+      <div class="margin-info__row"><span>Pip value</span><span>$1.00</span></div>
+      <div class="margin-info__row"><span>Commission</span><span>$0.35</span></div>
+    </div>
+
+    <!-- Submit -->
+    <button class="order-submit buy" id="sheet-submit" onclick="submitSheetOrder()">
+      <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+      <span id="sheet-submit-label">BUY EUR/USD</span>
+    </button>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-close">
   <div class="modal">
     <div class="modal__head">
@@ -1010,7 +1188,56 @@
     });
   });
 
-  // ── Init ──────────────────────────────────────────────────
+  // ── Bottom sheet (mobile) ─────────────────────────────────
+  function openSheet() {
+    document.getElementById('sheet-overlay').classList.add('open');
+    document.getElementById('order-sheet').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    // Sync symbol title and prices from desktop panel
+    document.getElementById('sheet-title').textContent = 'Place Order — ' + (currentSym?.sym || 'EUR/USD');
+    document.getElementById('sheet-bid').textContent   = document.getElementById('bid-price').textContent;
+    document.getElementById('sheet-ask').textContent   = document.getElementById('ask-price').textContent;
+    document.getElementById('sheet-submit-label').textContent = currentSide.toUpperCase() + ' ' + (currentSym?.sym || 'EUR/USD');
+  }
+
+  function closeSheet() {
+    document.getElementById('sheet-overlay').classList.remove('open');
+    document.getElementById('order-sheet').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function setSheetSide(side) {
+    currentSide = side;
+    const buyTab  = document.getElementById('sheet-tab-buy');
+    const sellTab = document.getElementById('sheet-tab-sell');
+    const submit  = document.getElementById('sheet-submit');
+    if (side === 'buy') {
+      buyTab.classList.add('active');  sellTab.classList.remove('active');
+      submit.className = 'order-submit buy';
+    } else {
+      sellTab.classList.add('active'); buyTab.classList.remove('active');
+      submit.className = 'order-submit sell';
+    }
+    document.getElementById('sheet-submit-label').textContent = side.toUpperCase() + ' ' + (currentSym?.sym || 'EUR/USD');
+  }
+
+  function stepSheetVol(delta) {
+    const inp = document.getElementById('sheet-vol');
+    inp.value = Math.max(0.01, Math.round((parseFloat(inp.value) + delta) * 100) / 100).toFixed(2);
+  }
+
+  function submitSheetOrder() {
+    const side  = currentSide.toUpperCase();
+    const sym   = currentSym?.sym || 'EUR/USD';
+    const lots  = document.getElementById('sheet-vol').value;
+    const price = currentSide === 'buy'
+      ? document.getElementById('sheet-ask').textContent
+      : document.getElementById('sheet-bid').textContent;
+    closeSheet();
+    document.getElementById('conf-title').textContent = `${side} ${sym}`;
+    document.getElementById('conf-sub').textContent   = `${lots} lots at market price ${price}`;
+    document.getElementById('modal-confirm').classList.add('open');
+  }
   buildList('forex');
   loadChart(MARKETS.forex[0].tv);
   calcMargin();

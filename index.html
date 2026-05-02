@@ -291,6 +291,7 @@
     .stat { text-align: center; }
     .stat__num { font-size: 42px; font-weight: 700; letter-spacing: -1.5px; color: var(--text); line-height: 1; }
     .stat__num span { color: var(--red); }
+    .stat__num .count { color: var(--text); }
     .stat__label { font-size: 13px; color: var(--muted); margin-top: 6px; }
 
     /* ============================================================
@@ -951,19 +952,19 @@
   <div class="stats">
     <div class="stats__inner">
       <div class="stat">
-        <div class="stat__num"><span class="count" data-target="2" data-suffix="M+"></span></div>
+        <div class="stat__num"><span class="count" data-target="2" data-suffix=""></span><span>M+</span></div>
         <div class="stat__label">Clients worldwide</div>
       </div>
       <div class="stat">
-        <div class="stat__num"><span style="color:var(--muted);font-size:32px;">$</span><span class="count" data-target="8" data-suffix="B+"></span></div>
+        <div class="stat__num" style="color:var(--muted);">$<span class="count" data-target="8" data-suffix="" style="color:var(--text);"></span><span>B+</span></div>
         <div class="stat__label">Daily trading volume</div>
       </div>
       <div class="stat">
-        <div class="stat__num"><span class="count" data-target="170" data-suffix="+"></span></div>
+        <div class="stat__num"><span class="count" data-target="170" data-suffix=""></span><span>+</span></div>
         <div class="stat__label">Countries served</div>
       </div>
       <div class="stat">
-        <div class="stat__num"><span class="count" data-target="18" data-suffix="+"></span></div>
+        <div class="stat__num"><span class="count" data-target="18" data-suffix=""></span><span>+</span></div>
         <div class="stat__label">Years of excellence</div>
       </div>
     </div>

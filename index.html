@@ -951,19 +951,19 @@
   <div class="stats">
     <div class="stats__inner">
       <div class="stat">
-        <div class="stat__num">2<span>M</span><span style="font-size:24px;color:#999;">+</span></div>
+        <div class="stat__num"><span class="count" data-target="2" data-suffix="M+"></span></div>
         <div class="stat__label">Clients worldwide</div>
       </div>
       <div class="stat">
-        <div class="stat__num">$<span style="color:var(--text);">8</span><span>B</span><span style="font-size:24px;color:#999;">+</span></div>
+        <div class="stat__num"><span style="color:var(--muted);font-size:32px;">$</span><span class="count" data-target="8" data-suffix="B+"></span></div>
         <div class="stat__label">Daily trading volume</div>
       </div>
       <div class="stat">
-        <div class="stat__num">170<span style="font-size:24px;color:#999;">+</span></div>
+        <div class="stat__num"><span class="count" data-target="170" data-suffix="+"></span></div>
         <div class="stat__label">Countries served</div>
       </div>
       <div class="stat">
-        <div class="stat__num">18<span style="font-size:24px;color:#999;">+</span></div>
+        <div class="stat__num"><span class="count" data-target="18" data-suffix="+"></span></div>
         <div class="stat__label">Years of excellence</div>
       </div>
     </div>
@@ -1476,6 +1476,34 @@
   }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── Counter Animation ─────────────────────────────────────
+  const counterObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.querySelectorAll('.count').forEach(el => {
+        const target = +el.dataset.target;
+        const suffix = el.dataset.suffix || '';
+        const duration = 1800;
+        const startTime = performance.now();
+
+        const tick = (now) => {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease out expo
+          const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+          const current = Math.floor(eased * target);
+          el.textContent = current + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+          else el.textContent = target + suffix;
+        };
+        requestAnimationFrame(tick);
+      });
+      counterObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.stats').forEach(el => counterObserver.observe(el));
 </script>
 </body>
 </html>

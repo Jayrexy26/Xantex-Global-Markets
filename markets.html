@@ -27,8 +27,8 @@
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.6; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.6; overflow-x: hidden; max-width: 100vw; }
     img { display: block; max-width: 100%; }
     a { text-decoration: none; color: inherit; }
     button { font-family: inherit; cursor: pointer; }
@@ -282,19 +282,84 @@
     .btn--outline:hover { border-color: var(--blue); color: var(--blue); }
 
     /* ============================================================
-       MOBILE
+       MOBILE — everything fits within 100vw, no horizontal scroll
     ============================================================ */
     @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); }
+      /* Prevent any horizontal overflow */
+      html, body { overflow-x: hidden; max-width: 100vw; }
+
+      /* Sidebar off-canvas */
+      .sidebar { transform: translateX(-100%); z-index: 300; }
       .sidebar.open { transform: translateX(0); }
-      .main { margin-left: 0; }
+
+      /* Main takes full width */
+      .main { margin-left: 0; width: 100%; max-width: 100vw; }
+
+      /* Topbar */
+      .topbar { padding: 0 12px; }
       .topbar__hamburger { display: flex; }
       .topbar__search { display: none; }
-      .content { padding: 14px; }
-      .overview-stats { grid-template-columns: repeat(2, 1fr); }
+
+      /* Content padding */
+      .content { padding: 12px; }
+
+      /* Page header stacks */
+      .page-header { flex-direction: column; align-items: flex-start; }
+
+      /* Stats: 2 columns */
+      .overview-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .stat-card { padding: 12px; }
+      .stat-card__value { font-size: 16px; }
+
+      /* Section head wraps nicely */
+      .section-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+      }
+      .section-head__right {
+        flex-wrap: wrap;
+        gap: 6px;
+        width: 100%;
+      }
+
+      /* Tables: scroll horizontally INSIDE the card only,
+         never push the page wider */
+      .mkt-section { overflow: hidden; max-width: 100%; }
+      .mkt-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+      }
+      .mkt-table { min-width: 520px; font-size: 12px; }
+      .mkt-table thead th { padding: 8px 10px; font-size: 10px; }
+      .mkt-row td { padding: 9px 10px; }
+      .mkt-sym { font-size: 12px; }
+      .mkt-full { display: none; }
+      .mkt-icon { font-size: 16px; }
+      .spark { width: 48px; height: 24px; }
+      .row-trade-btn { padding: 4px 10px; font-size: 11px; }
+      .chg-badge { font-size: 11px; padding: 2px 6px; }
+      .sentiment { font-size: 10px; }
+
+      /* Heatmap */
+      .heatmap { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 5px; padding: 10px; }
+      .heat-cell { padding: 8px 4px; }
+      .heat-cell__sym { font-size: 11px; }
+      .heat-cell__chg { font-size: 10px; }
+
+      /* Mini charts */
       .mini-charts { grid-template-columns: 1fr; }
-      .section-head { flex-direction: column; align-items: flex-start; }
-      .heatmap { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+
+      /* Ticker wrap */
+      .ticker-wrap { border-radius: 6px; }
+    }
+
+    @media (max-width: 420px) {
+      .overview-stats { grid-template-columns: 1fr 1fr; gap: 6px; }
+      .stat-card__value { font-size: 14px; }
+      .filter-btn { padding: 4px 8px; font-size: 11px; }
     }
   </style>
 </head>

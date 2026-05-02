@@ -92,7 +92,50 @@
       transition: background 0.15s;
     }
     .navbar__nav-btn:hover { background: var(--bg); }
-    .navbar__nav-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .navbar__nav-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; transition: transform 0.2s; }
+    .navbar__nav-btn.active { color: var(--blue); }
+    .navbar__nav-btn.active svg { transform: rotate(180deg); }
+    .navbar__nav-item { position: relative; }
+    .navbar__nav-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -13px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 3px;
+      background: var(--blue);
+      border-radius: 2px 2px 0 0;
+    }
+    /* Dropdown panel */
+    .nav-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 13px);
+      left: 0;
+      min-width: 200px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      padding: 8px 0;
+      z-index: 300;
+      animation: dropDown 0.18s ease;
+    }
+    .nav-dropdown.open { display: block; }
+    @keyframes dropDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .nav-dropdown a {
+      display: block;
+      padding: 10px 20px;
+      font-size: 14px;
+      color: var(--text);
+      transition: background 0.12s, color 0.12s;
+      white-space: nowrap;
+    }
+    .nav-dropdown a:hover { background: var(--bg); color: var(--blue); }
     .navbar__actions { display: flex; gap: 12px; align-items: center; }
     .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 28px; font-size: 15px; font-weight: 500; padding: 10px 24px; transition: opacity 0.15s, background 0.15s; border: none; }
     .btn--primary { background: var(--blue); color: var(--white); }
@@ -806,18 +849,52 @@
       </div>
 
       <div class="navbar__nav">
-        <button class="navbar__nav-btn" aria-haspopup="true">
-          Markets
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <button class="navbar__nav-btn" aria-haspopup="true">
-          Platforms
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <button class="navbar__nav-btn" aria-haspopup="true">
-          Company
-          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
+
+        <div class="navbar__nav-item">
+          <button class="navbar__nav-btn" data-dropdown="dd-markets" aria-haspopup="true" aria-expanded="false">
+            Markets <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="nav-dropdown" id="dd-markets">
+            <a href="/markets/forex">Forex</a>
+            <a href="/markets/indices">Indices</a>
+            <a href="/markets/shares">Shares</a>
+            <a href="/markets/metals">Metals</a>
+            <a href="/markets/energy">Energy</a>
+            <a href="/markets/etfs">ETFs</a>
+          </div>
+        </div>
+
+        <div class="navbar__nav-item">
+          <button class="navbar__nav-btn" data-dropdown="dd-platforms" aria-haspopup="true" aria-expanded="false">
+            Platforms <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="nav-dropdown" id="dd-platforms">
+            <a href="/platforms/comparison">Platforms Comparison</a>
+            <a href="/platforms/xantex">Xantex Platform</a>
+            <a href="/platforms/mt4">MetaTrader 4</a>
+            <a href="/platforms/mt5">MetaTrader 5</a>
+            <a href="/platforms/ctrader">cTrader</a>
+            <a href="/platforms/tradingview">TradingView</a>
+            <a href="/platforms/mobile">Xantex Mobile App</a>
+          </div>
+        </div>
+
+        <div class="navbar__nav-item">
+          <button class="navbar__nav-btn" data-dropdown="dd-company" aria-haspopup="true" aria-expanded="false">
+            Company <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="nav-dropdown" id="dd-company">
+            <a href="/about">About Xantex</a>
+            <a href="/partners">Partner with us</a>
+            <a href="/membership">Membership Program</a>
+            <a href="/security">Online Security</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/awards">Awards</a>
+            <a href="/contact">Contact Us</a>
+            <a href="/benefits">Benefits</a>
+          </div>
+        </div>
+
       </div>
 
       <div class="navbar__actions">
@@ -1425,7 +1502,6 @@
     hamburger.setAttribute('aria-expanded', open);
     document.body.style.overflow = open ? 'hidden' : '';
   });
-  // Close on outside click
   document.addEventListener('click', e => {
     if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
       mobileMenu.classList.remove('open');
@@ -1433,6 +1509,38 @@
       hamburger.setAttribute('aria-expanded', false);
       document.body.style.overflow = '';
     }
+  });
+
+  // ── Nav Dropdowns ─────────────────────────────────────────
+  const navBtns = document.querySelectorAll('.navbar__nav-btn[data-dropdown]');
+
+  function closeAll(except) {
+    navBtns.forEach(b => {
+      if (b === except) return;
+      b.classList.remove('active');
+      b.setAttribute('aria-expanded', false);
+      document.getElementById(b.dataset.dropdown).classList.remove('open');
+    });
+  }
+
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const dd = document.getElementById(btn.dataset.dropdown);
+      const isOpen = dd.classList.contains('open');
+      closeAll(btn);
+      btn.classList.toggle('active', !isOpen);
+      btn.setAttribute('aria-expanded', !isOpen);
+      dd.classList.toggle('open', !isOpen);
+    });
+  });
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', () => closeAll(null));
+
+  // Close on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeAll(null);
   });
 </script>
 <script>

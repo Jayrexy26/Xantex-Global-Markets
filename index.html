@@ -764,6 +764,27 @@
       .footer-nav__grid { grid-template-columns: 1fr; }
       .stats__inner { grid-template-columns: 1fr 1fr; }
     }
+    /* ============================================================
+       SCROLL REVEAL
+    ============================================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reveal.reveal--left  { transform: translateX(-32px); }
+    .reveal.reveal--right { transform: translateX(32px); }
+    .reveal.reveal--scale { transform: scale(0.93) translateY(16px); }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0) translateX(0) scale(1);
+    }
+
+    /* Stagger children inside a reveal parent */
+    .reveal-group .reveal { transition-delay: calc(var(--i, 0) * 0.09s); }
+
   </style>
 </head>
 <body>
@@ -883,8 +904,8 @@
   <!-- ============================================================
        TRUST BAR
   ============================================================ -->
-  <div class="trustbar">
-    <div class="trustbar__inner">
+  <div class="trustbar reveal">
+    <div class="trustbar__inner reveal-group">
       <div class="trustbar__item">
         <div class="trustbar__item-icon">
           <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -953,94 +974,79 @@
   ============================================================ -->
   <section class="section section--grey" aria-labelledby="platforms-h">
     <div class="section__inner">
-      <p class="section__eyebrow">Trading platforms</p>
-      <h2 class="section__h2" id="platforms-h">Choose your platform</h2>
-      <p class="section__lead">Industry-leading platforms for every type of trader — from beginners to professionals.</p>
-
+      <p class="section__eyebrow reveal">Trading platforms</p>
+      <h2 class="section__h2 reveal" id="platforms-h">Choose your platform</h2>
+      <p class="section__lead reveal">Industry-leading platforms for every type of trader — from beginners to professionals.</p>
       <div class="platforms__grid">
 
-        <div class="platform-card">
+        <div class="platform-card" style="--i:0">
           <div class="platform-card__icon">
             <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           </div>
           <div class="platform-card__name">MetaTrader 4</div>
           <p class="platform-card__desc">The world's most popular trading platform. Powerful charting, 50+ indicators and automated trading with Expert Advisors.</p>
           <div class="platform-card__tags">
-            <span class="tag tag--blue">Windows</span>
-            <span class="tag tag--blue">Mac</span>
-            <span class="tag tag--blue">iOS</span>
-            <span class="tag tag--blue">Android</span>
+            <span class="tag tag--blue">Windows</span><span class="tag tag--blue">Mac</span><span class="tag tag--blue">iOS</span><span class="tag tag--blue">Android</span>
           </div>
           <a href="/platforms/mt4" class="platform-card__link">Learn more →</a>
         </div>
 
-        <div class="platform-card" style="border-color: var(--blue); box-shadow: 0 4px 24px rgba(26,92,255,0.12);">
+        <div class="platform-card" style="--i:1;border-color: var(--blue); box-shadow: 0 4px 24px rgba(26,92,255,0.12);">
           <div class="platform-card__icon" style="background:#e8eeff;">
             <svg viewBox="0 0 24 24" style="stroke:var(--blue);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
           <div class="platform-card__name">MetaTrader 5</div>
           <p class="platform-card__desc">Next-generation platform with more order types, 21 timeframes, built-in economic calendar and advanced analytics.</p>
           <div class="platform-card__tags">
-            <span class="tag tag--blue">Windows</span>
-            <span class="tag tag--blue">Mac</span>
-            <span class="tag tag--blue">iOS</span>
-            <span class="tag tag--blue">Android</span>
+            <span class="tag tag--blue">Windows</span><span class="tag tag--blue">Mac</span><span class="tag tag--blue">iOS</span><span class="tag tag--blue">Android</span>
           </div>
           <a href="/platforms/mt5" class="platform-card__link">Learn more →</a>
         </div>
 
-        <div class="platform-card">
+        <div class="platform-card" style="--i:2">
           <div class="platform-card__icon">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
           </div>
           <div class="platform-card__name">cTrader</div>
           <p class="platform-card__desc">Institutional-grade platform with Level II pricing, superior order execution and a clean, professional interface.</p>
           <div class="platform-card__tags">
-            <span class="tag tag--blue">Windows</span>
-            <span class="tag tag--blue">Web</span>
-            <span class="tag tag--blue">iOS</span>
-            <span class="tag tag--blue">Android</span>
+            <span class="tag tag--blue">Windows</span><span class="tag tag--blue">Web</span><span class="tag tag--blue">iOS</span><span class="tag tag--blue">Android</span>
           </div>
           <a href="/platforms/ctrader" class="platform-card__link">Learn more →</a>
         </div>
 
-        <div class="platform-card">
+        <div class="platform-card" style="--i:3">
           <div class="platform-card__icon">
             <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
           </div>
           <div class="platform-card__name">Xantex Platform</div>
           <p class="platform-card__desc">Our proprietary web-based platform — no download needed. Trade directly from your browser with a clean, fast interface.</p>
           <div class="platform-card__tags">
-            <span class="tag tag--blue">Web</span>
-            <span class="tag tag--blue">iOS</span>
-            <span class="tag tag--blue">Android</span>
+            <span class="tag tag--blue">Web</span><span class="tag tag--blue">iOS</span><span class="tag tag--blue">Android</span>
           </div>
           <a href="/platforms/xantex" class="platform-card__link">Learn more →</a>
         </div>
 
-        <div class="platform-card">
+        <div class="platform-card" style="--i:4">
           <div class="platform-card__icon">
-            <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </div>
           <div class="platform-card__name">Xantex Mobile</div>
           <p class="platform-card__desc">Full-featured mobile trading app. Monitor markets, open and close positions, and manage your account on the go.</p>
           <div class="platform-card__tags">
-            <span class="tag tag--blue">iOS</span>
-            <span class="tag tag--blue">Android</span>
+            <span class="tag tag--blue">iOS</span><span class="tag tag--blue">Android</span>
           </div>
           <a href="/platforms/mobile" class="platform-card__link">Learn more →</a>
         </div>
 
-        <div class="platform-card">
+        <div class="platform-card" style="--i:5">
           <div class="platform-card__icon">
             <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           </div>
           <div class="platform-card__name">TradingView</div>
           <p class="platform-card__desc">Trade directly through TradingView's powerful charting environment. Access Xantex liquidity within the world's largest trading community.</p>
           <div class="platform-card__tags">
-            <span class="tag tag--blue">Web</span>
-            <span class="tag tag--blue">iOS</span>
-            <span class="tag tag--blue">Android</span>
+            <span class="tag tag--blue">Web</span><span class="tag tag--blue">iOS</span><span class="tag tag--blue">Android</span>
           </div>
           <a href="/platforms/tradingview" class="platform-card__link">Learn more →</a>
         </div>
@@ -1427,6 +1433,49 @@
       document.body.style.overflow = '';
     }
   });
+</script>
+<script>
+  // ── Scroll Reveal via IntersectionObserver ──────────────────
+  const SELECTORS = [
+    '.section__eyebrow', '.section__h2', '.section__lead',
+    '.stat',
+    '.platform-card', '.market-card', '.account-card', '.testimonial',
+    '.why__item', '.why__img-wrap',
+    '.trustbar__item',
+    '.cta-banner__h2', '.cta-banner__sub', '.cta-banner__actions',
+    '.sponsors__group',
+    '.footer-col',
+    '.stats', '.trustbar',
+  ];
+
+  document.querySelectorAll(SELECTORS.join(',')).forEach(el => {
+    if (el.closest('.hero')) return; // hero uses CSS keyframes
+
+    el.classList.add('reveal');
+
+    // Directional variants
+    if (el.classList.contains('why__img-wrap'))   el.classList.add('reveal--left');
+    if (el.classList.contains('sponsors__group')) el.classList.add('reveal--scale');
+    if (el.classList.contains('footer-col'))      el.classList.add('reveal--scale');
+
+    // Auto-stagger siblings of same class
+    const siblings = el.parentElement
+      ? [...el.parentElement.children].filter(c => c.classList.contains(el.classList[0]))
+      : [];
+    const idx = siblings.indexOf(el);
+    if (idx > 0) el.style.transitionDelay = (idx * 0.09) + 's';
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 </body>
 </html>

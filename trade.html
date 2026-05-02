@@ -194,7 +194,8 @@
     .chart-tf button.active { background: var(--blue); color: #fff; }
     .chart-container { flex: 1; position: relative; min-height: 0; }
     .chart-container iframe,
-    .chart-container .tradingview-widget-container { width: 100%; height: 100%; }
+    .chart-container .tradingview-widget-container,
+    .chart-container #tradingview_chart { width: 100%; height: 100%; position: absolute; inset: 0; }
 
     /* ── RIGHT: order panel ── */
     .order-panel {
@@ -419,16 +420,39 @@
       .instrument-panel { display: none; }
     }
     @media (max-width: 768px) {
+      /* Allow page to scroll naturally on mobile */
+      html, body { height: auto; overflow: auto; }
+      .layout    { height: auto; min-height: 100vh; overflow: visible; }
+      .main      { height: auto; min-height: 100vh; overflow: visible; margin-left: 0; }
+      .trade-body { flex-direction: column; height: auto; overflow: visible; }
+
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
-      .main { margin-left: 0; }
       .topbar__hamburger { display: flex; }
+
+      /* Chart fills most of the viewport */
+      .chart-panel {
+        height: calc(100vh - var(--topbar-h));
+        min-height: calc(100vh - var(--topbar-h));
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .chart-container {
+        flex: 1;
+        min-height: 0;
+      }
+
+      /* Positions panel fills fully below chart — no max-height cap */
+      .positions-panel {
+        max-height: none;
+        height: auto;
+        overflow-y: auto;
+        border-top: 1px solid var(--border);
+      }
+
+      /* Hide order panel — FAB handles it */
       .order-panel { display: none; }
-      body { overflow: auto; }
-      .layout { height: auto; }
-      .main { height: auto; }
-      .trade-body { flex-direction: column; height: auto; }
-      .chart-panel { min-height: 400px; }
 
       /* Floating Place Order button */
       .fab-order {
@@ -489,6 +513,18 @@
         background: none; border: none; color: var(--muted); padding: 4px;
       }
       .order-sheet__close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+      /* Compact chart header */
+      .chart-panel__head { padding: 8px 12px; gap: 6px; }
+      .chart-panel__symbol { font-size: 15px; }
+      .chart-panel__price  { font-size: 17px; }
+      .chart-panel__meta   { display: none; }
+      .chart-tf button     { padding: 3px 7px; font-size: 11px; }
+
+      /* Positions table — show full height, no cap */
+      .positions-panel { max-height: none !important; height: auto !important; }
+      .positions-panel table thead th,
+      .positions-panel table tbody td { padding: 8px 10px; font-size: 11px; }
     }
 
     /* Hide FAB and sheet on desktop */

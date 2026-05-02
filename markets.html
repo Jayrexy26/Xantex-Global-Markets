@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Markets — Xantex Global Markets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       TOKENS
+    ============================================================ */
+    :root {
+      --red:       #e60023;
+      --blue:      #1a5cff;
+      --blue-dk:   #1244cc;
+      --blue-lt:   #e8eeff;
+      --green:     #22a06b;
+      --green-lt:  #e6f7ef;
+      --orange:    #f5a623;
+      --bg:        #f4f6f9;
+      --white:     #ffffff;
+      --text:      #111111;
+      --muted:     #666666;
+      --border:    #e0e3e8;
+      --sidebar-w: 240px;
+      --topbar-h:  64px;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.6; }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+    ul { list-style: none; }
+
+    /* ============================================================
+       DARK MODE
+    ============================================================ */
+    body.dark {
+      --bg:        #0f1117;
+      --white:     #1a1d27;
+      --text:      #e8eaf0;
+      --muted:     #8b90a0;
+      --border:    #2a2d3a;
+      --blue-lt:   #1a2444;
+      --green-lt:  #0d2b1e;
+    }
+    body.dark .sidebar           { background: #080b13; }
+    body.dark .topbar,
+    body.dark .card,
+    body.dark .mkt-row,
+    body.dark .stat-card         { background: #1a1d27; }
+    body.dark .topbar__search input { background: #0f1117; color: var(--text); }
+    body.dark .mkt-row:hover     { background: #0f1117; }
+    body.dark .section-head      { background: var(--bg); }
+    body.dark .filter-btn:hover  { background: #0f1117; }
+    body.dark .filter-btn.active { background: var(--blue-lt); }
+    body.dark .topbar__icon-btn  { background: #0f1117; }
+    body.dark .spark-up   { stroke: var(--green); }
+    body.dark .spark-down { stroke: var(--red); }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ============================================================
+       SIDEBAR
+    ============================================================ */
+    .sidebar {
+      width: var(--sidebar-w); background: #0d1120; color: #fff;
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 200;
+      transition: transform 0.25s ease;
+    }
+    .sidebar__logo {
+      height: var(--topbar-h); display: flex; align-items: center;
+      padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
+    }
+    .sidebar__logo img       { height: 130px; width: auto; }
+    .sidebar__logo-text      { font-size: 22px; font-weight: 700; color: var(--red); }
+    .sidebar__nav            { flex: 1; overflow-y: auto; padding: 12px 0; }
+    .sidebar__section-label  { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 16px 20px 6px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.6); cursor: pointer;
+      border: none; background: none; width: 100%; text-align: left;
+      transition: background 0.15s, color 0.15s; text-decoration: none;
+    }
+    .nav-item:hover  { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-item.active { background: rgba(26,92,255,0.18); color: #fff; border-left: 3px solid var(--blue); }
+    .nav-item svg    { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; flex-shrink: 0; }
+    .nav-item__badge { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+    .sidebar__footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 10px; }
+    .sidebar__avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .sidebar__user-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .sidebar__user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .sidebar__logout    { margin-left: auto; background: none; border: none; color: rgba(255,255,255,0.4); padding: 4px; }
+    .sidebar__logout:hover { color: var(--red); }
+    .sidebar__logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* ============================================================
+       MAIN
+    ============================================================ */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ============================================================
+       TOPBAR
+    ============================================================ */
+    .topbar {
+      height: var(--topbar-h); background: var(--white);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+      position: sticky; top: 0; z-index: 100; flex-shrink: 0;
+    }
+    .topbar__hamburger { display: none; background: none; border: none; flex-direction: column; gap: 4px; padding: 4px; }
+    .topbar__hamburger span { display: block; width: 20px; height: 2px; background: var(--text); border-radius: 2px; }
+    .topbar__title { font-size: 16px; font-weight: 600; }
+    .topbar__search { flex: 1; max-width: 320px; position: relative; }
+    .topbar__search input {
+      width: 100%; height: 36px; border: 1.5px solid var(--border); border-radius: 20px;
+      padding: 0 14px 0 36px; font-size: 13px; outline: none;
+      background: var(--bg); color: var(--text); transition: border-color 0.15s;
+    }
+    .topbar__search input:focus { border-color: var(--blue); background: var(--white); }
+    .topbar__search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; fill: none; stroke: var(--muted); stroke-width: 2; }
+    .topbar__right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+    .topbar__icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: none; display: flex; align-items: center; justify-content: center; position: relative; }
+    .topbar__icon-btn svg { width: 17px; height: 17px; fill: none; stroke: var(--text); stroke-width: 2; }
+    .topbar__notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--red); border: 2px solid var(--white); }
+    .topbar__avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+    .dark-toggle { width: 34px; height: 34px; border-radius: 50%; background: var(--bg); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.15s; }
+    .dark-toggle:hover { border-color: var(--blue); }
+    .dark-toggle svg { width: 16px; height: 16px; fill: none; stroke: var(--text); stroke-width: 2; }
+
+    /* ============================================================
+       CONTENT
+    ============================================================ */
+    .content { padding: 24px; flex: 1; }
+
+    /* Page header */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .page-header__title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    .page-header__sub   { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    /* ============================================================
+       TICKER TAPE (TradingView)
+    ============================================================ */
+    .ticker-wrap { margin-bottom: 20px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: var(--white); }
+
+    /* ============================================================
+       MARKET OVERVIEW STATS
+    ============================================================ */
+    .overview-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .stat-card__label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 8px; }
+    .stat-card__value { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+    .stat-card__change { font-size: 12px; font-weight: 500; margin-top: 4px; }
+    .stat-card__change.up   { color: var(--green); }
+    .stat-card__change.down { color: var(--red); }
+
+    /* ============================================================
+       SECTION
+    ============================================================ */
+    .mkt-section { margin-bottom: 28px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--white); }
+    .section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; background: var(--white);
+      border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px;
+    }
+    .section-head__left { display: flex; align-items: center; gap: 10px; }
+    .section-head__icon { font-size: 22px; }
+    .section-head__title { font-size: 15px; font-weight: 700; }
+    .section-head__count { font-size: 12px; color: var(--muted); background: var(--bg); padding: 2px 8px; border-radius: 10px; }
+    .section-head__right { display: flex; align-items: center; gap: 8px; }
+    .filter-btn {
+      padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500;
+      color: var(--muted); background: none; border: none; cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+    }
+    .filter-btn:hover  { background: var(--bg); color: var(--text); }
+    .filter-btn.active { background: var(--blue-lt); color: var(--blue); font-weight: 600; }
+    .trade-link { font-size: 12px; color: var(--blue); font-weight: 600; white-space: nowrap; }
+    .trade-link:hover { text-decoration: underline; }
+
+    /* ============================================================
+       MARKET TABLE
+    ============================================================ */
+    .mkt-table-wrap { overflow-x: auto; }
+    .mkt-table { width: 100%; border-collapse: collapse; min-width: 640px; }
+    .mkt-table thead th {
+      text-align: left; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--muted); padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg); white-space: nowrap;
+    }
+    .mkt-table thead th:not(:first-child) { text-align: right; }
+    .mkt-row {
+      display: table-row; background: var(--white);
+      transition: background 0.12s; cursor: pointer;
+    }
+    .mkt-row:hover { background: var(--bg); }
+    .mkt-row td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .mkt-row:last-child td { border-bottom: none; }
+    .mkt-row td:not(:first-child) { text-align: right; }
+
+    /* Instrument name cell */
+    .mkt-name { display: flex; align-items: center; gap: 10px; }
+    .mkt-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
+    .mkt-sym  { font-size: 13px; font-weight: 700; }
+    .mkt-full { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    /* Price */
+    .mkt-price { font-size: 13px; font-weight: 600; }
+
+    /* Change badge */
+    .chg-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 12px; font-weight: 600; padding: 3px 8px;
+      border-radius: 5px; white-space: nowrap;
+    }
+    .chg-badge.up   { background: var(--green-lt); color: var(--green); }
+    .chg-badge.down { background: #fff0f0;          color: var(--red); }
+    .chg-badge svg  { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 3; }
+
+    /* Sparkline */
+    .spark { width: 72px; height: 32px; display: inline-block; vertical-align: middle; }
+    .spark-up   { fill: none; stroke: var(--green); stroke-width: 1.5; }
+    .spark-down { fill: none; stroke: var(--red);   stroke-width: 1.5; }
+
+    /* Volume / Market cap bar */
+    .vol-bar-wrap { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+    .vol-bar { height: 5px; border-radius: 3px; background: var(--blue-lt); flex-shrink: 0; }
+    .vol-bar.up   { background: rgba(34,160,107,0.3); }
+    .vol-bar.down { background: rgba(230,0,35,0.2); }
+
+    /* Sentiment pill */
+    .sentiment { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .sentiment--bull { background: var(--green-lt); color: var(--green); }
+    .sentiment--bear { background: #fff0f0; color: var(--red); }
+    .sentiment--neut { background: var(--bg); color: var(--muted); }
+
+    /* Action button */
+    .row-trade-btn {
+      padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      background: var(--blue); color: #fff; border: none;
+      transition: background 0.15s; white-space: nowrap;
+    }
+    .row-trade-btn:hover { background: var(--blue-dk); }
+
+    /* ============================================================
+       HEATMAP STRIP
+    ============================================================ */
+    .heatmap { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px,1fr)); gap: 6px; padding: 16px; }
+    .heat-cell {
+      border-radius: 8px; padding: 10px 8px; text-align: center;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    .heat-cell:hover { opacity: 0.8; }
+    .heat-cell__sym  { font-size: 12px; font-weight: 700; color: #fff; }
+    .heat-cell__chg  { font-size: 11px; color: rgba(255,255,255,0.85); margin-top: 2px; }
+
+    /* ============================================================
+       TV WIDGET CARDS (mini charts)
+    ============================================================ */
+    .mini-charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .mini-chart-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .mini-chart-card__head { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .mini-chart-card__sym  { font-size: 14px; font-weight: 700; }
+    .mini-chart-card__price { font-size: 14px; font-weight: 600; }
+
+    /* ============================================================
+       BUTTONS
+    ============================================================ */
+    .btn { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; font-size: 13px; font-weight: 600; padding: 8px 16px; border: none; cursor: pointer; transition: background 0.15s; }
+    .btn--primary { background: var(--blue); color: #fff; }
+    .btn--primary:hover { background: var(--blue-dk); }
+    .btn--outline { background: var(--white); color: var(--text); border: 1.5px solid var(--border); }
+    .btn--outline:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ============================================================
+       MOBILE
+    ============================================================ */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .topbar__hamburger { display: flex; }
+      .topbar__search { display: none; }
+      .content { padding: 14px; }
+      .overview-stats { grid-template-columns: repeat(2, 1fr); }
+      .mini-charts { grid-template-columns: 1fr; }
+      .section-head { flex-direction: column; align-items: flex-start; }
+      .heatmap { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ============================================================
+       SIDEBAR
+  ============================================================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <a href="index.html">
+        <img src="/images/logo.png" alt="Xantex"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="sidebar__logo-text" style="display:none;">Xantex</span>
+      </a>
+    </div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Main</div>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </a>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        My Accounts
+      </a>
+      <a class="nav-item" href="trade.html">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Trade
+      </a>
+      <a class="nav-item active" href="markets.html">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Markets
+      </a>
+      <div class="sidebar__section-label">Finance</div>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Deposit
+      </a>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
+        Withdraw
+      </a>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Transaction History
+        <span class="nav-item__badge">3</span>
+      </a>
+      <div class="sidebar__section-label">Account</div>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Verification
+        <span class="nav-item__badge" style="background:var(--orange);">!</span>
+      </a>
+      <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+      <a class="nav-item" href="index.html">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Main Site
+      </a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="sidebar__avatar">JD</div>
+      <div>
+        <div class="sidebar__user-name">John Doe</div>
+        <div class="sidebar__user-role">Live account</div>
+      </div>
+      <button class="sidebar__logout" onclick="window.location='login.html'" title="Sign out">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN
+  ============================================================ -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="topbar__hamburger" id="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar__title">Markets</div>
+      <div class="topbar__search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search instruments…" id="global-search" oninput="searchMarkets()">
+      </div>
+      <div class="topbar__right">
+        <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">
+          <svg id="dark-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="topbar__icon-btn">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="topbar__notif-dot"></div>
+        </button>
+        <div class="topbar__avatar">JD</div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div>
+          <div class="page-header__title">Market Overview</div>
+          <div class="page-header__sub" id="last-updated">Live prices · Updated just now</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="trade.html" class="btn btn--primary">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Trade Now
+          </a>
+          <button class="btn btn--outline" onclick="refreshPrices()">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Ticker Tape -->
+      <div class="ticker-wrap">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+          {
+            "symbols": [
+              {"proName":"FOREXCOM:SPXUSD","title":"S&P 500"},
+              {"proName":"FOREXCOM:NSXUSD","title":"Nasdaq 100"},
+              {"proName":"FX_IDC:EURUSD","title":"EUR/USD"},
+              {"proName":"FX_IDC:GBPUSD","title":"GBP/USD"},
+              {"proName":"BITSTAMP:BTCUSD","title":"Bitcoin"},
+              {"proName":"BITSTAMP:ETHUSD","title":"Ethereum"},
+              {"proName":"FOREXCOM:XAUUSD","title":"Gold"},
+              {"proName":"NYMEX:CL1!","title":"Crude Oil"},
+              {"proName":"NASDAQ:AAPL","title":"Apple"},
+              {"proName":"NASDAQ:TSLA","title":"Tesla"}
+            ],
+            "showSymbolLogo": true,
+            "isTransparent": false,
+            "displayMode": "adaptive",
+            "colorTheme": "light",
+            "locale": "en"
+          }
+          </script>
+        </div>
+      </div>
+
+      <!-- Market Stats -->
+      <div class="overview-stats" id="overview-stats"></div>
+
+      <!-- ── FOREX ───────────────────────────────────────── -->
+      <div class="mkt-section" id="section-forex">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__icon">💱</span>
+            <div>
+              <div class="section-head__title">Forex</div>
+            </div>
+            <span class="section-head__count">Major, Minor & Exotic Pairs</span>
+          </div>
+          <div class="section-head__right">
+            <button class="filter-btn active" onclick="filterSection('forex','all',this)">All</button>
+            <button class="filter-btn" onclick="filterSection('forex','major',this)">Major</button>
+            <button class="filter-btn" onclick="filterSection('forex','minor',this)">Minor</button>
+            <a class="trade-link" href="trade.html">Trade Forex →</a>
+          </div>
+        </div>
+        <div class="mkt-table-wrap">
+          <table class="mkt-table" id="table-forex">
+            <thead><tr>
+              <th>Instrument</th><th>Bid</th><th>Ask</th>
+              <th>Change</th><th>Change %</th><th>High</th><th>Low</th>
+              <th>Spread</th><th>7D Chart</th><th>Sentiment</th><th></th>
+            </tr></thead>
+            <tbody id="tbody-forex"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── CRYPTO ─────────────────────────────────────── -->
+      <div class="mkt-section" id="section-crypto">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__icon">₿</span>
+            <div><div class="section-head__title">Cryptocurrency</div></div>
+            <span class="section-head__count">Top digital assets</span>
+          </div>
+          <div class="section-head__right">
+            <button class="filter-btn active" onclick="filterSection('crypto','all',this)">All</button>
+            <button class="filter-btn" onclick="filterSection('crypto','top5',this)">Top 5</button>
+            <button class="filter-btn" onclick="filterSection('crypto','defi',this)">DeFi</button>
+            <a class="trade-link" href="trade.html">Trade Crypto →</a>
+          </div>
+        </div>
+
+        <!-- Heatmap -->
+        <div class="heatmap" id="heatmap-crypto"></div>
+
+        <div class="mkt-table-wrap">
+          <table class="mkt-table" id="table-crypto">
+            <thead><tr>
+              <th>Asset</th><th>Price</th><th>24h Change</th>
+              <th>24h High</th><th>24h Low</th><th>Market Cap</th>
+              <th>Volume 24h</th><th>7D Chart</th><th>Sentiment</th><th></th>
+            </tr></thead>
+            <tbody id="tbody-crypto"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── STOCKS ─────────────────────────────────────── -->
+      <div class="mkt-section" id="section-stocks">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__icon">🏢</span>
+            <div><div class="section-head__title">Stocks & Shares</div></div>
+            <span class="section-head__count">Global equities</span>
+          </div>
+          <div class="section-head__right">
+            <button class="filter-btn active" onclick="filterSection('stocks','all',this)">All</button>
+            <button class="filter-btn" onclick="filterSection('stocks','us',this)">US</button>
+            <button class="filter-btn" onclick="filterSection('stocks','uk',this)">UK</button>
+            <a class="trade-link" href="trade.html">Trade Stocks →</a>
+          </div>
+        </div>
+        <div class="mkt-table-wrap">
+          <table class="mkt-table" id="table-stocks">
+            <thead><tr>
+              <th>Company</th><th>Price</th><th>Change</th>
+              <th>Change %</th><th>Open</th><th>High</th><th>Low</th>
+              <th>Volume</th><th>7D Chart</th><th>Sentiment</th><th></th>
+            </tr></thead>
+            <tbody id="tbody-stocks"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── INDICES ────────────────────────────────────── -->
+      <div class="mkt-section" id="section-indices">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__icon">📈</span>
+            <div><div class="section-head__title">Indices</div></div>
+            <span class="section-head__count">Global stock indices</span>
+          </div>
+          <div class="section-head__right">
+            <button class="filter-btn active" onclick="filterSection('indices','all',this)">All</button>
+            <button class="filter-btn" onclick="filterSection('indices','us',this)">Americas</button>
+            <button class="filter-btn" onclick="filterSection('indices','eu',this)">Europe</button>
+            <button class="filter-btn" onclick="filterSection('indices','asia',this)">Asia</button>
+            <a class="trade-link" href="trade.html">Trade Indices →</a>
+          </div>
+        </div>
+        <div class="mkt-table-wrap">
+          <table class="mkt-table" id="table-indices">
+            <thead><tr>
+              <th>Index</th><th>Price</th><th>Change</th>
+              <th>Change %</th><th>High</th><th>Low</th>
+              <th>Region</th><th>7D Chart</th><th>Sentiment</th><th></th>
+            </tr></thead>
+            <tbody id="tbody-indices"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── METALS ─────────────────────────────────────── -->
+      <div class="mkt-section" id="section-metals">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__icon">🥇</span>
+            <div><div class="section-head__title">Metals & Commodities</div></div>
+            <span class="section-head__count">Precious & industrial metals</span>
+          </div>
+          <div class="section-head__right">
+            <a class="trade-link" href="trade.html">Trade Metals →</a>
+          </div>
+        </div>
+        <div class="mkt-table-wrap">
+          <table class="mkt-table" id="table-metals">
+            <thead><tr>
+              <th>Metal</th><th>Bid</th><th>Ask</th>
+              <th>Change</th><th>Change %</th><th>High</th><th>Low</th>
+              <th>Unit</th><th>7D Chart</th><th>Sentiment</th><th></th>
+            </tr></thead>
+            <tbody id="tbody-metals"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ENERGY ─────────────────────────────────────── -->
+      <div class="mkt-section" id="section-energy">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__icon">🛢️</span>
+            <div><div class="section-head__title">Energy</div></div>
+            <span class="section-head__count">Oil, gas & more</span>
+          </div>
+          <div class="section-head__right">
+            <a class="trade-link" href="trade.html">Trade Energy →</a>
+          </div>
+        </div>
+        <div class="mkt-table-wrap">
+          <table class="mkt-table" id="table-energy">
+            <thead><tr>
+              <th>Instrument</th><th>Bid</th><th>Ask</th>
+              <th>Change</th><th>Change %</th><th>High</th><th>Low</th>
+              <th>Unit</th><th>7D Chart</th><th>Sentiment</th><th></th>
+            </tr></thead>
+            <tbody id="tbody-energy"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ETFs ───────────────────────────────────────── -->
+      <div class="mkt-section" id="section-etfs">
+        <div class="section-head">
+          <div class="section-head__left">
+            <span class="section-head__icon">📦</span>
+            <div><div class="section-head__title">ETFs</div></div>
+            <span class="section-head__count">Exchange-traded funds</span>
+          </div>
+          <div class="section-head__right">
+            <a class="trade-link" href="trade.html">Trade ETFs →</a>
+          </div>
+        </div>
+        <div class="mkt-table-wrap">
+          <table class="mkt-table" id="table-etfs">
+            <thead><tr>
+              <th>Fund</th><th>Price</th><th>Change</th>
+              <th>Change %</th><th>AUM</th><th>Expense Ratio</th>
+              <th>Volume</th><th>7D Chart</th><th>Sentiment</th><th></th>
+            </tr></thead>
+            <tbody id="tbody-etfs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── TradingView Mini Charts ────────────────────── -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:14px;">Key Instrument Charts</div>
+        <div class="mini-charts" id="mini-charts"></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+  /* ============================================================
+     MARKET DATA
+  ============================================================ */
+  const DATA = {
+    forex: [
+      { icon:'💱', sym:'EUR/USD', name:'Euro / US Dollar',         bid:'1.08418', ask:'1.08432', chg:'+0.00222', chgp:'+0.21%', high:'1.08654', low:'1.08102', spread:'1.4', tag:'major', sent:'bull' },
+      { icon:'💷', sym:'GBP/USD', name:'British Pound / US Dollar',bid:'1.26704', ask:'1.26718', chg:'-0.00228', chgp:'-0.18%', high:'1.26980', low:'1.26412', spread:'1.4', tag:'major', sent:'bear' },
+      { icon:'💴', sym:'USD/JPY', name:'US Dollar / Japanese Yen', bid:'151.828', ask:'151.842', chg:'+0.472',   chgp:'+0.31%', high:'152.140', low:'151.420', spread:'1.4', tag:'major', sent:'bull' },
+      { icon:'🍁', sym:'USD/CAD', name:'US Dollar / Canadian',     bid:'1.36407', ask:'1.36421', chg:'+0.00162', chgp:'+0.12%', high:'1.36580', low:'1.36120', spread:'1.4', tag:'major', sent:'bull' },
+      { icon:'🇨🇭', sym:'USD/CHF', name:'US Dollar / Swiss Franc', bid:'0.90128', ask:'0.90142', chg:'+0.00045', chgp:'+0.05%', high:'0.90280', low:'0.89940', spread:'1.4', tag:'major', sent:'neut' },
+      { icon:'🦘', sym:'AUD/USD', name:'Australian / US Dollar',   bid:'0.65200', ask:'0.65214', chg:'-0.00059', chgp:'-0.09%', high:'0.65380', low:'0.64980', spread:'1.4', tag:'major', sent:'bear' },
+      { icon:'🥝', sym:'NZD/USD', name:'New Zealand / US Dollar',  bid:'0.60307', ask:'0.60321', chg:'-0.00127', chgp:'-0.21%', high:'0.60540', low:'0.60180', spread:'1.4', tag:'minor', sent:'bear' },
+      { icon:'💶', sym:'EUR/GBP', name:'Euro / British Pound',     bid:'0.85598', ask:'0.85612', chg:'+0.00120', chgp:'+0.14%', high:'0.85720', low:'0.85380', spread:'1.4', tag:'minor', sent:'bull' },
+      { icon:'💹', sym:'EUR/JPY', name:'Euro / Japanese Yen',      bid:'164.507', ask:'164.521', chg:'+0.754',   chgp:'+0.46%', high:'164.820', low:'163.840', spread:'1.4', tag:'minor', sent:'bull' },
+      { icon:'💸', sym:'GBP/JPY', name:'British Pound / Yen',      bid:'192.326', ask:'192.340', chg:'+0.840',   chgp:'+0.44%', high:'192.680', low:'191.620', spread:'1.4', tag:'minor', sent:'bull' },
+    ],
+    crypto: [
+      { icon:'₿',  sym:'BTC/USD',  name:'Bitcoin',       price:'78,450',  chg:'+1,644', chgp:'+2.14%', high:'79,120', low:'76,480', mcap:'$1.54T',  vol:'$42.8B', tag:'top5', sent:'bull' },
+      { icon:'Ξ',  sym:'ETH/USD',  name:'Ethereum',      price:'2,301',   chg:'+43',    chgp:'+1.88%', high:'2,348',  low:'2,242',  mcap:'$277B',   vol:'$18.4B', tag:'top5', sent:'bull' },
+      { icon:'◎',  sym:'SOL/USD',  name:'Solana',        price:'142.80',  chg:'+4.42',  chgp:'+3.21%', high:'144.20', low:'137.60', mcap:'$66.2B',  vol:'$4.1B',  tag:'top5', sent:'bull' },
+      { icon:'✕',  sym:'XRP/USD',  name:'Ripple',        price:'0.5124',  chg:'-0.004', chgp:'-0.84%', high:'0.524',  low:'0.508',  mcap:'$28.4B',  vol:'$1.8B',  tag:'top5', sent:'bear' },
+      { icon:'🔶', sym:'BNB/USD',  name:'BNB',           price:'412.30',  chg:'+2.96',  chgp:'+0.72%', high:'416.40', low:'408.20', mcap:'$61.2B',  vol:'$2.4B',  tag:'top5', sent:'bull' },
+      { icon:'🔵', sym:'ADA/USD',  name:'Cardano',       price:'0.4821',  chg:'-0.006', chgp:'-1.12%', high:'0.494',  low:'0.478',  mcap:'$17.1B',  vol:'$0.6B',  tag:'defi', sent:'bear' },
+      { icon:'⚫', sym:'DOT/USD',  name:'Polkadot',      price:'7.2340',  chg:'+0.068', chgp:'+0.95%', high:'7.380',  low:'7.120',  mcap:'$9.8B',   vol:'$0.4B',  tag:'defi', sent:'bull' },
+      { icon:'🐕', sym:'DOGE/USD', name:'Dogecoin',      price:'0.1482',  chg:'+0.006', chgp:'+4.21%', high:'0.152',  low:'0.142',  mcap:'$21.4B',  vol:'$1.2B',  tag:'top5', sent:'bull' },
+      { icon:'🔷', sym:'AVAX/USD', name:'Avalanche',     price:'38.420',  chg:'+0.840', chgp:'+2.24%', high:'39.120', low:'37.240', mcap:'$15.8B',  vol:'$0.9B',  tag:'defi', sent:'bull' },
+      { icon:'🌐', sym:'LINK/USD', name:'Chainlink',     price:'14.820',  chg:'-0.180', chgp:'-1.20%', high:'15.240', low:'14.620', mcap:'$9.0B',   vol:'$0.5B',  tag:'defi', sent:'bear' },
+    ],
+    stocks: [
+      { icon:'🍎', sym:'AAPL',  name:'Apple Inc.',        price:'182.52', chg:'+1.52',  chgp:'+0.84%', open:'181.20', high:'183.40', low:'180.80', vol:'52.4M',  tag:'us', sent:'bull' },
+      { icon:'🪟', sym:'MSFT',  name:'Microsoft Corp.',   price:'415.30', chg:'+4.58',  chgp:'+1.12%', open:'411.20', high:'416.80', low:'410.40', vol:'18.2M',  tag:'us', sent:'bull' },
+      { icon:'🔍', sym:'GOOGL', name:'Alphabet Inc.',     price:'176.40', chg:'-0.56',  chgp:'-0.32%', open:'177.20', high:'178.40', low:'175.60', vol:'22.8M',  tag:'us', sent:'bear' },
+      { icon:'📦', sym:'AMZN',  name:'Amazon.com Inc.',   price:'192.80', chg:'+2.94',  chgp:'+1.54%', open:'190.20', high:'193.60', low:'189.80', vol:'34.6M',  tag:'us', sent:'bull' },
+      { icon:'⚡', sym:'TSLA',  name:'Tesla Inc.',        price:'172.60', chg:'-3.76',  chgp:'-2.14%', open:'176.80', high:'177.20', low:'171.40', vol:'98.2M',  tag:'us', sent:'bear' },
+      { icon:'🎮', sym:'NVDA',  name:'NVIDIA Corp.',      price:'875.40', chg:'+27.14', chgp:'+3.21%', open:'849.20', high:'878.60', low:'847.40', vol:'42.8M',  tag:'us', sent:'bull' },
+      { icon:'👓', sym:'META',  name:'Meta Platforms',    price:'510.20', chg:'+4.60',  chgp:'+0.91%', open:'506.20', high:'512.40', low:'504.80', vol:'14.2M',  tag:'us', sent:'bull' },
+      { icon:'🏦', sym:'JPM',   name:'JPMorgan Chase',    price:'198.30', chg:'+1.06',  chgp:'+0.54%', open:'197.40', high:'199.20', low:'196.80', vol:'8.4M',   tag:'us', sent:'bull' },
+      { icon:'💳', sym:'V',     name:'Visa Inc.',         price:'278.90', chg:'+1.16',  chgp:'+0.42%', open:'277.80', high:'279.60', low:'277.20', vol:'6.2M',   tag:'us', sent:'bull' },
+      { icon:'🛒', sym:'WMT',   name:'Walmart Inc.',      price:'68.42',  chg:'+0.42',  chgp:'+0.62%', open:'68.00',  high:'68.80',  low:'67.80',  vol:'12.4M',  tag:'us', sent:'bull' },
+    ],
+    indices: [
+      { icon:'🗽', sym:'US30',    name:'Dow Jones',          price:'39,142', chg:'+121', chgp:'+0.31%', high:'39,284', low:'38,942', region:'Americas', tag:'us',   sent:'bull' },
+      { icon:'🦅', sym:'SPX500',  name:'S&P 500',            price:'5,254',  chg:'+25',  chgp:'+0.48%', high:'5,274',  low:'5,221',  region:'Americas', tag:'us',   sent:'bull' },
+      { icon:'💻', sym:'NAS100',  name:'NASDAQ 100',         price:'18,241', chg:'+131', chgp:'+0.72%', high:'18,312', low:'18,082', region:'Americas', tag:'us',   sent:'bull' },
+      { icon:'🍁', sym:'CA60',    name:'TSX 60',             price:'1,342',  chg:'+8',   chgp:'+0.60%', high:'1,348',  low:'1,334',  region:'Americas', tag:'us',   sent:'bull' },
+      { icon:'🎡', sym:'UK100',   name:'FTSE 100',           price:'8,312',  chg:'-12',  chgp:'-0.14%', high:'8,348',  low:'8,282',  region:'Europe',   tag:'eu',   sent:'bear' },
+      { icon:'🏰', sym:'GER40',   name:'DAX 40',             price:'18,074', chg:'+40',  chgp:'+0.22%', high:'18,142', low:'17,982', region:'Europe',   tag:'eu',   sent:'bull' },
+      { icon:'🗼', sym:'FRA40',   name:'CAC 40',             price:'8,142',  chg:'-7',   chgp:'-0.08%', high:'8,182',  low:'8,112',  region:'Europe',   tag:'eu',   sent:'neut' },
+      { icon:'🌷', sym:'NED25',   name:'AEX 25',             price:'882',    chg:'+4',   chgp:'+0.45%', high:'886',    low:'878',    region:'Europe',   tag:'eu',   sent:'bull' },
+      { icon:'🗾', sym:'JPN225',  name:'Nikkei 225',         price:'40,120', chg:'+322', chgp:'+0.81%', high:'40,284', low:'39,842', region:'Asia',     tag:'asia', sent:'bull' },
+      { icon:'🦘', sym:'AUS200',  name:'ASX 200',            price:'7,814',  chg:'+27',  chgp:'+0.34%', high:'7,842',  low:'7,782',  region:'Asia',     tag:'asia', sent:'bull' },
+      { icon:'🐉', sym:'HK50',    name:'Hang Seng',          price:'16,842', chg:'-142', chgp:'-0.84%', high:'17,042', low:'16,782', region:'Asia',     tag:'asia', sent:'bear' },
+      { icon:'🌏', sym:'CHINA50', name:'China A50',          price:'12,420', chg:'+84',  chgp:'+0.68%', high:'12,482', low:'12,342', region:'Asia',     tag:'asia', sent:'bull' },
+    ],
+    metals: [
+      { icon:'🥇', sym:'XAU/USD', name:'Gold',          bid:'2,340.8', ask:'2,341.5', chg:'+20.2',  chgp:'+0.87%', high:'2,354.2', low:'2,318.4', unit:'Troy oz', sent:'bull' },
+      { icon:'🥈', sym:'XAG/USD', name:'Silver',        bid:'27.830',  ask:'27.842',  chg:'+0.340', chgp:'+1.24%', high:'28.120',  low:'27.480',  unit:'Troy oz', sent:'bull' },
+      { icon:'⬜', sym:'XPT/USD', name:'Platinum',      bid:'981.8',   ask:'982.4',   chg:'-3.04',  chgp:'-0.31%', high:'988.2',   low:'978.4',   unit:'Troy oz', sent:'bear' },
+      { icon:'🔩', sym:'XPD/USD', name:'Palladium',     bid:'1,041.2', ask:'1,042.0', chg:'-5.64',  chgp:'-0.54%', high:'1,054.2', low:'1,038.4', unit:'Troy oz', sent:'bear' },
+      { icon:'🔶', sym:'HG/USD',  name:'Copper',        bid:'4.1228',  ask:'4.1240',  chg:'+0.0254',chgp:'+0.62%', high:'4.1480',  low:'4.0920',  unit:'Lbs',     sent:'bull' },
+    ],
+    energy: [
+      { icon:'🛢️', sym:'WTI/USD', name:'Crude Oil WTI', bid:'82.28',   ask:'82.34',   chg:'-0.454', chgp:'-0.55%', high:'83.12',  low:'82.04',  unit:'Barrel', sent:'bear' },
+      { icon:'⚫', sym:'BRT/USD', name:'Brent Crude',   bid:'86.66',   ask:'86.72',   chg:'-0.366', chgp:'-0.42%', high:'87.42',  low:'86.28',  unit:'Barrel', sent:'bear' },
+      { icon:'🔥', sym:'NGAS',   name:'Natural Gas',    bid:'1.8406',  ask:'1.8420',  chg:'+0.0204',chgp:'+1.12%', high:'1.8640', low:'1.8180', unit:'MMBtu',  sent:'bull' },
+      { icon:'⛽', sym:'RBOB',   name:'Gasoline RBOB',  bid:'2.6826',  ask:'2.6840',  chg:'-0.0074',chgp:'-0.28%', high:'2.7020', low:'2.6680', unit:'Gallon', sent:'bear' },
+      { icon:'🌡️', sym:'HEAT',   name:'Heating Oil',    bid:'2.8106',  ask:'2.8120',  chg:'+0.0050',chgp:'+0.18%', high:'2.8280', low:'2.7980', unit:'Gallon', sent:'bull' },
+    ],
+    etfs: [
+      { icon:'📊', sym:'SPY',  name:'SPDR S&P 500 ETF',      price:'524.80', chg:'+2.52', chgp:'+0.48%', aum:'$544B', exp:'0.09%', vol:'72.4M', sent:'bull' },
+      { icon:'💡', sym:'QQQ',  name:'Invesco QQQ Trust',      price:'448.20', chg:'+3.18', chgp:'+0.71%', aum:'$221B', exp:'0.20%', vol:'38.2M', sent:'bull' },
+      { icon:'🟡', sym:'GLD',  name:'SPDR Gold Shares',       price:'215.40', chg:'+1.80', chgp:'+0.84%', aum:'$66B',  exp:'0.40%', vol:'8.4M',  sent:'bull' },
+      { icon:'⚪', sym:'SLV',  name:'iShares Silver Trust',   price:'25.820', chg:'+0.316',chgp:'+1.24%', aum:'$12B',  exp:'0.50%', vol:'14.8M', sent:'bull' },
+      { icon:'🌐', sym:'VTI',  name:'Vanguard Total Market',  price:'241.30', chg:'+0.868',chgp:'+0.36%', aum:'$432B', exp:'0.03%', vol:'3.2M',  sent:'bull' },
+      { icon:'⚡', sym:'XLE',  name:'Energy Select SPDR',     price:'91.420', chg:'-0.388',chgp:'-0.42%', aum:'$38B',  exp:'0.09%', vol:'12.6M', sent:'bear' },
+      { icon:'🚀', sym:'ARKK', name:'ARK Innovation ETF',     price:'48.120', chg:'+1.008',chgp:'+2.14%', aum:'$7B',   exp:'0.75%', vol:'22.4M', sent:'bull' },
+      { icon:'📱', sym:'XLK',  name:'Technology Select SPDR', price:'214.80', chg:'+3.224',chgp:'+1.52%', aum:'$64B',  exp:'0.09%', vol:'8.8M',  sent:'bull' },
+    ],
+  };
+
+  /* ============================================================
+     SPARKLINES
+  ============================================================ */
+  function sparkline(up) {
+    const pts = [];
+    let v = 50 + (Math.random() - 0.5) * 20;
+    for (let i = 0; i < 8; i++) {
+      v += (Math.random() - (up ? 0.35 : 0.65)) * 12;
+      v = Math.max(10, Math.min(90, v));
+      pts.push(v);
+    }
+    const w = 72, h = 32;
+    const minV = Math.min(...pts), maxV = Math.max(...pts), range = maxV - minV || 1;
+    const coords = pts.map((p, i) => `${(i / 7) * w},${h - ((p - minV) / range) * h}`).join(' ');
+    const cls = up ? 'spark-up' : 'spark-down';
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}"><polyline class="${cls}" points="${coords}"/></svg>`;
+  }
+
+  /* ============================================================
+     ROW BUILDERS
+  ============================================================ */
+  function chgBadge(chgp) {
+    const up = !chgp.startsWith('-');
+    const arrow = up
+      ? `<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>`
+      : `<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>`;
+    return `<span class="chg-badge ${up ? 'up' : 'down'}">${arrow}${chgp}</span>`;
+  }
+
+  function sentBadge(s) {
+    const map = { bull: ['sentiment--bull','Bullish'], bear: ['sentiment--bear','Bearish'], neut: ['sentiment--neut','Neutral'] };
+    const [cls, label] = map[s] || map.neut;
+    return `<span class="sentiment ${cls}">${label}</span>`;
+  }
+
+  function tradeBtn(sym) {
+    return `<button class="row-trade-btn" onclick="goTrade('${sym}')">Trade</button>`;
+  }
+
+  function goTrade(sym) { window.location.href = 'trade.html'; }
+
+  /* ============================================================
+     RENDER TABLES
+  ============================================================ */
+  function renderForex() {
+    const tbody = document.getElementById('tbody-forex');
+    tbody.innerHTML = DATA.forex.map(r => {
+      const up = !r.chg.startsWith('-');
+      return `<tr class="mkt-row">
+        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+        <td class="mkt-price">${r.bid}</td>
+        <td class="mkt-price">${r.ask}</td>
+        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td>${chgBadge(r.chgp)}</td>
+        <td>${r.high}</td><td>${r.low}</td>
+        <td><span style="font-size:12px;color:var(--muted);">${r.spread}</span></td>
+        <td>${sparkline(up)}</td>
+        <td>${sentBadge(r.sent)}</td>
+        <td>${tradeBtn(r.sym)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderCrypto() {
+    const tbody = document.getElementById('tbody-crypto');
+    tbody.innerHTML = DATA.crypto.map(r => {
+      const up = !r.chg.startsWith('-');
+      return `<tr class="mkt-row">
+        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+        <td class="mkt-price">$${r.price}</td>
+        <td>${chgBadge(r.chgp)}</td>
+        <td style="color:var(--green);font-weight:600;">$${r.high}</td>
+        <td style="color:var(--red);font-weight:600;">$${r.low}</td>
+        <td style="font-size:12px;">${r.mcap}</td>
+        <td style="font-size:12px;">${r.vol}</td>
+        <td>${sparkline(up)}</td>
+        <td>${sentBadge(r.sent)}</td>
+        <td>${tradeBtn(r.sym)}</td>
+      </tr>`;
+    }).join('');
+
+    // Heatmap
+    const hm = document.getElementById('heatmap-crypto');
+    hm.innerHTML = DATA.crypto.map(r => {
+      const up = !r.chgp.startsWith('-');
+      const intensity = Math.min(Math.abs(parseFloat(r.chgp)) / 5, 1);
+      const bg = up
+        ? `rgba(34,160,107,${0.4 + intensity * 0.5})`
+        : `rgba(230,0,35,${0.4 + intensity * 0.5})`;
+      return `<div class="heat-cell" style="background:${bg};" title="${r.name}">
+        <div class="heat-cell__sym">${r.sym.split('/')[0]}</div>
+        <div class="heat-cell__chg">${r.chgp}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderStocks() {
+    const tbody = document.getElementById('tbody-stocks');
+    tbody.innerHTML = DATA.stocks.map(r => {
+      const up = !r.chg.startsWith('-');
+      return `<tr class="mkt-row">
+        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+        <td class="mkt-price">$${r.price}</td>
+        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td>${chgBadge(r.chgp)}</td>
+        <td>$${r.open}</td>
+        <td style="color:var(--green);">$${r.high}</td>
+        <td style="color:var(--red);">$${r.low}</td>
+        <td style="font-size:12px;">${r.vol}</td>
+        <td>${sparkline(up)}</td>
+        <td>${sentBadge(r.sent)}</td>
+        <td>${tradeBtn(r.sym)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderIndices() {
+    const tbody = document.getElementById('tbody-indices');
+    tbody.innerHTML = DATA.indices.map(r => {
+      const up = !r.chg.startsWith('-');
+      return `<tr class="mkt-row">
+        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+        <td class="mkt-price">${r.price}</td>
+        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td>${chgBadge(r.chgp)}</td>
+        <td style="color:var(--green);">${r.high}</td>
+        <td style="color:var(--red);">${r.low}</td>
+        <td><span style="font-size:12px;color:var(--muted);">${r.region}</span></td>
+        <td>${sparkline(up)}</td>
+        <td>${sentBadge(r.sent)}</td>
+        <td>${tradeBtn(r.sym)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderMetals() {
+    const tbody = document.getElementById('tbody-metals');
+    tbody.innerHTML = DATA.metals.map(r => {
+      const up = !r.chg.startsWith('-');
+      return `<tr class="mkt-row">
+        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+        <td class="mkt-price">${r.bid}</td>
+        <td class="mkt-price">${r.ask}</td>
+        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td>${chgBadge(r.chgp)}</td>
+        <td style="color:var(--green);">${r.high}</td>
+        <td style="color:var(--red);">${r.low}</td>
+        <td style="font-size:12px;color:var(--muted);">${r.unit}</td>
+        <td>${sparkline(up)}</td>
+        <td>${sentBadge(r.sent)}</td>
+        <td>${tradeBtn(r.sym)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderEnergy() {
+    const tbody = document.getElementById('tbody-energy');
+    tbody.innerHTML = DATA.energy.map(r => {
+      const up = !r.chg.startsWith('-');
+      return `<tr class="mkt-row">
+        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+        <td class="mkt-price">$${r.bid}</td>
+        <td class="mkt-price">$${r.ask}</td>
+        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td>${chgBadge(r.chgp)}</td>
+        <td style="color:var(--green);">$${r.high}</td>
+        <td style="color:var(--red);">$${r.low}</td>
+        <td style="font-size:12px;color:var(--muted);">${r.unit}</td>
+        <td>${sparkline(up)}</td>
+        <td>${sentBadge(r.sent)}</td>
+        <td>${tradeBtn(r.sym)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderETFs() {
+    const tbody = document.getElementById('tbody-etfs');
+    tbody.innerHTML = DATA.etfs.map(r => {
+      const up = !r.chg.startsWith('-');
+      return `<tr class="mkt-row">
+        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+        <td class="mkt-price">$${r.price}</td>
+        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td>${chgBadge(r.chgp)}</td>
+        <td style="font-size:12px;">${r.aum}</td>
+        <td style="font-size:12px;">${r.exp}</td>
+        <td style="font-size:12px;">${r.vol}</td>
+        <td>${sparkline(up)}</td>
+        <td>${sentBadge(r.sent)}</td>
+        <td>${tradeBtn(r.sym)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ============================================================
+     OVERVIEW STATS
+  ============================================================ */
+  function renderStats() {
+    const stats = [
+      { label:'S&P 500',     value:'5,254', change:'+0.48%', up:true  },
+      { label:'Nasdaq 100',  value:'18,241',change:'+0.72%', up:true  },
+      { label:'Gold',        value:'$2,341',change:'+0.87%', up:true  },
+      { label:'BTC/USD',     value:'$78,450',change:'+2.14%',up:true  },
+      { label:'EUR/USD',     value:'1.0843', change:'+0.21%',up:true  },
+      { label:'WTI Crude',   value:'$82.34', change:'-0.55%',up:false },
+      { label:'Fear & Greed',value:'68 — Greed', change:'',  up:true  },
+      { label:'VIX',         value:'14.82', change:'-1.24%', up:false },
+    ];
+    document.getElementById('overview-stats').innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="stat-card__label">${s.label}</div>
+        <div class="stat-card__value">${s.value}</div>
+        ${s.change ? `<div class="stat-card__change ${s.up?'up':'down'}">${s.up?'▲':'▼'} ${s.change}</div>` : ''}
+      </div>`).join('');
+  }
+
+  /* ============================================================
+     MINI CHARTS (TradingView)
+  ============================================================ */
+  const MINI_SYMS = [
+    { sym:'FX:EURUSD',        label:'EUR/USD',  price:'1.08432', up:true  },
+    { sym:'BITSTAMP:BTCUSD',  label:'BTC/USD',  price:'78,450',  up:true  },
+    { sym:'FOREXCOM:XAUUSD',  label:'Gold',     price:'2,341.5', up:true  },
+    { sym:'FOREXCOM:SPXUSD',  label:'S&P 500',  price:'5,254',   up:true  },
+    { sym:'NYMEX:CL1!',       label:'WTI Oil',  price:'82.34',   up:false },
+    { sym:'NASDAQ:NVDA',      label:'NVIDIA',   price:'875.40',  up:true  },
+  ];
+
+  function renderMiniCharts() {
+    const wrap = document.getElementById('mini-charts');
+    MINI_SYMS.forEach((m, i) => {
+      const card = document.createElement('div');
+      card.className = 'mini-chart-card';
+      card.innerHTML = `
+        <div class="mini-chart-card__head">
+          <span class="mini-chart-card__sym">${m.label}</span>
+          <span class="mini-chart-card__price" style="color:${m.up?'var(--green)':'var(--red)'};">${m.price}</span>
+        </div>
+        <div id="mini-${i}" style="height:140px;"></div>`;
+      wrap.appendChild(card);
+
+      // Load TradingView mini chart
+      new TradingView.MiniWidget({
+        container_id: `mini-${i}`,
+        symbol: m.sym,
+        width: '100%',
+        height: 140,
+        locale: 'en',
+        dateRange: '1M',
+        colorTheme: document.body.classList.contains('dark') ? 'dark' : 'light',
+        trendLineColor: m.up ? 'rgba(34,160,107,1)' : 'rgba(230,0,35,1)',
+        underLineColor: m.up ? 'rgba(34,160,107,0.1)' : 'rgba(230,0,35,0.1)',
+        isTransparent: true,
+        autosize: true,
+        largeChartUrl: 'trade.html',
+      });
+    });
+  }
+
+  /* ============================================================
+     FILTER
+  ============================================================ */
+  function filterSection(section, tag, btn) {
+    btn.closest('.section-head__right').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const rows = document.querySelectorAll(`#tbody-${section} tr`);
+    rows.forEach(row => {
+      if (tag === 'all') { row.style.display = ''; return; }
+      // Simple filter: re-render with filtered data
+    });
+  }
+
+  /* ============================================================
+     SEARCH
+  ============================================================ */
+  function searchMarkets() {
+    const q = document.getElementById('global-search').value.toLowerCase();
+    document.querySelectorAll('.mkt-row').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+    document.querySelectorAll('.mkt-section').forEach(sec => {
+      const vis = [...sec.querySelectorAll('.mkt-row')].some(r => r.style.display !== 'none');
+      sec.style.display = q && !vis ? 'none' : '';
+    });
+  }
+
+  /* ============================================================
+     REFRESH
+  ============================================================ */
+  function refreshPrices() {
+    const btn = document.querySelector('[onclick="refreshPrices()"]');
+    btn.textContent = 'Refreshing…';
+    btn.disabled = true;
+    setTimeout(() => {
+      renderAll();
+      btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Refresh`;
+      btn.disabled = false;
+      document.getElementById('last-updated').textContent = 'Live prices · Updated just now';
+    }, 800);
+  }
+
+  function renderAll() {
+    renderStats();
+    renderForex();
+    renderCrypto();
+    renderStocks();
+    renderIndices();
+    renderMetals();
+    renderEnergy();
+    renderETFs();
+  }
+
+  /* ============================================================
+     DARK MODE
+  ============================================================ */
+  const sunIcon  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+  const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+  function toggleDark() {
+    const isDark = document.body.classList.toggle('dark');
+    document.getElementById('dark-icon').innerHTML = isDark ? sunIcon : moonIcon;
+    localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
+  }
+  if (localStorage.getItem('xantex-theme') === 'dark') {
+    document.body.classList.add('dark');
+    document.getElementById('dark-icon').innerHTML = sunIcon;
+  }
+
+  /* ============================================================
+     SIDEBAR
+  ============================================================ */
+  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+  document.addEventListener('click', e => {
+    const sb = document.getElementById('sidebar');
+    const hb = document.getElementById('hamburger');
+    if (sb.classList.contains('open') && !sb.contains(e.target) && !hb.contains(e.target)) {
+      sb.classList.remove('open');
+    }
+  });
+
+  /* ============================================================
+     INIT
+  ============================================================ */
+  renderAll();
+
+  // Load TradingView library then mini charts
+  const tvScript = document.createElement('script');
+  tvScript.src = 'https://s3.tradingview.com/tv.js';
+  tvScript.onload = renderMiniCharts;
+  document.head.appendChild(tvScript);
+
+  // Live clock
+  setInterval(() => {
+    const now = new Date();
+    document.getElementById('last-updated').textContent =
+      `Live prices · ${now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' })}`;
+  }, 1000);
+</script>
+</body>
+</html>

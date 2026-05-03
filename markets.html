@@ -1154,45 +1154,78 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase.js"></script>
+<script src="./prices.js"></script>
 <script>
-// Merge Supabase market_prices rows into the static DATA object,
-// then re-render. Falls back gracefully if the table is empty or missing.
-(async () => {
-  const db = window.XANTEX_DB;
-  if (!db) return;
+// ── Map live prices from prices.js into the DATA tables ──────
+(function () {
+  // Symbol → DATA category + field mapping
+  const SYM_TO_CAT = {
+    // forex
+    'EUR/USD':'forex','GBP/USD':'forex','USD/JPY':'forex','USD/CAD':'forex',
+    'USD/CHF':'forex','AUD/USD':'forex','NZD/USD':'forex','EUR/GBP':'forex',
+    'EUR/JPY':'forex','GBP/JPY':'forex',
+    // crypto
+    'BTC/USD':'crypto','ETH/USD':'crypto','SOL/USD':'crypto','XRP/USD':'crypto',
+    'BNB/USD':'crypto','ADA/USD':'crypto','DOT/USD':'crypto','DOGE/USD':'crypto',
+    'AVAX/USD':'crypto','LINK/USD':'crypto',
+    // metals
+    'XAU/USD':'metals','XAG/USD':'metals','XPT/USD':'metals','XPD/USD':'metals','HG/USD':'metals',
+    // energy
+    'WTI/USD':'energy','BRT/USD':'energy','NGAS':'energy','RBOB':'energy','HEAT':'energy',
+    // indices
+    'US30':'indices','SPX500':'indices','NAS100':'indices','UK100':'indices',
+    'GER40':'indices','FRA40':'indices','JPN225':'indices','HK50':'indices','AUS200':'indices',
+    // stocks
+    'AAPL':'stocks','MSFT':'stocks','GOOGL':'stocks','AMZN':'stocks','TSLA':'stocks',
+    'NVDA':'stocks','META':'stocks','JPM':'stocks','V':'stocks','WMT':'stocks',
+    // etfs
+    'SPY':'etfs','QQQ':'etfs','GLD':'etfs','SLV':'etfs',
+    'VTI':'etfs','XLE':'etfs','ARKK':'etfs','XLK':'etfs',
+  };
 
-  const { data: rows, error } = await db
-    .from('market_prices')
-    .select('*')
-    .order('category');
+  function fmtChg(val) {
+    if (val == null) return '0';
+    return (val >= 0 ? '+' : '') + parseFloat(val).toFixed(val > 100 ? 2 : val > 1 ? 4 : 6);
+  }
+  function fmtChgP(val) {
+    if (val == null) return '0%';
+    return (val >= 0 ? '+' : '') + parseFloat(val).toFixed(2) + '%';
+  }
+  function fmtNum(val) {
+    if (val == null) return '—';
+    const n = parseFloat(val);
+    if (isNaN(n)) return '—';
+    if (n >= 1000) return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (n >= 10)   return n.toFixed(3);
+    if (n >= 1)    return n.toFixed(4);
+    return n.toFixed(6);
+  }
 
-  if (error || !rows || !rows.length) return;
+  function applyLivePrices(prices) {
+    Object.entries(prices).forEach(([sym, p]) => {
+      const cat = SYM_TO_CAT[sym];
+      if (!cat || !DATA[cat]) return;
+      const idx = DATA[cat].findIndex(d => d.sym === sym);
+      if (idx < 0) return;
+      const row = DATA[cat][idx];
+      const bid  = fmtNum(p.bid  ?? p.price);
+      const ask  = fmtNum(p.ask  ?? p.price);
+      const price = fmtNum(p.price);
+      const chg  = fmtChg(p.chg);
+      const chgp = fmtChgP(p.chgp);
+      const high = fmtNum(p.high);
+      const low  = fmtNum(p.low);
+      const sent = p.chgp == null ? row.sent : (p.chgp > 0.5 ? 'bull' : p.chgp < -0.5 ? 'bear' : 'neut');
+      DATA[cat][idx] = { ...row, bid, ask, price, chg, chgp, high, low, sent };
+    });
+    renderAll();
+    const ts = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    const el = document.getElementById('last-updated');
+    if (el) el.textContent = `Live prices · Updated ${ts}`;
+  }
 
-  // Merge rows by symbol into the matching DATA category
-  const catMap = { forex:'forex', crypto:'crypto', stocks:'stocks', indices:'indices', metals:'metals', energy:'energy', etfs:'etfs' };
-
-  rows.forEach(r => {
-    const cat = catMap[r.category];
-    if (!cat) return;
-    const idx = DATA[cat].findIndex(d => d.sym === r.symbol);
-    const merged = {
-      ...(idx >= 0 ? DATA[cat][idx] : {}),
-      sym:  r.symbol,
-      name: r.name || (idx >= 0 ? DATA[cat][idx].name : r.symbol),
-      bid:  r.bid   || r.price || (idx >= 0 ? DATA[cat][idx].bid  : '—'),
-      ask:  r.ask   || r.price || (idx >= 0 ? DATA[cat][idx].ask  : '—'),
-      price: r.price || (idx >= 0 ? DATA[cat][idx].price : '—'),
-      chg:  r.change_amount != null ? (r.change_amount >= 0 ? '+' : '') + r.change_amount : (idx >= 0 ? DATA[cat][idx].chg : '0'),
-      chgp: r.change_pct   != null ? (r.change_pct   >= 0 ? '+' : '') + r.change_pct + '%' : (idx >= 0 ? DATA[cat][idx].chgp : '0%'),
-      high: r.high_24h || (idx >= 0 ? DATA[cat][idx].high || DATA[cat][idx].high_24h : '—'),
-      low:  r.low_24h  || (idx >= 0 ? DATA[cat][idx].low  || DATA[cat][idx].low_24h  : '—'),
-    };
-    if (idx >= 0) DATA[cat][idx] = merged;
-    else           DATA[cat].push(merged);
-  });
-
-  renderAll();
-  document.getElementById('last-updated').textContent = 'Live prices · Updated from database';
+  window.addEventListener('prices:update', e => applyLivePrices(e.detail || {}));
+  if (window.LIVE_PRICES && Object.keys(window.LIVE_PRICES).length) applyLivePrices(window.LIVE_PRICES);
 })();
 </script>
 </body>

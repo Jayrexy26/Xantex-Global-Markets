@@ -704,41 +704,32 @@
               <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
               Total Balance
             </div>
-            <div class="summary-card__value">$24,830.50</div>
-            <div class="summary-card__change up">
-              <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-              +$1,240.20 today
-            </div>
+            <div class="summary-card__value" id="card-balance">—</div>
+            <div class="summary-card__change" id="card-balance-sub" style="color:var(--muted);">Loading…</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
               Open P&L
             </div>
-            <div class="summary-card__value" style="color:var(--green);">+$842.30</div>
-            <div class="summary-card__change up">
-              <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-              6 open positions
-            </div>
+            <div class="summary-card__value" id="card-pnl" style="color:var(--muted);">—</div>
+            <div class="summary-card__change" id="card-pnl-sub" style="color:var(--muted);">Loading…</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
               Free Margin
             </div>
-            <div class="summary-card__value">$18,420.00</div>
-            <div class="summary-card__change" style="color:var(--muted);">Margin level: 312%</div>
+            <div class="summary-card__value" id="card-margin">—</div>
+            <div class="summary-card__change" id="card-margin-sub" style="color:var(--muted);">Loading…</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              Today's Trades
+              Deposits / Withdrawals
             </div>
-            <div class="summary-card__value">14</div>
-            <div class="summary-card__change down">
-              <svg viewBox="0 0 24 24"><polyline points="18 9 12 15 6 9"/></svg>
-              -$120.40 closed P&L
-            </div>
+            <div class="summary-card__value" id="card-txn">—</div>
+            <div class="summary-card__change" id="card-txn-sub" style="color:var(--muted);">Loading…</div>
           </div>
         </div>
 
@@ -765,43 +756,8 @@
               <div class="card__title">Market Watch</div>
               <span class="card__action">See all →</span>
             </div>
-            <div class="market-list">
-              <div class="market-row">
-                <div class="market-flag">💱</div>
-                <div class="market-name"><div class="market-name__sym">EUR/USD</div><div class="market-name__full">Euro / US Dollar</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,20 8,16 16,18 24,10 32,12 40,6 48,8 56,4" fill="none" stroke="#22a06b" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">1.08432</div><div class="market-price__chg up">+0.42%</div></div>
-              </div>
-              <div class="market-row">
-                <div class="market-flag">💷</div>
-                <div class="market-name"><div class="market-name__sym">GBP/USD</div><div class="market-name__full">British Pound / US Dollar</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,8 8,12 16,10 24,16 32,14 40,18 48,16 56,20" fill="none" stroke="#e60023" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">1.26718</div><div class="market-price__chg down">-0.18%</div></div>
-              </div>
-              <div class="market-row">
-                <div class="market-flag">🥇</div>
-                <div class="market-name"><div class="market-name__sym">XAU/USD</div><div class="market-name__full">Gold / US Dollar</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,18 8,14 16,16 24,8 32,10 40,4 48,6 56,2" fill="none" stroke="#22a06b" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">2,341.50</div><div class="market-price__chg up">+0.87%</div></div>
-              </div>
-              <div class="market-row">
-                <div class="market-flag">📈</div>
-                <div class="market-name"><div class="market-name__sym">US30</div><div class="market-name__full">Dow Jones Industrial</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,14 8,10 16,12 24,6 32,8 40,4 48,6 56,3" fill="none" stroke="#22a06b" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">39,142.0</div><div class="market-price__chg up">+0.31%</div></div>
-              </div>
-              <div class="market-row">
-                <div class="market-flag">₿</div>
-                <div class="market-name"><div class="market-name__sym">BTC/USD</div><div class="market-name__full">Bitcoin / US Dollar</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,10 8,14 16,8 24,16 32,6 40,12 48,4 56,8" fill="none" stroke="#22a06b" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">78,450.0</div><div class="market-price__chg up">+2.14%</div></div>
-              </div>
-              <div class="market-row">
-                <div class="market-flag">🛢️</div>
-                <div class="market-name"><div class="market-name__sym">WTI/USD</div><div class="market-name__full">Crude Oil West Texas</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,12 8,16 16,14 24,18 32,16 40,20 48,18 56,22" fill="none" stroke="#e60023" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">82.340</div><div class="market-price__chg down">-0.55%</div></div>
-              </div>
+            <div class="market-list" id="dash-market-watch">
+              <div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Loading live prices…</div>
             </div>
           </div>
         </div>
@@ -826,61 +782,8 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td class="pos-symbol">EUR/USD</td>
-                    <td><span class="pos-type pos-type--buy">Buy</span></td>
-                    <td>0.50</td>
-                    <td>1.08210</td>
-                    <td>1.08432</td>
-                    <td class="pos-pnl up">+$111.00</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                  <tr>
-                    <td class="pos-symbol">XAU/USD</td>
-                    <td><span class="pos-type pos-type--buy">Buy</span></td>
-                    <td>0.10</td>
-                    <td>2,310.00</td>
-                    <td>2,341.50</td>
-                    <td class="pos-pnl up">+$315.00</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                  <tr>
-                    <td class="pos-symbol">GBP/USD</td>
-                    <td><span class="pos-type pos-type--sell">Sell</span></td>
-                    <td>0.30</td>
-                    <td>1.26900</td>
-                    <td>1.26718</td>
-                    <td class="pos-pnl up">+$54.60</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                  <tr>
-                    <td class="pos-symbol">BTC/USD</td>
-                    <td><span class="pos-type pos-type--sell">Sell</span></td>
-                    <td>0.05</td>
-                    <td>76,200.0</td>
-                    <td>78,450.0</td>
-                    <td class="pos-pnl down">-$112.50</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                  <tr>
-                    <td class="pos-symbol">US30</td>
-                    <td><span class="pos-type pos-type--buy">Buy</span></td>
-                    <td>1.00</td>
-                    <td>38,900.0</td>
-                    <td>39,142.0</td>
-                    <td class="pos-pnl up">+$242.00</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                  <tr>
-                    <td class="pos-symbol">WTI/USD</td>
-                    <td><span class="pos-type pos-type--buy">Buy</span></td>
-                    <td>2.00</td>
-                    <td>83.100</td>
-                    <td>82.340</td>
-                    <td class="pos-pnl down">-$152.00</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
+                <tbody id="positions-tbody">
+                  <tr id="positions-empty-row"><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">No open positions</td></tr>
                 </tbody>
               </table>
             </div>
@@ -1183,6 +1086,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase.js"></script>
+<script src="./prices.js"></script>
 <script>
 (async () => {
   const db = window.XANTEX_DB;
@@ -1194,88 +1098,115 @@
 
   const userId = session.user.id;
 
-  // ── Load profile ────────────────────────────────────────
-  const { data: profile } = await db
-    .from('profiles')
-    .select('first_name, last_name, email, kyc_status')
-    .eq('id', userId)
-    .single();
-
-  if (profile) {
-    const name  = `${profile.first_name} ${profile.last_name}`;
-    const init  = (profile.first_name[0] + profile.last_name[0]).toUpperCase();
-    const first = profile.first_name;
-    const hour  = new Date().getHours();
-    const greet = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-
-    document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
-    document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => el.textContent = init);
-    document.querySelector('.page-header__title')?.textContent && (
-      document.querySelector('.page-header__title').textContent = `Good ${greet}, ${first} 👋`
-    );
+  function fmt(n) {
+    return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function timeSince(ts) {
+    const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+    if (s < 60)    return s + 's ago';
+    if (s < 3600)  return Math.floor(s / 60) + 'm ago';
+    if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+    return Math.floor(s / 86400) + 'd ago';
   }
 
-  // ── Load trading accounts ───────────────────────────────
-  const { data: accounts } = await db
-    .from('trading_accounts')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+  // ── Load everything in parallel ──────────────────────────
+  const [
+    { data: profile },
+    { data: accounts },
+    { data: positions },
+    { data: txns },
+    { data: depReqs },
+    { data: wdReqs },
+  ] = await Promise.all([
+    db.from('profiles').select('first_name, last_name, email, kyc_status').eq('id', userId).single(),
+    db.from('trading_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+    db.from('positions').select('*').eq('user_id', userId).eq('status', 'open').order('opened_at', { ascending: false }),
+    db.from('transactions').select('type, amount, status, created_at, description').eq('user_id', userId).order('created_at', { ascending: false }).limit(6),
+    db.from('deposit_requests').select('id').eq('user_id', userId).in('status', ['pending','processing']),
+    db.from('withdrawal_requests').select('id').eq('user_id', userId).in('status', ['pending','processing']),
+  ]);
 
+  // ── Profile ─────────────────────────────────────────────
+  if (profile) {
+    const fn    = profile.first_name || '';
+    const ln    = profile.last_name  || '';
+    const name  = (fn + ' ' + ln).trim() || session.user.email;
+    const init  = ((fn[0] || '') + (ln[0] || '')).toUpperCase() || '?';
+    const hour  = new Date().getHours();
+    const greet = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+    document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
+    document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => el.textContent = init);
+    const titleEl = document.querySelector('.page-header__title');
+    if (titleEl) titleEl.textContent = `Good ${greet}, ${fn || 'Trader'} 👋`;
+  }
+
+  // ── Accounts ─────────────────────────────────────────────
   if (accounts && accounts.length) {
-    const totalBalance = accounts.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
-    document.querySelector('.summary-card--blue .summary-card__value').textContent =
-      '$' + totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    const totalBalance  = accounts.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
+    const totalFree     = accounts.reduce((s, a) => s + (parseFloat(a.free_margin) || parseFloat(a.balance) || 0), 0);
+    const liveAccounts  = accounts.filter(a => a.type === 'live');
 
+    const $bal = document.getElementById('card-balance');
+    if ($bal) { $bal.textContent = fmt(totalBalance); $bal.style.color = ''; }
+    const $balSub = document.getElementById('card-balance-sub');
+    if ($balSub) { $balSub.textContent = `${accounts.length} account${accounts.length !== 1 ? 's' : ''}`; $balSub.style.color = ''; }
+
+    const $margin = document.getElementById('card-margin');
+    if ($margin) $margin.textContent = fmt(totalFree);
+    const $marginSub = document.getElementById('card-margin-sub');
+    if ($marginSub) $marginSub.textContent = `Across ${liveAccounts.length} live account${liveAccounts.length !== 1 ? 's' : ''}`;
+
+    // Account list
     const accountList = document.querySelector('.account-list');
     if (accountList) {
       const platformMap = { MT4: 'account-icon--mt4', MT5: 'account-icon--mt5', cTrader: 'account-icon--ct', TradingView: 'account-icon--tv' };
       accountList.innerHTML = accounts.map(a => {
-        const cls = platformMap[a.platform] || 'account-icon--mt4';
-        const bal = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-        const live = a.type?.toLowerCase().includes('live');
+        const cls  = platformMap[a.platform] || 'account-icon--mt4';
+        const bal  = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+        const live = a.type === 'live';
         return `<div class="account-row">
-          <div class="account-icon ${cls}">${a.platform?.slice(0,2).toUpperCase() || 'MT'}</div>
+          <div class="account-icon ${cls}">${(a.platform || 'MT').slice(0,2).toUpperCase()}</div>
           <div class="account-col">
             <div class="account-col__id">#${a.account_number || a.id.slice(0,8)}</div>
             <div class="account-col__type">${a.platform || '—'} · ${a.account_type || '—'} · ${a.currency || 'USD'}</div>
           </div>
           <span class="account-status ${live ? 'account-status--live' : 'account-status--demo'}">${live ? 'Live' : 'Demo'}</span>
-          <div class="account-balance">
-            <div class="account-balance__val">$${bal}</div>
-          </div>
+          <div class="account-balance"><div class="account-balance__val">$${bal}</div></div>
         </div>`;
-      }).join('');
+      }).join('') || '<div style="padding:16px;color:var(--muted);text-align:center;font-size:13px;">No accounts yet</div>';
     }
 
-    // Populate modal account selects
-    document.querySelectorAll('#modal-deposit select, #modal-withdraw select').forEach(sel => {
-      if (sel.options[0]?.text.includes('#') || sel.options[0]?.text.includes('MT')) {
-        sel.innerHTML = accounts
-          .filter(a => a.type?.toLowerCase().includes('live'))
-          .map(a => `<option value="${a.id}">#${a.account_number || a.id.slice(0,8)} — ${a.platform} ${a.account_type} $${parseFloat(a.balance||0).toLocaleString()}</option>`)
-          .join('');
-      }
+    // Modal account selects
+    const opts = accounts.filter(a => a.type === 'live')
+      .map(a => `<option value="${a.id}">#${a.account_number || a.id.slice(0,8)} — ${a.platform} ${a.account_type} ${fmt(a.balance)}</option>`)
+      .join('');
+    document.querySelectorAll('#modal-deposit select:first-of-type, #modal-withdraw select:first-of-type').forEach(sel => {
+      if (opts) sel.innerHTML = opts;
+    });
+  } else {
+    ['card-balance','card-margin'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = '$0.00';
+    });
+    ['card-balance-sub','card-margin-sub'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = 'No accounts';
     });
   }
 
-  // ── Load open positions ─────────────────────────────────
-  const { data: positions } = await db
-    .from('positions')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('status', 'open')
-    .order('opened_at', { ascending: false });
-
+  // ── Positions ────────────────────────────────────────────
+  const tbody = document.getElementById('positions-tbody');
   if (positions && positions.length) {
-    document.querySelectorAll('.summary-card')[1]?.querySelector('.summary-card__change')
-      ?.childNodes[1] && (
-        document.querySelectorAll('.summary-card')[1].querySelector('.summary-card__change').lastChild.textContent =
-          ` ${positions.length} open position${positions.length !== 1 ? 's' : ''}`
-      );
+    const totalPnl = positions.reduce((s, p) => s + (parseFloat(p.floating_pnl) || 0), 0);
+    const $pnl = document.getElementById('card-pnl');
+    if ($pnl) {
+      $pnl.textContent = (totalPnl >= 0 ? '+' : '') + fmt(totalPnl);
+      $pnl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+    }
+    const $pnlSub = document.getElementById('card-pnl-sub');
+    if ($pnlSub) $pnlSub.textContent = `${positions.length} open position${positions.length !== 1 ? 's' : ''}`;
 
-    const tbody = document.querySelector('tbody');
     if (tbody) {
+      const emptyRow = document.getElementById('positions-empty-row');
+      if (emptyRow) emptyRow.remove();
       tbody.innerHTML = positions.map(p => {
         const isBuy = p.direction === 'buy';
         const pnl   = parseFloat(p.floating_pnl || 0);
@@ -1291,26 +1222,31 @@
         </tr>`;
       }).join('');
     }
+  } else {
+    const $pnl = document.getElementById('card-pnl');
+    if ($pnl) { $pnl.textContent = '$0.00'; $pnl.style.color = 'var(--muted)'; }
+    const $pnlSub = document.getElementById('card-pnl-sub');
+    if ($pnlSub) $pnlSub.textContent = 'No open positions';
   }
 
-  // ── Load recent transactions (activity) ─────────────────
-  const { data: txns } = await db
-    .from('transactions')
-    .select('type, amount, status, created_at, description')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(5);
+  // ── Deposit/Withdrawal requests ──────────────────────────
+  const pendingDep = (depReqs || []).length;
+  const pendingWd  = (wdReqs  || []).length;
+  const $txn    = document.getElementById('card-txn');
+  const $txnSub = document.getElementById('card-txn-sub');
+  if ($txn)    $txn.textContent    = pendingDep + pendingWd;
+  if ($txnSub) $txnSub.textContent = `${pendingDep} deposit${pendingDep !== 1 ? 's' : ''}, ${pendingWd} withdrawal${pendingWd !== 1 ? 's' : ''} pending`;
 
+  // ── Activity feed ────────────────────────────────────────
   if (txns && txns.length) {
-    const dotColor = { deposit: 'green', withdrawal: 'orange', trade: 'blue', bonus: 'blue' };
+    const dotColor = { deposit: 'green', withdrawal: 'orange', trade: 'blue', bonus: 'blue', fee: 'red', trade_pnl: 'green' };
     const activityList = document.querySelector('.activity-list');
     if (activityList) {
       activityList.innerHTML = txns.map(t => {
         const color = dotColor[t.type] || 'blue';
         const amt   = parseFloat(t.amount || 0);
-        const sign  = t.type === 'deposit' || t.type === 'bonus' ? '+' : '-';
         const ago   = timeSince(t.created_at);
-        const desc  = t.description || `${t.type} of <strong>$${Math.abs(amt).toLocaleString()}</strong>`;
+        const desc  = t.description || `${t.type.replace('_',' ')} of <strong>${fmt(amt)}</strong>`;
         return `<div class="activity-row">
           <div class="activity-dot activity-dot--${color}"></div>
           <div class="activity-text">${desc}</div>
@@ -1318,30 +1254,115 @@
         </div>`;
       }).join('');
     }
+  } else {
+    const activityList = document.querySelector('.activity-list');
+    if (activityList) activityList.innerHTML = '<div class="activity-row"><div class="activity-text" style="color:var(--muted);">No recent activity</div></div>';
   }
 
-  // ── Sign out ────────────────────────────────────────────
+  // ── Sign out ─────────────────────────────────────────────
   document.querySelectorAll('.sidebar__logout').forEach(btn => {
-    btn.onclick = async () => {
-      await db.auth.signOut();
-      window.location.href = 'login.html';
-    };
+    btn.onclick = async () => { await db.auth.signOut(); window.location.href = 'login.html'; };
   });
 
-  // ── Close position ──────────────────────────────────────
+  // ── Close position ───────────────────────────────────────
   window.closePosition = async (id) => {
     if (!confirm('Close this position?')) return;
     const { error } = await db.from('positions').update({ status: 'closed' }).eq('id', id);
     if (!error) location.reload();
   };
 
-  function timeSince(ts) {
-    const secs = Math.floor((Date.now() - new Date(ts)) / 1000);
-    if (secs < 60)   return secs + 's ago';
-    if (secs < 3600) return Math.floor(secs / 60) + 'm ago';
-    if (secs < 86400)return Math.floor(secs / 3600) + 'h ago';
-    return Math.floor(secs / 86400) + 'd ago';
+  // ── Deposit modal submit ─────────────────────────────────
+  const depBtn = document.querySelector('#modal-deposit .modal__foot .btn--primary');
+  if (depBtn) {
+    depBtn.onclick = async () => {
+      const accountSel = document.querySelector('#modal-deposit select');
+      const amtInput   = document.querySelector('#modal-deposit input[type=number]');
+      const methodSel  = document.querySelectorAll('#modal-deposit select')[1];
+      const amount = parseFloat(amtInput?.value);
+      if (!amount || amount < 10) { alert('Enter a valid amount'); return; }
+      depBtn.disabled = true; depBtn.textContent = 'Submitting…';
+      await db.from('deposit_requests').insert({
+        user_id: userId,
+        account_id: accountSel?.value || null,
+        amount,
+        payment_method: methodSel?.value || 'Bank Transfer',
+        status: 'pending',
+      });
+      depBtn.disabled = false; depBtn.textContent = 'Continue to Payment';
+      closeModal('deposit');
+      alert('Deposit request submitted. Our team will process it shortly.');
+      location.reload();
+    };
   }
+
+  // ── Withdrawal modal submit ──────────────────────────────
+  const wdBtn = document.querySelector('#modal-withdraw .modal__foot .btn--red');
+  if (wdBtn) {
+    wdBtn.onclick = async () => {
+      const accountSel = document.querySelector('#modal-withdraw select');
+      const amtInput   = document.querySelector('#modal-withdraw input[type=number]');
+      const destSel    = document.querySelectorAll('#modal-withdraw select')[1];
+      const amount = parseFloat(amtInput?.value);
+      if (!amount || amount < 10) { alert('Enter a valid amount'); return; }
+      const acct = accounts?.find(a => a.id === accountSel?.value);
+      if (acct && parseFloat(acct.balance) < amount) { alert('Insufficient balance'); return; }
+      wdBtn.disabled = true; wdBtn.textContent = 'Submitting…';
+      await db.from('withdrawal_requests').insert({
+        user_id: userId,
+        account_id: accountSel?.value || null,
+        amount,
+        destination_type: 'Bank Transfer',
+        destination_name: destSel?.value || '',
+        status: 'pending',
+      });
+      wdBtn.disabled = false; wdBtn.textContent = 'Request Withdrawal';
+      closeModal('withdraw');
+      alert('Withdrawal request submitted. It will be processed within 24 hours.');
+      location.reload();
+    };
+  }
+})();
+
+// ── Market Watch — updated by prices.js live data ────────────
+(function () {
+  const WATCH = [
+    { sym: 'EUR/USD', name: 'Euro / US Dollar',     icon: '💱' },
+    { sym: 'GBP/USD', name: 'British Pound / USD',  icon: '💷' },
+    { sym: 'XAU/USD', name: 'Gold / US Dollar',     icon: '🥇' },
+    { sym: 'US30',    name: 'Dow Jones',             icon: '📈' },
+    { sym: 'BTC/USD', name: 'Bitcoin / USD',         icon: '₿'  },
+    { sym: 'WTI/USD', name: 'Crude Oil WTI',         icon: '🛢️' },
+  ];
+
+  function buildWatch(prices) {
+    const container = document.getElementById('dash-market-watch');
+    if (!container) return;
+    container.innerHTML = WATCH.map(w => {
+      const p    = prices[w.sym];
+      const val  = p ? window.fmtPrice(w.sym, p.ask || p.price) : '—';
+      const chgp = p ? parseFloat(p.chgp || 0) : null;
+      const up   = chgp == null ? true : chgp >= 0;
+      const chgTxt = chgp != null ? (chgp >= 0 ? '+' : '') + chgp.toFixed(2) + '%' : '—';
+      const color  = chgp == null ? '#888' : (up ? 'var(--green)' : 'var(--red)');
+      const stroke = up ? '#22a06b' : '#e60023';
+      return `<div class="market-row">
+        <div class="market-flag">${w.icon}</div>
+        <div class="market-name"><div class="market-name__sym">${w.sym}</div><div class="market-name__full">${w.name}</div></div>
+        <svg class="market-spark" viewBox="0 0 56 28">
+          <polyline points="0,20 8,16 16,18 24,10 32,12 40,6 48,8 56,4" fill="none" stroke="${stroke}" stroke-width="1.5"/>
+        </svg>
+        <div class="market-price">
+          <div class="market-price__val">${val}</div>
+          <div class="market-price__chg" style="color:${color};">${chgTxt}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Build once prices arrive
+  window.addEventListener('prices:update', e => buildWatch(e.detail || {}));
+  // If prices.js already fired before this listener was added, use existing data
+  if (window.LIVE_PRICES && Object.keys(window.LIVE_PRICES).length) buildWatch(window.LIVE_PRICES);
 })();
 </script>
 </body>

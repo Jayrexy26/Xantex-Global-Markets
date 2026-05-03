@@ -1129,76 +1129,16 @@
   /* ============================================================
      SAMPLE DATA
   ============================================================ */
-  const USERS = [
-    { id:'USR001', name:'John Smith',     email:'john@example.com',  country:'🇬🇧 UK',     type:'Live',  balance:'$14,830', joined:'2024-01-12', status:'active',    kyc:'verified',  color:'#1a5cff' },
-    { id:'USR002', name:'Amara Okafor',   email:'amara@mail.com',    country:'🇳🇬 Nigeria', type:'Live',  balance:'$8,200',  joined:'2024-02-28', status:'active',    kyc:'verified',  color:'#22a06b' },
-    { id:'USR003', name:'James Liu',      email:'james@trade.io',    country:'🇸🇬 SG',      type:'Demo',  balance:'$50,000', joined:'2024-03-14', status:'active',    kyc:'pending',   color:'#7c3aed' },
-    { id:'USR004', name:'Sarah Al-Rashid',email:'sarah@dubai.ae',    country:'🇦🇪 UAE',     type:'Live',  balance:'$32,400', joined:'2024-04-01', status:'active',    kyc:'verified',  color:'#f5a623' },
-    { id:'USR005', name:'Carlos Mendes',  email:'carlos@br.net',     country:'🇧🇷 Brazil',  type:'Live',  balance:'$5,100',  joined:'2024-04-18', status:'suspended', kyc:'rejected',  color:'#e60023' },
-    { id:'USR006', name:'Emma Wilson',    email:'emma@uk.co',        country:'🇬🇧 UK',      type:'Live',  balance:'$21,600', joined:'2024-05-02', status:'active',    kyc:'verified',  color:'#1a5cff' },
-    { id:'USR007', name:'Kwame Asante',   email:'kwame@ghana.gh',    country:'🇬🇭 Ghana',   type:'Demo',  balance:'$50,000', joined:'2024-05-20', status:'active',    kyc:'pending',   color:'#22a06b' },
-    { id:'USR008', name:'Priya Sharma',   email:'priya@india.in',    country:'🇮🇳 India',   type:'Live',  balance:'$9,800',  joined:'2024-06-08', status:'active',    kyc:'verified',  color:'#7c3aed' },
-  ];
+  const USERS       = [];
+  const POSITIONS   = [];
+  const DEPOSITS    = [];
+  const WITHDRAWALS = [];
 
-  const POSITIONS = [
-    { ticket:'#482931', user:'John Smith',  acc:'MT4-001', sym:'EUR/USD', type:'Buy',  lots:0.50, open:'1.08210', curr:'1.08432', sl:'1.07800', tp:'1.09000', pnl:'+$111.00' },
-    { ticket:'#482932', user:'Sarah A.',    acc:'MT4-004', sym:'XAU/USD', type:'Buy',  lots:0.10, open:'2310.00', curr:'2341.50', sl:'2280.00', tp:'2400.00', pnl:'+$315.00' },
-    { ticket:'#482933', user:'Emma Wilson', acc:'MT5-006', sym:'GBP/USD', type:'Sell', lots:0.30, open:'1.26900', curr:'1.26718', sl:'1.27500', tp:'1.25500', pnl:'+$54.60'  },
-    { ticket:'#482934', user:'Amara O.',    acc:'MT4-002', sym:'BTC/USD', type:'Sell', lots:0.05, open:'76200',  curr:'78450',   sl:'80000',   tp:'72000',   pnl:'-$112.50' },
-    { ticket:'#482935', user:'Priya Sharma',acc:'MT4-008', sym:'US30',    type:'Buy',  lots:1.00, open:'38900',  curr:'39142',   sl:'38400',   tp:'40000',   pnl:'+$242.00' },
-  ];
+  const KYC = [];
 
-  const DEPOSITS = [
-    { id:'DEP001', user:'Kwame Asante',    amount:'$5,000',  method:'Bank Transfer', submitted:'2 May, 09:14', status:'pending' },
-    { id:'DEP002', user:'James Liu',       amount:'$10,000', method:'Card',          submitted:'2 May, 10:22', status:'pending' },
-    { id:'DEP003', user:'John Smith',      amount:'$2,500',  method:'Crypto',        submitted:'2 May, 11:05', status:'approved' },
-    { id:'DEP004', user:'Carlos Mendes',   amount:'$500',    method:'Card',          submitted:'1 May, 17:48', status:'rejected' },
-    { id:'DEP005', user:'Priya Sharma',    amount:'$8,000',  method:'Bank Transfer', submitted:'1 May, 14:30', status:'approved' },
-  ];
-
-  const WITHDRAWALS = [
-    { id:'WDR001', user:'John Smith',      amount:'$3,000',  dest:'Visa ••4242',         requested:'2 May, 08:00', status:'pending' },
-    { id:'WDR002', user:'Sarah Al-Rashid', amount:'$15,000', dest:'Bank ••8821',          requested:'2 May, 09:30', status:'pending' },
-    { id:'WDR003', user:'Emma Wilson',     amount:'$1,200',  dest:'Skrill •••@uk.co',    requested:'1 May, 16:00', status:'approved' },
-    { id:'WDR004', user:'Amara Okafor',    amount:'$500',    dest:'Bank ••3310',          requested:'1 May, 12:45', status:'pending' },
-    { id:'WDR005', user:'Priya Sharma',    amount:'$2,400',  dest:'Crypto wallet',        requested:'30 Apr, 11:00',status:'approved' },
-  ];
-
-  const KYC = [
-    { user:'James Liu',     doc:'Passport',     submitted:'2 May, 10:00', status:'pending'  },
-    { user:'Kwame Asante',  doc:'National ID',  submitted:'2 May, 09:20', status:'pending'  },
-    { user:'Carlos Mendes', doc:'Passport',     submitted:'30 Apr, 14:00',status:'rejected' },
-    { user:'New User #049', doc:'Driver Lic.',  submitted:'2 May, 11:30', status:'pending'  },
-    { user:'New User #050', doc:'Passport',     submitted:'2 May, 12:00', status:'pending'  },
-  ];
-
-  const ADJ_LOG = [
-    { time:'2 May 09:14', acc:'MT4-001', user:'John Smith',  type:'Credit',  amt:'+$5,000', before:'$9,830',  after:'$14,830', admin:'SuperAdmin', reason:'Client deposit' },
-    { time:'1 May 17:20', acc:'MT5-006', user:'Emma Wilson', type:'Bonus',   amt:'+$500',   before:'$21,100', after:'$21,600', admin:'SuperAdmin', reason:'Promo bonus' },
-    { time:'1 May 14:10', acc:'MT4-008', user:'Priya Sharma',type:'Credit',  amt:'+$8,000', before:'$1,800',  after:'$9,800',  admin:'SuperAdmin', reason:'Bank transfer' },
-  ];
-
-  const AUDIT_LOG = [
-    { time:'2 May 12:42', admin:'SuperAdmin', action:'Balance Adjusted', target:'USR001',    details:'Credit $5,000',       ip:'102.89.x.x' },
-    { time:'2 May 11:30', admin:'SuperAdmin', action:'KYC Approved',     target:'USR008',    details:'Passport verified',   ip:'102.89.x.x' },
-    { time:'2 May 10:15', admin:'SuperAdmin', action:'User Suspended',   target:'USR005',    details:'Policy violation',    ip:'102.89.x.x' },
-    { time:'2 May 09:44', admin:'SuperAdmin', action:'Withdrawal Approved',target:'WDR003',  details:'$1,200 to Skrill',    ip:'102.89.x.x' },
-    { time:'1 May 16:22', admin:'SuperAdmin', action:'Announcement Sent',target:'All Users', details:'Maintenance notice',  ip:'102.89.x.x' },
-    { time:'1 May 14:08', admin:'SuperAdmin', action:'Deposit Approved', target:'DEP005',    details:'$8,000 bank transfer',ip:'102.89.x.x' },
-  ];
-
-  const ACTIVITY_FEED = [
-    { dot:'green',  text:'<strong>John Smith</strong> deposited <strong>$5,000</strong> via Bank Transfer', time:'2m ago' },
-    { dot:'blue',   text:'<strong>New user</strong> registered — Kwame Asante (Ghana)', time:'5m ago' },
-    { dot:'orange', text:'<strong>KYC submitted</strong> — James Liu (Passport)', time:'8m ago' },
-    { dot:'red',    text:'<strong>Withdrawal requested</strong> — Sarah Al-Rashid $15,000', time:'12m ago' },
-    { dot:'green',  text:'<strong>Emma Wilson</strong> opened Buy EUR/USD 0.30 lots', time:'15m ago' },
-    { dot:'blue',   text:'<strong>Priya Sharma</strong> closed Buy US30 +$242.00 profit', time:'22m ago' },
-    { dot:'orange', text:'<strong>Large trade alert</strong> — James Liu BTC/USD 2.0 lots', time:'31m ago' },
-    { dot:'red',    text:'<strong>Login failed</strong> 3x — IP 185.42.x.x (blocked)', time:'44m ago' },
-    { dot:'green',  text:'<strong>Amara Okafor</strong> verified KYC — National ID approved', time:'1h ago' },
-    { dot:'blue',   text:'<strong>New account created</strong> — MT5 Live Raw+ #10483288', time:'1h 12m ago' },
-  ];
+  const ADJ_LOG    = [];
+  const AUDIT_LOG  = [];
+  const ACTIVITY_FEED = [];
 
   /* ============================================================
      RENDER FUNCTIONS
@@ -1988,6 +1928,121 @@ window.renderAll = function() {
   renderAdjLog();
   renderActivity();
   renderMarketsControl();
+  loadDashboardStats();
+};
+
+// ── Real-time dashboard stats ─────────────────────────────────
+async function loadDashboardStats() {
+  const db = window.XANTEX_DB;
+  if (!db) return;
+  try {
+    const [
+      { count: totalUsers },
+      { count: liveAccounts },
+      { data: aumData },
+      { count: openPositions },
+      { count: pendingDeposits },
+      { count: pendingWithdrawals },
+      { count: kycPending },
+    ] = await Promise.all([
+      db.from('profiles').select('id', { count: 'exact', head: true }),
+      db.from('trading_accounts').select('id', { count: 'exact', head: true }).eq('type', 'live').eq('status', 'active'),
+      db.from('trading_accounts').select('balance').eq('status', 'active'),
+      db.from('positions').select('id', { count: 'exact', head: true }).eq('status', 'open'),
+      db.from('deposit_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      db.from('withdrawal_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      db.from('kyc_submissions').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    ]);
+
+    const aum = (aumData || []).reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
+
+    const stats = document.querySelectorAll('.stat-card');
+    if (stats[0]) stats[0].querySelector('.stat-card__value').textContent = (totalUsers || 0).toLocaleString();
+    if (stats[1]) stats[1].querySelector('.stat-card__value').textContent = (liveAccounts || 0).toLocaleString();
+    if (stats[2]) stats[2].querySelector('.stat-card__value').textContent = '$' + (aum / 1e6).toFixed(1) + 'M';
+    if (stats[3]) stats[3].querySelector('.stat-card__value').textContent = (openPositions || 0).toLocaleString();
+    if (stats[4]) stats[4].querySelector('.stat-card__value').textContent = (pendingDeposits || 0);
+    if (stats[5]) stats[5].querySelector('.stat-card__value').textContent = (pendingWithdrawals || 0);
+    if (stats[6]) stats[6].querySelector('.stat-card__value').textContent = (kycPending || 0);
+  } catch (e) { console.warn('[ops] stats:', e); }
+}
+
+// ── Upgrade Deposits panel to also read from deposit_requests ─
+async function renderDepositsLive() {
+  renderDeposits();
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('deposit_requests')
+    .select('*, profiles(first_name, last_name)')
+    .order('created_at', { ascending: false });
+  if (!data?.length) return;
+  document.getElementById('deposits-tbody').innerHTML = data.map(d => {
+    const name = d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name}` : '—';
+    const amt  = parseFloat(d.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    return `<tr>
+      <td style="font-weight:600;">${d.id.slice(0,8).toUpperCase()}</td>
+      <td>${name}</td>
+      <td style="font-weight:700;">$${amt}</td>
+      <td>${d.payment_method || '—'}</td>
+      <td style="font-size:12px;">${fmtDate(d.created_at)}</td>
+      <td><span class="badge-pill ${d.status==='approved'?'pill-green':d.status==='pending'?'pill-orange':'pill-red'}">${d.status}</span></td>
+      <td><div class="row-actions">
+        ${d.status==='pending'
+          ? `<button class="btn btn--sm btn--green" onclick="opsApproveDepositReq('${d.id}')">Approve</button>
+             <button class="btn btn--sm btn--red" onclick="opsRejectDepositReq('${d.id}')">Reject</button>`
+          : `<button class="btn btn--sm btn--outline">View</button>`}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+window.renderDepositsLive = renderDepositsLive;
+window.opsApproveDepositReq = async id => {
+  await window.XANTEX_DB.from('deposit_requests').update({ status:'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
+  showToast('Deposit approved','success'); renderDepositsLive(); loadDashboardStats();
+};
+window.opsRejectDepositReq = async id => {
+  await window.XANTEX_DB.from('deposit_requests').update({ status:'rejected', reviewed_at: new Date().toISOString() }).eq('id', id);
+  showToast('Deposit rejected','error'); renderDepositsLive(); loadDashboardStats();
+};
+
+// ── Upgrade Withdrawals panel to read from withdrawal_requests ─
+async function renderWithdrawalsLive() {
+  renderWithdrawals();
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('withdrawal_requests')
+    .select('*, profiles(first_name, last_name)')
+    .order('created_at', { ascending: false });
+  if (!data?.length) return;
+  document.getElementById('withdrawals-tbody').innerHTML = data.map(w => {
+    const name = w.profiles ? `${w.profiles.first_name} ${w.profiles.last_name}` : '—';
+    const amt  = parseFloat(w.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    return `<tr>
+      <td style="font-weight:600;">${w.id.slice(0,8).toUpperCase()}</td>
+      <td>${name}</td>
+      <td style="font-weight:700;">$${amt}</td>
+      <td style="font-size:12px;">${w.destination_type || '—'} ${w.destination_name ? '· ' + w.destination_name : ''}</td>
+      <td style="font-size:12px;">${fmtDate(w.created_at)}</td>
+      <td><span class="badge-pill ${w.status==='approved'||w.status==='completed'?'pill-green':w.status==='pending'?'pill-orange':'pill-red'}">${w.status}</span></td>
+      <td><div class="row-actions">
+        ${w.status==='pending'
+          ? `<button class="btn btn--sm btn--green" onclick="opsApproveWithdrawalReq('${w.id}')">Approve</button>
+             <button class="btn btn--sm btn--red" onclick="opsRejectWithdrawalReq('${w.id}')">Reject</button>`
+          : `<button class="btn btn--sm btn--outline">View</button>`}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+window.renderWithdrawalsLive = renderWithdrawalsLive;
+window.opsApproveWithdrawalReq = async id => {
+  await window.XANTEX_DB.from('withdrawal_requests').update({ status:'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
+  showToast('Withdrawal approved','success'); renderWithdrawalsLive(); loadDashboardStats();
+};
+window.opsRejectWithdrawalReq = async id => {
+  await window.XANTEX_DB.from('withdrawal_requests').update({ status:'rejected', reviewed_at: new Date().toISOString() }).eq('id', id);
+  showToast('Withdrawal rejected','error'); renderWithdrawalsLive(); loadDashboardStats();
 };
 </script>
 </body>

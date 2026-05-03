@@ -1,36 +1,29 @@
 -- ============================================================
--- XANTEX GLOBAL MARKETS — DATABASE PATCH
--- Run in: Supabase Dashboard → SQL Editor → New query → Run
---
--- Safe to run on a database that already has `profiles` and
--- `transactions`. Uses IF NOT EXISTS / ADD COLUMN IF NOT EXISTS
--- throughout so nothing is dropped or overwritten.
+-- XANTEX GLOBAL MARKETS — COMPLETE DATABASE SCHEMA
+-- Run in: Supabase Dashboard → SQL Editor → New query → Run All
+-- Safe to re-run: uses IF NOT EXISTS / ADD COLUMN IF NOT EXISTS
 -- ============================================================
 
 create extension if not exists "uuid-ossp";
 
--- ============================================================
--- HELPER: updated_at trigger function
--- ============================================================
+-- ── Shared trigger helper ────────────────────────────────────
 create or replace function public.handle_updated_at()
 returns trigger language plpgsql as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
+begin new.updated_at = now(); return new; end;
 $$;
 
 
 -- ============================================================
--- 1. admin_users  (must exist before is_admin() is defined)
+-- 1. admin_users  (must come before is_admin())
 -- ============================================================
 create table if not exists public.admin_users (
   id         uuid        primary key references auth.users(id) on delete cascade,
   email      text        not null,
+  role       text        not null default 'admin' check (role in ('admin','superadmin')),
   created_at timestamptz not null default now()
 );
+alter table public.admin_users enable row level security;
 
--- is_admin() helper used by all RLS policies below
 create or replace function public.is_admin()
 returns boolean language sql security definer stable as $$
   select exists (select 1 from public.admin_users where id = auth.uid());
@@ -38,44 +31,38 @@ $$;
 
 
 -- ============================================================
--- 2. PATCH: profiles  (table exists — add missing columns)
+-- 2. profiles  (patch — table already exists)
 -- ============================================================
 alter table public.profiles
   add column if not exists first_name  text        not null default '',
   add column if not exists last_name   text        not null default '',
   add column if not exists phone       text,
   add column if not exists country     text,
+  add column if not exists date_of_birth date,
   add column if not exists kyc_status  text        not null default 'pending',
   add column if not exists status      text        not null default 'active',
   add column if not exists updated_at  timestamptz not null default now();
 
--- Add check constraints only if they don't already exist
 do $$ begin
-  alter table public.profiles
-    add constraint profiles_kyc_status_check
-      check (kyc_status in ('pending','verified','rejected'));
+  alter table public.profiles add constraint profiles_kyc_check
+    check (kyc_status in ('pending','verified','rejected'));
+exception when duplicate_object then null; end $$;
+do $$ begin
+  alter table public.profiles add constraint profiles_status_check
+    check (status in ('active','suspended','closed'));
 exception when duplicate_object then null; end $$;
 
-do $$ begin
-  alter table public.profiles
-    add constraint profiles_status_check
-      check (status in ('active','suspended','closed'));
-exception when duplicate_object then null; end $$;
-
--- updated_at trigger
 drop trigger if exists profiles_updated_at on public.profiles;
 create trigger profiles_updated_at
   before update on public.profiles
   for each row execute function public.handle_updated_at();
 
--- Auto-create profile row when a user registers via Supabase Auth
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer as $$
 begin
   insert into public.profiles (id, email, first_name, last_name)
   values (
-    new.id,
-    new.email,
+    new.id, new.email,
     coalesce(new.raw_user_meta_data->>'first_name', ''),
     coalesce(new.raw_user_meta_data->>'last_name',  '')
   )
@@ -83,101 +70,30 @@ begin
   return new;
 end;
 $$;
-
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
--- RLS
 alter table public.profiles enable row level security;
-
-drop policy if exists "Users: view own profile"        on public.profiles;
-drop policy if exists "Users: update own profile"      on public.profiles;
-drop policy if exists "Users: insert own profile"      on public.profiles;
-drop policy if exists "Admins: full access to profiles" on public.profiles;
-
-create policy "Users: view own profile"
-  on public.profiles for select
-  using (auth.uid() = id or public.is_admin());
-
-create policy "Users: update own profile"
-  on public.profiles for update
-  using (auth.uid() = id);
-
-create policy "Users: insert own profile"
-  on public.profiles for insert
-  with check (auth.uid() = id);
-
-create policy "Admins: full access to profiles"
-  on public.profiles for all
-  using (public.is_admin());
+drop policy if exists "profiles_select" on public.profiles;
+drop policy if exists "profiles_update" on public.profiles;
+drop policy if exists "profiles_insert" on public.profiles;
+drop policy if exists "profiles_admin"  on public.profiles;
+create policy "profiles_select" on public.profiles for select using (auth.uid() = id or public.is_admin());
+create policy "profiles_update" on public.profiles for update using (auth.uid() = id);
+create policy "profiles_insert" on public.profiles for insert with check (auth.uid() = id);
+create policy "profiles_admin"  on public.profiles for all    using (public.is_admin());
 
 
 -- ============================================================
--- 3. PATCH: transactions  (table exists — add missing columns)
--- ============================================================
-alter table public.transactions
-  add column if not exists account_id     uuid,
-  add column if not exists status         text        not null default 'pending',
-  add column if not exists payment_method text,
-  add column if not exists destination    text,
-  add column if not exists description    text,
-  add column if not exists reference      text,
-  add column if not exists updated_at     timestamptz not null default now();
-
--- account_id FK is added in section 4b after trading_accounts is created.
-
-do $$ begin
-  alter table public.transactions
-    add constraint transactions_status_check
-      check (status in ('pending','approved','rejected','processing'));
-exception when duplicate_object then null; end $$;
-
-do $$ begin
-  alter table public.transactions
-    add constraint transactions_type_check
-      check (type in ('deposit','withdrawal','bonus','adjustment','transfer'));
-exception when duplicate_object then null; end $$;
-
-drop trigger if exists transactions_updated_at on public.transactions;
-create trigger transactions_updated_at
-  before update on public.transactions
-  for each row execute function public.handle_updated_at();
-
-create index if not exists idx_txn_user_id    on public.transactions(user_id);
-create index if not exists idx_txn_account_id on public.transactions(account_id);
-create index if not exists idx_txn_type       on public.transactions(type);
-create index if not exists idx_txn_status     on public.transactions(status);
-create index if not exists idx_txn_created_at on public.transactions(created_at desc);
-
-alter table public.transactions enable row level security;
-
-drop policy if exists "Users: view own transactions"   on public.transactions;
-drop policy if exists "Users: insert own transactions" on public.transactions;
-drop policy if exists "Admins: full access to transactions" on public.transactions;
-
-create policy "Users: view own transactions"
-  on public.transactions for select
-  using (auth.uid() = user_id or public.is_admin());
-
-create policy "Users: insert own transactions"
-  on public.transactions for insert
-  with check (auth.uid() = user_id);
-
-create policy "Admins: full access to transactions"
-  on public.transactions for all
-  using (public.is_admin());
-
-
--- ============================================================
--- 4. trading_accounts  (new table)
+-- 3. trading_accounts
 -- ============================================================
 create table if not exists public.trading_accounts (
   id             uuid          primary key default uuid_generate_v4(),
   user_id        uuid          not null references public.profiles(id) on delete cascade,
   account_number text          unique,
-  platform       text          not null check (platform in ('MT4','MT5','cTrader','TradingView','Xantex')),
+  platform       text          not null default 'MT5' check (platform in ('MT4','MT5','cTrader','TradingView','Xantex')),
   type           text          not null default 'demo' check (type in ('live','demo')),
   account_type   text          not null default 'Standard',
   currency       text          not null default 'USD',
@@ -191,60 +107,159 @@ create table if not exists public.trading_accounts (
   created_at     timestamptz   not null default now(),
   updated_at     timestamptz   not null default now()
 );
-
-drop trigger if exists trading_accounts_updated_at on public.trading_accounts;
-create trigger trading_accounts_updated_at
-  before update on public.trading_accounts
+drop trigger if exists ta_updated_at on public.trading_accounts;
+create trigger ta_updated_at before update on public.trading_accounts
   for each row execute function public.handle_updated_at();
 
--- Auto-generate account number
 create or replace function public.generate_account_number()
 returns trigger language plpgsql as $$
 begin
   if new.account_number is null then
-    new.account_number := '104' || lpad((floor(random() * 90000) + 10000)::text, 5, '0');
+    new.account_number := '104' || lpad((floor(random() * 900000 + 10000))::text, 6, '0');
   end if;
   return new;
 end;
 $$;
-
 drop trigger if exists set_account_number on public.trading_accounts;
-create trigger set_account_number
-  before insert on public.trading_accounts
+create trigger set_account_number before insert on public.trading_accounts
   for each row execute function public.generate_account_number();
 
 create index if not exists idx_ta_user_id on public.trading_accounts(user_id);
 
 alter table public.trading_accounts enable row level security;
-
-drop policy if exists "Users: view own accounts"          on public.trading_accounts;
-drop policy if exists "Users: insert own accounts"        on public.trading_accounts;
-drop policy if exists "Admins: full access to accounts"   on public.trading_accounts;
-
-create policy "Users: view own accounts"
-  on public.trading_accounts for select
-  using (auth.uid() = user_id or public.is_admin());
-
-create policy "Users: insert own accounts"
-  on public.trading_accounts for insert
-  with check (auth.uid() = user_id);
-
-create policy "Admins: full access to accounts"
-  on public.trading_accounts for all
-  using (public.is_admin());
+drop policy if exists "ta_select" on public.trading_accounts;
+drop policy if exists "ta_insert" on public.trading_accounts;
+drop policy if exists "ta_admin"  on public.trading_accounts;
+create policy "ta_select" on public.trading_accounts for select using (auth.uid() = user_id or public.is_admin());
+create policy "ta_insert" on public.trading_accounts for insert with check (auth.uid() = user_id);
+create policy "ta_admin"  on public.trading_accounts for all    using (public.is_admin());
 
 
--- 4b. Now that trading_accounts exists, add the FK on transactions
---     (only if it isn't already there)
+-- ============================================================
+-- 4. transactions  (patch — table already exists)
+-- ============================================================
+alter table public.transactions
+  add column if not exists account_id     uuid,
+  add column if not exists status         text        not null default 'completed',
+  add column if not exists payment_method text,
+  add column if not exists destination    text,
+  add column if not exists description    text,
+  add column if not exists reference      text,
+  add column if not exists updated_at     timestamptz not null default now();
+
+do $$ begin
+  alter table public.transactions add constraint txn_status_check
+    check (status in ('pending','completed','failed','reversed'));
+exception when duplicate_object then null; end $$;
+do $$ begin
+  alter table public.transactions add constraint txn_type_check
+    check (type in ('deposit','withdrawal','bonus','adjustment','transfer','fee','trade_pnl'));
+exception when duplicate_object then null; end $$;
+
+drop trigger if exists txn_updated_at on public.transactions;
+create trigger txn_updated_at before update on public.transactions
+  for each row execute function public.handle_updated_at();
+
+create index if not exists idx_txn_user_id    on public.transactions(user_id);
+create index if not exists idx_txn_account_id on public.transactions(account_id);
+create index if not exists idx_txn_type       on public.transactions(type);
+create index if not exists idx_txn_status     on public.transactions(status);
+create index if not exists idx_txn_created_at on public.transactions(created_at desc);
+
+alter table public.transactions enable row level security;
+drop policy if exists "txn_select" on public.transactions;
+drop policy if exists "txn_insert" on public.transactions;
+drop policy if exists "txn_admin"  on public.transactions;
+create policy "txn_select" on public.transactions for select using (auth.uid() = user_id or public.is_admin());
+create policy "txn_insert" on public.transactions for insert with check (auth.uid() = user_id);
+create policy "txn_admin"  on public.transactions for all    using (public.is_admin());
+
+-- Add FK after trading_accounts exists
 do $$ begin
   alter table public.transactions
-    add constraint transactions_account_id_fkey
+    add constraint txn_account_id_fkey
       foreign key (account_id) references public.trading_accounts(id) on delete set null;
 exception when duplicate_object then null; end $$;
 
 
 -- ============================================================
--- 5. positions
+-- 5. deposit_requests
+-- ============================================================
+create table if not exists public.deposit_requests (
+  id             uuid          primary key default uuid_generate_v4(),
+  user_id        uuid          not null references public.profiles(id) on delete cascade,
+  account_id     uuid          references public.trading_accounts(id) on delete set null,
+  amount         numeric(18,2) not null,
+  currency       text          not null default 'USD',
+  payment_method text          not null default 'Bank Transfer',
+  proof_url      text,
+  reference      text,
+  notes          text,
+  status         text          not null default 'pending'
+                   check (status in ('pending','approved','rejected','processing')),
+  reviewed_by    uuid          references auth.users(id) on delete set null,
+  reviewed_at    timestamptz,
+  created_at     timestamptz   not null default now(),
+  updated_at     timestamptz   not null default now()
+);
+drop trigger if exists dep_req_updated_at on public.deposit_requests;
+create trigger dep_req_updated_at before update on public.deposit_requests
+  for each row execute function public.handle_updated_at();
+
+create index if not exists idx_dep_user_id    on public.deposit_requests(user_id);
+create index if not exists idx_dep_status     on public.deposit_requests(status);
+create index if not exists idx_dep_created_at on public.deposit_requests(created_at desc);
+
+alter table public.deposit_requests enable row level security;
+drop policy if exists "dep_select" on public.deposit_requests;
+drop policy if exists "dep_insert" on public.deposit_requests;
+drop policy if exists "dep_admin"  on public.deposit_requests;
+create policy "dep_select" on public.deposit_requests for select using (auth.uid() = user_id or public.is_admin());
+create policy "dep_insert" on public.deposit_requests for insert with check (auth.uid() = user_id);
+create policy "dep_admin"  on public.deposit_requests for all    using (public.is_admin());
+
+
+-- ============================================================
+-- 6. withdrawal_requests
+-- ============================================================
+create table if not exists public.withdrawal_requests (
+  id               uuid          primary key default uuid_generate_v4(),
+  user_id          uuid          not null references public.profiles(id) on delete cascade,
+  account_id       uuid          references public.trading_accounts(id) on delete set null,
+  amount           numeric(18,2) not null,
+  currency         text          not null default 'USD',
+  destination_type text          not null default 'Bank Transfer'
+                     check (destination_type in ('Bank Transfer','Card','Crypto','E-Wallet','Internal')),
+  destination_name text,
+  destination_ref  text,
+  notes            text,
+  status           text          not null default 'pending'
+                     check (status in ('pending','approved','rejected','processing','completed')),
+  reviewed_by      uuid          references auth.users(id) on delete set null,
+  reviewed_at      timestamptz,
+  processed_at     timestamptz,
+  created_at       timestamptz   not null default now(),
+  updated_at       timestamptz   not null default now()
+);
+drop trigger if exists wd_req_updated_at on public.withdrawal_requests;
+create trigger wd_req_updated_at before update on public.withdrawal_requests
+  for each row execute function public.handle_updated_at();
+
+create index if not exists idx_wd_user_id    on public.withdrawal_requests(user_id);
+create index if not exists idx_wd_status     on public.withdrawal_requests(status);
+create index if not exists idx_wd_created_at on public.withdrawal_requests(created_at desc);
+
+alter table public.withdrawal_requests enable row level security;
+drop policy if exists "wd_select" on public.withdrawal_requests;
+drop policy if exists "wd_insert" on public.withdrawal_requests;
+drop policy if exists "wd_admin"  on public.withdrawal_requests;
+create policy "wd_select" on public.withdrawal_requests for select using (auth.uid() = user_id or public.is_admin());
+create policy "wd_insert" on public.withdrawal_requests for insert with check (auth.uid() = user_id);
+create policy "wd_admin"  on public.withdrawal_requests for all    using (public.is_admin());
+
+
+-- ============================================================
+-- 7. positions
 -- ============================================================
 create table if not exists public.positions (
   id             uuid          primary key default uuid_generate_v4(),
@@ -268,38 +283,24 @@ create table if not exists public.positions (
   close_price    numeric(18,6),
   realised_pnl   numeric(18,2)
 );
-
 create index if not exists idx_pos_user_id   on public.positions(user_id);
 create index if not exists idx_pos_status    on public.positions(status);
 create index if not exists idx_pos_symbol    on public.positions(symbol);
 create index if not exists idx_pos_opened_at on public.positions(opened_at desc);
 
 alter table public.positions enable row level security;
-
-drop policy if exists "Users: view own positions"   on public.positions;
-drop policy if exists "Users: insert own positions" on public.positions;
-drop policy if exists "Users: update own positions" on public.positions;
-drop policy if exists "Admins: full access to positions" on public.positions;
-
-create policy "Users: view own positions"
-  on public.positions for select
-  using (auth.uid() = user_id or public.is_admin());
-
-create policy "Users: insert own positions"
-  on public.positions for insert
-  with check (auth.uid() = user_id);
-
-create policy "Users: update own positions"
-  on public.positions for update
-  using (auth.uid() = user_id);
-
-create policy "Admins: full access to positions"
-  on public.positions for all
-  using (public.is_admin());
+drop policy if exists "pos_select" on public.positions;
+drop policy if exists "pos_insert" on public.positions;
+drop policy if exists "pos_update" on public.positions;
+drop policy if exists "pos_admin"  on public.positions;
+create policy "pos_select" on public.positions for select using (auth.uid() = user_id or public.is_admin());
+create policy "pos_insert" on public.positions for insert with check (auth.uid() = user_id);
+create policy "pos_update" on public.positions for update using (auth.uid() = user_id);
+create policy "pos_admin"  on public.positions for all    using (public.is_admin());
 
 
 -- ============================================================
--- 6. kyc_submissions
+-- 8. kyc_submissions
 -- ============================================================
 create table if not exists public.kyc_submissions (
   id                uuid        primary key default uuid_generate_v4(),
@@ -308,39 +309,29 @@ create table if not exists public.kyc_submissions (
                       check (document_type in ('Passport','National ID','Driver''s licence')),
   front_url         text,
   back_url          text,
+  selfie_url        text,
   proof_address_url text,
   status            text        not null default 'pending'
                       check (status in ('pending','verified','rejected')),
   rejection_reason  text,
-  reviewed_by       text,
+  reviewed_by       uuid        references auth.users(id) on delete set null,
   submitted_at      timestamptz not null default now(),
   reviewed_at       timestamptz
 );
-
 create index if not exists idx_kyc_user_id on public.kyc_submissions(user_id);
 create index if not exists idx_kyc_status  on public.kyc_submissions(status);
 
 alter table public.kyc_submissions enable row level security;
-
-drop policy if exists "Users: view own KYC"           on public.kyc_submissions;
-drop policy if exists "Users: submit KYC"             on public.kyc_submissions;
-drop policy if exists "Admins: full access to KYC"    on public.kyc_submissions;
-
-create policy "Users: view own KYC"
-  on public.kyc_submissions for select
-  using (auth.uid() = user_id or public.is_admin());
-
-create policy "Users: submit KYC"
-  on public.kyc_submissions for insert
-  with check (auth.uid() = user_id);
-
-create policy "Admins: full access to KYC"
-  on public.kyc_submissions for all
-  using (public.is_admin());
+drop policy if exists "kyc_select" on public.kyc_submissions;
+drop policy if exists "kyc_insert" on public.kyc_submissions;
+drop policy if exists "kyc_admin"  on public.kyc_submissions;
+create policy "kyc_select" on public.kyc_submissions for select using (auth.uid() = user_id or public.is_admin());
+create policy "kyc_insert" on public.kyc_submissions for insert with check (auth.uid() = user_id);
+create policy "kyc_admin"  on public.kyc_submissions for all    using (public.is_admin());
 
 
 -- ============================================================
--- 7. market_prices  (publicly readable)
+-- 9. market_prices  (reference / cache — live prices from frontend)
 -- ============================================================
 create table if not exists public.market_prices (
   id            uuid          primary key default uuid_generate_v4(),
@@ -359,52 +350,46 @@ create table if not exists public.market_prices (
   market_cap    text,
   updated_at    timestamptz   not null default now()
 );
-
 create index if not exists idx_mp_category on public.market_prices(category);
 create index if not exists idx_mp_symbol   on public.market_prices(symbol);
 
 alter table public.market_prices enable row level security;
+drop policy if exists "mp_public_read" on public.market_prices;
+drop policy if exists "mp_admin_write" on public.market_prices;
+create policy "mp_public_read" on public.market_prices for select to anon, authenticated using (true);
+create policy "mp_admin_write" on public.market_prices for all using (public.is_admin());
 
-drop policy if exists "Public read for market prices"  on public.market_prices;
-drop policy if exists "Admins: write market prices"    on public.market_prices;
-
-create policy "Public read for market prices"
-  on public.market_prices for select
-  to anon, authenticated
-  using (true);
-
-create policy "Admins: write market prices"
-  on public.market_prices for all
-  using (public.is_admin());
-
--- Seed starting rows (ignored if symbol already exists)
-insert into public.market_prices (symbol, name, category, bid, ask, change_amount, change_pct) values
-  ('EUR/USD', 'Euro / US Dollar',             'forex',   '1.08418','1.08432',  0.00222,  0.21),
-  ('GBP/USD', 'British Pound / US Dollar',    'forex',   '1.26704','1.26718', -0.00228, -0.18),
-  ('USD/JPY', 'US Dollar / Japanese Yen',     'forex',   '151.828','151.842',  0.472,    0.31),
-  ('USD/CAD', 'US Dollar / Canadian Dollar',  'forex',   '1.36407','1.36421',  0.00162,  0.12),
-  ('AUD/USD', 'Australian / US Dollar',       'forex',   '0.65200','0.65214', -0.00059, -0.09),
-  ('BTC/USD', 'Bitcoin / US Dollar',          'crypto',  null,     null,       1644,     2.14),
-  ('ETH/USD', 'Ethereum / US Dollar',         'crypto',  null,     null,       43,       1.88),
-  ('SOL/USD', 'Solana',                        'crypto',  null,     null,       4.42,     3.21),
-  ('XAU/USD', 'Gold / US Dollar',             'metals',  '2340.8','2341.5',    20.2,     0.87),
-  ('XAG/USD', 'Silver / US Dollar',           'metals',  '27.830','27.842',    0.340,    1.24),
-  ('WTI/USD', 'Crude Oil WTI',                'energy',  '82.28', '82.34',    -0.454,   -0.55),
-  ('BRT/USD', 'Brent Crude',                  'energy',  '86.66', '86.72',    -0.366,   -0.42),
-  ('US30',    'Dow Jones Industrial',          'indices', null,    null,        121,      0.31),
-  ('SPX500',  'S&P 500',                       'indices', null,    null,        25,       0.48),
-  ('NAS100',  'NASDAQ 100',                    'indices', null,    null,        131,      0.72),
-  ('AAPL',    'Apple Inc.',                    'stocks',  null,    null,        1.52,     0.84),
-  ('MSFT',    'Microsoft Corp.',               'stocks',  null,    null,        4.58,     1.12),
-  ('TSLA',    'Tesla Inc.',                    'stocks',  null,    null,       -3.76,    -2.14),
-  ('NVDA',    'NVIDIA Corp.',                  'stocks',  null,    null,       27.14,     3.21),
-  ('SPY',     'SPDR S&P 500 ETF',             'etfs',    null,    null,        2.52,     0.48),
-  ('QQQ',     'Invesco QQQ Trust',             'etfs',    null,    null,        3.18,     0.71)
+insert into public.market_prices (symbol, name, category) values
+  ('EUR/USD','Euro / US Dollar','forex'),    ('GBP/USD','British Pound / US Dollar','forex'),
+  ('USD/JPY','US Dollar / Japanese Yen','forex'), ('USD/CAD','US Dollar / Canadian Dollar','forex'),
+  ('USD/CHF','US Dollar / Swiss Franc','forex'),  ('AUD/USD','Australian / US Dollar','forex'),
+  ('NZD/USD','New Zealand / US Dollar','forex'),  ('EUR/GBP','Euro / British Pound','forex'),
+  ('EUR/JPY','Euro / Japanese Yen','forex'),       ('GBP/JPY','British Pound / Japanese Yen','forex'),
+  ('BTC/USD','Bitcoin','crypto'),  ('ETH/USD','Ethereum','crypto'),  ('SOL/USD','Solana','crypto'),
+  ('XRP/USD','Ripple','crypto'),   ('BNB/USD','BNB','crypto'),       ('ADA/USD','Cardano','crypto'),
+  ('DOT/USD','Polkadot','crypto'), ('DOGE/USD','Dogecoin','crypto'), ('AVAX/USD','Avalanche','crypto'),
+  ('LINK/USD','Chainlink','crypto'),
+  ('XAU/USD','Gold','metals'),   ('XAG/USD','Silver','metals'),
+  ('XPT/USD','Platinum','metals'),('XPD/USD','Palladium','metals'), ('HG/USD','Copper','metals'),
+  ('WTI/USD','Crude Oil WTI','energy'), ('BRT/USD','Brent Crude','energy'),
+  ('NGAS','Natural Gas','energy'),      ('RBOB','Gasoline RBOB','energy'),
+  ('US30','Dow Jones Industrial','indices'), ('SPX500','S&P 500','indices'),
+  ('NAS100','NASDAQ 100','indices'),          ('UK100','FTSE 100','indices'),
+  ('GER40','DAX 40','indices'),               ('FRA40','CAC 40','indices'),
+  ('JPN225','Nikkei 225','indices'),          ('HK50','Hang Seng','indices'),
+  ('AAPL','Apple Inc.','stocks'),  ('MSFT','Microsoft Corp.','stocks'), ('GOOGL','Alphabet Inc.','stocks'),
+  ('AMZN','Amazon.com','stocks'),  ('TSLA','Tesla Inc.','stocks'),       ('NVDA','NVIDIA Corp.','stocks'),
+  ('META','Meta Platforms','stocks'), ('JPM','JPMorgan Chase','stocks'),
+  ('V','Visa Inc.','stocks'),         ('WMT','Walmart Inc.','stocks'),
+  ('SPY','SPDR S&P 500 ETF','etfs'), ('QQQ','Invesco QQQ','etfs'),
+  ('GLD','SPDR Gold Shares','etfs'), ('SLV','iShares Silver','etfs'),
+  ('VTI','Vanguard Total Market','etfs'), ('XLE','Energy Select SPDR','etfs'),
+  ('ARKK','ARK Innovation ETF','etfs'), ('XLK','Technology Select SPDR','etfs')
 on conflict (symbol) do nothing;
 
 
 -- ============================================================
--- 8. announcements
+-- 10. announcements
 -- ============================================================
 create table if not exists public.announcements (
   id           uuid        primary key default uuid_generate_v4(),
@@ -417,32 +402,19 @@ create table if not exists public.announcements (
   published    boolean     not null default true,
   created_at   timestamptz not null default now()
 );
-
 create index if not exists idx_ann_created_at on public.announcements(created_at desc);
 
 alter table public.announcements enable row level security;
-
-drop policy if exists "Authenticated: read announcements" on public.announcements;
-drop policy if exists "Anon: read announcements"          on public.announcements;
-drop policy if exists "Admins: full access to announcements" on public.announcements;
-
-create policy "Authenticated: read announcements"
-  on public.announcements for select
-  to authenticated
-  using (published = true);
-
-create policy "Anon: read announcements"
-  on public.announcements for select
-  to anon
-  using (published = true);
-
-create policy "Admins: full access to announcements"
-  on public.announcements for all
-  using (public.is_admin());
+drop policy if exists "ann_auth_read" on public.announcements;
+drop policy if exists "ann_anon_read" on public.announcements;
+drop policy if exists "ann_admin"     on public.announcements;
+create policy "ann_auth_read" on public.announcements for select to authenticated using (published = true);
+create policy "ann_anon_read" on public.announcements for select to anon           using (published = true);
+create policy "ann_admin"     on public.announcements for all using (public.is_admin());
 
 
 -- ============================================================
--- 9. audit_log
+-- 11. audit_log
 -- ============================================================
 create table if not exists public.audit_log (
   id           uuid        primary key default uuid_generate_v4(),
@@ -454,31 +426,21 @@ create table if not exists public.audit_log (
   ip_address   text,
   created_at   timestamptz not null default now()
 );
-
 create index if not exists idx_audit_created_at on public.audit_log(created_at desc);
 create index if not exists idx_audit_admin_id   on public.audit_log(admin_id);
 
 alter table public.audit_log enable row level security;
-
-drop policy if exists "Admins: full access to audit log" on public.audit_log;
-
-create policy "Admins: full access to audit log"
-  on public.audit_log for all
-  using (public.is_admin());
+drop policy if exists "audit_admin" on public.audit_log;
+create policy "audit_admin" on public.audit_log for all using (public.is_admin());
 
 
 -- ============================================================
--- DONE
+-- DONE ✓
 --
--- Next step — make your account an admin:
+-- To make your account an admin, run AFTER registering:
 --
---   1. Register at /register.html (or use an existing account)
---   2. Find your UUID:
---      Supabase Dashboard → Authentication → Users → copy the UUID
---   3. Run this (replace the values):
+--   insert into public.admin_users (id, email)
+--   values ('<your-uuid>', '<your-email>');
 --
---      insert into public.admin_users (id, email)
---      values ('<your-uuid>', '<your-email>');
---
---   4. That account now has full access to ops.html
+-- Find your UUID: Supabase Dashboard → Authentication → Users
 -- ============================================================

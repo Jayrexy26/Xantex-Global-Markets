@@ -1927,11 +1927,21 @@ window.applyAdjustment = async function() {
   const amount  = parseFloat(document.getElementById('adj-amount').value);
   const reason  = document.getElementById('adj-reason').value.trim();
   if (!accId || !amount || !reason) { showToast('Please fill all required fields','error'); return; }
-  const db = window.XANTEX_DB;
-  if (!db) { showToast('Balance adjusted (offline)','success'); return; }
 
-  const { data: acc } = await db.from('trading_accounts').select('balance, user_id').eq('id', accId).single();
-  if (!acc) { showToast('Account not found','error'); return; }
+  const db = window.XANTEX_DB;
+  if (!db) { showToast('No database connection','error'); return; }
+
+  // Verify admin has an active Supabase session
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    showToast('Session expired — please log out and log back in with your admin email','error');
+    return;
+  }
+
+  // Fetch current balance
+  const { data: acc, error: fetchErr } = await db.from('trading_accounts')
+    .select('balance, user_id, account_number').eq('id', accId).single();
+  if (fetchErr || !acc) { showToast('Account not found: ' + (fetchErr?.message || ''), 'error'); return; }
 
   const before = parseFloat(acc.balance || 0);
   let after = before;
@@ -1939,22 +1949,35 @@ window.applyAdjustment = async function() {
   else if (adjType.startsWith('Debit'))  after = Math.max(0, before - amount);
   else if (adjType.startsWith('Set'))    after = amount;
 
-  const { error } = await db.from('trading_accounts').update({ balance: after }).eq('id', accId);
-  if (error) { showToast('Error: ' + error.message,'error'); return; }
+  // Update balance — use .select() so we can detect silent RLS blocks (0 rows updated)
+  const { data: updated, error: updErr } = await db.from('trading_accounts')
+    .update({ balance: after, equity: after })
+    .eq('id', accId)
+    .select('id');
 
-  await db.from('transactions').insert({
+  if (updErr) { showToast('Update error: ' + updErr.message, 'error'); return; }
+  if (!updated || updated.length === 0) {
+    showToast('Permission denied — your account may not be in the admin_users table. Check Supabase Dashboard → admin_users.', 'error');
+    return;
+  }
+
+  // Log the transaction
+  const txnType = adjType.startsWith('Debit') ? 'withdrawal' : adjType.startsWith('Bonus') ? 'bonus' : 'adjustment';
+  const { error: txnErr } = await db.from('transactions').insert({
     user_id: acc.user_id,
     account_id: accId,
-    type: adjType.startsWith('Debit') ? 'withdrawal' : 'deposit',
+    type: txnType,
     amount,
-    status: 'approved',
+    status: 'completed',
     description: reason,
     payment_method: 'Admin Adjustment',
   });
+  if (txnErr) console.warn('Transaction log failed:', txnErr.message);
 
-  showToast('Balance adjusted successfully','success');
+  showToast(`Balance updated: $${before.toFixed(2)} → $${after.toFixed(2)}`, 'success');
+  // Refresh the account dropdown to show new balance
+  window.loadUserAccounts();
   renderAccountsLive();
-  renderTransactionsLive();
 };
 
 // ── Patch saveUser ────────────────────────────────────────────

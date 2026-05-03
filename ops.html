@@ -646,7 +646,7 @@
           <div class="card__body--p0 table-wrap">
             <table class="data-table">
               <thead><tr>
-                <th>User</th><th>Doc Type</th><th>Submitted</th><th>Status</th><th>Actions</th>
+                <th>User</th><th>Email</th><th>Country</th><th>Doc Type</th><th>Submitted</th><th>Status</th><th>Actions</th>
               </tr></thead>
               <tbody id="kyc-tbody"></tbody>
             </table>
@@ -1128,6 +1128,24 @@
   </div>
 </div>
 
+<!-- KYC Docs Viewer -->
+<div class="modal-overlay" id="modal-kyc-docs">
+  <div class="modal" style="max-width:700px;width:100%;">
+    <div class="modal__head">
+      <div>
+        <div class="modal__title" id="kyc-modal-name">KYC Documents</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;" id="kyc-modal-meta"></div>
+      </div>
+      <button class="modal__close" onclick="closeModal('modal-kyc-docs')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body" id="kyc-docs-body" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;"></div>
+    <div class="modal__foot" id="kyc-docs-foot" style="justify-content:space-between;">
+      <div style="display:flex;gap:8px;" id="kyc-action-btns"></div>
+      <button class="btn btn--outline" onclick="closeModal('modal-kyc-docs')">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast">
   <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1193,6 +1211,7 @@
         <td><div class="row-actions">
           <button class="btn btn--sm btn--outline" onclick="editUser('${u.id}')">Edit</button>
           <button class="btn btn--sm btn--${u.status==='active'?'orange':'green'}" onclick="toggleUserStatus('${u.id}')">${u.status==='active'?'Suspend':'Activate'}</button>
+          <button class="btn btn--sm btn--outline" onclick="resetUserPassword('${u.email}')">Reset PWD</button>
           <button class="btn btn--sm btn--red" onclick="showToast('User deleted','error')">Delete</button>
         </div></td>
       </tr>`).join('');
@@ -1424,7 +1443,8 @@
     if (btn) btn.classList.add('active');
     document.getElementById('page-title').textContent = PAGE_TITLES[id] || id;
     document.getElementById('sidebar').classList.remove('open');
-    if (id === 'balances' && window.loadBalanceUsers) window.loadBalanceUsers();
+    if (id === 'balances'      && window.loadBalanceUsers) window.loadBalanceUsers();
+    if (id === 'verification'  && window.renderKYCLive)   window.renderKYCLive();
   }
 
   /* ============================================================
@@ -1587,35 +1607,95 @@ window.renderUsersLive = renderUsersLive;
 
 // ── KYC ───────────────────────────────────────────────────────
 async function renderKYCLive() {
-  renderKYC();
   const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
+  const { data, error } = await db
     .from('kyc_submissions')
-    .select('id, document_type, submitted_at, status, profiles(first_name, last_name)')
+    .select('id, user_id, document_type, submitted_at, status, front_url, back_url, selfie_url, proof_address_url, profiles(first_name, last_name, email, country)')
     .order('submitted_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('kyc-tbody').innerHTML = data.map(k => {
-    const name = k.profiles ? `${k.profiles.first_name} ${k.profiles.last_name}` : '—';
+  const tbody = document.getElementById('kyc-tbody');
+  if (!data?.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">No KYC submissions found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(k => {
+    const p    = k.profiles || {};
+    const name = `${p.first_name||''} ${p.last_name||''}`.trim() || p.email || '—';
+    const docsJson = JSON.stringify({ front:k.front_url, back:k.back_url, selfie:k.selfie_url, addr:k.proof_address_url, name, docType:k.document_type, status:k.status, id:k.id }).replace(/'/g,"&#39;");
     return `<tr>
       <td><div class="user-name">${name}</div></td>
-      <td>${k.document_type || '—'}</td>
+      <td><div class="user-email">${p.email||'—'}</div></td>
+      <td>${p.country||'—'}</td>
+      <td>${k.document_type||'—'}</td>
       <td>${fmtDate(k.submitted_at)}</td>
       <td><span class="badge-pill ${k.status==='pending'?'pill-orange':k.status==='verified'?'pill-green':'pill-red'}">${k.status}</span></td>
       <td><div class="row-actions">
+        <button class="btn btn--sm btn--outline" onclick="viewKYCDocs('${encodeURIComponent(docsJson)}')">View Docs</button>
         <button class="btn btn--sm btn--green" onclick="opsApproveKYC('${k.id}')">Approve</button>
         <button class="btn btn--sm btn--red"   onclick="opsRejectKYC('${k.id}')">Reject</button>
-        <button class="btn btn--sm btn--outline">View Docs</button>
       </div></td>
     </tr>`;
   }).join('');
 }
+// ── Reset password ────────────────────────────────────────────
+window.resetUserPassword = async function(email) {
+  if (!email || email === 'undefined') { showToast('No email on record for this user','error'); return; }
+  const db = window.XANTEX_DB;
+  if (!db) { showToast('No DB connection','error'); return; }
+  const { error } = await db.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/login.html',
+  });
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast(`Password reset email sent to ${email}`, 'success');
+};
+
 window.renderKYCLive = renderKYCLive;
+
+window.viewKYCDocs = function(encoded) {
+  const k = JSON.parse(decodeURIComponent(encoded));
+  document.getElementById('kyc-modal-name').textContent = k.name + ' — ' + (k.docType || 'KYC Document');
+  document.getElementById('kyc-modal-meta').textContent = 'Status: ' + k.status;
+  const docs = [
+    { label: 'Front of Document', url: k.front },
+    { label: 'Back of Document',  url: k.back  },
+    { label: 'Selfie with Document', url: k.selfie },
+    { label: 'Proof of Address', url: k.addr  },
+  ].filter(d => d.url);
+  const body = document.getElementById('kyc-docs-body');
+  if (!docs.length) {
+    body.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;">No documents uploaded yet.</div>';
+  } else {
+    body.style.gridTemplateColumns = docs.length === 1 ? '1fr' : '1fr 1fr';
+    body.innerHTML = docs.map(d => `
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 12px;border-bottom:1px solid var(--border);">${d.label}</div>
+        <a href="${d.url}" target="_blank" title="Open full size">
+          <img src="${d.url}" alt="${d.label}" style="width:100%;max-height:220px;object-fit:cover;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div style="display:none;align-items:center;justify-content:center;height:120px;color:var(--muted);font-size:13px;flex-direction:column;gap:8px;">
+            <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>Click to open file</span>
+          </div>
+        </a>
+      </div>`).join('');
+  }
+  document.getElementById('kyc-action-btns').innerHTML = `
+    <button class="btn btn--green" onclick="opsApproveKYC('${k.id}');closeModal('modal-kyc-docs')">Approve</button>
+    <button class="btn btn--red"   onclick="opsRejectKYC('${k.id}');closeModal('modal-kyc-docs')">Reject</button>`;
+  openModal('modal-kyc-docs');
+};
+
 window.opsApproveKYC = async id => {
-  await window.XANTEX_DB.from('kyc_submissions').update({ status:'verified' }).eq('id', id);
+  const { error } = await window.XANTEX_DB.from('kyc_submissions').update({ status:'verified' }).eq('id', id);
+  if (error) { showToast('Error: '+error.message,'error'); return; }
+  // Also update the profile kyc_status
+  const { data: sub } = await window.XANTEX_DB.from('kyc_submissions').select('user_id').eq('id', id).single();
+  if (sub) await window.XANTEX_DB.from('profiles').update({ kyc_status:'verified' }).eq('id', sub.user_id);
   showToast('KYC approved','success'); renderKYCLive();
 };
 window.opsRejectKYC = async id => {
-  await window.XANTEX_DB.from('kyc_submissions').update({ status:'rejected' }).eq('id', id);
+  const { error } = await window.XANTEX_DB.from('kyc_submissions').update({ status:'rejected' }).eq('id', id);
+  if (error) { showToast('Error: '+error.message,'error'); return; }
+  const { data: sub } = await window.XANTEX_DB.from('kyc_submissions').select('user_id').eq('id', id).single();
+  if (sub) await window.XANTEX_DB.from('profiles').update({ kyc_status:'rejected' }).eq('id', sub.user_id);
   showToast('KYC rejected','error'); renderKYCLive();
 };
 

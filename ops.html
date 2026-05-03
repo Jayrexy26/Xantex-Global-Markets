@@ -67,7 +67,7 @@
     /* ============================================================
        LAYOUT
     ============================================================ */
-    .layout { display: flex; min-height: 100vh; }
+    .layout { min-height: 100vh; }
 
     /* ============================================================
        SIDEBAR
@@ -118,7 +118,7 @@
     /* ============================================================
        MAIN
     ============================================================ */
-    .main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; max-width: calc(100vw - var(--sidebar-w)); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+    .main { margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
 
     /* ============================================================
        TOPBAR
@@ -335,7 +335,7 @@
       html, body { overflow-x: hidden; }
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
-      .main { margin-left: 0; }
+      .main { margin-left: 0; width: 100%; }
       .topbar { padding: 0 14px; }
       .topbar__hamburger { display: flex; }
       .topbar__search { display: none; }
@@ -343,6 +343,7 @@
       .stat-cards { grid-template-columns: 1fr 1fr; }
       .form-grid { grid-template-columns: 1fr; }
       .form-grid--3 { grid-template-columns: 1fr; }
+      [style*="grid-template-columns:1fr minmax"] { grid-template-columns: 1fr !important; }
     }
   </style>
 </head>
@@ -558,7 +559,7 @@
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 340px;gap:18px;flex-wrap:wrap;">
+        <div style="display:grid;grid-template-columns:1fr minmax(280px,340px);gap:18px;flex-wrap:wrap;">
           <!-- Recent users -->
           <div class="card">
             <div class="card__head">

@@ -1224,24 +1224,35 @@ async function signOut() {
     if (s < 86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
   }
 
-  // ── Load each piece of data independently ─────────────────
-  async function q(label, queryBuilder) {
+  // ── Load data via server-side RPCs (SECURITY DEFINER — bypasses RLS) ─
+  async function rpc(fn, label) {
     try {
-      const { data, error } = await queryBuilder;
-      if (error) { console.warn('[dashboard]', label, 'error:', error.message, error.code); return null; }
-      console.log('[dashboard]', label, '→', Array.isArray(data) ? data.length + ' rows' : (data ? 'row' : 'null'));
-      return data;
+      const { data, error } = await db.rpc(fn);
+      if (error) { console.warn('[dashboard]', label, 'rpc error:', error.message); return null; }
+      const result = Array.isArray(data) ? data : (data ? [data] : []);
+      console.log('[dashboard]', label, '→', result.length, 'rows');
+      return result;
     } catch(e) { console.error('[dashboard]', label, 'exception:', e.message); return null; }
+  }
+  async function rpcOne(fn, label) {
+    const rows = await rpc(fn, label);
+    return (rows && rows.length) ? rows[0] : null;
+  }
+  async function rpcCfg() {
+    try {
+      const { data, error } = await db.from('platform_settings').select('key,value').like('key','crypto_%');
+      return error ? null : data;
+    } catch(e) { return null; }
   }
 
   const [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg] = await Promise.all([
-    q('profile',    db.from('profiles').select('*').eq('id', userId).maybeSingle()),
-    q('accounts',   db.from('trading_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: false })),
-    q('positions',  db.from('positions').select('*').eq('user_id', userId).eq('status', 'open').order('opened_at', { ascending: false })),
-    q('txns',       db.from('transactions').select('type, amount, status, created_at, description').eq('user_id', userId).order('created_at', { ascending: false }).limit(20)),
-    q('depReqs',    db.from('deposit_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false })),
-    q('wdReqs',     db.from('withdrawal_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false })),
-    q('cryptoCfg',  db.from('platform_settings').select('key,value').like('key','crypto_%')),
+    rpcOne('get_my_profile',      'profile'),
+    rpc(   'get_my_accounts',     'accounts'),
+    rpc(   'get_my_positions',    'positions'),
+    rpc(   'get_my_transactions', 'txns'),
+    rpc(   'get_my_deposits',     'depReqs'),
+    rpc(   'get_my_withdrawals',  'wdReqs'),
+    rpcCfg(),
   ]);
 
   // ── Build crypto address map ──────────────────────────────

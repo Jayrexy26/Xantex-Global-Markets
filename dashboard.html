@@ -633,12 +633,12 @@
     </nav>
 
     <div class="sidebar__footer">
-      <div class="sidebar__avatar">JD</div>
+      <div class="sidebar__avatar"></div>
       <div>
-        <div class="sidebar__user-name">John Doe</div>
+        <div class="sidebar__user-name">—</div>
         <div class="sidebar__user-role">Live account</div>
       </div>
-      <button class="sidebar__logout" onclick="window.location='login.html'" title="Sign out">
+      <button class="sidebar__logout" onclick="signOut()" title="Sign out">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
@@ -670,7 +670,7 @@
         <button class="topbar__icon-btn" title="Messages">
           <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </button>
-        <div class="topbar__avatar" title="Profile">JD</div>
+        <div class="topbar__avatar" title="Profile"></div>
       </div>
     </div>
 
@@ -682,7 +682,7 @@
 
         <div class="page-header">
           <div>
-            <div class="page-header__title">Good morning, John 👋</div>
+            <div class="page-header__title">Welcome back 👋</div>
             <div class="page-header__sub">Here's your portfolio summary for today</div>
           </div>
           <div class="page-header__actions">
@@ -932,7 +932,7 @@
             <div class="card__head"><div class="card__title">Profile Photo</div></div>
             <div class="card__body" style="display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
               <div id="settings-avatar" style="width:90px;height:90px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;overflow:hidden;position:relative;cursor:pointer;" onclick="document.getElementById('avatar-upload').click()">
-                <span id="settings-avatar-init">JD</span>
+                <span id="settings-avatar-init"></span>
                 <img id="settings-avatar-img" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
                 <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--blue);border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;">
                   <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2.5;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -1194,6 +1194,12 @@
 <script src="./supabase.js"></script>
 <script src="./prices.js"></script>
 <script>
+async function signOut() {
+  const db = window.XANTEX_DB;
+  if (db) await db.auth.signOut();
+  window.location.href = 'login.html?signout';
+}
+
 (async () => {
   const db = window.XANTEX_DB;
   if (!db) return;
@@ -1225,12 +1231,12 @@
     db.from('transactions').select('type, amount, status, created_at, description').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
     db.from('deposit_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false }),
     db.from('withdrawal_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false }),
-    db.from('platform_settings').select('key,value').like('key','crypto_address_%').catch(()=>({ data: [] })),
+    db.from('platform_settings').select('key,value').like('key','crypto_%').catch(()=>({ data: [] })),
   ]);
 
   // ── Build crypto address map ──────────────────────────────
   const CRYPTO_ADDRS = {};
-  (cryptoCfg||[]).forEach(r => { CRYPTO_ADDRS[r.key.replace('crypto_address_','')] = r.value; });
+  (cryptoCfg||[]).forEach(r => { CRYPTO_ADDRS[r.key.replace('crypto_','')] = r.value; });
   // Also check localStorage as fallback
   ['ETH','USDT','USDC','WBTC','BNB','LINK','UNI','DAI','SHIB','AAVE'].forEach(c => {
     if (!CRYPTO_ADDRS[c]) CRYPTO_ADDRS[c] = localStorage.getItem('xantex_addr_'+c) || '';

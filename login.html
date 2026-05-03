@@ -420,10 +420,16 @@
     }
   }
 
-  // ── Redirect if already logged in ─────────────────────────
+  // ── Redirect if already logged in (or sign out if requested) ─
   (async () => {
     const db = window.XANTEX_DB;
     if (!db) return;
+    // If redirected here with ?signout, clear the session first
+    if (new URLSearchParams(location.search).has('signout')) {
+      await db.auth.signOut();
+      history.replaceState(null, '', location.pathname);
+      return;
+    }
     const { data: { session } } = await db.auth.getSession();
     if (session) window.location.href = 'dashboard.html';
   })();

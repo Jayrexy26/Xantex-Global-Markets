@@ -1756,8 +1756,10 @@ window.execDeleteUser = async function() {
     await db.from('kyc_submissions').delete().eq('user_id', _delUserId);
     await db.from('trading_accounts').delete().eq('user_id', _delUserId);
     const { error } = await db.from('profiles').delete().eq('id', _delUserId);
-
     if (error) throw error;
+
+    // Ban the auth.users entry so dashboard forces sign-out even if auth record remains
+    await db.from('banned_users').upsert({ user_id: _delUserId, banned_at: new Date().toISOString() }, { onConflict: 'user_id' });
 
     closeModal('modal-delete-user');
     showToast(`User deleted successfully`, 'success');

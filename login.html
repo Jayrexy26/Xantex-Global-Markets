@@ -424,9 +424,22 @@
   (async () => {
     const db = window.XANTEX_DB;
     if (!db) return;
+    const params = new URLSearchParams(location.search);
     // If redirected here with ?signout, clear the session first
-    if (new URLSearchParams(location.search).has('signout')) {
+    if (params.has('signout')) {
       await db.auth.signOut();
+      history.replaceState(null, '', location.pathname);
+      return;
+    }
+    // Account was deleted by admin
+    if (params.get('account') === 'deleted') {
+      const alertEl = document.getElementById('login-alert');
+      const msgEl   = document.getElementById('alert-msg');
+      if (alertEl && msgEl) {
+        alertEl.className = 'alert error';
+        msgEl.textContent = 'This account has been permanently closed. Please contact support if you believe this is a mistake.';
+        alertEl.style.display = 'flex';
+      }
       history.replaceState(null, '', location.pathname);
       return;
     }

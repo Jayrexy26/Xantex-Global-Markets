@@ -957,6 +957,7 @@
               <div class="field"><label>Country</label><input type="text" id="prof-country" readonly style="background:var(--bg);"></div>
               <div class="field"><label>Phone</label><input type="text" id="prof-phone" readonly style="background:var(--bg);"></div>
               <div class="field"><label>KYC Status</label><input type="text" id="prof-kyc" readonly style="background:var(--bg);"></div>
+              <div class="field"><label>Account ID (for support)</label><input type="text" id="prof-uid" readonly style="background:var(--bg);font-family:monospace;font-size:11px;"></div>
             </div>
           </div>
         </div>
@@ -1216,6 +1217,7 @@ async function signOut() {
   } catch (e) { console.error('getSession error:', e); }
   if (!session) { window.location.href = 'login.html'; return; }
   const userId = session.user.id;
+  console.log('[dashboard] auth uid:', userId, '|', session.user.email);
 
   function fmt(n) { return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function timeSince(ts) {
@@ -1234,19 +1236,9 @@ async function signOut() {
     } catch(e) { return null; }
   }
 
-  // ── Dual loader: tries RPC, falls back to direct table query ─
+  // ── Direct-first loader (RPC auth.uid() is unreliable from CDN client) ─
   async function loadRows(label, rpcFn, table, extraFn) {
-    // Attempt 1: SECURITY DEFINER RPC (bypasses RLS, works if functions are deployed)
-    try {
-      const { data, error } = await db.rpc(rpcFn);
-      if (!error) {
-        const rows = Array.isArray(data) ? data : (data ? [data] : []);
-        console.log('[dashboard]', label, 'rpc ✓', rows.length, 'rows');
-        return rows;
-      }
-      console.warn('[dashboard]', label, 'rpc ✗:', error.message, '— trying direct query');
-    } catch(e) { console.warn('[dashboard]', label, 'rpc exc:', e.message, '— trying direct query'); }
-    // Attempt 2: direct query filtered by user_id (relies on RLS + JWT)
+    // Attempt 1: direct query — userId comes from JS session, always correct
     try {
       let q = db.from(table).select('*').eq('user_id', userId);
       if (extraFn) q = extraFn(q);
@@ -1256,30 +1248,40 @@ async function signOut() {
         console.log('[dashboard]', label, 'direct ✓', rows.length, 'rows');
         return rows;
       }
-      console.error('[dashboard]', label, 'direct ✗:', error.message);
-    } catch(e) { console.error('[dashboard]', label, 'direct exc:', e.message); }
+      console.warn('[dashboard]', label, 'direct ✗:', error.message, '— trying rpc');
+    } catch(e) { console.warn('[dashboard]', label, 'direct exc:', e.message, '— trying rpc'); }
+    // Attempt 2: RPC fallback
+    try {
+      const { data, error } = await db.rpc(rpcFn);
+      if (!error) {
+        const rows = Array.isArray(data) ? data : (data ? [data] : []);
+        console.log('[dashboard]', label, 'rpc ✓', rows.length, 'rows');
+        return rows;
+      }
+      console.error('[dashboard]', label, 'rpc ✗:', error.message);
+    } catch(e) { console.error('[dashboard]', label, 'rpc exc:', e.message); }
     return [];
   }
 
   async function loadProfile() {
-    // Attempt 1: RPC
+    // Direct query — use userId from JS session
+    try {
+      const { data, error } = await db.from('profiles').select('*').eq('id', userId).maybeSingle();
+      if (!error) { console.log('[dashboard] profile direct ✓', data ? 'found' : 'null'); return data; }
+      console.warn('[dashboard] profile direct ✗:', error.message, '— trying rpc');
+    } catch(e) { console.warn('[dashboard] profile direct exc:', e.message, '— trying rpc'); }
+    // RPC fallback
     try {
       const { data, error } = await db.rpc('get_my_profile');
       if (!error && data) {
         const r = Array.isArray(data) ? data[0] : data;
-        if (r) { console.log('[dashboard] profile rpc ✓'); return r; }
-      } else if (error) console.warn('[dashboard] profile rpc ✗:', error.message, '— trying direct');
-    } catch(e) { console.warn('[dashboard] profile rpc exc:', e.message, '— trying direct'); }
-    // Attempt 2: direct query
-    try {
-      const { data, error } = await db.from('profiles').select('*').eq('id', userId).maybeSingle();
-      if (!error) { console.log('[dashboard] profile direct ✓', data ? 'found' : 'null'); return data; }
-      console.error('[dashboard] profile direct ✗:', error.message);
-    } catch(e) { console.error('[dashboard] profile direct exc:', e.message); }
+        console.log('[dashboard] profile rpc ✓', r ? 'found' : 'null'); return r || null;
+      } else if (error) console.error('[dashboard] profile rpc ✗:', error.message);
+    } catch(e) { console.error('[dashboard] profile rpc exc:', e.message); }
     return null;
   }
 
-  const [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg] = await Promise.all([
+  let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg] = await Promise.all([
     loadProfile(),
     loadRows('accounts',  'get_my_accounts',    'trading_accounts',    q => q.order('created_at',{ascending:false})),
     loadRows('positions', 'get_my_positions',   'positions',           q => q.eq('status','open').order('opened_at',{ascending:false})),
@@ -1297,6 +1299,22 @@ async function signOut() {
   ['ETH','USDT','USDC','WBTC','BNB','LINK','UNI','DAI','SHIB','AAVE'].forEach(c => {
     if (!CRYPTO_ADDRS[c]) CRYPTO_ADDRS[c] = localStorage.getItem('xantex_addr_'+c) || '';
   });
+
+  // ── Auto-create profile if missing (trigger may not have fired) ──
+  if (!profile) {
+    try {
+      const meta = session.user.user_metadata || {};
+      await db.from('profiles').upsert({
+        id: userId,
+        email: session.user.email || '',
+        first_name: meta.first_name || meta.full_name?.split(' ')[0] || '',
+        last_name:  meta.last_name  || meta.full_name?.split(' ').slice(1).join(' ') || '',
+        kyc_status: 'not_submitted',
+      }, { onConflict: 'id' });
+      const { data: fresh } = await db.from('profiles').select('*').eq('id', userId).maybeSingle();
+      if (fresh) { profile = fresh; console.log('[dashboard] profile auto-created for', userId); }
+    } catch(e) { console.warn('[dashboard] profile upsert:', e.message); }
+  }
 
   // ── Profile ───────────────────────────────────────────────
   let _profile = profile || {};
@@ -1343,6 +1361,7 @@ async function signOut() {
       set('prof-country', _profile.country);
       set('prof-phone',   _profile.phone);
       set('prof-kyc',     _profile.kyc_status || 'pending');
+      set('prof-uid',     userId);
       if (_profile.avatar_url) {
         const sImg = document.getElementById('settings-avatar-img');
         const sInit = document.getElementById('settings-avatar-init');

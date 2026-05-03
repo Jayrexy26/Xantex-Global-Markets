@@ -1484,7 +1484,7 @@
     } catch (e) {
       AdminAPI.clearCredentials();
       if (errEl) {
-        errEl.textContent = 'Invalid credentials. Check your Admin ID, Admin Secret, and that ADMIN_SECRET is set in Supabase Edge Function secrets.';
+        errEl.textContent = 'Login failed: ' + e.message;
         errEl.style.display = 'block';
       }
     } finally {

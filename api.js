@@ -66,11 +66,13 @@ const AdminAPI = (() => {
       throw new Error('Network error: ' + e.message);
     }
 
-    // Unauthorized → force logout
+    // Unauthorized — read server message so we know exactly why
     if (res.status === 401 || res.status === 403) {
+      let serverMsg = 'Unauthorized';
+      try { const j = await res.json(); serverMsg = j?.error || serverMsg; } catch(_) {}
       clearCredentials();
       _forceLogout();
-      throw new Error('Session expired. Please sign in again.');
+      throw new Error(serverMsg);
     }
 
     let json;

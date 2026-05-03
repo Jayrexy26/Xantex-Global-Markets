@@ -1484,9 +1484,7 @@
     } catch (e) {
       AdminAPI.clearCredentials();
       if (errEl) {
-        errEl.textContent = e.message.includes('Unauthorized') || e.message.includes('401')
-          ? 'Invalid credentials. Please check your Admin ID and Secret.'
-          : 'Authentication error: ' + e.message;
+        errEl.textContent = 'Invalid credentials. Check your Admin ID, Admin Secret, and that ADMIN_SECRET is set in Supabase Edge Function secrets.';
         errEl.style.display = 'block';
       }
     } finally {

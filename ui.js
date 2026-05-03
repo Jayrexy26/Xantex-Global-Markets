@@ -416,39 +416,42 @@ window.renderPositionsLive = renderPositionsLive;
 // DASHBOARD STATS
 // ═══════════════════════════════════════════════════════════════
 async function loadDashboardStats() {
-  // Try to get aggregated stats from admin-api first
-  try {
-    const res = await fetchAdminAPI('list_users');
-    const users = res.data || res.users || [];
-    const stats = document.querySelectorAll('.stat-card');
-    if (stats[0]) stats[0].querySelector('.stat-card__value').textContent = users.length.toLocaleString();
-  } catch (_) {}
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const setBadge = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val > 0 ? val : ''; };
 
-  // Fallback: also query counts from other list actions
-  const tryCount = async (action, field, statIdx) => {
-    try {
-      const res = await fetchAdminAPI(action);
-      const items = res.data || res[field] || [];
-      const stats = document.querySelectorAll('.stat-card');
-      if (stats[statIdx]) stats[statIdx].querySelector('.stat-card__value').textContent = items.length.toLocaleString();
-      return items;
-    } catch (_) { return []; }
+  const safe = async (action, key) => {
+    try { const r = await fetchAdminAPI(action); return r[key] || []; } catch(_) { return []; }
   };
 
-  const deposits    = await tryCount('list_deposits',    'deposits',    4);
-  const withdrawals = await tryCount('list_withdrawals', 'withdrawals', 5);
-  const positions   = await tryCount('list_positions',   'positions',   3);
+  const [users, accounts, deposits, withdrawals, positions, kyc, txns] = await Promise.all([
+    safe('list_users',        'users'),
+    safe('list_accounts',     'accounts'),
+    safe('list_deposits',     'deposits'),
+    safe('list_withdrawals',  'withdrawals'),
+    safe('list_positions',    'positions'),
+    safe('list_kyc',          'kyc'),
+    safe('list_transactions', 'transactions'),
+  ]);
 
   const pendingDep  = deposits.filter(d => d.status === 'pending').length;
   const pendingWith = withdrawals.filter(w => w.status === 'pending').length;
+  const kycPending  = kyc.filter(k => k.status === 'pending').length;
+  const liveAccounts = accounts.filter(a => a.type === 'live').length;
+  const totalAUM = accounts.filter(a => a.type === 'live').reduce((s, a) => s + Number(a.balance || 0), 0);
+  const openPositions = positions.filter(p => p.status === 'open').length;
 
-  const stats = document.querySelectorAll('.stat-card');
-  if (stats[4]) stats[4].querySelector('.stat-card__value').textContent = pendingDep;
-  if (stats[5]) stats[5].querySelector('.stat-card__value').textContent = pendingWith;
+  set('stat-total-users',        users.length.toLocaleString());
+  set('stat-live-accounts',      liveAccounts.toLocaleString());
+  set('stat-total-aum',          '$' + (totalAUM >= 1e6 ? (totalAUM/1e6).toFixed(2)+'M' : totalAUM.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})));
+  set('stat-open-positions',     openPositions.toLocaleString());
+  set('stat-pending-deposits',   pendingDep);
+  set('stat-pending-withdrawals',pendingWith);
+  set('stat-kyc-pending',        kycPending);
+  set('stat-total-txns',         txns.length.toLocaleString());
 
-  const setBadge = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val > 0 ? val : ''; };
   setBadge('badge-deposits',    pendingDep);
   setBadge('badge-withdrawals', pendingWith);
+  setBadge('badge-kyc',         kycPending);
 }
 window.loadDashboardStats = loadDashboardStats;
 

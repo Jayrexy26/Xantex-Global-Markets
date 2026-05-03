@@ -1962,12 +1962,25 @@ window.loadBalanceUsers = async function() {
   const db = window.XANTEX_DB;
   const sel = document.getElementById('adj-user-select');
   if (!sel || !db) return;
-  const { data: users } = await db.from('profiles').select('id, first_name, last_name, email').order('created_at', { ascending: false });
+  sel.innerHTML = '<option value="">— loading users… —</option>';
+  const { data: users, error } = await db.from('profiles')
+    .select('id, first_name, last_name, email')
+    .order('email', { ascending: true });
+  if (error) {
+    sel.innerHTML = '<option value="">— error loading users —</option>';
+    showToast('Could not load users: ' + error.message + '. Make sure your account is in the admin_users table.', 'error');
+    return;
+  }
+  if (!users || users.length === 0) {
+    sel.innerHTML = '<option value="">— no users found (check admin_users table) —</option>';
+    return;
+  }
   sel.innerHTML = '<option value="">— choose a user —</option>';
-  (users || []).forEach(u => {
+  users.forEach(u => {
     const opt = document.createElement('option');
     opt.value = u.id;
-    opt.textContent = `${u.first_name || ''} ${u.last_name || ''}`.trim() + (u.email ? ` (${u.email})` : '');
+    const name = `${u.first_name || ''} ${u.last_name || ''}`.trim();
+    opt.textContent = name ? `${name} (${u.email})` : u.email || u.id.slice(0,8);
     sel.appendChild(opt);
   });
 };
@@ -1977,10 +1990,16 @@ window.loadUserAccounts = async function() {
   const userId = document.getElementById('adj-user-select').value;
   const accSel = document.getElementById('adj-account');
   const noAccBox = document.getElementById('adj-no-account-box');
+  const balDisplay = document.getElementById('adj-current-bal');
   accSel.innerHTML = '<option value="">— loading… —</option>';
   if (noAccBox) noAccBox.style.display = 'none';
+  if (balDisplay) balDisplay.textContent = '';
   if (!userId || !db) { accSel.innerHTML = '<option value="">— select user first —</option>'; return; }
-  const { data: accounts, error } = await db.from('trading_accounts').select('id, account_number, type, balance').eq('user_id', userId);
+  const { data: accounts, error } = await db.from('trading_accounts')
+    .select('id, account_number, type, balance, equity, currency')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  if (error) { accSel.innerHTML = '<option value="">— error: ' + error.message + ' —</option>'; return; }
   if (!accounts || accounts.length === 0) {
     accSel.innerHTML = '<option value="">— no accounts found —</option>';
     if (noAccBox) noAccBox.style.display = 'block';
@@ -1990,10 +2009,36 @@ window.loadUserAccounts = async function() {
   accounts.forEach(a => {
     const opt = document.createElement('option');
     opt.value = a.id;
-    opt.textContent = `${a.account_number || a.id.slice(0,8)} — ${a.type} — $${parseFloat(a.balance||0).toFixed(2)}`;
+    const bal = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    opt.textContent = `#${a.account_number || a.id.slice(0,8)} · ${a.type} · ${a.currency||'USD'} $${bal}`;
     accSel.appendChild(opt);
   });
+  // Auto-select first account and show its balance
+  if (accounts.length === 1) {
+    accSel.value = accounts[0].id;
+    showAccountBalance(accounts[0]);
+  }
+  accSel.onchange = function() {
+    const found = accounts.find(a => a.id === accSel.value);
+    if (found) showAccountBalance(found); else if(balDisplay) balDisplay.textContent = '';
+  };
 };
+
+function showAccountBalance(acc) {
+  let box = document.getElementById('adj-current-bal');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'adj-current-bal';
+    box.style.cssText = 'background:rgba(26,92,255,0.08);border:1px solid rgba(26,92,255,0.25);border-radius:8px;padding:12px 16px;font-size:14px;margin-top:4px;';
+    const accSel = document.getElementById('adj-account');
+    accSel?.parentNode?.insertAdjacentElement('afterend', box);
+  }
+  const bal = parseFloat(acc.balance||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const eq  = parseFloat(acc.equity||acc.balance||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  box.innerHTML = `<span style="color:var(--muted);font-size:12px;">Current balance</span><br>
+    <strong style="font-size:18px;">$${bal}</strong>
+    <span style="color:var(--muted);font-size:12px;margin-left:12px;">Equity: $${eq}</span>`;
+}
 
 window.createAccountForUser = async function() {
   const db = window.XANTEX_DB;
@@ -2025,7 +2070,11 @@ window.applyAdjustment = async function() {
   if (!db) { showToast('No database connection','error'); return; }
 
   // Verify admin has an active Supabase session
-  const { data: { session } } = await db.auth.getSession();
+  let session;
+  try {
+    const { data } = await db.auth.getSession();
+    session = data?.session;
+  } catch(e) {}
   if (!session) {
     showToast('Session expired — please log out and log back in with your admin email','error');
     return;
@@ -2033,8 +2082,8 @@ window.applyAdjustment = async function() {
 
   // Fetch current balance
   const { data: acc, error: fetchErr } = await db.from('trading_accounts')
-    .select('balance, user_id, account_number').eq('id', accId).single();
-  if (fetchErr || !acc) { showToast('Account not found: ' + (fetchErr?.message || ''), 'error'); return; }
+    .select('balance, equity, user_id, account_number').eq('id', accId).single();
+  if (fetchErr || !acc) { showToast('Account not found: ' + (fetchErr?.message || 'no rows'), 'error'); return; }
 
   const before = parseFloat(acc.balance || 0);
   let after = before;
@@ -2068,8 +2117,14 @@ window.applyAdjustment = async function() {
   if (txnErr) console.warn('Transaction log failed:', txnErr.message);
 
   showToast(`Balance updated: $${before.toFixed(2)} → $${after.toFixed(2)}`, 'success');
-  // Refresh the account dropdown to show new balance
-  window.loadUserAccounts();
+  // Clear input fields
+  document.getElementById('adj-amount').value = '';
+  document.getElementById('adj-reason').value = '';
+  // Refresh account dropdown and balance display
+  await window.loadUserAccounts();
+  // Re-select the same account
+  const accSel = document.getElementById('adj-account');
+  if (accSel) { accSel.value = accId; accSel.dispatchEvent(new Event('change')); }
   renderAccountsLive();
 };
 

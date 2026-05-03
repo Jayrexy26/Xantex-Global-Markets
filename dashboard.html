@@ -565,6 +565,189 @@
     }
     .dark-toggle:hover { border-color: var(--blue); }
     .dark-toggle svg { width: 16px; height: 16px; fill: none; stroke: var(--text); stroke-width: 2; }
+
+    /* ============================================================
+       SETTINGS
+    ============================================================ */
+    .sett-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 20px;
+      align-items: start;
+      max-width: 1000px;
+    }
+    .sett-nav {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: calc(var(--topbar-h) + 20px);
+    }
+    .sett-nav__item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 18px; font-size: 13px; font-weight: 500;
+      color: var(--muted); background: none; border: none;
+      border-left: 3px solid transparent;
+      text-align: left; cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sett-nav__item:hover { background: var(--bg); color: var(--text); }
+    .sett-nav__item.active { color: var(--blue); border-left-color: var(--blue); background: var(--blue-lt); }
+    .sett-nav__item svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; flex-shrink: 0; }
+    .sett-nav__divider { height: 1px; background: var(--border); margin: 4px 0; }
+    .sett-panel { display: flex; flex-direction: column; gap: 20px; }
+    .sett-panel.hidden { display: none; }
+
+    /* Settings cards */
+    .sett-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    }
+    .sett-card__head {
+      padding: 18px 22px 0;
+    }
+    .sett-card__title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .sett-card__sub   { font-size: 12px; color: var(--muted); padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .sett-card__body  { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+    .sett-card__foot  { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+
+    /* Settings fields (general, not inside modal) */
+    .sett-field { display: flex; flex-direction: column; gap: 5px; }
+    .sett-field label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .sett-field input,
+    .sett-field select,
+    .sett-field textarea {
+      height: 42px; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 0 14px; font-size: 13px; font-family: inherit;
+      outline: none; background: #fff; color: var(--text);
+      transition: border-color 0.15s;
+      appearance: none; width: 100%;
+    }
+    .sett-field input:focus,
+    .sett-field select:focus { border-color: var(--blue); background: #fff; }
+    .sett-field input[readonly] { background: var(--bg); cursor: default; }
+    .sett-field textarea { height: auto; min-height: 80px; padding: 10px 14px; resize: vertical; }
+    .sett-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* Profile avatar section */
+    .sett-avatar-wrap {
+      display: flex; align-items: center; gap: 20px; padding: 20px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sett-avatar-circle {
+      width: 80px; height: 80px; border-radius: 50%; background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 700; color: #fff;
+      position: relative; cursor: pointer; flex-shrink: 0; overflow: hidden;
+    }
+    .sett-avatar-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .sett-avatar-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.45); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .sett-avatar-circle:hover .sett-avatar-overlay { opacity: 1; }
+    .sett-avatar-overlay svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2; }
+    .sett-avatar-info { flex: 1; }
+    .sett-avatar-name  { font-size: 17px; font-weight: 700; }
+    .sett-avatar-email { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .sett-avatar-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+    /* Profile completion bar */
+    .sett-completion {
+      display: flex; align-items: center; gap: 12px; padding: 12px 22px;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+    }
+    .sett-completion__label { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+    .sett-completion__bar {
+      flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+    }
+    .sett-completion__fill {
+      height: 100%; background: var(--blue); border-radius: 3px; transition: width 0.5s;
+    }
+    .sett-completion__pct { font-size: 12px; font-weight: 700; color: var(--blue); white-space: nowrap; }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--border); gap: 16px;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-row__info { flex: 1; }
+    .toggle-row__label { font-size: 13px; font-weight: 600; }
+    .toggle-row__sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .toggle-sw { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-sw__track {
+      position: absolute; inset: 0; background: var(--border); border-radius: 24px;
+      cursor: pointer; transition: background 0.25s;
+    }
+    .toggle-sw__track::before {
+      content: ''; position: absolute;
+      height: 18px; width: 18px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: transform 0.25s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-sw input:checked + .toggle-sw__track { background: var(--blue); }
+    .toggle-sw input:checked + .toggle-sw__track::before { transform: translateX(20px); }
+
+    /* Security rows */
+    .sett-security-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 0; border-bottom: 1px solid var(--border);
+    }
+    .sett-security-row:last-child { border-bottom: none; }
+    .sett-security-row__icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sett-security-row__icon svg { width: 20px; height: 20px; fill: none; stroke-width: 1.8; }
+    .sett-security-row__info { flex: 1; }
+    .sett-security-row__label { font-size: 13px; font-weight: 600; }
+    .sett-security-row__sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .sett-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+    }
+    .sett-badge--on  { background: var(--green-lt); color: var(--green); }
+    .sett-badge--off { background: #fff0f0; color: var(--red); }
+    .sett-badge--warn { background: #fff8e0; color: #b45309; }
+
+    /* KYC document rows */
+    .sett-doc-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .sett-doc-row:last-child { border-bottom: none; }
+    .sett-doc-icon {
+      width: 42px; height: 42px; border-radius: 10px; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sett-doc-icon svg { width: 20px; height: 20px; fill: none; stroke: var(--blue); stroke-width: 1.8; }
+    .sett-doc-info { flex: 1; }
+    .sett-doc-label { font-size: 13px; font-weight: 600; }
+    .sett-doc-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* Dark mode — settings */
+    body.dark .sett-nav,
+    body.dark .sett-card       { background: #1a1d27; }
+    body.dark .sett-nav__item.active { background: rgba(26,92,255,0.15); }
+    body.dark .sett-field input,
+    body.dark .sett-field select { background: #0f1117; color: var(--text); border-color: var(--border); }
+    body.dark .sett-field input[readonly] { background: #0f1117; }
+    body.dark .sett-completion  { background: #0f1117; }
+    body.dark .sett-doc-icon    { background: #0f1117; }
+    body.dark .sett-security-row__icon { background: #0f1117; }
+
+    @media (max-width: 768px) {
+      .sett-layout { grid-template-columns: 1fr; }
+      .sett-nav { flex-direction: row; overflow-x: auto; position: static; border-radius: 10px; }
+      .sett-nav__item { flex-direction: column; gap: 4px; padding: 10px 14px; font-size: 11px; white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; }
+      .sett-nav__item.active { border-left-color: transparent; border-bottom-color: var(--blue); }
+      .sett-nav__divider { display: none; }
+      .sett-grid-2 { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -927,40 +1110,445 @@
         <div class="page-header">
           <div>
             <div class="page-header__title">Account Settings</div>
-            <div class="page-header__sub">Manage your profile and preferences</div>
+            <div class="page-header__sub">Manage your profile, security and preferences</div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;">
-          <!-- Profile picture -->
-          <div class="card">
-            <div class="card__head"><div class="card__title">Profile Photo</div></div>
-            <div class="card__body" style="display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
-              <div id="settings-avatar" style="width:90px;height:90px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;overflow:hidden;position:relative;cursor:pointer;" onclick="document.getElementById('avatar-upload').click()">
-                <span id="settings-avatar-init"></span>
-                <img id="settings-avatar-img" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
-                <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--blue);border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;">
-                  <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2.5;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+        <div class="sett-layout">
+
+          <!-- ── Tab nav ── -->
+          <nav class="sett-nav">
+            <button class="sett-nav__item active" onclick="settTab('profile',this)">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profile
+            </button>
+            <button class="sett-nav__item" onclick="settTab('security',this)">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Security
+            </button>
+            <button class="sett-nav__item" onclick="settTab('notifications',this)">
+              <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              Notifications
+            </button>
+            <div class="sett-nav__divider"></div>
+            <button class="sett-nav__item" onclick="settTab('preferences',this)">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Preferences
+            </button>
+            <button class="sett-nav__item" onclick="settTab('documents',this)">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              Documents
+            </button>
+          </nav>
+
+          <!-- ── Panels ── -->
+          <div id="sett-panels">
+
+            <!-- ════ PROFILE ════ -->
+            <div id="sett-profile" class="sett-panel">
+              <div class="sett-card">
+                <!-- Avatar row -->
+                <div class="sett-avatar-wrap">
+                  <div class="sett-avatar-circle" id="sett-big-avatar" onclick="document.getElementById('avatar-upload').click()">
+                    <span id="settings-avatar-init"></span>
+                    <img id="settings-avatar-img" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                    <div class="sett-avatar-overlay">
+                      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </div>
+                  </div>
+                  <input type="file" id="avatar-upload" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
+                  <div class="sett-avatar-info">
+                    <div class="sett-avatar-name" id="sett-avatar-name">—</div>
+                    <div class="sett-avatar-email" id="sett-avatar-email">—</div>
+                    <div class="sett-avatar-actions">
+                      <button class="btn btn--outline" style="font-size:12px;padding:6px 14px;height:32px;" onclick="document.getElementById('avatar-upload').click()">Change Photo</button>
+                      <div id="avatar-upload-status" style="font-size:12px;color:var(--green);display:flex;align-items:center;"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Profile completion bar -->
+                <div class="sett-completion">
+                  <span class="sett-completion__label">Profile completion</span>
+                  <div class="sett-completion__bar"><div class="sett-completion__fill" id="sett-completion-fill" style="width:0%"></div></div>
+                  <span class="sett-completion__pct" id="sett-completion-pct">0%</span>
+                </div>
+                <!-- Personal info -->
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Personal Information</div>
+                  <div class="sett-card__sub">Your name and personal details</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="sett-grid-2">
+                    <div class="sett-field"><label>First Name</label><input type="text" id="prof-fname" placeholder="Enter first name"></div>
+                    <div class="sett-field"><label>Last Name</label><input type="text" id="prof-lname" placeholder="Enter last name"></div>
+                  </div>
+                  <div class="sett-grid-2">
+                    <div class="sett-field"><label>Date of Birth</label><input type="date" id="prof-dob"></div>
+                    <div class="sett-field"><label>Nationality</label>
+                      <select id="prof-nationality">
+                        <option value="">— Select nationality —</option>
+                        <option>American</option><option>British</option><option>Canadian</option>
+                        <option>Australian</option><option>German</option><option>French</option>
+                        <option>Nigerian</option><option>Ghanaian</option><option>South African</option>
+                        <option>Kenyan</option><option>Indian</option><option>Chinese</option>
+                        <option>Brazilian</option><option>Other</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <!-- Contact info -->
+                <div class="sett-card__head" style="padding-top:0;">
+                  <div style="border-top:1px solid var(--border);padding-top:18px;">
+                    <div class="sett-card__title">Contact Information</div>
+                    <div class="sett-card__sub">Email and phone cannot be changed here — contact support</div>
+                  </div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="sett-grid-2">
+                    <div class="sett-field"><label>Email Address</label><input type="email" id="prof-email" readonly></div>
+                    <div class="sett-field"><label>Phone Number</label><input type="tel" id="prof-phone" placeholder="+1 234 567 8900"></div>
+                  </div>
+                  <div class="sett-grid-2">
+                    <div class="sett-field"><label>Country of Residence</label>
+                      <select id="prof-country">
+                        <option value="">— Select country —</option>
+                        <option>United States</option><option>United Kingdom</option><option>Canada</option>
+                        <option>Australia</option><option>Germany</option><option>France</option>
+                        <option>Nigeria</option><option>Ghana</option><option>South Africa</option>
+                        <option>Kenya</option><option>India</option><option>China</option>
+                        <option>Brazil</option><option>Other</option>
+                      </select>
+                    </div>
+                    <div class="sett-field"><label>City</label><input type="text" id="prof-city" placeholder="Your city"></div>
+                  </div>
+                  <div class="sett-field"><label>Account ID (for support)</label><input type="text" id="prof-uid" readonly style="font-family:monospace;font-size:11px;"></div>
+                </div>
+                <div class="sett-card__foot">
+                  <button class="btn btn--primary" onclick="saveProfile()" id="save-profile-btn">Save Changes</button>
+                  <span id="save-profile-msg" style="font-size:12px;color:var(--green);"></span>
                 </div>
               </div>
-              <input type="file" id="avatar-upload" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
-              <div style="font-size:12px;color:var(--muted);">Click to change photo<br>JPG or PNG, max 2MB</div>
-              <div id="avatar-upload-status" style="font-size:12px;color:var(--blue);"></div>
-            </div>
-          </div>
-          <!-- Profile info -->
-          <div class="card">
-            <div class="card__head"><div class="card__title">Profile Information</div></div>
-            <div class="card__body" style="display:flex;flex-direction:column;gap:12px;">
-              <div class="field"><label>First Name</label><input type="text" id="prof-fname" readonly style="background:var(--bg);"></div>
-              <div class="field"><label>Last Name</label><input type="text" id="prof-lname" readonly style="background:var(--bg);"></div>
-              <div class="field"><label>Email</label><input type="email" id="prof-email" readonly style="background:var(--bg);"></div>
-              <div class="field"><label>Country</label><input type="text" id="prof-country" readonly style="background:var(--bg);"></div>
-              <div class="field"><label>Phone</label><input type="text" id="prof-phone" readonly style="background:var(--bg);"></div>
-              <div class="field"><label>KYC Status</label><input type="text" id="prof-kyc" readonly style="background:var(--bg);"></div>
-              <div class="field"><label>Account ID (for support)</label><input type="text" id="prof-uid" readonly style="background:var(--bg);font-family:monospace;font-size:11px;"></div>
-            </div>
-          </div>
-        </div>
+            </div><!-- /sett-profile -->
+
+            <!-- ════ SECURITY ════ -->
+            <div id="sett-security" class="sett-panel hidden">
+              <!-- Password change -->
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Change Password</div>
+                  <div class="sett-card__sub">Use a strong password with at least 8 characters</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="sett-field">
+                    <label>Current Password</label>
+                    <div style="position:relative;">
+                      <input type="password" id="pw-current" placeholder="Enter current password" style="padding-right:42px;">
+                      <button type="button" onclick="togglePw('pw-current')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:0;">
+                        <svg id="pw-current-eye" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="sett-field">
+                    <label>New Password</label>
+                    <div style="position:relative;">
+                      <input type="password" id="pw-new" placeholder="Min. 8 characters" style="padding-right:42px;" oninput="checkPwStrength(this.value)">
+                      <button type="button" onclick="togglePw('pw-new')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:0;">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                    </div>
+                    <!-- Password strength bar -->
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+                      <div style="flex:1;height:4px;background:var(--border);border-radius:2px;">
+                        <div id="pw-strength-bar" style="height:100%;border-radius:2px;transition:width .3s,background .3s;width:0%;background:var(--red);"></div>
+                      </div>
+                      <span id="pw-strength-label" style="font-size:11px;color:var(--muted);width:48px;text-align:right;"></span>
+                    </div>
+                  </div>
+                  <div class="sett-field">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="pw-confirm" placeholder="Repeat new password">
+                  </div>
+                </div>
+                <div class="sett-card__foot">
+                  <button class="btn btn--primary" onclick="changePassword()" id="change-pw-btn">Update Password</button>
+                  <span id="change-pw-msg" style="font-size:12px;"></span>
+                </div>
+              </div>
+
+              <!-- Security overview -->
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Security Overview</div>
+                  <div class="sett-card__sub">Your account security status</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="sett-security-row">
+                    <div class="sett-security-row__icon" style="background:var(--green-lt);">
+                      <svg viewBox="0 0 24 24" style="stroke:var(--green);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div class="sett-security-row__info">
+                      <div class="sett-security-row__label">Email Verified</div>
+                      <div class="sett-security-row__sub">Your email address is confirmed</div>
+                    </div>
+                    <span class="sett-badge sett-badge--on" id="badge-email-verified">Verified</span>
+                  </div>
+                  <div class="sett-security-row">
+                    <div class="sett-security-row__icon" style="background:var(--blue-lt);">
+                      <svg viewBox="0 0 24 24" style="stroke:var(--blue);"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    </div>
+                    <div class="sett-security-row__info">
+                      <div class="sett-security-row__label">Two-Factor Authentication</div>
+                      <div class="sett-security-row__sub">Add an extra layer of security to your account</div>
+                    </div>
+                    <span class="sett-badge sett-badge--warn">Coming soon</span>
+                  </div>
+                  <div class="sett-security-row">
+                    <div class="sett-security-row__icon" style="background:#fff3e0;">
+                      <svg viewBox="0 0 24 24" style="stroke:#e65c00;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div class="sett-security-row__info">
+                      <div class="sett-security-row__label">KYC Verification</div>
+                      <div class="sett-security-row__sub" id="kyc-security-sub">Upload your documents to verify your identity</div>
+                    </div>
+                    <span class="sett-badge" id="badge-kyc">Pending</span>
+                  </div>
+                </div>
+              </div>
+            </div><!-- /sett-security -->
+
+            <!-- ════ NOTIFICATIONS ════ -->
+            <div id="sett-notifications" class="sett-panel hidden">
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Email Notifications</div>
+                  <div class="sett-card__sub">Control which emails you receive from us</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Deposit Confirmed</div>
+                      <div class="toggle-row__sub">When your deposit is verified and credited</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-deposit" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Withdrawal Processed</div>
+                      <div class="toggle-row__sub">When your withdrawal is approved and sent</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-withdrawal" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Account Balance Update</div>
+                      <div class="toggle-row__sub">When your balance is adjusted by our team</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-balance" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">KYC Status Update</div>
+                      <div class="toggle-row__sub">When your verification documents are reviewed</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-kyc" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Platform Alerts</div>
+                  <div class="sett-card__sub">In-platform notifications and announcements</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Market News & Analysis</div>
+                      <div class="toggle-row__sub">Daily market updates and trading signals</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-news" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Promotions & Offers</div>
+                      <div class="toggle-row__sub">Bonus offers, contests, and special events</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-promos"><span class="toggle-sw__track"></span></label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Platform Announcements</div>
+                      <div class="toggle-row__sub">Maintenance windows and new features</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-platform" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                </div>
+                <div class="sett-card__foot">
+                  <button class="btn btn--primary" onclick="saveNotifications()">Save Preferences</button>
+                  <span id="notif-save-msg" style="font-size:12px;color:var(--green);"></span>
+                </div>
+              </div>
+            </div><!-- /sett-notifications -->
+
+            <!-- ════ PREFERENCES ════ -->
+            <div id="sett-preferences" class="sett-panel hidden">
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Appearance</div>
+                  <div class="sett-card__sub">Customise how the platform looks</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Dark Mode</div>
+                      <div class="toggle-row__sub">Switch between light and dark interface</div>
+                    </div>
+                    <label class="toggle-sw">
+                      <input type="checkbox" id="pref-dark" onchange="toggleDarkFromPref(this.checked)">
+                      <span class="toggle-sw__track"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Regional Settings</div>
+                  <div class="sett-card__sub">Language, timezone and display preferences</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="sett-grid-2">
+                    <div class="sett-field">
+                      <label>Language</label>
+                      <select id="pref-lang">
+                        <option value="en" selected>English</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="es">Español</option>
+                        <option value="pt">Português</option>
+                        <option value="ar">العربية</option>
+                        <option value="zh">中文</option>
+                      </select>
+                    </div>
+                    <div class="sett-field">
+                      <label>Timezone</label>
+                      <select id="pref-tz">
+                        <option value="UTC">UTC / GMT+0</option>
+                        <option value="America/New_York">Eastern Time (ET)</option>
+                        <option value="America/Chicago">Central Time (CT)</option>
+                        <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                        <option value="Europe/London">London (BST)</option>
+                        <option value="Europe/Berlin">Central European (CET)</option>
+                        <option value="Africa/Lagos">Lagos (WAT)</option>
+                        <option value="Africa/Nairobi">Nairobi (EAT)</option>
+                        <option value="Asia/Dubai">Dubai (GST)</option>
+                        <option value="Asia/Tokyo">Tokyo (JST)</option>
+                        <option value="Australia/Sydney">Sydney (AEST)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="sett-grid-2">
+                    <div class="sett-field">
+                      <label>Display Currency</label>
+                      <select id="pref-currency">
+                        <option value="USD" selected>USD — US Dollar</option>
+                        <option value="EUR">EUR — Euro</option>
+                        <option value="GBP">GBP — British Pound</option>
+                        <option value="NGN">NGN — Nigerian Naira</option>
+                        <option value="GHS">GHS — Ghanaian Cedi</option>
+                        <option value="KES">KES — Kenyan Shilling</option>
+                        <option value="ZAR">ZAR — South African Rand</option>
+                      </select>
+                    </div>
+                    <div class="sett-field">
+                      <label>Date Format</label>
+                      <select id="pref-datefmt">
+                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="sett-card__foot">
+                  <button class="btn btn--primary" onclick="savePreferences()">Save Preferences</button>
+                  <span id="pref-save-msg" style="font-size:12px;color:var(--green);"></span>
+                </div>
+              </div>
+            </div><!-- /sett-preferences -->
+
+            <!-- ════ DOCUMENTS ════ -->
+            <div id="sett-documents" class="sett-panel hidden">
+              <!-- KYC status banner -->
+              <div class="sett-card">
+                <div id="kyc-banner" style="padding:18px 22px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);">
+                  <div id="kyc-banner-icon" style="width:46px;height:46px;border-radius:12px;background:var(--blue-lt);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:var(--blue);stroke-width:1.8;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  </div>
+                  <div style="flex:1;">
+                    <div id="kyc-banner-title" style="font-size:14px;font-weight:700;"></div>
+                    <div id="kyc-banner-sub"   style="font-size:12px;color:var(--muted);margin-top:2px;"></div>
+                  </div>
+                  <span class="sett-badge" id="kyc-banner-badge"></span>
+                </div>
+                <div class="sett-card__body">
+                  <!-- ID document -->
+                  <div class="sett-doc-row">
+                    <div class="sett-doc-icon">
+                      <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    </div>
+                    <div class="sett-doc-info">
+                      <div class="sett-doc-label">Government-Issued ID</div>
+                      <div class="sett-doc-sub">Passport, national ID or driver's licence</div>
+                    </div>
+                    <span class="sett-badge" id="doc-id-badge">Not uploaded</span>
+                  </div>
+                  <!-- Address proof -->
+                  <div class="sett-doc-row">
+                    <div class="sett-doc-icon">
+                      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </div>
+                    <div class="sett-doc-info">
+                      <div class="sett-doc-label">Proof of Address</div>
+                      <div class="sett-doc-sub">Utility bill or bank statement (within 3 months)</div>
+                    </div>
+                    <span class="sett-badge" id="doc-address-badge">Not uploaded</span>
+                  </div>
+                  <!-- Selfie -->
+                  <div class="sett-doc-row">
+                    <div class="sett-doc-icon">
+                      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="sett-doc-info">
+                      <div class="sett-doc-label">Selfie / Liveness Check</div>
+                      <div class="sett-doc-sub">Clear photo of your face holding your ID</div>
+                    </div>
+                    <span class="sett-badge" id="doc-selfie-badge">Not uploaded</span>
+                  </div>
+                </div>
+                <div class="sett-card__foot" id="kyc-upload-foot">
+                  <button class="btn btn--primary" onclick="window.location.href='register.html'">
+                    <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Upload Documents
+                  </button>
+                  <span style="font-size:12px;color:var(--muted);">You will be guided through the verification process</span>
+                </div>
+              </div>
+
+              <!-- Help card -->
+              <div class="sett-card" style="background:linear-gradient(135deg,var(--blue) 0%,var(--blue-dk) 100%);border-color:var(--blue);color:#fff;">
+                <div class="sett-card__body" style="flex-direction:row;align-items:center;gap:16px;">
+                  <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Need help with verification?</div>
+                    <div style="font-size:12px;opacity:.8;">Our support team is available 24/7 to assist you with your account verification process.</div>
+                  </div>
+                  <button class="btn" style="background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.3);white-space:nowrap;flex-shrink:0;">Contact Support</button>
+                </div>
+              </div>
+            </div><!-- /sett-documents -->
+
+          </div><!-- /sett-panels -->
+        </div><!-- /sett-layout -->
       </div><!-- /page-settings -->
 
     </div><!-- /content -->
@@ -1205,6 +1793,87 @@ async function signOut() {
   window.location.href = 'login.html?signout';
 }
 
+// ── Settings tab switcher ─────────────────────────────────────
+function settTab(id, btn) {
+  document.querySelectorAll('.sett-nav__item').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.sett-panel').forEach(p => p.classList.add('hidden'));
+  const panel = document.getElementById('sett-' + id);
+  if (panel) panel.classList.remove('hidden');
+}
+
+// ── Password visibility toggle ────────────────────────────────
+function togglePw(id) {
+  const el = document.getElementById(id);
+  if (el) el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+// ── Password strength indicator ───────────────────────────────
+function checkPwStrength(pw) {
+  const bar   = document.getElementById('pw-strength-bar');
+  const label = document.getElementById('pw-strength-label');
+  if (!bar || !label) return;
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const levels = [{w:'15%',c:'#e60023',t:'Weak'},{w:'40%',c:'#f5a623',t:'Fair'},{w:'65%',c:'#f5a623',t:'Good'},{w:'90%',c:'#22a06b',t:'Strong'},{w:'100%',c:'#22a06b',t:'Very strong'}];
+  const lvl = levels[Math.min(score, levels.length-1)];
+  bar.style.width = pw ? lvl.w : '0%';
+  bar.style.background = lvl.c;
+  label.textContent = pw ? lvl.t : '';
+}
+
+// ── Change password ───────────────────────────────────────────
+async function changePassword() {
+  const cur  = document.getElementById('pw-current')?.value;
+  const pw   = document.getElementById('pw-new')?.value;
+  const conf = document.getElementById('pw-confirm')?.value;
+  const msg  = document.getElementById('change-pw-msg');
+  const btn  = document.getElementById('change-pw-btn');
+  if (!pw || pw.length < 8) { if(msg){msg.style.color='var(--red)';msg.textContent='Password must be at least 8 characters';} return; }
+  if (pw !== conf) { if(msg){msg.style.color='var(--red)';msg.textContent='Passwords do not match';} return; }
+  btn.disabled = true; btn.textContent = 'Updating…';
+  const { error } = await window.XANTEX_DB.auth.updateUser({ password: pw });
+  btn.disabled = false; btn.textContent = 'Update Password';
+  if (error) { if(msg){msg.style.color='var(--red)';msg.textContent=error.message;} return; }
+  if (msg) { msg.style.color='var(--green)'; msg.textContent='Password updated successfully ✓'; }
+  ['pw-current','pw-new','pw-confirm'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  setTimeout(() => { if(msg) msg.textContent=''; }, 4000);
+}
+
+// ── Dark mode from preferences toggle ────────────────────────
+function toggleDarkFromPref(on) {
+  document.body.classList.toggle('dark', on);
+  localStorage.setItem('xantex-theme', on ? 'dark' : 'light');
+  const icon = document.getElementById('dark-icon');
+  if (icon) icon.innerHTML = on
+    ? `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`
+    : `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+}
+
+// ── Save notifications ────────────────────────────────────────
+function saveNotifications() {
+  ['notif-deposit','notif-withdrawal','notif-balance','notif-kyc','notif-news','notif-promos','notif-platform'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) localStorage.setItem('xantex-' + id, el.checked);
+  });
+  const msg = document.getElementById('notif-save-msg');
+  if (msg) { msg.textContent = 'Preferences saved ✓'; setTimeout(() => { msg.textContent=''; }, 3000); }
+}
+
+// ── Save preferences ──────────────────────────────────────────
+function savePreferences() {
+  const vals = { 'xantex-lang': 'pref-lang', 'xantex-tz': 'pref-tz', 'xantex-currency': 'pref-currency', 'xantex-datefmt': 'pref-datefmt' };
+  Object.entries(vals).forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    if (el) localStorage.setItem(key, el.value);
+  });
+  const msg = document.getElementById('pref-save-msg');
+  if (msg) { msg.textContent = 'Preferences saved ✓'; setTimeout(() => { msg.textContent=''; }, 3000); }
+}
+
 (async () => {
   const db = window.XANTEX_DB;
   if (!db) { console.error('Supabase client not loaded'); return; }
@@ -1354,23 +2023,89 @@ async function signOut() {
 
     // Populate settings page fields
     window._populateSettings = function() {
-      const set = (id, v) => { const el = document.getElementById(id); if(el) el.value = v||''; };
-      set('prof-fname',   _profile.first_name);
-      set('prof-lname',   _profile.last_name);
-      set('prof-email',   _profile.email || session.user.email);
-      set('prof-country', _profile.country);
-      set('prof-phone',   _profile.phone);
-      set('prof-kyc',     _profile.kyc_status || 'pending');
-      set('prof-uid',     userId);
-      if (_profile.avatar_url) {
-        const sImg = document.getElementById('settings-avatar-img');
-        const sInit = document.getElementById('settings-avatar-init');
-        if (sImg)  { sImg.src = _profile.avatar_url; sImg.style.display = 'block'; }
+      const set    = (id, v) => { const el = document.getElementById(id); if(el) el.value = v||''; };
+      const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v||''; };
+
+      // ── Profile tab ──
+      set('prof-fname',       _profile.first_name);
+      set('prof-lname',       _profile.last_name);
+      set('prof-email',       _profile.email || session.user.email);
+      set('prof-phone',       _profile.phone);
+      set('prof-country',     _profile.country);
+      set('prof-city',        _profile.city);
+      set('prof-dob',         _profile.date_of_birth);
+      set('prof-nationality', _profile.nationality);
+      set('prof-uid',         userId);
+
+      // Avatar
+      setTxt('sett-avatar-name',  ((_profile.first_name||'') + ' ' + (_profile.last_name||'')).trim() || session.user.email);
+      setTxt('sett-avatar-email', _profile.email || session.user.email);
+      const sImg  = document.getElementById('settings-avatar-img');
+      const sInit = document.getElementById('settings-avatar-init');
+      if (_profile.avatar_url && sImg) {
+        sImg.src = _profile.avatar_url; sImg.style.display = 'block';
         if (sInit) sInit.style.display = 'none';
       } else {
-        const sInit = document.getElementById('settings-avatar-init');
         if (sInit) sInit.textContent = init;
+        if (sImg)  sImg.style.display = 'none';
       }
+
+      // Profile completion bar
+      const fields = [_profile.first_name, _profile.last_name, _profile.phone, _profile.country, _profile.date_of_birth, _profile.avatar_url];
+      const filled = fields.filter(Boolean).length;
+      const pct    = Math.round((filled / fields.length) * 100);
+      const fill   = document.getElementById('sett-completion-fill');
+      const pctEl  = document.getElementById('sett-completion-pct');
+      if (fill)  fill.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = pct + '%';
+
+      // ── Security tab — KYC badge ──
+      const kycStatus = _profile.kyc_status || 'not_submitted';
+      const kycBadge  = { approved:'sett-badge--on', pending:'sett-badge--warn', rejected:'sett-badge--off', not_submitted:'sett-badge--off', submitted:'sett-badge--warn' };
+      const kycLabel  = { approved:'Verified', pending:'Pending Review', rejected:'Rejected', not_submitted:'Not Verified', submitted:'Under Review' };
+      const badgeEl   = document.getElementById('badge-kyc');
+      if (badgeEl) { badgeEl.textContent = kycLabel[kycStatus]||kycStatus; badgeEl.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
+      const kycsub = document.getElementById('kyc-security-sub');
+      if (kycsub) kycsub.textContent = kycStatus === 'approved' ? 'Your identity is verified' : 'Upload your documents to verify your identity';
+
+      // ── Documents tab — KYC banner & badges ──
+      const bannerTitle = document.getElementById('kyc-banner-title');
+      const bannerSub   = document.getElementById('kyc-banner-sub');
+      const bannerBadge = document.getElementById('kyc-banner-badge');
+      const bannerIcon  = document.getElementById('kyc-banner-icon');
+      const bannerTitles = { approved:'Identity Verified', pending:'Verification Pending', rejected:'Verification Rejected', not_submitted:'Verification Required', submitted:'Documents Under Review' };
+      const bannerSubs   = { approved:'Your account is fully verified. All features are unlocked.', pending:'We are reviewing your documents. This may take up to 24 hours.', rejected:'Your documents were rejected. Please re-upload with correct documents.', not_submitted:'Please upload your identity documents to unlock full trading access.', submitted:'Your documents are under review by our compliance team.' };
+      const bannerColors = { approved:'var(--green)', pending:'var(--orange)', rejected:'var(--red)', not_submitted:'var(--blue)', submitted:'var(--orange)' };
+      if (bannerTitle) bannerTitle.textContent = bannerTitles[kycStatus] || 'Verification Required';
+      if (bannerSub)   bannerSub.textContent   = bannerSubs[kycStatus]   || '';
+      if (bannerBadge) { bannerBadge.textContent = kycLabel[kycStatus]||kycStatus; bannerBadge.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
+      if (bannerIcon)  bannerIcon.style.background = (bannerColors[kycStatus]||'var(--blue)') + '22';
+      const docBadgeCls = kycStatus === 'approved' ? 'sett-badge--on' : kycStatus === 'rejected' ? 'sett-badge--off' : 'sett-badge--warn';
+      const docBadgeTxt = kycStatus === 'approved' ? 'Approved' : kycStatus === 'not_submitted' ? 'Not uploaded' : 'Under review';
+      ['doc-id-badge','doc-address-badge','doc-selfie-badge'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = docBadgeTxt; el.className = 'sett-badge ' + docBadgeCls; }
+      });
+      const foot = document.getElementById('kyc-upload-foot');
+      if (foot) foot.style.display = kycStatus === 'approved' ? 'none' : '';
+
+      // ── Preferences tab — dark mode sync ──
+      const prefDark = document.getElementById('pref-dark');
+      if (prefDark) prefDark.checked = document.body.classList.contains('dark');
+
+      // Restore saved preferences
+      const lang = localStorage.getItem('xantex-lang') || 'en';
+      const tz   = localStorage.getItem('xantex-tz') || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      const cur  = localStorage.getItem('xantex-currency') || 'USD';
+      const dfmt = localStorage.getItem('xantex-datefmt') || 'DD/MM/YYYY';
+      set('pref-lang', lang); set('pref-tz', tz); set('pref-currency', cur); set('pref-datefmt', dfmt);
+
+      // Notification prefs from localStorage
+      ['notif-deposit','notif-withdrawal','notif-balance','notif-kyc','notif-news','notif-platform'].forEach(id => {
+        const el = document.getElementById(id);
+        const saved = localStorage.getItem('xantex-' + id);
+        if (el && saved !== null) el.checked = saved === 'true';
+      });
     };
   }
 
@@ -1597,6 +2332,43 @@ async function signOut() {
     alert('Withdrawal request submitted. It will be processed within 24 hours.');
     location.reload();
   });
+
+  // ── Save profile ──────────────────────────────────────────
+  window.saveProfile = async function() {
+    const btn = document.getElementById('save-profile-btn');
+    const msg = document.getElementById('save-profile-msg');
+    const g = id => document.getElementById(id)?.value?.trim() || null;
+    const updates = {
+      first_name:    g('prof-fname'),
+      last_name:     g('prof-lname'),
+      phone:         g('prof-phone'),
+      country:       g('prof-country'),
+      city:          g('prof-city'),
+      date_of_birth: g('prof-dob'),
+      nationality:   g('prof-nationality'),
+    };
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    const { error } = await db.from('profiles').update(updates).eq('id', userId);
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Changes'; }
+    if (error) {
+      if (msg) { msg.style.color = 'var(--red)'; msg.textContent = error.message; }
+    } else {
+      Object.assign(_profile, updates);
+      // Refresh sidebar name + avatar initials
+      const fn   = _profile.first_name || '';
+      const ln   = _profile.last_name  || '';
+      const name = (fn+' '+ln).trim() || session.user.email;
+      document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
+      const init2 = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
+      window._currentInit = init2;
+      if (!_profile.avatar_url) { document.querySelectorAll('.sidebar__avatar,.topbar__avatar').forEach(el => el.textContent = init2); }
+      // Refresh completion bar
+      const sett = document.getElementById('sett-avatar-name');
+      if (sett) sett.textContent = name;
+      if (window._populateSettings) window._populateSettings();
+      if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Changes saved ✓'; setTimeout(() => { msg.textContent=''; }, 4000); }
+    }
+  };
 
   // ── Avatar upload ─────────────────────────────────────────
   window.uploadAvatar = async function(input) {

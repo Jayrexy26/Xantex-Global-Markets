@@ -2113,23 +2113,34 @@ window.loadUserAccounts = async function() {
   if (balDisplay) balDisplay.textContent = '';
   if (!userId || !db) { accSel.innerHTML = '<option value="">— select user first —</option>'; return; }
 
-  // users table: id = account id, balance is the single account balance
-  const { data: user, error } = await db.from('users')
-    .select('id, email, full_name, balance')
-    .eq('id', userId)
-    .single();
-  if (error || !user) { accSel.innerHTML = '<option value="">— user not found —</option>'; return; }
+  // trading_accounts: user_id = profiles.id
+  const { data: accounts, error } = await db.from('trading_accounts')
+    .select('id, account_number, type, currency, balance, equity')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true });
+  if (error) { accSel.innerHTML = '<option value="">— error: ' + error.message + ' —</option>'; return; }
+  if (!accounts || accounts.length === 0) {
+    accSel.innerHTML = '<option value="">— no accounts found —</option>';
+    if (noAccBox) noAccBox.style.display = 'block';
+    return;
+  }
 
-  const account = { id: user.id, balance: user.balance ?? 0, equity: user.balance ?? 0, currency: 'USD', type: 'live' };
-  accSel.innerHTML = '';
-  const opt = document.createElement('option');
-  opt.value = account.id;
-  const bal = parseFloat(account.balance).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-  opt.textContent = `${user.full_name || user.email} · Live · USD $${bal}`;
-  accSel.appendChild(opt);
-  accSel.value = account.id;
-  showAccountBalance(account);
-  accSel.onchange = function() { showAccountBalance(account); };
+  accSel.innerHTML = '<option value="">— choose an account —</option>';
+  accounts.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    const bal = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    opt.textContent = `#${a.account_number || a.id.slice(0,8)} · ${a.type} · ${a.currency||'USD'} $${bal}`;
+    accSel.appendChild(opt);
+  });
+  if (accounts.length === 1) {
+    accSel.value = accounts[0].id;
+    showAccountBalance(accounts[0]);
+  }
+  accSel.onchange = function() {
+    const found = accounts.find(a => a.id === accSel.value);
+    if (found) showAccountBalance(found);
+  };
 };
 
 function showAccountBalance(acc) {

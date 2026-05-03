@@ -118,7 +118,7 @@
     /* ============================================================
        MAIN
     ============================================================ */
-    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; max-width: calc(100vw - var(--sidebar-w)); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
 
     /* ============================================================
        TOPBAR
@@ -691,12 +691,16 @@
           <div class="card__body">
             <div class="form-grid">
               <div class="field">
-                <label>Account ID</label>
-                <input type="text" placeholder="e.g. #10482931" id="adj-account">
+                <label>Select User</label>
+                <select id="adj-user-select" onchange="loadUserAccounts()">
+                  <option value="">— choose a user —</option>
+                </select>
               </div>
               <div class="field">
-                <label>User</label>
-                <input type="text" placeholder="Auto-filled" id="adj-user" readonly>
+                <label>Select Account</label>
+                <select id="adj-account">
+                  <option value="">— select user first —</option>
+                </select>
               </div>
               <div class="field">
                 <label>Adjustment Type</label>
@@ -1400,6 +1404,7 @@
     if (btn) btn.classList.add('active');
     document.getElementById('page-title').textContent = PAGE_TITLES[id] || id;
     document.getElementById('sidebar').classList.remove('open');
+    if (id === 'balances' && window.loadBalanceUsers) window.loadBalanceUsers();
   }
 
   /* ============================================================
@@ -1838,6 +1843,37 @@ window.publishAnnouncement = async function() {
   }
   showToast('Announcement published','success');
   renderAnnouncementsLive();
+};
+
+// ── Balances page: load users into dropdown ───────────────────
+window.loadBalanceUsers = async function() {
+  const db = window.XANTEX_DB;
+  const sel = document.getElementById('adj-user-select');
+  if (!sel || !db) return;
+  const { data: users } = await db.from('profiles').select('id, first_name, last_name, email').order('created_at', { ascending: false });
+  sel.innerHTML = '<option value="">— choose a user —</option>';
+  (users || []).forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u.id;
+    opt.textContent = `${u.first_name || ''} ${u.last_name || ''}`.trim() + (u.email ? ` (${u.email})` : '');
+    sel.appendChild(opt);
+  });
+};
+
+window.loadUserAccounts = async function() {
+  const db = window.XANTEX_DB;
+  const userId = document.getElementById('adj-user-select').value;
+  const accSel = document.getElementById('adj-account');
+  accSel.innerHTML = '<option value="">— loading… —</option>';
+  if (!userId || !db) { accSel.innerHTML = '<option value="">— select user first —</option>'; return; }
+  const { data: accounts } = await db.from('trading_accounts').select('id, account_number, type, balance').eq('user_id', userId);
+  accSel.innerHTML = '<option value="">— choose an account —</option>';
+  (accounts || []).forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = `${a.account_number || a.id.slice(0,8)} — ${a.type} — $${parseFloat(a.balance||0).toFixed(2)}`;
+    accSel.appendChild(opt);
+  });
 };
 
 // ── Patch applyAdjustment ─────────────────────────────────────

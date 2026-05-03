@@ -1157,6 +1157,53 @@
   </div>
 </div>
 
+<!-- Delete User Confirmation -->
+<div class="modal-overlay" id="modal-delete-user">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal__head">
+      <div class="modal__title" style="color:var(--red);">
+        <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:var(--red);stroke-width:2;vertical-align:-3px;margin-right:6px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        Delete User
+      </div>
+      <button class="modal__close" onclick="closeModal('modal-delete-user')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <!-- User info -->
+      <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--border);margin-bottom:16px;">
+        <div id="del-user-avatar" style="width:46px;height:46px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;"></div>
+        <div>
+          <div id="del-user-name" style="font-size:14px;font-weight:700;"></div>
+          <div id="del-user-email" style="font-size:12px;color:var(--muted);margin-top:2px;"></div>
+        </div>
+      </div>
+      <!-- Warning -->
+      <div style="background:#fff0f0;border:1px solid rgba(230,0,35,0.2);border-radius:10px;padding:14px;font-size:13px;line-height:1.6;">
+        <div style="font-weight:700;color:var(--red);margin-bottom:6px;">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:var(--red);stroke-width:2.5;vertical-align:-2px;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          This action cannot be undone
+        </div>
+        <ul style="padding-left:16px;color:#7a0010;margin:0;">
+          <li>The user's profile will be permanently deleted</li>
+          <li>All trading accounts and balances will be removed</li>
+          <li>Transaction and deposit history will be erased</li>
+        </ul>
+      </div>
+      <!-- Confirm input -->
+      <div style="margin-top:16px;">
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Type <strong id="del-confirm-hint" style="color:var(--text);font-family:monospace;"></strong> to confirm</label>
+        <input type="text" id="del-confirm-input" placeholder="Type email to confirm" style="width:100%;height:42px;border:1.5px solid var(--border);border-radius:8px;padding:0 14px;font-size:13px;font-family:monospace;outline:none;transition:border-color .15s;" oninput="delCheckConfirm(this.value)">
+      </div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="closeModal('modal-delete-user')">Cancel</button>
+      <button class="btn btn--red" id="del-confirm-btn" disabled onclick="execDeleteUser()">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Delete Permanently
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast">
   <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1223,7 +1270,7 @@
           <button class="btn btn--sm btn--outline" onclick="editUser('${u.id}')">Edit</button>
           <button class="btn btn--sm btn--${u.status==='active'?'orange':'green'}" onclick="toggleUserStatus('${u.id}')">${u.status==='active'?'Suspend':'Activate'}</button>
           <button class="btn btn--sm btn--outline" onclick="resetUserPassword('${u.email}')">Reset PWD</button>
-          <button class="btn btn--sm btn--red" onclick="showToast('User deleted','error')">Delete</button>
+          <button class="btn btn--sm btn--red" onclick="confirmDeleteUser('${u.id}','${u.name.replace(/'/g,"\\'")}','${u.email}')">Delete</button>
         </div></td>
       </tr>`).join('');
   }
@@ -1658,6 +1705,74 @@ window.resetUserPassword = async function(email) {
   });
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   showToast(`Password reset email sent to ${email}`, 'success');
+};
+
+// ── Delete user ───────────────────────────────────────────────
+let _delUserId   = null;
+let _delUserEmail = null;
+
+window.confirmDeleteUser = function(id, name, email) {
+  _delUserId    = id;
+  _delUserEmail = email;
+
+  // Populate modal
+  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase() || '?';
+  document.getElementById('del-user-avatar').textContent = initials;
+  document.getElementById('del-user-name').textContent   = name;
+  document.getElementById('del-user-email').textContent  = email;
+  document.getElementById('del-confirm-hint').textContent = email;
+
+  // Reset confirm input and button
+  const inp = document.getElementById('del-confirm-input');
+  const btn = document.getElementById('del-confirm-btn');
+  if (inp) { inp.value = ''; inp.style.borderColor = ''; }
+  if (btn) btn.disabled = true;
+
+  openModal('modal-delete-user');
+  setTimeout(() => inp?.focus(), 120);
+};
+
+window.delCheckConfirm = function(val) {
+  const btn = document.getElementById('del-confirm-btn');
+  const inp = document.getElementById('del-confirm-input');
+  const match = val.trim().toLowerCase() === (_delUserEmail || '').toLowerCase();
+  if (btn) btn.disabled = !match;
+  if (inp) inp.style.borderColor = val ? (match ? 'var(--green)' : 'var(--red)') : '';
+};
+
+window.execDeleteUser = async function() {
+  const db = window.XANTEX_DB;
+  if (!db || !_delUserId) return;
+
+  const btn = document.getElementById('del-confirm-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Deleting…'; }
+
+  try {
+    // Delete in order: requests → accounts → profile
+    await db.from('deposit_requests').delete().eq('user_id', _delUserId);
+    await db.from('withdrawal_requests').delete().eq('user_id', _delUserId);
+    await db.from('transactions').delete().eq('user_id', _delUserId);
+    await db.from('positions').delete().eq('user_id', _delUserId);
+    await db.from('kyc_submissions').delete().eq('user_id', _delUserId);
+    await db.from('trading_accounts').delete().eq('user_id', _delUserId);
+    const { error } = await db.from('profiles').delete().eq('id', _delUserId);
+
+    if (error) throw error;
+
+    closeModal('modal-delete-user');
+    showToast(`User deleted successfully`, 'success');
+
+    // Remove from local USERS array and re-render
+    const idx = USERS.findIndex(u => u.id === _delUserId);
+    if (idx !== -1) USERS.splice(idx, 1);
+    renderRecentUsers();
+    renderUsers();
+  } catch (e) {
+    showToast('Delete failed: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> Delete Permanently'; }
+  } finally {
+    _delUserId = null; _delUserEmail = null;
+  }
 };
 
 window.renderKYCLive = renderKYCLive;

@@ -401,12 +401,12 @@
       <button class="nav-item" onclick="showPage('users',this)">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         All Users
-        <span class="nav-item__badge badge-green">2,841</span>
+        <span class="nav-item__badge badge-green" id="badge-users">—</span>
       </button>
       <button class="nav-item" onclick="showPage('verification',this)">
         <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         KYC / Verification
-        <span class="nav-item__badge badge-orange">47</span>
+        <span class="nav-item__badge badge-orange" id="badge-kyc">—</span>
       </button>
 
       <div class="sidebar__section-label">Accounts</div>
@@ -427,12 +427,12 @@
       <button class="nav-item" onclick="showPage('deposits',this)">
         <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         Deposits
-        <span class="nav-item__badge badge-orange">8</span>
+        <span class="nav-item__badge badge-orange" id="badge-deposits">—</span>
       </button>
       <button class="nav-item" onclick="showPage('withdrawals',this)">
         <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
         Withdrawals
-        <span class="nav-item__badge badge-red">5</span>
+        <span class="nav-item__badge badge-red" id="badge-withdrawals">—</span>
       </button>
       <button class="nav-item" onclick="showPage('transactions',this)">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -972,6 +972,17 @@
             Save All
           </button>
         </div>
+        <div style="margin-bottom:18px;" class="card">
+          <div class="card__head">
+            <div class="card__title">Crypto Deposit Addresses (ERC20 / Ethereum Network)</div>
+            <button class="btn btn--green btn--sm" onclick="saveCryptoAddresses()">Save Addresses</button>
+          </div>
+          <div class="card__body">
+            <div class="form-grid form-grid--3" id="crypto-addr-grid" style="gap:12px 16px;"></div>
+            <p style="font-size:12px;color:var(--muted);margin-top:12px;">These addresses are shown to users when they select Cryptocurrency as deposit/withdrawal method. ERC20 network only.</p>
+          </div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
           <div class="card">
             <div class="card__head"><div class="card__title">Platform Info</div></div>
@@ -1443,8 +1454,9 @@
     if (btn) btn.classList.add('active');
     document.getElementById('page-title').textContent = PAGE_TITLES[id] || id;
     document.getElementById('sidebar').classList.remove('open');
-    if (id === 'balances'      && window.loadBalanceUsers) window.loadBalanceUsers();
-    if (id === 'verification'  && window.renderKYCLive)   window.renderKYCLive();
+    if (id === 'balances'      && window.loadBalanceUsers)    window.loadBalanceUsers();
+    if (id === 'verification'  && window.renderKYCLive)      window.renderKYCLive();
+    if (id === 'settings'      && window.loadCryptoAddresses) window.loadCryptoAddresses();
   }
 
   /* ============================================================
@@ -2097,6 +2109,58 @@ window.saveUser = async function() {
   renderUsersLive();
 };
 
+// ── Crypto Deposit Addresses ──────────────────────────────────
+const CRYPTO_COINS = [
+  { key:'ETH',  label:'ETH — Ethereum'         },
+  { key:'USDT', label:'USDT — Tether (ERC20)'  },
+  { key:'USDC', label:'USDC — USD Coin (ERC20)'},
+  { key:'WBTC', label:'WBTC — Wrapped Bitcoin' },
+  { key:'BNB',  label:'BNB  — BNB (ERC20)'     },
+  { key:'LINK', label:'LINK — Chainlink'        },
+  { key:'UNI',  label:'UNI  — Uniswap'         },
+  { key:'DAI',  label:'DAI  — Dai Stablecoin'  },
+  { key:'SHIB', label:'SHIB — Shiba Inu'       },
+  { key:'AAVE', label:'AAVE — Aave'            },
+];
+
+async function loadCryptoAddresses() {
+  const db = window.XANTEX_DB;
+  let saved = {};
+  if (db) {
+    try {
+      const { data } = await db.from('platform_settings').select('key,value').like('key','crypto_address_%');
+      (data||[]).forEach(r => { saved[r.key.replace('crypto_address_','')] = r.value; });
+    } catch(e) {}
+  }
+  // Fall back to localStorage
+  CRYPTO_COINS.forEach(c => {
+    if (!saved[c.key]) saved[c.key] = localStorage.getItem('xantex_addr_'+c.key) || '';
+  });
+  const grid = document.getElementById('crypto-addr-grid');
+  if (!grid) return;
+  grid.innerHTML = CRYPTO_COINS.map(c => `
+    <div class="field" style="margin:0;">
+      <label style="font-size:11px;">${c.label}</label>
+      <input type="text" id="addr-${c.key}" placeholder="0x…" value="${saved[c.key]||''}" style="font-size:11px;font-family:monospace;">
+    </div>`).join('');
+}
+
+window.saveCryptoAddresses = async function() {
+  const db = window.XANTEX_DB;
+  const rows = CRYPTO_COINS.map(c => ({
+    key:   'crypto_address_' + c.key,
+    value: (document.getElementById('addr-'+c.key)?.value || '').trim(),
+  })).filter(r => r.value);
+  // Always save to localStorage for immediate cross-page effect
+  rows.forEach(r => localStorage.setItem('xantex_addr_'+r.key.replace('crypto_address_',''), r.value));
+  if (db) {
+    try {
+      await db.from('platform_settings').upsert(rows, { onConflict: 'key' });
+    } catch(e) {}
+  }
+  showToast('Crypto addresses saved', 'success');
+};
+
 // ── Override renderAll to use live versions ───────────────────
 window.renderAll = function() {
   renderUsersLive();
@@ -2147,6 +2211,13 @@ async function loadDashboardStats() {
     if (stats[4]) stats[4].querySelector('.stat-card__value').textContent = (pendingDeposits || 0);
     if (stats[5]) stats[5].querySelector('.stat-card__value').textContent = (pendingWithdrawals || 0);
     if (stats[6]) stats[6].querySelector('.stat-card__value').textContent = (kycPending || 0);
+
+    // Sidebar badges — live counts only
+    const setBadge = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val > 0 ? val : ''; };
+    setBadge('badge-users',       totalUsers       || 0);
+    setBadge('badge-kyc',         kycPending        || 0);
+    setBadge('badge-deposits',    pendingDeposits   || 0);
+    setBadge('badge-withdrawals', pendingWithdrawals|| 0);
   } catch (e) { console.warn('[ops] stats:', e); }
 }
 

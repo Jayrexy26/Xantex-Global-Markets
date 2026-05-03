@@ -918,6 +918,46 @@
 
       </div><!-- /page-overview -->
 
+      <!-- ── SETTINGS PAGE ──────────────────────────────────────── -->
+      <div id="page-settings" style="display:none;">
+        <div class="page-header">
+          <div>
+            <div class="page-header__title">Account Settings</div>
+            <div class="page-header__sub">Manage your profile and preferences</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;">
+          <!-- Profile picture -->
+          <div class="card">
+            <div class="card__head"><div class="card__title">Profile Photo</div></div>
+            <div class="card__body" style="display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
+              <div id="settings-avatar" style="width:90px;height:90px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;overflow:hidden;position:relative;cursor:pointer;" onclick="document.getElementById('avatar-upload').click()">
+                <span id="settings-avatar-init">JD</span>
+                <img id="settings-avatar-img" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--blue);border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;">
+                  <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2.5;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </div>
+              </div>
+              <input type="file" id="avatar-upload" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
+              <div style="font-size:12px;color:var(--muted);">Click to change photo<br>JPG or PNG, max 2MB</div>
+              <div id="avatar-upload-status" style="font-size:12px;color:var(--blue);"></div>
+            </div>
+          </div>
+          <!-- Profile info -->
+          <div class="card">
+            <div class="card__head"><div class="card__title">Profile Information</div></div>
+            <div class="card__body" style="display:flex;flex-direction:column;gap:12px;">
+              <div class="field"><label>First Name</label><input type="text" id="prof-fname" readonly style="background:var(--bg);"></div>
+              <div class="field"><label>Last Name</label><input type="text" id="prof-lname" readonly style="background:var(--bg);"></div>
+              <div class="field"><label>Email</label><input type="email" id="prof-email" readonly style="background:var(--bg);"></div>
+              <div class="field"><label>Country</label><input type="text" id="prof-country" readonly style="background:var(--bg);"></div>
+              <div class="field"><label>Phone</label><input type="text" id="prof-phone" readonly style="background:var(--bg);"></div>
+              <div class="field"><label>KYC Status</label><input type="text" id="prof-kyc" readonly style="background:var(--bg);"></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /page-settings -->
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /layout -->
@@ -926,43 +966,68 @@
      DEPOSIT MODAL
 ============================================================ -->
 <div class="modal-overlay" id="modal-deposit">
-  <div class="modal">
+  <div class="modal" style="max-width:480px;">
     <div class="modal__head">
       <div class="modal__title">Deposit Funds</div>
-      <button class="modal__close" onclick="closeModal('deposit')">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <button class="modal__close" onclick="closeModal('deposit')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div class="modal__body">
+    <div class="modal__body" style="display:flex;flex-direction:column;gap:14px;">
       <div class="field">
-        <label>Select account</label>
-        <select>
-          <option>#10482931 — MT4 Raw+ (Live) $14,830.50</option>
-          <option>#10483012 — MT5 Instant (Live) $8,200.00</option>
-          <option>#10483144 — TradingView (Live) $1,800.00</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Payment method</label>
-        <select>
-          <option>💳 Credit / Debit Card</option>
-          <option>🏦 Bank Transfer</option>
-          <option>₿ Cryptocurrency</option>
-          <option>📱 Skrill</option>
-          <option>📱 Neteller</option>
-        </select>
+        <label>Select Account</label>
+        <select id="dep-account"></select>
       </div>
       <div class="field">
         <label>Amount (USD)</label>
-        <input type="number" placeholder="Minimum $100" min="100">
+        <input type="number" id="dep-amount" placeholder="Minimum $100" min="100">
       </div>
-      <p style="font-size:12px;color:var(--muted);background:var(--bg);padding:10px 12px;border-radius:8px;">
-        💡 Deposits are processed instantly for card payments. Bank transfers may take 1–3 business days.
-      </p>
+      <div class="field">
+        <label>Payment Method</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button id="dep-btn-bank"   onclick="depSelectMethod('bank')"   style="padding:10px;border-radius:8px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;cursor:pointer;font-size:13px;">🏦 Bank Transfer</button>
+          <button id="dep-btn-crypto" onclick="depSelectMethod('crypto')" style="padding:10px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;cursor:pointer;font-size:13px;">₿ Cryptocurrency</button>
+        </div>
+      </div>
+      <!-- Bank Transfer details -->
+      <div id="dep-bank-info" style="background:var(--bg);border-radius:10px;padding:14px;font-size:13px;line-height:1.8;border:1px solid var(--border);">
+        <div style="font-weight:700;margin-bottom:6px;">Bank Transfer Details</div>
+        <div><b>Bank Name:</b> Barclays Bank PLC</div>
+        <div><b>Account Name:</b> Xantex Global Markets Ltd</div>
+        <div><b>Account Number:</b> 12345678</div>
+        <div><b>Sort Code:</b> 20-00-00</div>
+        <div><b>IBAN:</b> GB00BARC20000012345678</div>
+        <div><b>Reference:</b> <span style="color:var(--blue);font-weight:700;" id="dep-bank-ref">Your account number</span></div>
+        <p style="margin-top:8px;font-size:11px;color:var(--muted);">Include your account number as reference. Processing time: 1–3 business days.</p>
+      </div>
+      <!-- Crypto details -->
+      <div id="dep-crypto-info" style="display:none;">
+        <div class="field">
+          <label>Select Cryptocurrency</label>
+          <select id="dep-crypto-coin" onchange="depUpdateCryptoAddress()">
+            <option value="">— choose a coin —</option>
+            <option value="ETH">ETH — Ethereum</option>
+            <option value="USDT">USDT — Tether (ERC20)</option>
+            <option value="USDC">USDC — USD Coin (ERC20)</option>
+            <option value="WBTC">WBTC — Wrapped Bitcoin (ERC20)</option>
+            <option value="BNB">BNB — BNB (ERC20)</option>
+            <option value="LINK">LINK — Chainlink (ERC20)</option>
+            <option value="UNI">UNI — Uniswap (ERC20)</option>
+            <option value="DAI">DAI — Dai (ERC20)</option>
+            <option value="SHIB">SHIB — Shiba Inu (ERC20)</option>
+            <option value="AAVE">AAVE — Aave (ERC20)</option>
+          </select>
+        </div>
+        <div id="dep-crypto-addr-box" style="display:none;text-align:center;border:1px solid var(--border);border-radius:10px;padding:16px;">
+          <img id="dep-qr-img" src="" alt="QR Code" style="width:160px;height:160px;margin:0 auto 10px;border-radius:8px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;">Wallet Address — ERC20 / Ethereum Network</div>
+          <div id="dep-addr-text" style="font-size:12px;font-family:monospace;word-break:break-all;background:var(--bg);padding:8px;border-radius:6px;margin-bottom:8px;"></div>
+          <button onclick="depCopyAddress()" style="font-size:12px;padding:6px 14px;border-radius:6px;border:1.5px solid var(--blue);background:transparent;color:var(--blue);cursor:pointer;font-weight:600;">Copy Address</button>
+          <p style="font-size:11px;color:var(--red);margin-top:10px;font-weight:600;" id="dep-coin-warning"></p>
+        </div>
+      </div>
     </div>
     <div class="modal__foot">
       <button class="btn btn--outline" onclick="closeModal('deposit')">Cancel</button>
-      <button class="btn btn--primary">Continue to Payment</button>
+      <button class="btn btn--primary" id="dep-submit-btn">Submit Request</button>
     </div>
   </div>
 </div>
@@ -971,40 +1036,59 @@
      WITHDRAW MODAL
 ============================================================ -->
 <div class="modal-overlay" id="modal-withdraw">
-  <div class="modal">
+  <div class="modal" style="max-width:480px;">
     <div class="modal__head">
       <div class="modal__title">Withdraw Funds</div>
-      <button class="modal__close" onclick="closeModal('withdraw')">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <button class="modal__close" onclick="closeModal('withdraw')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div class="modal__body">
+    <div class="modal__body" style="display:flex;flex-direction:column;gap:14px;">
       <div class="field">
-        <label>From account</label>
-        <select>
-          <option>#10482931 — MT4 Raw+ $14,830.50</option>
-          <option>#10483012 — MT5 Instant $8,200.00</option>
-          <option>#10483144 — TradingView $1,800.00</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Withdraw to</label>
-        <select>
-          <option>💳 Visa ending in 4242</option>
-          <option>🏦 Bank account ••••8821</option>
-        </select>
+        <label>From Account</label>
+        <select id="wd-account"></select>
       </div>
       <div class="field">
         <label>Amount (USD)</label>
-        <input type="number" placeholder="Enter amount" min="10">
+        <input type="number" id="wd-amount" placeholder="Minimum $10" min="10">
       </div>
-      <p style="font-size:12px;color:var(--muted);background:var(--bg);padding:10px 12px;border-radius:8px;">
-        ⏱ Withdrawals are processed within 24 hours on business days. Your identity must be verified to withdraw.
-      </p>
+      <div class="field">
+        <label>Withdrawal Method</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button id="wd-btn-bank"   onclick="wdSelectMethod('bank')"   style="padding:10px;border-radius:8px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;cursor:pointer;font-size:13px;">🏦 Bank Transfer</button>
+          <button id="wd-btn-crypto" onclick="wdSelectMethod('crypto')" style="padding:10px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;cursor:pointer;font-size:13px;">₿ Cryptocurrency</button>
+        </div>
+      </div>
+      <!-- Bank details form -->
+      <div id="wd-bank-info">
+        <div class="field"><label>Bank Name</label><input type="text" id="wd-bank-name" placeholder="e.g. Barclays Bank"></div>
+        <div class="field"><label>Account Name</label><input type="text" id="wd-acct-name" placeholder="Full name on account"></div>
+        <div class="field"><label>Account Number / IBAN</label><input type="text" id="wd-acct-num" placeholder="Account number or IBAN"></div>
+        <p style="font-size:11px;color:var(--muted);">Processed within 24 hours on business days. KYC verification required.</p>
+      </div>
+      <!-- Crypto withdrawal form -->
+      <div id="wd-crypto-info" style="display:none;">
+        <div class="field">
+          <label>Cryptocurrency</label>
+          <select id="wd-crypto-coin">
+            <option value="">— choose a coin —</option>
+            <option value="ETH">ETH — Ethereum</option>
+            <option value="USDT">USDT — Tether (ERC20)</option>
+            <option value="USDC">USDC — USD Coin (ERC20)</option>
+            <option value="WBTC">WBTC — Wrapped Bitcoin (ERC20)</option>
+            <option value="BNB">BNB — BNB (ERC20)</option>
+            <option value="LINK">LINK — Chainlink (ERC20)</option>
+            <option value="UNI">UNI — Uniswap (ERC20)</option>
+            <option value="DAI">DAI — Dai (ERC20)</option>
+            <option value="SHIB">SHIB — Shiba Inu (ERC20)</option>
+            <option value="AAVE">AAVE — Aave (ERC20)</option>
+          </select>
+        </div>
+        <div class="field"><label>Your Wallet Address (ERC20 Network)</label><input type="text" id="wd-wallet-addr" placeholder="0x…" style="font-family:monospace;font-size:12px;"></div>
+        <p style="font-size:11px;color:var(--red);font-weight:600;">⚠ Only provide an ERC20-compatible wallet address. Wrong network = lost funds.</p>
+      </div>
     </div>
     <div class="modal__foot">
       <button class="btn btn--outline" onclick="closeModal('withdraw')">Cancel</button>
-      <button class="btn btn--red">Request Withdrawal</button>
+      <button class="btn btn--red" id="wd-submit-btn">Request Withdrawal</button>
     </div>
   </div>
 </div>
@@ -1044,8 +1128,13 @@
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     event.currentTarget.classList.add('active');
     document.getElementById('topbar-title').textContent = pages[id] || id;
-    // For demo, only overview is built
     document.getElementById('sidebar').classList.remove('open');
+    // Show/hide pages
+    const overview  = document.getElementById('page-overview');
+    const settingsP = document.getElementById('page-settings');
+    if (overview)  overview.style.display  = id === 'overview'  ? '' : 'none';
+    if (settingsP) settingsP.style.display = id === 'settings'  ? '' : 'none';
+    if (id === 'settings' && window._populateSettings) window._populateSettings();
   }
 
   // ── Modals ────────────────────────────────────────────────
@@ -1064,16 +1153,33 @@
     if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
   });
 
-  // ── Chart bars ────────────────────────────────────────────
-  const chartData = [40,55,38,62,48,70,52,80,65,90,72,85,60,95,78,88,64,76,82,92,68,74,86,98,70,84,90,76,88,94,82,96,72,86,78,92,88,96,84,100,78,92,86,96,82,90,94,88,96,92,86,94,90,98,84,88,96,92,88,94];
-  const chartArea = document.getElementById('chart-area');
-  const maxV = Math.max(...chartData);
-  chartData.forEach((v, i) => {
-    const bar = document.createElement('div');
-    bar.className = 'chart-bar ' + (v > chartData[i-1] || i === 0 ? 'up' : 'down');
-    bar.style.height = (v / maxV * 100) + '%';
-    chartArea.appendChild(bar);
-  });
+  // ── Chart bars (populated from real data by Supabase block) ──
+  window._buildChart = function(txns, currentBalance) {
+    const chartArea = document.getElementById('chart-area');
+    if (!chartArea) return;
+    // Build cumulative balance from oldest to newest transaction
+    const sorted = [...(txns||[])].reverse();
+    let running = currentBalance;
+    const points = [];
+    // Walk transactions backwards to get historical balance points
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      const t = sorted[i];
+      const amt = parseFloat(t.amount || 0);
+      if (['deposit','bonus','adjustment'].includes(t.type)) running -= amt;
+      else if (t.type === 'withdrawal') running += amt;
+      points.unshift(Math.max(0, running));
+    }
+    points.push(currentBalance);
+    if (points.length < 2) { points.unshift(0); }
+    const maxV = Math.max(...points, 1);
+    chartArea.innerHTML = '';
+    points.forEach((v, i) => {
+      const bar = document.createElement('div');
+      bar.className = 'chart-bar ' + (v >= (points[i-1]??v) ? 'up' : 'down');
+      bar.style.height = Math.max(4, v / maxV * 100) + '%';
+      chartArea.appendChild(bar);
+    });
+  };
 
   // ── Chart tab switcher ────────────────────────────────────
   document.querySelectorAll('.chart-tab').forEach(tab => {
@@ -1092,24 +1198,18 @@
   const db = window.XANTEX_DB;
   if (!db) return;
 
-  // ── Auth guard ──────────────────────────────────────────
   const { data: { session } } = await db.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
-
   const userId = session.user.id;
 
-  function fmt(n) {
-    return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
+  function fmt(n) { return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function timeSince(ts) {
     const s = Math.floor((Date.now() - new Date(ts)) / 1000);
-    if (s < 60)    return s + 's ago';
-    if (s < 3600)  return Math.floor(s / 60) + 'm ago';
-    if (s < 86400) return Math.floor(s / 3600) + 'h ago';
-    return Math.floor(s / 86400) + 'd ago';
+    if (s < 60) return s + 's ago'; if (s < 3600) return Math.floor(s/60)+'m ago';
+    if (s < 86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
   }
 
-  // ── Load everything in parallel ──────────────────────────
+  // ── Load all data ─────────────────────────────────────────
   const [
     { data: profile },
     { data: accounts },
@@ -1117,107 +1217,148 @@
     { data: txns },
     { data: depReqs },
     { data: wdReqs },
+    { data: cryptoCfg },
   ] = await Promise.all([
-    db.from('profiles').select('first_name, last_name, email, kyc_status').eq('id', userId).single(),
+    db.from('profiles').select('first_name, last_name, email, kyc_status, country, phone, avatar_url').eq('id', userId).single(),
     db.from('trading_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
     db.from('positions').select('*').eq('user_id', userId).eq('status', 'open').order('opened_at', { ascending: false }),
-    db.from('transactions').select('type, amount, status, created_at, description').eq('user_id', userId).order('created_at', { ascending: false }).limit(6),
-    db.from('deposit_requests').select('id').eq('user_id', userId).in('status', ['pending','processing']),
-    db.from('withdrawal_requests').select('id').eq('user_id', userId).in('status', ['pending','processing']),
+    db.from('transactions').select('type, amount, status, created_at, description').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
+    db.from('deposit_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false }),
+    db.from('withdrawal_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false }),
+    db.from('platform_settings').select('key,value').like('key','crypto_address_%').catch(()=>({ data: [] })),
   ]);
 
-  // ── Profile ─────────────────────────────────────────────
-  if (profile) {
-    const fn    = profile.first_name || '';
-    const ln    = profile.last_name  || '';
-    const name  = (fn + ' ' + ln).trim() || session.user.email;
-    const init  = ((fn[0] || '') + (ln[0] || '')).toUpperCase() || '?';
-    const hour  = new Date().getHours();
+  // ── Build crypto address map ──────────────────────────────
+  const CRYPTO_ADDRS = {};
+  (cryptoCfg||[]).forEach(r => { CRYPTO_ADDRS[r.key.replace('crypto_address_','')] = r.value; });
+  // Also check localStorage as fallback
+  ['ETH','USDT','USDC','WBTC','BNB','LINK','UNI','DAI','SHIB','AAVE'].forEach(c => {
+    if (!CRYPTO_ADDRS[c]) CRYPTO_ADDRS[c] = localStorage.getItem('xantex_addr_'+c) || '';
+  });
+
+  // ── Profile ───────────────────────────────────────────────
+  let _profile = profile || {};
+  if (_profile) {
+    const fn   = _profile.first_name || '';
+    const ln   = _profile.last_name  || '';
+    const name = (fn+' '+ln).trim() || session.user.email;
+    const init = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
+    const hour = new Date().getHours();
     const greet = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
     document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
-    document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => el.textContent = init);
-    const titleEl = document.querySelector('.page-header__title');
-    if (titleEl) titleEl.textContent = `Good ${greet}, ${fn || 'Trader'} 👋`;
+    const titleEl = document.querySelector('#page-overview .page-header__title');
+    if (titleEl) titleEl.textContent = `Good ${greet}, ${fn||'Trader'} 👋`;
+
+    // Avatar — photo if uploaded, otherwise initials
+    function applyAvatar(avatarUrl, initials) {
+      document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => {
+        if (avatarUrl) {
+          el.style.backgroundImage = `url(${avatarUrl})`;
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+          el.textContent = '';
+        } else {
+          el.style.backgroundImage = '';
+          el.textContent = initials;
+        }
+      });
+      // Settings page avatar
+      const sInit = document.getElementById('settings-avatar-init');
+      const sImg  = document.getElementById('settings-avatar-img');
+      if (sInit) sInit.textContent = initials;
+      if (avatarUrl && sImg) { sImg.src = avatarUrl; sImg.style.display = 'block'; if(sInit) sInit.style.display='none'; }
+    }
+    applyAvatar(_profile.avatar_url, init);
+    window._currentInit = init;
+    window._applyAvatar = applyAvatar;
+
+    // Populate settings page fields
+    window._populateSettings = function() {
+      const set = (id, v) => { const el = document.getElementById(id); if(el) el.value = v||''; };
+      set('prof-fname',   _profile.first_name);
+      set('prof-lname',   _profile.last_name);
+      set('prof-email',   _profile.email || session.user.email);
+      set('prof-country', _profile.country);
+      set('prof-phone',   _profile.phone);
+      set('prof-kyc',     _profile.kyc_status || 'pending');
+      if (_profile.avatar_url) {
+        const sImg = document.getElementById('settings-avatar-img');
+        const sInit = document.getElementById('settings-avatar-init');
+        if (sImg)  { sImg.src = _profile.avatar_url; sImg.style.display = 'block'; }
+        if (sInit) sInit.style.display = 'none';
+      } else {
+        const sInit = document.getElementById('settings-avatar-init');
+        if (sInit) sInit.textContent = init;
+      }
+    };
   }
 
   // ── Accounts ─────────────────────────────────────────────
+  const totalBalance = (accounts||[]).reduce((s,a) => s + (parseFloat(a.balance)||0), 0);
   if (accounts && accounts.length) {
-    const totalBalance  = accounts.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
-    const totalFree     = accounts.reduce((s, a) => s + (parseFloat(a.free_margin) || parseFloat(a.balance) || 0), 0);
-    const liveAccounts  = accounts.filter(a => a.type === 'live');
+    const totalFree   = accounts.reduce((s,a) => s + (parseFloat(a.free_margin)||parseFloat(a.balance)||0), 0);
+    const liveAccts   = accounts.filter(a => a.type === 'live');
+    const set = (id, v, style) => { const el = document.getElementById(id); if(el){el.textContent=v; if(style) Object.assign(el.style, style);} };
+    set('card-balance', fmt(totalBalance));
+    set('card-balance-sub', `${accounts.length} account${accounts.length!==1?'s':''}`, {color:''});
+    set('card-margin',  fmt(totalFree));
+    set('card-margin-sub', `${liveAccts.length} live account${liveAccts.length!==1?'s':''}`);
 
-    const $bal = document.getElementById('card-balance');
-    if ($bal) { $bal.textContent = fmt(totalBalance); $bal.style.color = ''; }
-    const $balSub = document.getElementById('card-balance-sub');
-    if ($balSub) { $balSub.textContent = `${accounts.length} account${accounts.length !== 1 ? 's' : ''}`; $balSub.style.color = ''; }
-
-    const $margin = document.getElementById('card-margin');
-    if ($margin) $margin.textContent = fmt(totalFree);
-    const $marginSub = document.getElementById('card-margin-sub');
-    if ($marginSub) $marginSub.textContent = `Across ${liveAccounts.length} live account${liveAccounts.length !== 1 ? 's' : ''}`;
-
-    // Account list
     const accountList = document.querySelector('.account-list');
     if (accountList) {
-      const platformMap = { MT4: 'account-icon--mt4', MT5: 'account-icon--mt5', cTrader: 'account-icon--ct', TradingView: 'account-icon--tv' };
+      const platformMap = {MT4:'account-icon--mt4',MT5:'account-icon--mt5',cTrader:'account-icon--ct',TradingView:'account-icon--tv'};
       accountList.innerHTML = accounts.map(a => {
         const cls  = platformMap[a.platform] || 'account-icon--mt4';
-        const bal  = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+        const bal  = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2});
+        const pnl  = parseFloat(a.equity||a.balance||0) - parseFloat(a.balance||0);
         const live = a.type === 'live';
         return `<div class="account-row">
-          <div class="account-icon ${cls}">${(a.platform || 'MT').slice(0,2).toUpperCase()}</div>
+          <div class="account-icon ${cls}">${(a.platform||'MT').slice(0,2).toUpperCase()}</div>
           <div class="account-col">
-            <div class="account-col__id">#${a.account_number || a.id.slice(0,8)}</div>
-            <div class="account-col__type">${a.platform || '—'} · ${a.account_type || '—'} · ${a.currency || 'USD'}</div>
+            <div class="account-col__id">#${a.account_number||a.id.slice(0,8)}</div>
+            <div class="account-col__type">${a.platform||'—'} · ${a.account_type||'—'} · ${a.currency||'USD'}</div>
           </div>
-          <span class="account-status ${live ? 'account-status--live' : 'account-status--demo'}">${live ? 'Live' : 'Demo'}</span>
-          <div class="account-balance"><div class="account-balance__val">$${bal}</div></div>
+          <span class="account-status ${live?'account-status--live':'account-status--demo'}">${live?'Live':'Demo'}</span>
+          <div class="account-balance">
+            <div class="account-balance__val">$${bal}</div>
+            <div class="account-balance__pnl ${pnl>=0?'up':'down'}" style="color:${pnl>=0?'var(--green)':'var(--red)'};">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)} P&L</div>
+          </div>
         </div>`;
-      }).join('') || '<div style="padding:16px;color:var(--muted);text-align:center;font-size:13px;">No accounts yet</div>';
+      }).join('') || '<div style="padding:16px;color:var(--muted);text-align:center;">No accounts yet</div>';
     }
 
-    // Modal account selects
-    const opts = accounts.filter(a => a.type === 'live')
-      .map(a => `<option value="${a.id}">#${a.account_number || a.id.slice(0,8)} — ${a.platform} ${a.account_type} ${fmt(a.balance)}</option>`)
-      .join('');
-    document.querySelectorAll('#modal-deposit select:first-of-type, #modal-withdraw select:first-of-type').forEach(sel => {
-      if (opts) sel.innerHTML = opts;
-    });
+    // Populate account selects in deposit / withdraw modals
+    const opts = accounts.map(a => `<option value="${a.id}">#${a.account_number||a.id.slice(0,8)} — ${a.platform} ${a.account_type} ${fmt(a.balance)}</option>`).join('');
+    const depAcct = document.getElementById('dep-account');
+    const wdAcct  = document.getElementById('wd-account');
+    if (depAcct && opts) depAcct.innerHTML = opts;
+    if (wdAcct  && opts) wdAcct.innerHTML  = opts;
+    // Bank ref = first account number
+    const refEl = document.getElementById('dep-bank-ref');
+    if (refEl && accounts[0]) refEl.textContent = '#' + (accounts[0].account_number || accounts[0].id.slice(0,8));
   } else {
-    ['card-balance','card-margin'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.textContent = '$0.00';
-    });
-    ['card-balance-sub','card-margin-sub'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.textContent = 'No accounts';
-    });
+    ['card-balance','card-margin'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='$0.00'; });
+    ['card-balance-sub','card-margin-sub'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='No accounts'; });
   }
 
-  // ── Positions ────────────────────────────────────────────
+  // ── Positions & Open P&L ─────────────────────────────────
   const tbody = document.getElementById('positions-tbody');
   if (positions && positions.length) {
-    const totalPnl = positions.reduce((s, p) => s + (parseFloat(p.floating_pnl) || 0), 0);
+    const totalPnl = positions.reduce((s,p) => s + (parseFloat(p.floating_pnl)||0), 0);
     const $pnl = document.getElementById('card-pnl');
-    if ($pnl) {
-      $pnl.textContent = (totalPnl >= 0 ? '+' : '') + fmt(totalPnl);
-      $pnl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
-    }
+    if ($pnl) { $pnl.textContent = (totalPnl>=0?'+':'')+fmt(totalPnl); $pnl.style.color = totalPnl>=0?'var(--green)':'var(--red)'; }
     const $pnlSub = document.getElementById('card-pnl-sub');
-    if ($pnlSub) $pnlSub.textContent = `${positions.length} open position${positions.length !== 1 ? 's' : ''}`;
-
+    if ($pnlSub) $pnlSub.textContent = `${positions.length} open position${positions.length!==1?'s':''}`;
     if (tbody) {
-      const emptyRow = document.getElementById('positions-empty-row');
-      if (emptyRow) emptyRow.remove();
+      document.getElementById('positions-empty-row')?.remove();
       tbody.innerHTML = positions.map(p => {
-        const isBuy = p.direction === 'buy';
-        const pnl   = parseFloat(p.floating_pnl || 0);
-        const pnlTxt = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
+        const isBuy = p.direction==='buy';
+        const pnl   = parseFloat(p.floating_pnl||0);
         return `<tr>
           <td class="pos-symbol">${p.symbol}</td>
-          <td><span class="pos-type ${isBuy ? 'pos-type--buy' : 'pos-type--sell'}">${isBuy ? 'Buy' : 'Sell'}</span></td>
-          <td>${p.lots}</td>
-          <td>${p.open_price}</td>
-          <td>${p.current_price || p.open_price}</td>
-          <td class="pos-pnl ${pnl >= 0 ? 'up' : 'down'}">${pnlTxt}</td>
+          <td><span class="pos-type ${isBuy?'pos-type--buy':'pos-type--sell'}">${isBuy?'Buy':'Sell'}</span></td>
+          <td>${p.lots}</td><td>${p.open_price}</td><td>${p.current_price||p.open_price}</td>
+          <td class="pos-pnl ${pnl>=0?'up':'down'}" style="color:${pnl>=0?'var(--green)':'var(--red)'};">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)}</td>
           <td><button class="pos-close" onclick="closePosition('${p.id}')">Close</button></td>
         </tr>`;
       }).join('');
@@ -1225,102 +1366,178 @@
   } else {
     const $pnl = document.getElementById('card-pnl');
     if ($pnl) { $pnl.textContent = '$0.00'; $pnl.style.color = 'var(--muted)'; }
-    const $pnlSub = document.getElementById('card-pnl-sub');
-    if ($pnlSub) $pnlSub.textContent = 'No open positions';
+    document.getElementById('card-pnl-sub') && (document.getElementById('card-pnl-sub').textContent = 'No open positions');
   }
 
-  // ── Deposit/Withdrawal requests ──────────────────────────
-  const pendingDep = (depReqs || []).length;
-  const pendingWd  = (wdReqs  || []).length;
+  // ── Deposit / Withdrawal counts ───────────────────────────
+  const pendingDep = (depReqs ||[]).filter(r=>['pending','processing'].includes(r.status)).length;
+  const pendingWd  = (wdReqs  ||[]).filter(r=>['pending','processing'].includes(r.status)).length;
   const $txn    = document.getElementById('card-txn');
   const $txnSub = document.getElementById('card-txn-sub');
-  if ($txn)    $txn.textContent    = pendingDep + pendingWd;
-  if ($txnSub) $txnSub.textContent = `${pendingDep} deposit${pendingDep !== 1 ? 's' : ''}, ${pendingWd} withdrawal${pendingWd !== 1 ? 's' : ''} pending`;
+  if ($txn)    $txn.textContent    = (depReqs||[]).length + (wdReqs||[]).length;
+  if ($txnSub) $txnSub.textContent = `${pendingDep} deposit${pendingDep!==1?'s':''}, ${pendingWd} withdrawal${pendingWd!==1?'s':''} pending`;
 
-  // ── Activity feed ────────────────────────────────────────
-  if (txns && txns.length) {
-    const dotColor = { deposit: 'green', withdrawal: 'orange', trade: 'blue', bonus: 'blue', fee: 'red', trade_pnl: 'green' };
-    const activityList = document.querySelector('.activity-list');
-    if (activityList) {
-      activityList.innerHTML = txns.map(t => {
-        const color = dotColor[t.type] || 'blue';
-        const amt   = parseFloat(t.amount || 0);
-        const ago   = timeSince(t.created_at);
-        const desc  = t.description || `${t.type.replace('_',' ')} of <strong>${fmt(amt)}</strong>`;
-        return `<div class="activity-row">
-          <div class="activity-dot activity-dot--${color}"></div>
-          <div class="activity-text">${desc}</div>
-          <div class="activity-time">${ago}</div>
-        </div>`;
-      }).join('');
-    }
-  } else {
-    const activityList = document.querySelector('.activity-list');
-    if (activityList) activityList.innerHTML = '<div class="activity-row"><div class="activity-text" style="color:var(--muted);">No recent activity</div></div>';
+  // ── Activity feed (real transactions) ─────────────────────
+  const activityList = document.querySelector('.activity-list');
+  if (txns && txns.length && activityList) {
+    const dotColor = {deposit:'green',withdrawal:'orange',adjustment:'blue',bonus:'blue',fee:'red',trade_pnl:'green',transfer:'blue'};
+    activityList.innerHTML = txns.slice(0,8).map(t => {
+      const color = dotColor[t.type]||'blue';
+      const amt   = parseFloat(t.amount||0);
+      const ago   = timeSince(t.created_at);
+      const desc  = t.description || `${(t.type||'').replace(/_/g,' ')} — <strong>${fmt(amt)}</strong>`;
+      return `<div class="activity-row"><div class="activity-dot activity-dot--${color}"></div><div class="activity-text">${desc}</div><div class="activity-time">${ago}</div></div>`;
+    }).join('');
+  } else if (activityList) {
+    activityList.innerHTML = '<div class="activity-row"><div class="activity-text" style="color:var(--muted);">No recent activity</div></div>';
   }
 
-  // ── Sign out ─────────────────────────────────────────────
+  // ── Portfolio chart from real data ────────────────────────
+  if (window._buildChart) window._buildChart(txns, totalBalance);
+
+  // ── Sign out ──────────────────────────────────────────────
   document.querySelectorAll('.sidebar__logout').forEach(btn => {
     btn.onclick = async () => { await db.auth.signOut(); window.location.href = 'login.html'; };
   });
 
-  // ── Close position ───────────────────────────────────────
+  // ── Close position ────────────────────────────────────────
   window.closePosition = async (id) => {
     if (!confirm('Close this position?')) return;
-    const { error } = await db.from('positions').update({ status: 'closed' }).eq('id', id);
-    if (!error) location.reload();
+    await db.from('positions').update({ status:'closed', closed_at: new Date().toISOString() }).eq('id', id);
+    location.reload();
   };
 
-  // ── Deposit modal submit ─────────────────────────────────
-  const depBtn = document.querySelector('#modal-deposit .modal__foot .btn--primary');
-  if (depBtn) {
-    depBtn.onclick = async () => {
-      const accountSel = document.querySelector('#modal-deposit select');
-      const amtInput   = document.querySelector('#modal-deposit input[type=number]');
-      const methodSel  = document.querySelectorAll('#modal-deposit select')[1];
-      const amount = parseFloat(amtInput?.value);
-      if (!amount || amount < 10) { alert('Enter a valid amount'); return; }
-      depBtn.disabled = true; depBtn.textContent = 'Submitting…';
-      await db.from('deposit_requests').insert({
-        user_id: userId,
-        account_id: accountSel?.value || null,
-        amount,
-        payment_method: methodSel?.value || 'Bank Transfer',
-        status: 'pending',
-      });
-      depBtn.disabled = false; depBtn.textContent = 'Continue to Payment';
-      closeModal('deposit');
-      alert('Deposit request submitted. Our team will process it shortly.');
-      location.reload();
-    };
-  }
+  // ── Deposit method toggle ─────────────────────────────────
+  let _depMethod = 'bank';
+  window.depSelectMethod = function(m) {
+    _depMethod = m;
+    const bankBtn   = document.getElementById('dep-btn-bank');
+    const cryptoBtn = document.getElementById('dep-btn-crypto');
+    const bankInfo  = document.getElementById('dep-bank-info');
+    const cryptoInfo= document.getElementById('dep-crypto-info');
+    if (m === 'bank') {
+      bankBtn.style.cssText   = 'padding:10px;border-radius:8px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;cursor:pointer;font-size:13px;';
+      cryptoBtn.style.cssText = 'padding:10px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;cursor:pointer;font-size:13px;';
+      bankInfo.style.display  = '';
+      cryptoInfo.style.display= 'none';
+    } else {
+      cryptoBtn.style.cssText = 'padding:10px;border-radius:8px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;cursor:pointer;font-size:13px;';
+      bankBtn.style.cssText   = 'padding:10px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;cursor:pointer;font-size:13px;';
+      bankInfo.style.display  = 'none';
+      cryptoInfo.style.display= '';
+    }
+  };
 
-  // ── Withdrawal modal submit ──────────────────────────────
-  const wdBtn = document.querySelector('#modal-withdraw .modal__foot .btn--red');
-  if (wdBtn) {
-    wdBtn.onclick = async () => {
-      const accountSel = document.querySelector('#modal-withdraw select');
-      const amtInput   = document.querySelector('#modal-withdraw input[type=number]');
-      const destSel    = document.querySelectorAll('#modal-withdraw select')[1];
-      const amount = parseFloat(amtInput?.value);
-      if (!amount || amount < 10) { alert('Enter a valid amount'); return; }
-      const acct = accounts?.find(a => a.id === accountSel?.value);
-      if (acct && parseFloat(acct.balance) < amount) { alert('Insufficient balance'); return; }
-      wdBtn.disabled = true; wdBtn.textContent = 'Submitting…';
-      await db.from('withdrawal_requests').insert({
-        user_id: userId,
-        account_id: accountSel?.value || null,
-        amount,
-        destination_type: 'Bank Transfer',
-        destination_name: destSel?.value || '',
-        status: 'pending',
-      });
-      wdBtn.disabled = false; wdBtn.textContent = 'Request Withdrawal';
-      closeModal('withdraw');
-      alert('Withdrawal request submitted. It will be processed within 24 hours.');
-      location.reload();
-    };
-  }
+  window.depUpdateCryptoAddress = function() {
+    const coin    = document.getElementById('dep-crypto-coin')?.value;
+    const addrBox = document.getElementById('dep-crypto-addr-box');
+    const addrTxt = document.getElementById('dep-addr-text');
+    const qrImg   = document.getElementById('dep-qr-img');
+    const warning = document.getElementById('dep-coin-warning');
+    if (!coin || !addrBox) return;
+    const addr = CRYPTO_ADDRS[coin] || '';
+    if (!addr) {
+      addrBox.style.display = 'none';
+      alert('Deposit address for '+coin+' not yet configured. Please contact support.');
+      return;
+    }
+    addrTxt.textContent = addr;
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(addr)}`;
+    warning.textContent = `⚠ Only send ${coin} on the ERC20 / Ethereum network. Sending on wrong network will result in permanent loss.`;
+    addrBox.style.display = '';
+  };
+
+  window.depCopyAddress = function() {
+    const addr = document.getElementById('dep-addr-text')?.textContent;
+    if (addr) navigator.clipboard.writeText(addr).then(() => alert('Address copied!'));
+  };
+
+  // ── Deposit submit ────────────────────────────────────────
+  document.getElementById('dep-submit-btn')?.addEventListener('click', async () => {
+    const accountId = document.getElementById('dep-account')?.value;
+    const amount    = parseFloat(document.getElementById('dep-amount')?.value);
+    if (!amount || amount < 10) { alert('Enter a valid amount (minimum $10)'); return; }
+    const method = _depMethod === 'crypto'
+      ? 'Crypto — ' + (document.getElementById('dep-crypto-coin')?.value || 'Unknown')
+      : 'Bank Transfer';
+    const btn = document.getElementById('dep-submit-btn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    const { error } = await db.from('deposit_requests').insert({ user_id: userId, account_id: accountId||null, amount, payment_method: method, status: 'pending' });
+    btn.disabled = false; btn.textContent = 'Submit Request';
+    if (error) { alert('Error: '+error.message); return; }
+    closeModal('deposit');
+    alert('Deposit request submitted successfully. Our team will verify and credit your account.');
+    location.reload();
+  });
+
+  // ── Withdrawal method toggle ──────────────────────────────
+  let _wdMethod = 'bank';
+  window.wdSelectMethod = function(m) {
+    _wdMethod = m;
+    const bankBtn   = document.getElementById('wd-btn-bank');
+    const cryptoBtn = document.getElementById('wd-btn-crypto');
+    const bankInfo  = document.getElementById('wd-bank-info');
+    const cryptoInfo= document.getElementById('wd-crypto-info');
+    if (m === 'bank') {
+      bankBtn.style.cssText   = 'padding:10px;border-radius:8px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;cursor:pointer;font-size:13px;';
+      cryptoBtn.style.cssText = 'padding:10px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;cursor:pointer;font-size:13px;';
+      bankInfo.style.display  = ''; cryptoInfo.style.display = 'none';
+    } else {
+      cryptoBtn.style.cssText = 'padding:10px;border-radius:8px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;cursor:pointer;font-size:13px;';
+      bankBtn.style.cssText   = 'padding:10px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;cursor:pointer;font-size:13px;';
+      bankInfo.style.display  = 'none'; cryptoInfo.style.display = '';
+    }
+  };
+
+  // ── Withdrawal submit ─────────────────────────────────────
+  document.getElementById('wd-submit-btn')?.addEventListener('click', async () => {
+    const accountId = document.getElementById('wd-account')?.value;
+    const amount    = parseFloat(document.getElementById('wd-amount')?.value);
+    if (!amount || amount < 10) { alert('Enter a valid amount (minimum $10)'); return; }
+    const acct = (accounts||[]).find(a => a.id === accountId);
+    if (acct && parseFloat(acct.balance) < amount) { alert('Insufficient account balance'); return; }
+    let destType = 'Bank Transfer', destName = '', destRef = '';
+    if (_wdMethod === 'bank') {
+      destType = 'Bank Transfer';
+      destName = document.getElementById('wd-acct-name')?.value || '';
+      destRef  = [document.getElementById('wd-bank-name')?.value, document.getElementById('wd-acct-num')?.value].filter(Boolean).join(' | ');
+    } else {
+      destType = 'Crypto';
+      destName = document.getElementById('wd-crypto-coin')?.value || '';
+      destRef  = document.getElementById('wd-wallet-addr')?.value || '';
+      if (!destRef) { alert('Please enter your wallet address'); return; }
+    }
+    const btn = document.getElementById('wd-submit-btn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    const { error } = await db.from('withdrawal_requests').insert({ user_id: userId, account_id: accountId||null, amount, destination_type: destType, destination_name: destName, destination_ref: destRef, status: 'pending' });
+    btn.disabled = false; btn.textContent = 'Request Withdrawal';
+    if (error) { alert('Error: '+error.message); return; }
+    closeModal('withdraw');
+    alert('Withdrawal request submitted. It will be processed within 24 hours.');
+    location.reload();
+  });
+
+  // ── Avatar upload ─────────────────────────────────────────
+  window.uploadAvatar = async function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB'); return; }
+    const statusEl = document.getElementById('avatar-upload-status');
+    if (statusEl) statusEl.textContent = 'Uploading…';
+    const ext  = file.name.split('.').pop();
+    const path = `${userId}/avatar.${ext}`;
+    const { error: upErr } = await db.storage.from('avatars').upload(path, file, { upsert: true });
+    if (upErr) { if(statusEl) statusEl.textContent = 'Upload failed: '+upErr.message; return; }
+    const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(path);
+    await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId);
+    if (window._applyAvatar) window._applyAvatar(publicUrl, window._currentInit || '?');
+    if (statusEl) statusEl.textContent = 'Photo updated ✓';
+    // Update settings page
+    const sImg  = document.getElementById('settings-avatar-img');
+    const sInit = document.getElementById('settings-avatar-init');
+    if (sImg)  { sImg.src = publicUrl; sImg.style.display = 'block'; }
+    if (sInit) sInit.style.display = 'none';
+  };
 })();
 
 // ── Market Watch — updated by prices.js live data ────────────

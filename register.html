@@ -849,8 +849,9 @@
         avatar_url: selfieUrl,
       });
 
-      await db.from('kyc_documents').upsert({
+      await db.from('kyc_submissions').upsert({
         user_id:          userId,
+        document_type:    document.getElementById('id-type')?.value || 'National ID',
         front_url:        frontUrl,
         proof_address_url: proofUrl,
         selfie_url:       selfieUrl,

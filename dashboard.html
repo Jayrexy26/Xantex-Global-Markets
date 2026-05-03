@@ -705,7 +705,7 @@
               Total Balance
             </div>
             <div class="summary-card__value" id="card-balance">—</div>
-            <div class="summary-card__change" id="card-balance-sub" style="color:var(--muted);">Loading…</div>
+            <div class="summary-card__change" id="card-balance-sub" style="color:var(--muted);">—</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
@@ -713,7 +713,7 @@
               Open P&L
             </div>
             <div class="summary-card__value" id="card-pnl" style="color:var(--muted);">—</div>
-            <div class="summary-card__change" id="card-pnl-sub" style="color:var(--muted);">Loading…</div>
+            <div class="summary-card__change" id="card-pnl-sub" style="color:var(--muted);">—</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
@@ -721,7 +721,7 @@
               Free Margin
             </div>
             <div class="summary-card__value" id="card-margin">—</div>
-            <div class="summary-card__change" id="card-margin-sub" style="color:var(--muted);">Loading…</div>
+            <div class="summary-card__change" id="card-margin-sub" style="color:var(--muted);">—</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
@@ -729,7 +729,7 @@
               Deposits / Withdrawals
             </div>
             <div class="summary-card__value" id="card-txn">—</div>
-            <div class="summary-card__change" id="card-txn-sub" style="color:var(--muted);">Loading…</div>
+            <div class="summary-card__change" id="card-txn-sub" style="color:var(--muted);">—</div>
           </div>
         </div>
 
@@ -1202,9 +1202,14 @@ async function signOut() {
 
 (async () => {
   const db = window.XANTEX_DB;
-  if (!db) return;
+  if (!db) { console.error('Supabase client not loaded'); return; }
 
-  const { data: { session } } = await db.auth.getSession();
+  // ── Session check ─────────────────────────────────────────
+  let session;
+  try {
+    const { data, error } = await db.auth.getSession();
+    session = data?.session;
+  } catch (e) { console.error('getSession error:', e); }
   if (!session) { window.location.href = 'login.html'; return; }
   const userId = session.user.id;
 
@@ -1214,8 +1219,9 @@ async function signOut() {
     if (s < 60) return s + 's ago'; if (s < 3600) return Math.floor(s/60)+'m ago';
     if (s < 86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
   }
+  function safeQ(promise) { return promise.then(r => r).catch(() => ({ data: null })); }
 
-  // ── Load all data ─────────────────────────────────────────
+  // ── Load all data (each query is individually fault-tolerant) ─
   const [
     { data: profile },
     { data: accounts },
@@ -1225,19 +1231,20 @@ async function signOut() {
     { data: wdReqs },
     { data: cryptoCfg },
   ] = await Promise.all([
-    db.from('profiles').select('first_name, last_name, email, kyc_status, country, phone, avatar_url').eq('id', userId).single(),
-    db.from('trading_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
-    db.from('positions').select('*').eq('user_id', userId).eq('status', 'open').order('opened_at', { ascending: false }),
-    db.from('transactions').select('type, amount, status, created_at, description').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
-    db.from('deposit_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false }),
-    db.from('withdrawal_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false }),
-    db.from('platform_settings').select('key,value').like('key','crypto_%').catch(()=>({ data: [] })),
+    safeQ(db.from('profiles').select('*').eq('id', userId).maybeSingle()),
+    safeQ(db.from('trading_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: false })),
+    safeQ(db.from('positions').select('*').eq('user_id', userId).eq('status', 'open').order('opened_at', { ascending: false })),
+    safeQ(db.from('transactions').select('type, amount, status, created_at, description').eq('user_id', userId).order('created_at', { ascending: false }).limit(20)),
+    safeQ(db.from('deposit_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false })),
+    safeQ(db.from('withdrawal_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false })),
+    safeQ(db.from('platform_settings').select('key,value').like('key','crypto_%')),
   ]);
 
   // ── Build crypto address map ──────────────────────────────
   const CRYPTO_ADDRS = {};
-  (cryptoCfg||[]).forEach(r => { CRYPTO_ADDRS[r.key.replace('crypto_','')] = r.value; });
-  // Also check localStorage as fallback
+  try {
+    (cryptoCfg||[]).forEach(r => { if(r&&r.key) CRYPTO_ADDRS[r.key.replace('crypto_','')] = r.value||''; });
+  } catch(e) {}
   ['ETH','USDT','USDC','WBTC','BNB','LINK','UNI','DAI','SHIB','AAVE'].forEach(c => {
     if (!CRYPTO_ADDRS[c]) CRYPTO_ADDRS[c] = localStorage.getItem('xantex_addr_'+c) || '';
   });
@@ -1544,7 +1551,18 @@ async function signOut() {
     if (sImg)  { sImg.src = publicUrl; sImg.style.display = 'block'; }
     if (sInit) sInit.style.display = 'none';
   };
-})();
+})().catch(err => {
+  console.error('Dashboard load error:', err);
+  // Ensure cards show empty state rather than "Loading..."
+  ['card-balance','card-margin','card-pnl','card-txn'].forEach(id => {
+    const el = document.getElementById(id); if (el && el.textContent === '—') el.textContent = '$0.00';
+  });
+  ['card-balance-sub','card-margin-sub','card-pnl-sub','card-txn-sub'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = 'Could not load data — try refreshing';
+  });
+  const titleEl = document.querySelector('#page-overview .page-header__title');
+  if (titleEl && titleEl.textContent === 'Welcome back 👋') titleEl.textContent = 'Welcome back 👋';
+});
 
 // ── Market Watch — updated by prices.js live data ────────────
 (function () {

@@ -1234,15 +1234,26 @@
   try {
     const { data: { session } } = await window.XANTEX_DB.auth.getSession();
     if (!session) return;
-    const { data: profile } = await window.XANTEX_DB.from('profiles').select('first_name,last_name').eq('id', session.user.id).single();
-    const fn = profile?.first_name || '';
-    const ln = profile?.last_name  || '';
+    const { data: profile } = await window.XANTEX_DB.from('profiles').select('first_name,last_name,avatar_url').eq('id', session.user.id).single();
+    const fn  = profile?.first_name || '';
+    const ln  = profile?.last_name  || '';
     const name = (fn + ' ' + ln).trim() || session.user.email;
     const init = ((fn[0]||'') + (ln[0]||'')).toUpperCase() || '?';
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('markets-sidebar-name',   name);
-    set('markets-sidebar-avatar', init);
-    set('markets-topbar-avatar',  init);
+    const nameEl = document.getElementById('markets-sidebar-name');
+    if (nameEl) nameEl.textContent = name;
+    ['markets-sidebar-avatar','markets-topbar-avatar'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (profile?.avatar_url) {
+        el.style.backgroundImage    = `url(${profile.avatar_url})`;
+        el.style.backgroundSize     = 'cover';
+        el.style.backgroundPosition = 'center';
+        el.textContent = '';
+      } else {
+        el.style.backgroundImage = '';
+        el.textContent = init;
+      }
+    });
   } catch(_) {}
 })();
 </script>

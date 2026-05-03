@@ -1961,14 +1961,11 @@ window.execDeleteUser = async function() {
   if (btn) { btn.disabled = true; btn.textContent = 'Deleting…'; }
 
   try {
-    // Delete in order: requests → accounts → profile
-    await db.from('deposit_requests').delete().eq('user_id', _delUserId);
-    await db.from('withdrawal_requests').delete().eq('user_id', _delUserId);
-    await db.from('transactions').delete().eq('user_id', _delUserId);
-    await db.from('positions').delete().eq('user_id', _delUserId);
-    await db.from('kyc_submissions').delete().eq('user_id', _delUserId);
-    await db.from('trading_accounts').delete().eq('user_id', _delUserId);
-    const { error } = await db.from('profiles').delete().eq('id', _delUserId);
+    // Delete related records then user row
+    await db.from('deposits').delete().eq('user_email', _delUserEmail);
+    await db.from('withdrawals').delete().eq('user_email', _delUserEmail);
+    await db.from('user_notices').delete().eq('user_id', _delUserId);
+    const { error } = await db.from('users').delete().eq('id', _delUserId);
     if (error) throw error;
 
     // Ban the auth.users entry so dashboard forces sign-out even if auth record remains
@@ -2026,18 +2023,14 @@ window.viewKYCDocs = function(encoded) {
 };
 
 window.opsApproveKYC = async id => {
-  const { error } = await window.XANTEX_DB.from('kyc_submissions').update({ status:'verified' }).eq('id', id);
+  // id here is user id (KYC is derived from users in this schema)
+  const { error } = await window.XANTEX_DB.from('users').update({ notes: 'KYC: verified' }).eq('id', id);
   if (error) { showToast('Error: '+error.message,'error'); return; }
-  // Also update the profile kyc_status
-  const { data: sub } = await window.XANTEX_DB.from('kyc_submissions').select('user_id').eq('id', id).single();
-  if (sub) await window.XANTEX_DB.from('profiles').update({ kyc_status:'verified' }).eq('id', sub.user_id);
   showToast('KYC approved','success'); renderKYCLive();
 };
 window.opsRejectKYC = async id => {
-  const { error } = await window.XANTEX_DB.from('kyc_submissions').update({ status:'rejected' }).eq('id', id);
+  const { error } = await window.XANTEX_DB.from('users').update({ notes: 'KYC: rejected' }).eq('id', id);
   if (error) { showToast('Error: '+error.message,'error'); return; }
-  const { data: sub } = await window.XANTEX_DB.from('kyc_submissions').select('user_id').eq('id', id).single();
-  if (sub) await window.XANTEX_DB.from('profiles').update({ kyc_status:'rejected' }).eq('id', sub.user_id);
   showToast('KYC rejected','error'); renderKYCLive();
 };
 
@@ -2047,8 +2040,13 @@ window.opsRejectKYC = async id => {
 
 // Keep opsSuspendAccount for account management (direct DB, lower risk)
 window.opsSuspendAccount = async id => {
-  await window.XANTEX_DB.from('trading_accounts').update({ status:'suspended' }).eq('id', id);
-  showToast('Account suspended','error'); renderAccountsLive();
+  // users table has no status column — log the action and notify
+  await window.XANTEX_DB.from('admin_actions_log').insert({
+    action_type: 'suspend_account', target_user_email: id,
+    note: 'Account suspended via admin panel',
+    admin_identifier: AdminAPI.getAdminId() || 'admin',
+  });
+  showToast('Account suspension logged','error'); renderAccountsLive();
 };
 
 // Audit log is now managed in actions.js (UI-level, in-memory per session).
@@ -2116,33 +2114,24 @@ window.loadUserAccounts = async function() {
   if (noAccBox) noAccBox.style.display = 'none';
   if (balDisplay) balDisplay.textContent = '';
   if (!userId || !db) { accSel.innerHTML = '<option value="">— select user first —</option>'; return; }
-  const { data: accounts, error } = await db.from('trading_accounts')
-    .select('id, account_number, type, balance, equity, currency')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-  if (error) { accSel.innerHTML = '<option value="">— error: ' + error.message + ' —</option>'; return; }
-  if (!accounts || accounts.length === 0) {
-    accSel.innerHTML = '<option value="">— no accounts found —</option>';
-    if (noAccBox) noAccBox.style.display = 'block';
-    return;
-  }
-  accSel.innerHTML = '<option value="">— choose an account —</option>';
-  accounts.forEach(a => {
-    const opt = document.createElement('option');
-    opt.value = a.id;
-    const bal = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-    opt.textContent = `#${a.account_number || a.id.slice(0,8)} · ${a.type} · ${a.currency||'USD'} $${bal}`;
-    accSel.appendChild(opt);
-  });
-  // Auto-select first account and show its balance
-  if (accounts.length === 1) {
-    accSel.value = accounts[0].id;
-    showAccountBalance(accounts[0]);
-  }
-  accSel.onchange = function() {
-    const found = accounts.find(a => a.id === accSel.value);
-    if (found) showAccountBalance(found); else if(balDisplay) balDisplay.textContent = '';
-  };
+
+  // users table: id = account id, balance is the single account balance
+  const { data: user, error } = await db.from('users')
+    .select('id, email, full_name, balance')
+    .eq('id', userId)
+    .single();
+  if (error || !user) { accSel.innerHTML = '<option value="">— user not found —</option>'; return; }
+
+  const account = { id: user.id, balance: user.balance ?? 0, equity: user.balance ?? 0, currency: 'USD', type: 'live' };
+  accSel.innerHTML = '';
+  const opt = document.createElement('option');
+  opt.value = account.id;
+  const bal = parseFloat(account.balance).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  opt.textContent = `${user.full_name || user.email} · Live · USD $${bal}`;
+  accSel.appendChild(opt);
+  accSel.value = account.id;
+  showAccountBalance(account);
+  accSel.onchange = function() { showAccountBalance(account); };
 };
 
 function showAccountBalance(acc) {
@@ -2162,20 +2151,7 @@ function showAccountBalance(acc) {
 }
 
 window.createAccountForUser = async function() {
-  const db = window.XANTEX_DB;
-  const userId = document.getElementById('adj-user-select').value;
-  const accType = document.getElementById('adj-new-acc-type').value;
-  const initBal = parseFloat(document.getElementById('adj-new-acc-bal').value) || 0;
-  if (!userId || !db) return;
-  const { error } = await db.from('trading_accounts').insert({
-    user_id: userId, platform: 'MT5',
-    type: accType, account_type: 'Standard',
-    currency: 'USD', balance: initBal,
-    equity: initBal, leverage: '1:200',
-  });
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  showToast('Account created', 'success');
-  window.loadUserAccounts();
+  showToast('Accounts are tied to user records. Use Balance Adjustment to set the initial balance.', 'error');
 };
 
 // applyAdjustment is now in actions.js — calls admin_adjust_balance via admin-api.
@@ -2197,19 +2173,11 @@ window.saveUser = async function() {
   if (!db) { showToast('User created (offline mode)','success'); closeModal('modal-add-user'); return; }
 
   const userId = crypto.randomUUID();
-  await db.from('profiles').upsert({
-    id: userId, first_name: firstName, last_name: lastName,
-    email, phone, country, kyc_status: 'pending', status: 'active',
+  const { error: insertErr } = await db.from('users').upsert({
+    id: userId, full_name: `${firstName} ${lastName}`.trim(),
+    email, phone, country, balance: initBal || 0,
   });
-
-  if (initBal > 0) {
-    await db.from('trading_accounts').insert({
-      user_id: userId, platform,
-      type: accType.toLowerCase().includes('live') ? 'live' : 'demo',
-      account_type: 'Standard', currency: 'USD',
-      balance: initBal, leverage: '1:200',
-    });
-  }
+  if (insertErr) { showToast('Error: ' + insertErr.message, 'error'); return; }
 
   showToast('User created successfully','success');
   closeModal('modal-add-user');
@@ -2382,8 +2350,8 @@ async function renderNotificationsLive() {
   if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted);">Loading…</td></tr>';
 
   const [{ data: users }, { data: notifs }] = await Promise.all([
-    db.from('profiles').select('id, first_name, last_name, email').order('email', { ascending: true }),
-    db.from('notifications').select('*'),
+    db.from('users').select('id, full_name, email').order('email', { ascending: true }),
+    db.from('user_notices').select('*'),
   ]);
 
   if (!users?.length) {
@@ -2397,7 +2365,7 @@ async function renderNotificationsLive() {
   const COLORS = ['#1a5cff','#22a06b','#7c3aed','#f5a623','#e60023'];
   if (tbody) tbody.innerHTML = users.map((u, i) => {
     const n    = notifMap[u.id] || {};
-    const name = `${u.first_name||''} ${u.last_name||''}`.trim() || u.email;
+    const name = u.full_name || u.email;
     const init = name.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
     const col  = COLORS[i % COLORS.length];
     const enabled = !!n.enabled;
@@ -2426,7 +2394,7 @@ window.opsSaveNotif = async userId => {
   const title   = document.getElementById('ntitle-'+userId)?.value?.trim() || '';
   const message = document.getElementById('nmsg-'+userId)?.value?.trim() || '';
   const enabled = document.getElementById('nenabled-'+userId)?.checked || false;
-  const { error } = await window.XANTEX_DB.from('notifications').upsert(
+  const { error } = await window.XANTEX_DB.from('user_notices').upsert(
     { user_id: userId, title, message, enabled, updated_at: new Date().toISOString() },
     { onConflict: 'user_id' }
   );
@@ -2434,7 +2402,7 @@ window.opsSaveNotif = async userId => {
   showToast('Notification saved','success');
 };
 window.opsClearNotif = async userId => {
-  await window.XANTEX_DB.from('notifications').upsert(
+  await window.XANTEX_DB.from('user_notices').upsert(
     { user_id: userId, title: '', message: '', enabled: false, updated_at: new Date().toISOString() },
     { onConflict: 'user_id' }
   );
@@ -2446,15 +2414,15 @@ async function renderTradesLive() {
   const db = window.XANTEX_DB; if (!db) return;
 
   // Load users for select dropdown + settings table
-  const { data: users } = await db.from('profiles')
-    .select('id, first_name, last_name, email, trades_active, trade_percent')
+  const { data: users } = await db.from('users')
+    .select('id, full_name, email, trades_active, trade_percent')
     .order('email', { ascending: true });
 
   // Populate user dropdown
   const sel = document.getElementById('trade-user-sel');
   if (sel && users?.length) {
     sel.innerHTML = '<option value="">— choose user —</option>' + users.map(u => {
-      const name = `${u.first_name||''} ${u.last_name||''}`.trim() || u.email;
+      const name = u.full_name || u.email;
       return `<option value="${u.id}">${name} (${u.email})</option>`;
     }).join('');
   }
@@ -2464,7 +2432,7 @@ async function renderTradesLive() {
   const COLORS = ['#1a5cff','#22a06b','#7c3aed','#f5a623','#e60023'];
   if (settTbody && users?.length) {
     settTbody.innerHTML = users.map((u, i) => {
-      const name = `${u.first_name||''} ${u.last_name||''}`.trim() || u.email;
+      const name = u.full_name || u.email;
       const init = name.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
       const col  = COLORS[i % COLORS.length];
       return `<tr>
@@ -2480,7 +2448,7 @@ async function renderTradesLive() {
 
   // Load trade records
   const { data: trades } = await db.from('trades')
-    .select('*, profiles(first_name, last_name, email)')
+    .select('*, users(full_name, email)')
     .order('created_at', { ascending: false })
     .limit(100);
 
@@ -2490,8 +2458,8 @@ async function renderTradesLive() {
     return;
   }
   if (tbody) tbody.innerHTML = trades.map(t => {
-    const p    = t.profiles || {};
-    const name = `${p.first_name||''} ${p.last_name||''}`.trim() || p.email || '—';
+    const p    = t.users || {};
+    const name = p.full_name || p.email || '—';
     const pnl  = parseFloat(t.pnl || 0);
     const up   = pnl >= 0;
     return `<tr>
@@ -2511,7 +2479,7 @@ window.renderTradesLive = renderTradesLive;
 window.opsSaveTradeSetting = async userId => {
   const pct    = parseFloat(document.getElementById('tpct-'+userId)?.value) || 0;
   const active = document.getElementById('ton-'+userId)?.checked || false;
-  const { error } = await window.XANTEX_DB.from('profiles')
+  const { error } = await window.XANTEX_DB.from('users')
     .update({ trade_percent: pct, trades_active: active }).eq('id', userId);
   if (error) { showToast('Error: '+error.message,'error'); return; }
   showToast('Trade settings saved','success');

@@ -1224,20 +1224,9 @@ async function signOut() {
     if (s < 86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
   }
 
-  // ── Load data via server-side RPCs (SECURITY DEFINER — bypasses RLS) ─
-  async function rpc(fn, label) {
-    try {
-      const { data, error } = await db.rpc(fn);
-      if (error) { console.warn('[dashboard]', label, 'rpc error:', error.message); return null; }
-      const result = Array.isArray(data) ? data : (data ? [data] : []);
-      console.log('[dashboard]', label, '→', result.length, 'rows');
-      return result;
-    } catch(e) { console.error('[dashboard]', label, 'exception:', e.message); return null; }
-  }
-  async function rpcOne(fn, label) {
-    const rows = await rpc(fn, label);
-    return (rows && rows.length) ? rows[0] : null;
-  }
+  // ── Refresh JWT so queries carry a valid auth token ────────
+  try { await db.auth.refreshSession(); } catch(e) { console.warn('[dashboard] refreshSession:', e.message); }
+
   async function rpcCfg() {
     try {
       const { data, error } = await db.from('platform_settings').select('key,value').like('key','crypto_%');
@@ -1245,13 +1234,58 @@ async function signOut() {
     } catch(e) { return null; }
   }
 
+  // ── Dual loader: tries RPC, falls back to direct table query ─
+  async function loadRows(label, rpcFn, table, extraFn) {
+    // Attempt 1: SECURITY DEFINER RPC (bypasses RLS, works if functions are deployed)
+    try {
+      const { data, error } = await db.rpc(rpcFn);
+      if (!error) {
+        const rows = Array.isArray(data) ? data : (data ? [data] : []);
+        console.log('[dashboard]', label, 'rpc ✓', rows.length, 'rows');
+        return rows;
+      }
+      console.warn('[dashboard]', label, 'rpc ✗:', error.message, '— trying direct query');
+    } catch(e) { console.warn('[dashboard]', label, 'rpc exc:', e.message, '— trying direct query'); }
+    // Attempt 2: direct query filtered by user_id (relies on RLS + JWT)
+    try {
+      let q = db.from(table).select('*').eq('user_id', userId);
+      if (extraFn) q = extraFn(q);
+      const { data, error } = await q;
+      if (!error) {
+        const rows = data || [];
+        console.log('[dashboard]', label, 'direct ✓', rows.length, 'rows');
+        return rows;
+      }
+      console.error('[dashboard]', label, 'direct ✗:', error.message);
+    } catch(e) { console.error('[dashboard]', label, 'direct exc:', e.message); }
+    return [];
+  }
+
+  async function loadProfile() {
+    // Attempt 1: RPC
+    try {
+      const { data, error } = await db.rpc('get_my_profile');
+      if (!error && data) {
+        const r = Array.isArray(data) ? data[0] : data;
+        if (r) { console.log('[dashboard] profile rpc ✓'); return r; }
+      } else if (error) console.warn('[dashboard] profile rpc ✗:', error.message, '— trying direct');
+    } catch(e) { console.warn('[dashboard] profile rpc exc:', e.message, '— trying direct'); }
+    // Attempt 2: direct query
+    try {
+      const { data, error } = await db.from('profiles').select('*').eq('id', userId).maybeSingle();
+      if (!error) { console.log('[dashboard] profile direct ✓', data ? 'found' : 'null'); return data; }
+      console.error('[dashboard] profile direct ✗:', error.message);
+    } catch(e) { console.error('[dashboard] profile direct exc:', e.message); }
+    return null;
+  }
+
   const [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg] = await Promise.all([
-    rpcOne('get_my_profile',      'profile'),
-    rpc(   'get_my_accounts',     'accounts'),
-    rpc(   'get_my_positions',    'positions'),
-    rpc(   'get_my_transactions', 'txns'),
-    rpc(   'get_my_deposits',     'depReqs'),
-    rpc(   'get_my_withdrawals',  'wdReqs'),
+    loadProfile(),
+    loadRows('accounts',  'get_my_accounts',    'trading_accounts',    q => q.order('created_at',{ascending:false})),
+    loadRows('positions', 'get_my_positions',   'positions',           q => q.eq('status','open').order('opened_at',{ascending:false})),
+    loadRows('txns',      'get_my_transactions','transactions',        q => q.order('created_at',{ascending:false}).limit(20)),
+    loadRows('depReqs',   'get_my_deposits',    'deposit_requests',    q => q.order('created_at',{ascending:false})),
+    loadRows('wdReqs',    'get_my_withdrawals', 'withdrawal_requests', q => q.order('created_at',{ascending:false})),
     rpcCfg(),
   ]);
 

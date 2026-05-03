@@ -281,6 +281,7 @@
     @media (max-width: 480px) {
       .form-row { grid-template-columns: 1fr; }
       .social-btns { flex-direction: column; }
+      .upload-grid-3 { grid-template-columns: 1fr !important; }
     }
   </style>
 </head>
@@ -637,25 +638,35 @@
         </div>
 
         <!-- Upload boxes -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="upload-box" onclick="document.getElementById('upload-id').click()" style="border:2px dashed var(--border);border-radius:10px;padding:24px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 8px;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <div style="font-size:12px;font-weight:600;margin-bottom:3px;">ID Front</div>
-            <div style="font-size:11px;color:var(--muted);">JPG, PNG or PDF</div>
-            <input type="file" id="upload-id" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="fileChosen(this,'id-label')">
-            <div id="id-label" style="font-size:11px;color:var(--blue);margin-top:6px;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <!-- ID Front -->
+          <div id="box-id-front" class="upload-box" onclick="document.getElementById('upload-id-front').click()" style="border:2px dashed var(--border);border-radius:10px;padding:20px 10px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor=this.dataset.err?'var(--error)':'var(--border)'">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M3 17l4-4 3 3 4-5 4 4"/></svg>
+            <div style="font-size:11px;font-weight:600;margin-bottom:2px;">ID Front <span style="color:var(--error)">*</span></div>
+            <div style="font-size:10px;color:var(--muted);">Passport / National ID</div>
+            <input type="file" id="upload-id-front" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="fileChosen(this,'id-front-label','box-id-front')">
+            <div id="id-front-label" style="font-size:10px;color:var(--blue);margin-top:5px;word-break:break-all;"></div>
           </div>
-          <div class="upload-box" onclick="document.getElementById('upload-selfie').click()" style="border:2px dashed var(--border);border-radius:10px;padding:24px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 8px;display:block;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            <div style="font-size:12px;font-weight:600;margin-bottom:3px;">Proof of Address</div>
-            <div style="font-size:11px;color:var(--muted);">Utility bill or bank statement</div>
-            <input type="file" id="upload-selfie" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="fileChosen(this,'selfie-label')">
-            <div id="selfie-label" style="font-size:11px;color:var(--blue);margin-top:6px;"></div>
+          <!-- Proof of Address -->
+          <div id="box-proof" class="upload-box" onclick="document.getElementById('upload-proof').click()" style="border:2px dashed var(--border);border-radius:10px;padding:20px 10px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor=this.dataset.err?'var(--error)':'var(--border)'">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-size:11px;font-weight:600;margin-bottom:2px;">Proof of Address <span style="color:var(--error)">*</span></div>
+            <div style="font-size:10px;color:var(--muted);">Utility bill / Bank statement</div>
+            <input type="file" id="upload-proof" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="fileChosen(this,'proof-label','box-proof')">
+            <div id="proof-label" style="font-size:10px;color:var(--blue);margin-top:5px;word-break:break-all;"></div>
+          </div>
+          <!-- Selfie -->
+          <div id="box-selfie" class="upload-box" onclick="document.getElementById('upload-selfie').click()" style="border:2px dashed var(--border);border-radius:10px;padding:20px 10px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor=this.dataset.err?'var(--error)':'var(--border)'">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <div style="font-size:11px;font-weight:600;margin-bottom:2px;">Selfie Photo <span style="color:var(--error)">*</span></div>
+            <div style="font-size:10px;color:var(--muted);">Clear photo of your face</div>
+            <input type="file" id="upload-selfie" accept=".jpg,.jpeg,.png" style="display:none;" onchange="fileChosen(this,'selfie-label','box-selfie')">
+            <div id="selfie-label" style="font-size:10px;color:var(--blue);margin-top:5px;word-break:break-all;"></div>
           </div>
         </div>
 
         <p style="font-size:12px;color:var(--muted);line-height:1.6;background:var(--bg);padding:12px 14px;border-radius:8px;">
-          🔒 Your documents are encrypted and processed securely. We will never share your information with third parties without your consent.
+          🔒 Your documents are encrypted and processed securely. Your selfie will be used as your profile photo. We will never share your information with third parties without your consent.
         </p>
 
         <div style="display:flex;gap:10px;margin-top:4px;">
@@ -750,6 +761,23 @@
   }
   function goStep3() { setStep(3); }
   async function submitForm() {
+    // Validate required uploads
+    const idFrontFile = document.getElementById('upload-id-front').files[0];
+    const proofFile   = document.getElementById('upload-proof').files[0];
+    const selfieFile  = document.getElementById('upload-selfie').files[0];
+    let uploadValid = true;
+    [['upload-id-front','box-id-front', idFrontFile],
+     ['upload-proof',   'box-proof',    proofFile],
+     ['upload-selfie',  'box-selfie',   selfieFile]].forEach(([,boxId, file]) => {
+      const box = document.getElementById(boxId);
+      if (!file) {
+        box.style.borderColor = 'var(--error)';
+        box.dataset.err = '1';
+        uploadValid = false;
+      }
+    });
+    if (!uploadValid) { alert('Please upload all required documents (ID Front, Proof of Address, Selfie Photo).'); return; }
+
     const email     = document.getElementById('email').value.trim();
     const password  = document.getElementById('password').value;
     const firstName = document.getElementById('first-name').value.trim();
@@ -760,6 +788,7 @@
 
     const submitBtn = document.querySelector('#step-3 button.btn-submit:last-of-type');
     submitBtn.classList.add('loading');
+    submitBtn.textContent = 'Creating account…';
     submitBtn.disabled = true;
 
     const db = window.XANTEX_DB;
@@ -771,20 +800,62 @@
 
     if (error) {
       submitBtn.classList.remove('loading');
+      submitBtn.innerHTML = 'Open my account <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2"><polyline points="9 18 15 12 9 6"/></svg>';
       submitBtn.disabled = false;
       alert('Registration error: ' + error.message);
       return;
     }
 
-    if (data.user) {
+    const userId = data.user?.id;
+    let frontUrl = null, proofUrl = null, selfieUrl = null;
+
+    if (userId) {
+      submitBtn.textContent = 'Uploading documents…';
+
+      // Helper: upload a file and return its public URL
+      async function uploadDoc(file, path) {
+        const ext = file.name.split('.').pop();
+        const fullPath = `${path}.${ext}`;
+        const { error: upErr } = await db.storage.from('kyc-docs').upload(fullPath, file, { upsert: true });
+        if (upErr) return null;
+        const { data: { publicUrl } } = db.storage.from('kyc-docs').getPublicUrl(fullPath);
+        return publicUrl;
+      }
+      async function uploadAvatar(file, path) {
+        const ext = file.name.split('.').pop();
+        const fullPath = `${path}.${ext}`;
+        const { error: upErr } = await db.storage.from('avatars').upload(fullPath, file, { upsert: true });
+        if (upErr) return null;
+        const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(fullPath);
+        return publicUrl;
+      }
+
+      [frontUrl, proofUrl, selfieUrl] = await Promise.all([
+        uploadDoc(idFrontFile, `${userId}/id_front`),
+        uploadDoc(proofFile,   `${userId}/proof_address`),
+        uploadAvatar(selfieFile, `${userId}`),
+      ]);
+
+      submitBtn.textContent = 'Saving profile…';
+
       await db.from('profiles').upsert({
-        id:         data.user.id,
+        id:         userId,
         first_name: firstName,
         last_name:  lastName,
         email,
         phone:      phoneCode + phone,
         country,
         kyc_status: 'pending',
+        avatar_url: selfieUrl,
+      });
+
+      await db.from('kyc_documents').upsert({
+        user_id:          userId,
+        front_url:        frontUrl,
+        proof_address_url: proofUrl,
+        selfie_url:       selfieUrl,
+        submitted_at:     new Date().toISOString(),
+        status:           'pending',
       });
     }
 
@@ -805,9 +876,14 @@
   }
 
   // ── File upload label ─────────────────────────────────────
-  function fileChosen(input, labelId) {
+  function fileChosen(input, labelId, boxId) {
     const label = document.getElementById(labelId);
     label.textContent = input.files[0] ? '✓ ' + input.files[0].name : '';
+    if (boxId && input.files[0]) {
+      const box = document.getElementById(boxId);
+      box.style.borderColor = 'var(--border)';
+      delete box.dataset.err;
+    }
   }
 
   // ── Clear error on input ──────────────────────────────────

@@ -345,29 +345,51 @@
       .form-grid--3 { grid-template-columns: 1fr; }
       [style*="grid-template-columns:1fr minmax"] { grid-template-columns: 1fr !important; }
     }
+
+    /* ============================================================
+       SKELETON LOADER
+    ============================================================ */
+    .skeleton-cell {
+      background: linear-gradient(90deg, var(--border) 0%, var(--bg) 50%, var(--border) 100%);
+      background-size: 200% 100%;
+      animation: skeletonShimmer 1.4s ease infinite;
+      border-radius: 4px;
+    }
+    @keyframes skeletonShimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    body.dark .skeleton-cell {
+      background: linear-gradient(90deg, #2a2d3a 0%, #0f1117 50%, #2a2d3a 100%);
+      background-size: 200% 100%;
+      animation: skeletonShimmer 1.4s ease infinite;
+    }
   </style>
 </head>
 <body>
 
 <!-- LOGIN GATE -->
 <div id="login-gate" style="position:fixed;inset:0;background:#0d1120;display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;">
-  <div style="background:#1a1d27;border:1px solid #2a2d3a;border-radius:14px;padding:40px;width:100%;max-width:380px;text-align:center;">
+  <div style="background:#1a1d27;border:1px solid #2a2d3a;border-radius:14px;padding:40px;width:100%;max-width:400px;text-align:center;">
     <div style="font-size:11px;font-weight:800;letter-spacing:0.12em;background:var(--red);color:#fff;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:16px;">OPS ADMIN</div>
     <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;">Xantex Control Panel</div>
     <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Restricted access — authorised personnel only</div>
     <div style="display:flex;flex-direction:column;gap:12px;text-align:left;">
       <div style="display:flex;flex-direction:column;gap:4px;">
-        <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Admin Username</label>
-        <input id="admin-user" type="text" placeholder="admin" style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'">
+        <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Admin ID</label>
+        <input id="admin-user" type="text" placeholder="Your admin identifier" autocomplete="off" style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'">
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;">
-        <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Password</label>
-        <input id="admin-pass" type="password" placeholder="••••••••" style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'" onkeydown="if(event.key==='Enter')adminLogin()">
+        <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Admin Secret</label>
+        <input id="admin-pass" type="password" placeholder="••••••••" autocomplete="off" style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'" onkeydown="if(event.key==='Enter')adminLogin()">
       </div>
-      <div id="login-err" style="font-size:12px;color:var(--red);display:none;">Incorrect credentials. Try again.</div>
-      <button onclick="adminLogin()" style="height:44px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;">Sign In to OPS</button>
+      <div id="login-err" style="font-size:12px;color:var(--red);display:none;padding:8px 12px;background:rgba(230,0,35,0.08);border-radius:6px;border:1px solid rgba(230,0,35,0.2);">Invalid credentials. Please check your Admin ID and Secret.</div>
+      <button id="login-btn" onclick="adminLogin()" style="height:44px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In to OPS
+      </button>
     </div>
-    <div style="margin-top:20px;font-size:11px;color:rgba(255,255,255,0.25);">Demo: admin / admin123</div>
+    <div style="margin-top:20px;font-size:11px;color:rgba(255,255,255,0.2);">Credentials are held in memory only and never stored.</div>
   </div>
 </div>
 
@@ -476,12 +498,12 @@
     </nav>
 
     <div class="sidebar__footer">
-      <div class="sidebar__avatar">SA</div>
+      <div class="sidebar__avatar" id="sidebar-admin-avatar">?</div>
       <div>
-        <div class="sidebar__user-name">Super Admin</div>
+        <div class="sidebar__user-name" id="sidebar-admin-id">Admin</div>
         <div class="sidebar__user-role">Full access · OPS</div>
       </div>
-      <button class="sidebar__logout" onclick="document.getElementById('login-gate').style.display='flex';document.getElementById('main-app').style.display='none';" title="Sign out">
+      <button class="sidebar__logout" onclick="adminLogout()" title="Sign out">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
@@ -1371,6 +1393,39 @@
   </div>
 </div>
 
+<!-- Confirmation Modal (used by actions.js for all high-risk operations) -->
+<div class="modal-overlay" id="modal-confirm-action">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal__head">
+      <div class="modal__title" id="confirm-modal-title">Confirm Action</div>
+      <button class="modal__close" onclick="cancelConfirmedAction()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <div id="confirm-modal-msg" style="font-size:14px;line-height:1.65;color:var(--text);margin-bottom:16px;"></div>
+      <div id="confirm-type-row" style="display:none;margin-top:16px;">
+        <div style="background:rgba(230,0,35,0.06);border:1px solid rgba(230,0,35,0.2);border-radius:8px;padding:12px 14px;margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:4px;">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;vertical-align:-2px;margin-right:4px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            High-risk action — confirmation required
+          </div>
+          <div style="font-size:12px;color:var(--muted);">
+            Type <strong id="confirm-type-hint" style="font-family:monospace;color:var(--text);"></strong> to unlock the button
+          </div>
+        </div>
+        <input type="text" id="confirm-type-input" placeholder="Type confirmation word here…"
+          style="width:100%;height:42px;border:1.5px solid var(--border);border-radius:8px;padding:0 14px;font-size:14px;font-family:monospace;letter-spacing:0.08em;outline:none;color:var(--text);background:var(--white);transition:border-color .15s;"
+          onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="cancelConfirmedAction()">Cancel</button>
+      <button class="btn btn--primary" id="confirm-modal-btn" onclick="execConfirmedAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast">
   <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1379,18 +1434,76 @@
 
 <script>
   /* ============================================================
-     AUTH
+     AUTH — uses Edge Function (admin-api) for verification.
+     Credentials are stored in AdminAPI (memory only).
   ============================================================ */
-  function adminLogin() {
-    const u = document.getElementById('admin-user').value;
-    const p = document.getElementById('admin-pass').value;
-    if (u === 'admin' && p === 'admin123') {
+  async function adminLogin() {
+    const adminId     = (document.getElementById('admin-user')?.value || '').trim();
+    const adminSecret = (document.getElementById('admin-pass')?.value || '').trim();
+    const errEl       = document.getElementById('login-err');
+    const btn         = document.getElementById('login-btn');
+
+    if (!adminId || !adminSecret) {
+      if (errEl) { errEl.textContent = 'Please enter your Admin ID and Admin Secret.'; errEl.style.display = 'block'; }
+      return;
+    }
+
+    if (errEl) errEl.style.display = 'none';
+    if (btn)   { btn.disabled = true; btn.textContent = 'Authenticating…'; }
+
+    // Store credentials in memory so api.js can send them as headers
+    AdminAPI.setCredentials(adminId, adminSecret);
+
+    try {
+      // Verify against the Edge Function — a 401 means bad credentials
+      await fetchAdminAPI('list_users');
+
+      // Success — show the panel
       document.getElementById('login-gate').style.display = 'none';
       document.getElementById('main-app').style.display   = 'flex';
+
+      // Update sidebar footer with admin identity
+      const initial = adminId.charAt(0).toUpperCase();
+      const sideName   = document.getElementById('sidebar-admin-id');
+      const sideAvatar = document.getElementById('sidebar-admin-avatar');
+      if (sideName)   sideName.textContent   = adminId;
+      if (sideAvatar) sideAvatar.textContent = initial;
+      const topAvatar = document.querySelector('.topbar__avatar');
+      if (topAvatar) topAvatar.textContent = initial;
+
+      // Also try Supabase sign-in for direct-DB features (support, notifications, trades)
+      // Uses the same credentials — works if adminId is a Supabase email
+      try {
+        const db = window.XANTEX_DB;
+        if (db && adminId.includes('@')) {
+          await db.auth.signInWithPassword({ email: adminId, password: adminSecret });
+        }
+      } catch (_) { /* Supabase auth is optional — admin-api is the primary auth */ }
+
       renderAll();
-    } else {
-      document.getElementById('login-err').style.display = 'block';
+    } catch (e) {
+      AdminAPI.clearCredentials();
+      if (errEl) {
+        errEl.textContent = e.message.includes('Unauthorized') || e.message.includes('401')
+          ? 'Invalid credentials. Please check your Admin ID and Secret.'
+          : 'Authentication error: ' + e.message;
+        errEl.style.display = 'block';
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Sign In to OPS';
+      }
     }
+  }
+
+  function adminLogout() {
+    AdminAPI.clearCredentials();
+    try { window.XANTEX_DB?.auth?.signOut(); } catch (_) {}
+    document.getElementById('login-gate').style.display = 'flex';
+    document.getElementById('main-app').style.display   = 'none';
+    document.getElementById('admin-user').value = '';
+    document.getElementById('admin-pass').value = '';
   }
 
   /* ============================================================
@@ -1669,12 +1782,19 @@
     if (btn) btn.classList.add('active');
     document.getElementById('page-title').textContent = PAGE_TITLES[id] || id;
     document.getElementById('sidebar').classList.remove('open');
-    if (id === 'balances'      && window.loadBalanceUsers)      window.loadBalanceUsers();
-    if (id === 'verification'  && window.renderKYCLive)        window.renderKYCLive();
-    if (id === 'settings'      && window.loadCryptoAddresses)  window.loadCryptoAddresses();
-    if (id === 'support'       && window.renderSupportLive)    window.renderSupportLive();
+    if (id === 'users'         && window.renderUsersLive)         window.renderUsersLive();
+    if (id === 'verification'  && window.renderKYCLive)           window.renderKYCLive();
+    if (id === 'accounts'      && window.renderAccountsLive)      window.renderAccountsLive();
+    if (id === 'deposits'      && window.renderDepositsLive)      window.renderDepositsLive();
+    if (id === 'withdrawals'   && window.renderWithdrawalsLive)   window.renderWithdrawalsLive();
+    if (id === 'transactions'  && window.renderTransactionsLive)  window.renderTransactionsLive();
+    if (id === 'positions'     && window.renderPositionsLive)     window.renderPositionsLive();
+    if (id === 'balances'      && window.loadBalanceUsers)        window.loadBalanceUsers();
+    if (id === 'settings'      && window.loadCryptoAddresses)     window.loadCryptoAddresses();
+    if (id === 'audit'         && window.getUIAuditLog)           { /* audit-tbody kept in sync by actions.js */ }
+    if (id === 'support'       && window.renderSupportLive)       window.renderSupportLive();
     if (id === 'notifications' && window.renderNotificationsLive) window.renderNotificationsLive();
-    if (id === 'trades'        && window.renderTradesLive)     window.renderTradesLive();
+    if (id === 'trades'        && window.renderTradesLive)        window.renderTradesLive();
   }
 
   /* ============================================================
@@ -1761,6 +1881,10 @@
 <!-- ═══ Supabase integration ═══ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase.js"></script>
+<!-- ═══ Admin API client + rendering + action modules ═══ -->
+<script src="./api.js"></script>
+<script src="./ui.js"></script>
+<script src="./actions.js"></script>
 <script>
 /* ============================================================
    OPS PANEL — SUPABASE DATA LAYER
@@ -1778,94 +1902,12 @@ function fmtDate(ts) {
   });
 }
 
-// ── Upgrade adminLogin to use Supabase Auth ──────────────────
-const _origAdminLogin = adminLogin;
-window.adminLogin = async function() {
-  const emailOrUser = document.getElementById('admin-user').value.trim();
-  const pass        = document.getElementById('admin-pass').value;
-  const db = window.XANTEX_DB;
+// adminLogin is now fully implemented in the main script block above.
+// api.js / ui.js / actions.js handle the Edge Function integration.
 
-  if (db && emailOrUser.includes('@')) {
-    const { error } = await db.auth.signInWithPassword({ email: emailOrUser, password: pass });
-    if (!error) {
-      document.getElementById('login-gate').style.display = 'none';
-      document.getElementById('main-app').style.display   = 'flex';
-      renderAll();
-      return;
-    }
-  }
-  _origAdminLogin(); // fallback to hardcoded admin/admin123
-};
+// renderUsersLive and renderKYCLive are now in ui.js (Edge Function backed).
+// KYC approve/reject still use Supabase direct below for doc-level updates.
 
-// ── Users ─────────────────────────────────────────────────────
-async function _loadUsers() {
-  const db = window.XANTEX_DB;
-  if (!db) return null;
-  const [{ data: profiles }, { data: accounts }] = await Promise.all([
-    db.from('profiles').select('id, first_name, last_name, email, country, kyc_status, status, created_at').order('created_at', { ascending: false }),
-    db.from('trading_accounts').select('user_id, balance, type'),
-  ]);
-  if (!profiles?.length) return null;
-  const COLORS = ['#1a5cff','#22a06b','#7c3aed','#f5a623','#e60023'];
-  return profiles.map((p, i) => {
-    const accs  = accounts?.filter(a => a.user_id === p.id) || [];
-    const total = accs.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
-    const live  = accs.some(a => a.type?.toLowerCase().includes('live'));
-    return {
-      id:      p.id,
-      name:    `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.email,
-      email:   p.email,
-      country: p.country || '—',
-      type:    live ? 'Live' : 'Demo',
-      balance: '$' + total.toLocaleString('en-US', { minimumFractionDigits: 2 }),
-      joined:  new Date(p.created_at).toLocaleDateString('en-GB'),
-      status:  p.status || 'active',
-      kyc:     p.kyc_status || 'pending',
-      color:   COLORS[i % COLORS.length],
-    };
-  });
-}
-
-async function renderUsersLive() {
-  renderRecentUsers(); renderUsers(); // static first
-  const users = await _loadUsers();
-  if (!users) return;
-  USERS.splice(0, USERS.length, ...users);
-  renderRecentUsers(); renderUsers();
-}
-window.renderUsersLive = renderUsersLive;
-
-// ── KYC ───────────────────────────────────────────────────────
-async function renderKYCLive() {
-  const db = window.XANTEX_DB; if (!db) return;
-  const { data, error } = await db
-    .from('kyc_submissions')
-    .select('id, user_id, document_type, submitted_at, status, front_url, back_url, selfie_url, proof_address_url, profiles(first_name, last_name, email, country)')
-    .order('submitted_at', { ascending: false });
-  const tbody = document.getElementById('kyc-tbody');
-  if (!data?.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">No KYC submissions found</td></tr>';
-    return;
-  }
-  tbody.innerHTML = data.map(k => {
-    const p    = k.profiles || {};
-    const name = `${p.first_name||''} ${p.last_name||''}`.trim() || p.email || '—';
-    const docsJson = JSON.stringify({ front:k.front_url, back:k.back_url, selfie:k.selfie_url, addr:k.proof_address_url, name, docType:k.document_type, status:k.status, id:k.id }).replace(/'/g,"&#39;");
-    return `<tr>
-      <td><div class="user-name">${name}</div></td>
-      <td><div class="user-email">${p.email||'—'}</div></td>
-      <td>${p.country||'—'}</td>
-      <td>${k.document_type||'—'}</td>
-      <td>${fmtDate(k.submitted_at)}</td>
-      <td><span class="badge-pill ${k.status==='pending'?'pill-orange':k.status==='verified'?'pill-green':'pill-red'}">${k.status}</span></td>
-      <td><div class="row-actions">
-        <button class="btn btn--sm btn--outline" onclick="viewKYCDocs('${encodeURIComponent(docsJson)}')">View Docs</button>
-        <button class="btn btn--sm btn--green" onclick="opsApproveKYC('${k.id}')">Approve</button>
-        <button class="btn btn--sm btn--red"   onclick="opsRejectKYC('${k.id}')">Reject</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
 // ── Reset password ────────────────────────────────────────────
 window.resetUserPassword = async function(email) {
   if (!email || email === 'undefined') { showToast('No email on record for this user','error'); return; }
@@ -1999,201 +2041,18 @@ window.opsRejectKYC = async id => {
   showToast('KYC rejected','error'); renderKYCLive();
 };
 
-// ── Trading Accounts ──────────────────────────────────────────
-async function renderAccountsLive() {
-  renderAccounts();
-  const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
-    .from('trading_accounts')
-    .select('*, profiles(first_name, last_name)')
-    .order('created_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('accounts-tbody').innerHTML = data.map(a => {
-    const name = a.profiles ? `${a.profiles.first_name} ${a.profiles.last_name}` : '—';
-    const bal  = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    const live = a.type?.toLowerCase().includes('live');
-    return `<tr>
-      <td style="font-weight:600;">#${a.account_number || a.id.slice(0,8)}</td>
-      <td>${name}</td>
-      <td><span class="badge-pill pill-blue">${a.platform || '—'}</span></td>
-      <td><span class="badge-pill ${live?'pill-green':'pill-blue'}">${live?'Live':'Demo'}</span></td>
-      <td style="font-weight:600;">$${bal}</td>
-      <td>$${bal}</td>
-      <td>${a.leverage || '1:200'}</td>
-      <td><span class="badge-pill pill-green">active</span></td>
-      <td><div class="row-actions">
-        <button class="btn btn--sm btn--outline" onclick="showPage('balances',null)">Adjust</button>
-        <button class="btn btn--sm btn--red" onclick="opsSuspendAccount('${a.id}')">Suspend</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-window.renderAccountsLive = renderAccountsLive;
+// renderAccountsLive, renderPositionsLive, renderDepositsLive,
+// renderWithdrawalsLive, renderTransactionsLive are now in ui.js.
+// They call the Edge Function via fetchAdminAPI.
+
+// Keep opsSuspendAccount for account management (direct DB, lower risk)
 window.opsSuspendAccount = async id => {
   await window.XANTEX_DB.from('trading_accounts').update({ status:'suspended' }).eq('id', id);
   showToast('Account suspended','error'); renderAccountsLive();
 };
 
-// ── Positions ─────────────────────────────────────────────────
-async function renderPositionsLive() {
-  renderPositions();
-  const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
-    .from('positions')
-    .select('*, profiles(first_name, last_name)')
-    .eq('status','open').order('opened_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('positions-tbody').innerHTML = data.map(p => {
-    const pnl  = parseFloat(p.floating_pnl || 0);
-    const up   = pnl >= 0;
-    const name = p.profiles ? `${p.profiles.first_name} ${p.profiles.last_name}` : '—';
-    return `<tr>
-      <td style="font-weight:600;">#${p.id.slice(0,8)}</td>
-      <td>${name}</td>
-      <td>${p.account_number || '—'}</td>
-      <td style="font-weight:700;">${p.symbol}</td>
-      <td><span class="badge-pill ${p.direction==='buy'?'pill-green':'pill-red'}">${(p.direction||'').toUpperCase()}</span></td>
-      <td>${p.lots}</td>
-      <td>${p.open_price}</td>
-      <td>${p.current_price || p.open_price}</td>
-      <td style="color:var(--red);">${p.stop_loss || '—'}</td>
-      <td style="color:var(--green);">${p.take_profit || '—'}</td>
-      <td style="font-weight:700;color:${up?'var(--green)':'var(--red)'};">${up?'+':''}$${Math.abs(pnl).toFixed(2)}</td>
-      <td><button class="btn btn--sm btn--red" onclick="opsForceClose('${p.id}')">Force Close</button></td>
-    </tr>`;
-  }).join('');
-}
-window.renderPositionsLive = renderPositionsLive;
-window.opsForceClose = async id => {
-  if (!confirm('Force close this position?')) return;
-  await window.XANTEX_DB.from('positions').update({ status:'closed' }).eq('id', id);
-  showToast('Position closed','success'); renderPositionsLive();
-};
-
-// ── Deposits ──────────────────────────────────────────────────
-async function renderDepositsLive() {
-  renderDeposits();
-  const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
-    .from('transactions')
-    .select('*, profiles(first_name, last_name)')
-    .eq('type','deposit').order('created_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('deposits-tbody').innerHTML = data.map(d => {
-    const name = d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name}` : '—';
-    const amt  = parseFloat(d.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    return `<tr>
-      <td style="font-weight:600;">${d.id.slice(0,8).toUpperCase()}</td>
-      <td>${name}</td>
-      <td style="font-weight:700;">$${amt}</td>
-      <td>${d.payment_method || '—'}</td>
-      <td style="font-size:12px;">${fmtDate(d.created_at)}</td>
-      <td><span class="badge-pill ${d.status==='approved'?'pill-green':d.status==='pending'?'pill-orange':'pill-red'}">${d.status}</span></td>
-      <td><div class="row-actions">
-        ${d.status==='pending'
-          ? `<button class="btn btn--sm btn--green" onclick="opsApproveDeposit('${d.id}')">Approve</button>
-             <button class="btn btn--sm btn--red" onclick="opsRejectDeposit('${d.id}')">Reject</button>`
-          : `<button class="btn btn--sm btn--outline">View</button>`}
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-window.renderDepositsLive = renderDepositsLive;
-window.opsApproveDeposit = async id => {
-  await window.XANTEX_DB.from('transactions').update({ status:'approved' }).eq('id', id);
-  showToast('Deposit approved','success'); renderDepositsLive();
-};
-window.opsRejectDeposit = async id => {
-  await window.XANTEX_DB.from('transactions').update({ status:'rejected' }).eq('id', id);
-  showToast('Deposit rejected','error'); renderDepositsLive();
-};
-
-// ── Withdrawals ───────────────────────────────────────────────
-async function renderWithdrawalsLive() {
-  renderWithdrawals();
-  const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
-    .from('transactions')
-    .select('*, profiles(first_name, last_name)')
-    .eq('type','withdrawal').order('created_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('withdrawals-tbody').innerHTML = data.map(w => {
-    const name = w.profiles ? `${w.profiles.first_name} ${w.profiles.last_name}` : '—';
-    const amt  = parseFloat(w.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    return `<tr>
-      <td style="font-weight:600;">${w.id.slice(0,8).toUpperCase()}</td>
-      <td>${name}</td>
-      <td style="font-weight:700;">$${amt}</td>
-      <td style="font-size:12px;">${w.destination || '—'}</td>
-      <td style="font-size:12px;">${fmtDate(w.created_at)}</td>
-      <td><span class="badge-pill ${w.status==='approved'?'pill-green':w.status==='pending'?'pill-orange':'pill-red'}">${w.status}</span></td>
-      <td><div class="row-actions">
-        ${w.status==='pending'
-          ? `<button class="btn btn--sm btn--green" onclick="opsApproveWithdrawal('${w.id}')">Approve</button>
-             <button class="btn btn--sm btn--red" onclick="opsRejectWithdrawal('${w.id}')">Reject</button>`
-          : `<button class="btn btn--sm btn--outline">View</button>`}
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-window.renderWithdrawalsLive = renderWithdrawalsLive;
-window.opsApproveWithdrawal = async id => {
-  await window.XANTEX_DB.from('transactions').update({ status:'approved' }).eq('id', id);
-  showToast('Withdrawal approved','success'); renderWithdrawalsLive();
-};
-window.opsRejectWithdrawal = async id => {
-  await window.XANTEX_DB.from('transactions').update({ status:'rejected' }).eq('id', id);
-  showToast('Withdrawal rejected','error'); renderWithdrawalsLive();
-};
-
-// ── All Transactions ──────────────────────────────────────────
-async function renderTransactionsLive() {
-  renderTransactions();
-  const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
-    .from('transactions')
-    .select('*, profiles(first_name, last_name)')
-    .order('created_at', { ascending: false })
-    .limit(100);
-  if (!data?.length) return;
-  document.getElementById('txn-tbody').innerHTML = data.map(t => {
-    const name = t.profiles ? `${t.profiles.first_name} ${t.profiles.last_name}` : '—';
-    const amt  = parseFloat(t.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    const dep  = t.type === 'deposit';
-    return `<tr>
-      <td style="font-weight:600;">${t.id.slice(0,8).toUpperCase()}</td>
-      <td>${name}</td>
-      <td><span class="badge-pill ${dep?'pill-green':'pill-orange'}">${t.type}</span></td>
-      <td style="font-weight:700;">$${amt}</td>
-      <td style="font-size:12px;">${t.account_id || '—'}</td>
-      <td style="font-size:12px;">${fmtDate(t.created_at)}</td>
-      <td><span class="badge-pill ${t.status==='approved'?'pill-green':t.status==='pending'?'pill-orange':'pill-red'}">${t.status}</span></td>
-    </tr>`;
-  }).join('');
-}
-window.renderTransactionsLive = renderTransactionsLive;
-
-// ── Audit Log ─────────────────────────────────────────────────
-async function renderAuditLive() {
-  renderAudit();
-  const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
-    .from('audit_log')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(50);
-  if (!data?.length) return;
-  document.getElementById('audit-tbody').innerHTML = data.map(a => `
-    <tr>
-      <td style="font-size:12px;">${fmtDate(a.created_at)}</td>
-      <td><span class="badge-pill pill-purple">${a.admin_email || 'Admin'}</span></td>
-      <td style="font-weight:600;">${a.action}</td>
-      <td style="font-size:12px;">${a.target || '—'}</td>
-      <td style="font-size:12px;color:var(--muted);">${a.details || '—'}</td>
-      <td style="font-size:11px;color:var(--muted);">${a.ip_address || '—'}</td>
-    </tr>`).join('');
-}
-window.renderAuditLive = renderAuditLive;
+// Audit log is now managed in actions.js (UI-level, in-memory per session).
+// _syncAuditTable() in actions.js keeps audit-tbody up to date after every action.
 
 // ── Announcements ─────────────────────────────────────────────
 async function renderAnnouncementsLive() {
@@ -2245,33 +2104,7 @@ window.publishAnnouncement = async function() {
   renderAnnouncementsLive();
 };
 
-// ── Balances page: load users into dropdown ───────────────────
-window.loadBalanceUsers = async function() {
-  const db = window.XANTEX_DB;
-  const sel = document.getElementById('adj-user-select');
-  if (!sel || !db) return;
-  sel.innerHTML = '<option value="">— loading users… —</option>';
-  const { data: users, error } = await db.from('profiles')
-    .select('id, first_name, last_name, email')
-    .order('email', { ascending: true });
-  if (error) {
-    sel.innerHTML = '<option value="">— error loading users —</option>';
-    showToast('Could not load users: ' + error.message + '. Make sure your account is in the admin_users table.', 'error');
-    return;
-  }
-  if (!users || users.length === 0) {
-    sel.innerHTML = '<option value="">— no users found (check admin_users table) —</option>';
-    return;
-  }
-  sel.innerHTML = '<option value="">— choose a user —</option>';
-  users.forEach(u => {
-    const opt = document.createElement('option');
-    opt.value = u.id;
-    const name = `${u.first_name || ''} ${u.last_name || ''}`.trim();
-    opt.textContent = name ? `${name} (${u.email})` : u.email || u.id.slice(0,8);
-    sel.appendChild(opt);
-  });
-};
+// loadBalanceUsers is now in ui.js — uses admin-api list_users with Supabase fallback.
 
 window.loadUserAccounts = async function() {
   const db = window.XANTEX_DB;
@@ -2345,76 +2178,7 @@ window.createAccountForUser = async function() {
   window.loadUserAccounts();
 };
 
-// ── Patch applyAdjustment ─────────────────────────────────────
-const _origApplyAdjustment = applyAdjustment;
-window.applyAdjustment = async function() {
-  const accId   = document.getElementById('adj-account').value;
-  const adjType = document.getElementById('adj-type').value;
-  const amount  = parseFloat(document.getElementById('adj-amount').value);
-  const reason  = document.getElementById('adj-reason').value.trim();
-  if (!accId || !amount || !reason) { showToast('Please fill all required fields','error'); return; }
-
-  const db = window.XANTEX_DB;
-  if (!db) { showToast('No database connection','error'); return; }
-
-  // Verify admin has an active Supabase session
-  let session;
-  try {
-    const { data } = await db.auth.getSession();
-    session = data?.session;
-  } catch(e) {}
-  if (!session) {
-    showToast('Session expired — please log out and log back in with your admin email','error');
-    return;
-  }
-
-  // Fetch current balance
-  const { data: acc, error: fetchErr } = await db.from('trading_accounts')
-    .select('balance, equity, user_id, account_number').eq('id', accId).single();
-  if (fetchErr || !acc) { showToast('Account not found: ' + (fetchErr?.message || 'no rows'), 'error'); return; }
-
-  const before = parseFloat(acc.balance || 0);
-  let after = before;
-  if (adjType.startsWith('Credit') || adjType.startsWith('Bonus')) after = before + amount;
-  else if (adjType.startsWith('Debit'))  after = Math.max(0, before - amount);
-  else if (adjType.startsWith('Set'))    after = amount;
-
-  // Update balance — use .select() so we can detect silent RLS blocks (0 rows updated)
-  const { data: updated, error: updErr } = await db.from('trading_accounts')
-    .update({ balance: after, equity: after })
-    .eq('id', accId)
-    .select('id');
-
-  if (updErr) { showToast('Update error: ' + updErr.message, 'error'); return; }
-  if (!updated || updated.length === 0) {
-    showToast('Permission denied — your account may not be in the admin_users table. Check Supabase Dashboard → admin_users.', 'error');
-    return;
-  }
-
-  // Log the transaction
-  const txnType = adjType.startsWith('Debit') ? 'withdrawal' : adjType.startsWith('Bonus') ? 'bonus' : 'adjustment';
-  const { error: txnErr } = await db.from('transactions').insert({
-    user_id: acc.user_id,
-    account_id: accId,
-    type: txnType,
-    amount,
-    status: 'completed',
-    description: reason,
-    payment_method: 'Admin Adjustment',
-  });
-  if (txnErr) console.warn('Transaction log failed:', txnErr.message);
-
-  showToast(`Balance updated: $${before.toFixed(2)} → $${after.toFixed(2)}`, 'success');
-  // Clear input fields
-  document.getElementById('adj-amount').value = '';
-  document.getElementById('adj-reason').value = '';
-  // Refresh account dropdown and balance display
-  await window.loadUserAccounts();
-  // Re-select the same account
-  const accSel = document.getElementById('adj-account');
-  if (accSel) { accSel.value = accId; accSel.dispatchEvent(new Event('change')); }
-  renderAccountsLive();
-};
+// applyAdjustment is now in actions.js — calls admin_adjust_balance via admin-api.
 
 // ── Patch saveUser ────────────────────────────────────────────
 const _origSaveUser = saveUser;
@@ -2504,22 +2268,22 @@ window.saveCryptoAddresses = async function() {
   showToast('Crypto addresses saved', 'success');
 };
 
-// ── Override renderAll to use live versions ───────────────────
+// ── renderAll — calls api.js-backed loaders (ui.js + direct Supabase) ─
 window.renderAll = function() {
+  // Admin-API backed (ui.js)
   renderUsersLive();
-  renderKYCLive();
-  renderAccountsLive();
-  renderPositionsLive();
   renderDepositsLive();
   renderWithdrawalsLive();
   renderTransactionsLive();
-  renderAuditLive();
+  renderPositionsLive();
+  renderAccountsLive();
+  renderKYCLive();
+  loadDashboardStats();
+  // Supabase-direct (ops features)
   renderAnnouncementsLive();
   renderAdjLog();
   renderActivity();
   renderMarketsControl();
-  loadDashboardStats();
-  // Load badge counts for new sections
   loadSupportBadge();
 };
 
@@ -2530,126 +2294,12 @@ async function loadSupportBadge() {
   if (badge) badge.textContent = count > 0 ? count : '';
 }
 
-// ── Real-time dashboard stats ─────────────────────────────────
-async function loadDashboardStats() {
-  const db = window.XANTEX_DB;
-  if (!db) return;
-  try {
-    const [
-      { count: totalUsers },
-      { count: liveAccounts },
-      { data: aumData },
-      { count: openPositions },
-      { count: pendingDeposits },
-      { count: pendingWithdrawals },
-      { count: kycPending },
-    ] = await Promise.all([
-      db.from('profiles').select('id', { count: 'exact', head: true }),
-      db.from('trading_accounts').select('id', { count: 'exact', head: true }).eq('type', 'live').eq('status', 'active'),
-      db.from('trading_accounts').select('balance').eq('status', 'active'),
-      db.from('positions').select('id', { count: 'exact', head: true }).eq('status', 'open'),
-      db.from('deposit_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-      db.from('withdrawal_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-      db.from('kyc_submissions').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-    ]);
+// loadDashboardStats is now in ui.js — uses admin-api list_* actions.
 
-    const aum = (aumData || []).reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
-
-    const stats = document.querySelectorAll('.stat-card');
-    if (stats[0]) stats[0].querySelector('.stat-card__value').textContent = (totalUsers || 0).toLocaleString();
-    if (stats[1]) stats[1].querySelector('.stat-card__value').textContent = (liveAccounts || 0).toLocaleString();
-    if (stats[2]) stats[2].querySelector('.stat-card__value').textContent = '$' + (aum / 1e6).toFixed(1) + 'M';
-    if (stats[3]) stats[3].querySelector('.stat-card__value').textContent = (openPositions || 0).toLocaleString();
-    if (stats[4]) stats[4].querySelector('.stat-card__value').textContent = (pendingDeposits || 0);
-    if (stats[5]) stats[5].querySelector('.stat-card__value').textContent = (pendingWithdrawals || 0);
-    if (stats[6]) stats[6].querySelector('.stat-card__value').textContent = (kycPending || 0);
-
-    // Sidebar badges — live counts only
-    const setBadge = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val > 0 ? val : ''; };
-    setBadge('badge-users',       totalUsers       || 0);
-    setBadge('badge-kyc',         kycPending        || 0);
-    setBadge('badge-deposits',    pendingDeposits   || 0);
-    setBadge('badge-withdrawals', pendingWithdrawals|| 0);
-  } catch (e) { console.warn('[ops] stats:', e); }
-}
-
-// ── Upgrade Deposits panel to also read from deposit_requests ─
-async function renderDepositsLive() {
-  renderDeposits();
-  const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
-    .from('deposit_requests')
-    .select('*, profiles(first_name, last_name)')
-    .order('created_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('deposits-tbody').innerHTML = data.map(d => {
-    const name = d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name}` : '—';
-    const amt  = parseFloat(d.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    return `<tr>
-      <td style="font-weight:600;">${d.id.slice(0,8).toUpperCase()}</td>
-      <td>${name}</td>
-      <td style="font-weight:700;">$${amt}</td>
-      <td>${d.payment_method || '—'}</td>
-      <td style="font-size:12px;">${fmtDate(d.created_at)}</td>
-      <td><span class="badge-pill ${d.status==='approved'?'pill-green':d.status==='pending'?'pill-orange':'pill-red'}">${d.status}</span></td>
-      <td><div class="row-actions">
-        ${d.status==='pending'
-          ? `<button class="btn btn--sm btn--green" onclick="opsApproveDepositReq('${d.id}')">Approve</button>
-             <button class="btn btn--sm btn--red" onclick="opsRejectDepositReq('${d.id}')">Reject</button>`
-          : `<button class="btn btn--sm btn--outline">View</button>`}
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-
-window.renderDepositsLive = renderDepositsLive;
-window.opsApproveDepositReq = async id => {
-  await window.XANTEX_DB.from('deposit_requests').update({ status:'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
-  showToast('Deposit approved','success'); renderDepositsLive(); loadDashboardStats();
-};
-window.opsRejectDepositReq = async id => {
-  await window.XANTEX_DB.from('deposit_requests').update({ status:'rejected', reviewed_at: new Date().toISOString() }).eq('id', id);
-  showToast('Deposit rejected','error'); renderDepositsLive(); loadDashboardStats();
-};
-
-// ── Upgrade Withdrawals panel to read from withdrawal_requests ─
-async function renderWithdrawalsLive() {
-  renderWithdrawals();
-  const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
-    .from('withdrawal_requests')
-    .select('*, profiles(first_name, last_name)')
-    .order('created_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('withdrawals-tbody').innerHTML = data.map(w => {
-    const name = w.profiles ? `${w.profiles.first_name} ${w.profiles.last_name}` : '—';
-    const amt  = parseFloat(w.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    return `<tr>
-      <td style="font-weight:600;">${w.id.slice(0,8).toUpperCase()}</td>
-      <td>${name}</td>
-      <td style="font-weight:700;">$${amt}</td>
-      <td style="font-size:12px;">${w.destination_type || '—'} ${w.destination_name ? '· ' + w.destination_name : ''}</td>
-      <td style="font-size:12px;">${fmtDate(w.created_at)}</td>
-      <td><span class="badge-pill ${w.status==='approved'||w.status==='completed'?'pill-green':w.status==='pending'?'pill-orange':'pill-red'}">${w.status}</span></td>
-      <td><div class="row-actions">
-        ${w.status==='pending'
-          ? `<button class="btn btn--sm btn--green" onclick="opsApproveWithdrawalReq('${w.id}')">Approve</button>
-             <button class="btn btn--sm btn--red" onclick="opsRejectWithdrawalReq('${w.id}')">Reject</button>`
-          : `<button class="btn btn--sm btn--outline">View</button>`}
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-
-window.renderWithdrawalsLive = renderWithdrawalsLive;
-window.opsApproveWithdrawalReq = async id => {
-  await window.XANTEX_DB.from('withdrawal_requests').update({ status:'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
-  showToast('Withdrawal approved','success'); renderWithdrawalsLive(); loadDashboardStats();
-};
-window.opsRejectWithdrawalReq = async id => {
-  await window.XANTEX_DB.from('withdrawal_requests').update({ status:'rejected', reviewed_at: new Date().toISOString() }).eq('id', id);
-  showToast('Withdrawal rejected','error'); renderWithdrawalsLive(); loadDashboardStats();
-};
+// renderDepositsLive, renderWithdrawalsLive and their approve/reject handlers
+// are now in ui.js (rendering) and actions.js (mutations via admin-api).
+// opsApproveDepositReq, opsRejectDepositReq, opsApproveWithdrawalReq,
+// opsRejectWithdrawalReq are all exported from actions.js.
 
 // ── Support Tickets ───────────────────────────────────────────
 let _supportFilter = 'all';

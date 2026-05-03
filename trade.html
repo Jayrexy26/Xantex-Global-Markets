@@ -642,9 +642,9 @@
       </a>
     </nav>
     <div class="sidebar__footer">
-      <div class="sidebar__avatar">JD</div>
+      <div class="sidebar__avatar" id="trade-sidebar-avatar">—</div>
       <div>
-        <div class="sidebar__user-name">John Doe</div>
+        <div class="sidebar__user-name" id="trade-sidebar-name">—</div>
         <div class="sidebar__user-role">Live account</div>
       </div>
       <button class="sidebar__logout" onclick="window.location='login.html'" title="Sign out">
@@ -1386,6 +1386,25 @@
   buildList('forex');
   loadChart(MARKETS.forex[0].tv);
   calcMargin();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+(async () => {
+  try {
+    const { data: { session } } = await window.XANTEX_DB.auth.getSession();
+    if (!session) return;
+    const { data: profile } = await window.XANTEX_DB.from('profiles').select('first_name,last_name').eq('id', session.user.id).single();
+    const fn = profile?.first_name || '';
+    const ln = profile?.last_name  || '';
+    const name = (fn + ' ' + ln).trim() || session.user.email;
+    const init = ((fn[0]||'') + (ln[0]||'')).toUpperCase() || '?';
+    const nameEl   = document.getElementById('trade-sidebar-name');
+    const avatarEl = document.getElementById('trade-sidebar-avatar');
+    if (nameEl)   nameEl.textContent   = name;
+    if (avatarEl) avatarEl.textContent = init;
+  } catch(_) {}
+})();
 </script>
 </body>
 </html>

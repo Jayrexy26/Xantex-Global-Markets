@@ -683,7 +683,7 @@
           <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <div class="topbar__notif-dot"></div>
         </button>
-        <div class="topbar__avatar">JD</div>
+        <div class="topbar__avatar" id="trade-topbar-avatar">—</div>
       </div>
     </div>
 
@@ -1399,10 +1399,10 @@
     const ln = profile?.last_name  || '';
     const name = (fn + ' ' + ln).trim() || session.user.email;
     const init = ((fn[0]||'') + (ln[0]||'')).toUpperCase() || '?';
-    const nameEl   = document.getElementById('trade-sidebar-name');
-    const avatarEl = document.getElementById('trade-sidebar-avatar');
-    if (nameEl)   nameEl.textContent   = name;
-    if (avatarEl) avatarEl.textContent = init;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    set('trade-sidebar-name',   name);
+    set('trade-sidebar-avatar', init);
+    set('trade-topbar-avatar',  init);
   } catch(_) {}
 })();
 </script>

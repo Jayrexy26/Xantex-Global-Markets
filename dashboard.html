@@ -1223,25 +1223,25 @@ async function signOut() {
     if (s < 60) return s + 's ago'; if (s < 3600) return Math.floor(s/60)+'m ago';
     if (s < 86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
   }
-  function safeQ(promise) { return promise.then(r => r).catch(() => ({ data: null })); }
 
-  // ── Load all data (each query is individually fault-tolerant) ─
-  const [
-    { data: profile },
-    { data: accounts },
-    { data: positions },
-    { data: txns },
-    { data: depReqs },
-    { data: wdReqs },
-    { data: cryptoCfg },
-  ] = await Promise.all([
-    safeQ(db.from('profiles').select('*').eq('id', userId).maybeSingle()),
-    safeQ(db.from('trading_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: false })),
-    safeQ(db.from('positions').select('*').eq('user_id', userId).eq('status', 'open').order('opened_at', { ascending: false })),
-    safeQ(db.from('transactions').select('type, amount, status, created_at, description').eq('user_id', userId).order('created_at', { ascending: false }).limit(20)),
-    safeQ(db.from('deposit_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false })),
-    safeQ(db.from('withdrawal_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false })),
-    safeQ(db.from('platform_settings').select('key,value').like('key','crypto_%')),
+  // ── Load each piece of data independently ─────────────────
+  async function q(label, queryBuilder) {
+    try {
+      const { data, error } = await queryBuilder;
+      if (error) { console.warn('[dashboard]', label, 'error:', error.message, error.code); return null; }
+      console.log('[dashboard]', label, '→', Array.isArray(data) ? data.length + ' rows' : (data ? 'row' : 'null'));
+      return data;
+    } catch(e) { console.error('[dashboard]', label, 'exception:', e.message); return null; }
+  }
+
+  const [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg] = await Promise.all([
+    q('profile',    db.from('profiles').select('*').eq('id', userId).maybeSingle()),
+    q('accounts',   db.from('trading_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: false })),
+    q('positions',  db.from('positions').select('*').eq('user_id', userId).eq('status', 'open').order('opened_at', { ascending: false })),
+    q('txns',       db.from('transactions').select('type, amount, status, created_at, description').eq('user_id', userId).order('created_at', { ascending: false }).limit(20)),
+    q('depReqs',    db.from('deposit_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false })),
+    q('wdReqs',     db.from('withdrawal_requests').select('id, amount, status, created_at').eq('user_id', userId).order('created_at', { ascending: false })),
+    q('cryptoCfg',  db.from('platform_settings').select('key,value').like('key','crypto_%')),
   ]);
 
   // ── Build crypto address map ──────────────────────────────

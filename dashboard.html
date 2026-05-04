@@ -2096,7 +2096,7 @@ function savePreferences() {
     return null;
   }
 
-  let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg] = await Promise.all([
+  let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns] = await Promise.all([
     loadProfile(),
     loadRows('accounts',  'get_my_accounts',    'trading_accounts',    q => q.order('created_at',{ascending:false})),
     loadRows('positions', 'get_my_positions',   'positions',           q => q.eq('status','open').order('opened_at',{ascending:false})),
@@ -2104,6 +2104,7 @@ function savePreferences() {
     loadRows('depReqs',   'get_my_deposits',    'deposit_requests',    q => q.order('created_at',{ascending:false})),
     loadRows('wdReqs',    'get_my_withdrawals', 'withdrawal_requests', q => q.order('created_at',{ascending:false})),
     rpcCfg(),
+    loadRows('adjTxns',   'get_my_adj_txns',    'transactions',        q => q.eq('type','adjustment')),
   ]);
 
   // ── Build crypto address map ──────────────────────────────
@@ -2305,12 +2306,39 @@ function savePreferences() {
 
   // ── Positions & Open P&L ─────────────────────────────────
   const tbody = document.getElementById('positions-tbody');
+
+  // Net admin adjustment (signed: +credit, -debit)
+  const netAdj      = (adjTxns||[]).reduce((s,t) => s + parseFloat(t.amount||0), 0);
+  const posPnl      = (positions||[]).reduce((s,p) => s + (parseFloat(p.floating_pnl)||0), 0);
+  const totalPnl    = posPnl + netAdj;
+  const currentBal  = parseFloat(accounts?.[0]?.balance ?? 0);
+  const baseBal     = currentBal - totalPnl;
+  const pct         = baseBal !== 0 ? (totalPnl / Math.abs(baseBal)) * 100 : 0;
+
+  const $pnl    = document.getElementById('card-pnl');
+  const $pnlSub = document.getElementById('card-pnl-sub');
+
+  if (totalPnl !== 0) {
+    if ($pnl) {
+      $pnl.textContent = (totalPnl >= 0 ? '+' : '') + fmt(totalPnl);
+      $pnl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+    }
+    if ($pnlSub) {
+      $pnlSub.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+      $pnlSub.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+    }
+  } else {
+    if ($pnl) { $pnl.textContent = '$0.00'; $pnl.style.color = 'var(--muted)'; }
+    if ($pnlSub) {
+      $pnlSub.textContent = (positions&&positions.length)
+        ? `${positions.length} open position${positions.length!==1?'s':''}`
+        : 'No open positions';
+      $pnlSub.style.color = 'var(--muted)';
+    }
+  }
+
+  // Render positions table rows
   if (positions && positions.length) {
-    const totalPnl = positions.reduce((s,p) => s + (parseFloat(p.floating_pnl)||0), 0);
-    const $pnl = document.getElementById('card-pnl');
-    if ($pnl) { $pnl.textContent = (totalPnl>=0?'+':'')+fmt(totalPnl); $pnl.style.color = totalPnl>=0?'var(--green)':'var(--red)'; }
-    const $pnlSub = document.getElementById('card-pnl-sub');
-    if ($pnlSub) $pnlSub.textContent = `${positions.length} open position${positions.length!==1?'s':''}`;
     if (tbody) {
       document.getElementById('positions-empty-row')?.remove();
       tbody.innerHTML = positions.map(p => {
@@ -2325,10 +2353,6 @@ function savePreferences() {
         </tr>`;
       }).join('');
     }
-  } else {
-    const $pnl = document.getElementById('card-pnl');
-    if ($pnl) { $pnl.textContent = '$0.00'; $pnl.style.color = 'var(--muted)'; }
-    document.getElementById('card-pnl-sub') && (document.getElementById('card-pnl-sub').textContent = 'No open positions');
   }
 
   // ── Deposit / Withdrawal counts ───────────────────────────

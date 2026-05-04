@@ -2200,6 +2200,7 @@ window.saveUser = async function() {
 
 // ── Crypto Deposit Addresses ──────────────────────────────────
 const CRYPTO_COINS = [
+  { key:'BTC',  label:'BTC — Bitcoin'           },
   { key:'ETH',  label:'ETH — Ethereum'         },
   { key:'USDT', label:'USDT — Tether (ERC20)'  },
   { key:'USDC', label:'USDC — USD Coin (ERC20)'},
@@ -2230,7 +2231,7 @@ async function loadCryptoAddresses() {
   grid.innerHTML = CRYPTO_COINS.map(c => `
     <div class="field" style="margin:0;">
       <label style="font-size:11px;">${c.label}</label>
-      <input type="text" id="addr-${c.key}" placeholder="0x…" value="${saved[c.key]||''}" style="font-size:11px;font-family:monospace;">
+      <input type="text" id="addr-${c.key}" placeholder="${c.key==='BTC'?'bc1… or 1… or 3…':'0x…'}" value="${saved[c.key]||''}" style="font-size:11px;font-family:monospace;">
     </div>`).join('');
 }
 

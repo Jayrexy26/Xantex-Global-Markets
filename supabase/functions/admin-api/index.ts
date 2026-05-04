@@ -294,7 +294,7 @@ async function adminApproveDeposit(db: ReturnType<typeof createClient>, payload:
 
   await db.from('deposit_requests').update({ status: 'approved', reviewed_by: adminId, reviewed_at: new Date().toISOString() }).eq('id', depositId);
   await db.from('trading_accounts').update({ balance: newBalance }).eq('id', account.id);
-  await db.from('transactions').insert({ user_id: dep.user_id, account_id: account.id, type: 'deposit', amount: dep.amount, status: 'completed', description: 'Deposit approved by admin', reference: depositId });
+  await db.from('transactions').insert({ user_id: dep.user_id, account_id: account.id, type: 'deposit', amount: dep.amount, status: 'completed', description: 'Xantex approved your deposit', reference: depositId });
   await audit(db, adminId, 'approve_deposit', dep.user_id, `$${dep.amount} deposit approved — account ${account.id}`);
 
   return ok({ success: true, balance_before: oldBalance, balance_after: newBalance });
@@ -332,7 +332,7 @@ async function adminApproveWithdrawal(db: ReturnType<typeof createClient>, paylo
 
   await db.from('withdrawal_requests').update({ status: 'approved', reviewed_by: adminId, reviewed_at: new Date().toISOString() }).eq('id', withdrawalId);
   await db.from('trading_accounts').update({ balance: newBalance }).eq('id', account.id);
-  await db.from('transactions').insert({ user_id: wd.user_id, account_id: account.id, type: 'withdrawal', amount: wd.amount, status: 'completed', description: 'Withdrawal approved by admin', reference: withdrawalId });
+  await db.from('transactions').insert({ user_id: wd.user_id, account_id: account.id, type: 'withdrawal', amount: wd.amount, status: 'completed', description: 'Xantex approved your withdrawal', reference: withdrawalId });
   await audit(db, adminId, 'approve_withdrawal', wd.user_id, `$${wd.amount} withdrawal approved — account ${account.id}`);
 
   return ok({ success: true, balance_before: oldBalance, balance_after: newBalance });

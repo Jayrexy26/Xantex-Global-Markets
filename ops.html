@@ -683,7 +683,7 @@
           <div class="card__body--p0 table-wrap">
             <table class="data-table">
               <thead><tr>
-                <th>User</th><th>Email</th><th>Country</th><th>Doc Type</th><th>Submitted</th><th>Status</th><th>Actions</th>
+                <th>User</th><th>Country</th><th>Doc Type</th><th>Submitted</th><th>Status</th><th>Actions</th>
               </tr></thead>
               <tbody id="kyc-tbody"></tbody>
             </table>
@@ -1664,19 +1664,38 @@
       </tr>`).join('');
   }
 
-  function renderAdjLog() {
-    document.getElementById('adj-log-tbody').innerHTML = ADJ_LOG.map(a => `
-      <tr>
-        <td style="font-size:12px;">${a.time}</td>
-        <td style="font-weight:600;">${a.acc}</td>
-        <td>${a.user}</td>
-        <td><span class="badge-pill pill-green">${a.type}</span></td>
-        <td style="font-weight:700;color:var(--green);">${a.amt}</td>
-        <td>${a.before}</td>
-        <td style="font-weight:600;">${a.after}</td>
-        <td style="font-size:11px;">${a.admin}</td>
-        <td style="font-size:12px;color:var(--muted);">${a.reason}</td>
-      </tr>`).join('');
+  async function renderAdjLog() {
+    const tbody = document.getElementById('adj-log-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted);">Loading…</td></tr>';
+    try {
+      const res  = await fetchAdminAPI('list_transactions');
+      const txns = (res.transactions || []).filter(t => t.type === 'adjustment' || t.type === 'balance_set');
+      if (!txns.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">No adjustment records found</td></tr>';
+        return;
+      }
+      const fmtDate = d => d ? new Date(d).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      const fmtAmt  = v => { const n = parseFloat(v||0); return (n >= 0 ? '+' : '') + '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2}); };
+      tbody.innerHTML = txns.map(t => {
+        const isCredit = parseFloat(t.amount||0) >= 0;
+        const typeLabel = t.type === 'balance_set' ? 'Balance Set' : isCredit ? 'Credit' : 'Debit';
+        const pillCls   = t.type === 'balance_set' ? 'pill-blue' : isCredit ? 'pill-green' : 'pill-red';
+        return `<tr>
+          <td style="font-size:12px;">${fmtDate(t.created_at)}</td>
+          <td style="font-weight:600;">—</td>
+          <td><div style="font-size:12px;font-weight:600;">${String(t.user_name||'').replace(/</g,'&lt;') || '—'}</div><div style="font-size:11px;color:var(--muted);">${String(t.user_email||'').replace(/</g,'&lt;')}</div></td>
+          <td><span class="badge-pill ${pillCls}">${typeLabel}</span></td>
+          <td style="font-weight:700;color:${isCredit?'var(--green)':'var(--red)'};">${fmtAmt(t.amount)}</td>
+          <td>—</td>
+          <td style="font-weight:600;">—</td>
+          <td style="font-size:11px;">Admin</td>
+          <td style="font-size:12px;color:var(--muted);">${String(t.description||'—').replace(/</g,'&lt;')}</td>
+        </tr>`;
+      }).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--red);">Error: ${String(e.message||e).replace(/</g,'&lt;')}</td></tr>`;
+    }
   }
 
   function renderAudit() {

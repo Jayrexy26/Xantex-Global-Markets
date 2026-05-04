@@ -54,7 +54,7 @@
       display: flex; align-items: center; justify-content: space-between;
     }
     .navbar__logo a { display: flex; align-items: center; }
-    .navbar__logo img { height: 36px; width: auto; }
+    .navbar__logo img { height: 130px; width: auto; }
     .navbar__logo-text { font-size: 24px; font-weight: 700; color: var(--red); }
     .navbar__back {
       font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 6px;
@@ -493,13 +493,9 @@
 
         <div class="divider">or sign up with</div>
         <div class="social-btns">
-          <button class="social-btn" type="button">
+          <button class="social-btn" type="button" onclick="signInWithGoogle()" style="width:100%;">
             <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Google
-          </button>
-          <button class="social-btn" type="button">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-            Facebook
+            Continue with Google
           </button>
         </div>
 
@@ -547,24 +543,17 @@
 
         <div class="field">
           <label for="platform">Preferred platform</label>
-          <select id="platform">
-            <option value="" disabled selected>Select platform…</option>
-            <option>MetaTrader 4</option>
-            <option>MetaTrader 5</option>
-            <option>cTrader</option>
-            <option>TradingView</option>
-            <option>Xantex Platform</option>
+          <select id="platform" disabled style="opacity:0.75;cursor:not-allowed;">
+            <option value="Xantex Platform" selected>Xantex Platform</option>
           </select>
         </div>
 
         <div class="field">
           <label for="currency">Account currency</label>
           <select id="currency">
-            <option>USD — US Dollar</option>
-            <option>EUR — Euro</option>
-            <option>GBP — British Pound</option>
-            <option>AED — UAE Dirham</option>
-            <option>NGN — Nigerian Naira</option>
+            <option value="USD">USD — US Dollar</option>
+            <option value="EUR">EUR — Euro</option>
+            <option value="GBP">GBP — British Pound</option>
           </select>
         </div>
 
@@ -691,8 +680,8 @@
       <p style="font-size:14px;color:var(--muted);max-width:300px;margin:0 auto 28px;line-height:1.6;">
         Welcome to Xantex. We've sent a confirmation email. Your account is being reviewed and will be ready shortly.
       </p>
-      <a href="/index.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;padding:13px 32px;border-radius:28px;font-size:15px;font-weight:600;">
-        Go to dashboard
+      <a href="login.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;padding:13px 32px;border-radius:28px;font-size:15px;font-weight:600;">
+        Sign in to your account →
       </a>
     </div>
 
@@ -759,8 +748,29 @@
     }
     if (valid) setStep(2);
   }
-  function goStep3() { setStep(3); }
+  function goStep3() {
+    let valid = true;
+    ['account-type','experience','deposit'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el || !el.value) {
+        if (el) el.classList.add('error');
+        valid = false;
+      } else {
+        el.classList.remove('error');
+      }
+    });
+    if (valid) setStep(3);
+  }
   async function submitForm() {
+    // Validate step 3 required fields
+    let step3Valid = true;
+    const dob    = document.getElementById('dob');
+    const idType = document.getElementById('id-type');
+    if (!dob?.value)    { dob?.classList.add('error');    step3Valid = false; }
+    else                  dob?.classList.remove('error');
+    if (!idType?.value) { idType?.classList.add('error'); step3Valid = false; }
+    else                  idType?.classList.remove('error');
+
     // Validate required uploads
     const idFrontFile = document.getElementById('upload-id-front').files[0];
     const proofFile   = document.getElementById('upload-proof').files[0];
@@ -776,7 +786,7 @@
         uploadValid = false;
       }
     });
-    if (!uploadValid) { alert('Please upload all required documents (ID Front, Proof of Address, Selfie Photo).'); return; }
+    if (!step3Valid || !uploadValid) { alert('Please fill in all required fields and upload all required documents.'); return; }
 
     const email     = document.getElementById('email').value.trim();
     const password  = document.getElementById('password').value;
@@ -858,6 +868,25 @@
         submitted_at:     new Date().toISOString(),
         status:           'pending',
       });
+
+      // Auto-create a live Xantex trading account
+      const accountNum = String(Math.floor(10000000 + Math.random() * 90000000));
+      const rawAccType = document.getElementById('account-type')?.value || '';
+      const accType    = rawAccType.split(' ')[0] || 'Instant';
+      const currency   = (document.getElementById('currency')?.value || 'USD').split(' ')[0];
+      const leverage   = document.getElementById('leverage')?.value || '1:200';
+      await db.from('trading_accounts').insert({
+        user_id:      userId,
+        account_number: accountNum,
+        platform:     'Xantex Platform',
+        account_type: accType,
+        currency,
+        leverage,
+        balance:      0,
+        equity:       0,
+        status:       'active',
+        type:         'live',
+      });
     }
 
     submitBtn.classList.remove('loading');
@@ -891,6 +920,16 @@
   document.querySelectorAll('.field input, .field select').forEach(el => {
     el.addEventListener('input', () => el.classList.remove('error'));
   });
+
+  // ── Google OAuth ──────────────────────────────────────────
+  async function signInWithGoogle() {
+    const db = window.XANTEX_DB;
+    if (!db) return;
+    await db.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/dashboard.html' },
+    });
+  }
 </script>
 </body>
 </html>

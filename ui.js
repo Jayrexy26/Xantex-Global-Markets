@@ -146,14 +146,14 @@ window.renderUsersLive = renderUsersLive;
 // ═══════════════════════════════════════════════════════════════
 async function renderKYCLive() {
   const tbody = document.getElementById('kyc-tbody');
-  if (tbody) tbody.innerHTML = skeletonRows(7);
+  if (tbody) tbody.innerHTML = skeletonRows(6);
 
   let records;
   try {
     const res = await fetchAdminAPI('list_kyc');
     records = res.data || res.kyc || [];
   } catch (e) {
-    if (tbody) tbody.innerHTML = emptyState(7, 'Failed to load KYC: ' + e.message, 'error');
+    if (tbody) tbody.innerHTML = emptyState(6, 'Failed to load KYC: ' + e.message, 'error');
     return;
   }
 
@@ -162,11 +162,11 @@ async function renderKYCLive() {
   if (badge) badge.textContent = pending > 0 ? pending : '';
 
   if (!records.length) {
-    if (tbody) tbody.innerHTML = emptyState(7, 'No KYC submissions found');
+    if (tbody) tbody.innerHTML = emptyState(6, 'No KYC submissions found');
     return;
   }
 
-  if (tbody) tbody.innerHTML = records.map(k => {
+  if (tbody) tbody.innerHTML = records.map((k, i) => {
     const name = _esc(k.name || k.full_name || `${k.first_name||''} ${k.last_name||''}`.trim() || '—');
     // Encode doc info for the viewer modal (keep same pattern as original)
     const docsJson = JSON.stringify({
@@ -174,9 +174,11 @@ async function renderKYCLive() {
       addr: k.proof_address_url, name, docType: k.document_type,
       status: k.status, id: k.id,
     }).replace(/'/g, "&#39;");
+    const avatarHtml = k.selfie_url
+      ? `<img src="${_esc(k.selfie_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" /><div class="user-avatar" style="background:${_color(i)};display:none;">${_initials(name)}</div>`
+      : `<div class="user-avatar" style="background:${_color(i)};">${_initials(name)}</div>`;
     return `<tr>
-      <td><div class="user-name">${name}</div></td>
-      <td><div class="user-email">${_esc(k.email||'—')}</div></td>
+      <td><div class="user-cell">${avatarHtml}<div><div class="user-name">${name}</div><div class="user-email">${_esc(k.email||'—')}</div></div></div></td>
       <td>${_esc(k.country||'—')}</td>
       <td>${_esc(k.document_type||'—')}</td>
       <td style="font-size:12px;">${fmtDate(k.submitted_at||k.created_at)}</td>

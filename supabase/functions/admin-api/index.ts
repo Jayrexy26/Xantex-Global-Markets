@@ -373,11 +373,12 @@ async function adminAdjustBalance(db: ReturnType<typeof createClient>, payload: 
 
   if (newBalance < 0) throw new Error('Balance cannot go negative');
 
-  // Signed amount: positive = credit, negative = debit, delta for set
+  // 'set' uses a distinct type so it never affects P&L; credit/debit are signed
+  const txnType     = type === 'set' ? 'balance_set' : 'adjustment';
   const signedAmount = type === 'credit' ? amount : type === 'debit' ? -amount : (newBalance - oldBalance);
 
   await db.from('trading_accounts').update({ balance: newBalance }).eq('id', accountId);
-  await db.from('transactions').insert({ user_id: account.user_id, account_id: accountId, type: 'adjustment', amount: signedAmount, status: 'completed', description: reason });
+  await db.from('transactions').insert({ user_id: account.user_id, account_id: accountId, type: txnType, amount: signedAmount, status: 'completed', description: reason });
   await audit(db, adminId, `balance_${type}`, account.user_id, `$${amount} ${type} — reason: ${reason}`);
 
   return ok({ success: true, balance_before: oldBalance, balance_after: newBalance });

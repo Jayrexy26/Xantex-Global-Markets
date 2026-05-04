@@ -1304,7 +1304,13 @@
   }
 
   window.addEventListener('prices:update', e => applyLivePrices(e.detail || {}));
-  if (window.LIVE_PRICES && Object.keys(window.LIVE_PRICES).length) applyLivePrices(window.LIVE_PRICES);
+
+  // Safety net: poll LIVE_PRICES directly in case event fires before this listener registered
+  setInterval(() => {
+    if (window.LIVE_PRICES && Object.keys(window.LIVE_PRICES).length > 0) {
+      applyLivePrices(window.LIVE_PRICES);
+    }
+  }, 2000);
 })();
 </script>
 <script>

@@ -777,12 +777,17 @@
                 <textarea placeholder="Internal reason for this adjustment (required)…" id="adj-reason"></textarea>
               </div>
             </div>
-            <div style="margin-top:16px;display:flex;gap:10px;">
+            <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
               <button class="btn btn--green" onclick="applyAdjustment()">
                 <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                 Apply Adjustment
               </button>
               <button class="btn btn--outline">Cancel</button>
+              <div style="flex:1;"></div>
+              <button class="btn btn--red" onclick="clearUserPnl()" title="Reset this user's Open P&L to $0.00">
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Clear P&amp;L
+              </button>
             </div>
           </div>
         </div>

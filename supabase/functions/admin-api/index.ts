@@ -410,6 +410,16 @@ async function adminCompletePlan(db: ReturnType<typeof createClient>, payload: R
   return ok({ success: true, realised_pnl: pnl });
 }
 
+async function adminClearPnl(db: ReturnType<typeof createClient>, payload: Record<string, unknown>, adminId: string) {
+  const userId = payload.user_id as string;
+  if (!userId) throw new Error('user_id required');
+
+  await db.from('transactions').delete().eq('user_id', userId).eq('type', 'adjustment');
+  await audit(db, adminId, 'clear_pnl', userId, 'P&L reset to $0.00');
+
+  return ok({ success: true });
+}
+
 // ─── Router ───────────────────────────────────────────────────────────────────
 
 type Handler = (db: ReturnType<typeof createClient>, payload: Record<string, unknown>, adminId: string) => Promise<Response>;
@@ -428,6 +438,7 @@ const HANDLERS: Record<string, Handler> = {
   admin_reject_withdrawal:  (db, p, id)  => adminRejectWithdrawal(db, p, id),
   admin_adjust_balance:     (db, p, id)  => adminAdjustBalance(db, p, id),
   admin_complete_plan:      (db, p, id)  => adminCompletePlan(db, p, id),
+  admin_clear_pnl:          (db, p, id)  => adminClearPnl(db, p, id),
 };
 
 // ─── Entry point ─────────────────────────────────────────────────────────────

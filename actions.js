@@ -251,6 +251,34 @@ window.applyAdjustment = async function() {
 };
 
 // ═══════════════════════════════════════════════════════════════
+// CLEAR USER P&L
+// ═══════════════════════════════════════════════════════════════
+window.clearUserPnl = async function() {
+  const userId   = document.getElementById('adj-user-select')?.value;
+  const userName = document.getElementById('adj-user-select')?.selectedOptions?.[0]?.text || 'User';
+
+  if (!userId) { showToast('Please select a user first', 'error'); return; }
+
+  const confirmed = await showConfirmModal({
+    title:        'Clear P&L',
+    message:      `Reset all P&L for <strong>${_esc(userName)}</strong> to <strong>$0.00</strong>?<br><br>
+                   This deletes all credit and debit adjustment records for this user.`,
+    requireType:  'CONFIRM',
+    dangerLevel:  'high',
+    confirmLabel: 'Clear P&L',
+  });
+  if (!confirmed) return;
+
+  try {
+    await fetchAdminAPI('admin_clear_pnl', { user_id: userId });
+    showToast('P&L cleared — now showing $0.00', 'success');
+    addAuditEntry('CLEAR_PNL', userName, 'P&L reset to $0.00');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
 // FORCE CLOSE POSITION
 // ═══════════════════════════════════════════════════════════════
 window.opsForceClose = async function(id, symbol, userName) {

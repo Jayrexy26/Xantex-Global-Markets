@@ -1977,20 +1977,35 @@
         },
       })),
       // Pending / rejected withdrawal requests
-      ...wdReqs.filter(w => w.status !== 'approved').map(w => ({
-        id: w.id, reqId: w.id, date: w.created_at,
-        type: 'withdrawal_request', label: 'Withdrawal Request',
-        amount: -Math.abs(parseFloat(w.amount || 0)), status: w.status || 'pending',
-        canCancel: w.status === 'pending',
-        detail: {
-          'Amount':           '$' + Math.abs(parseFloat(w.amount||0)).toFixed(2),
-          'Method':           w.destination_type || '—',
-          'Account Name':     w.destination_name || '—',
-          'Account / Address': w.destination_ref || '—',
-          'Reference':        w.id.slice(0,8).toUpperCase(),
-          'Submitted':        _fmtDateLong(w.created_at),
-        },
-      })),
+      ...wdReqs.filter(w => w.status !== 'approved').map(w => {
+        const isCrypto = (w.destination_type || '').toLowerCase().includes('crypto');
+        const [bankName, acctNum] = isCrypto ? [] : (w.destination_ref || '').split(' | ');
+        const detail = isCrypto
+          ? {
+              'Amount':         '$' + Math.abs(parseFloat(w.amount||0)).toFixed(2),
+              'Method':         'Cryptocurrency',
+              'Coin':           w.destination_name || '—',
+              'Wallet Address': w.destination_ref  || '—',
+              'Reference':      w.id.slice(0,8).toUpperCase(),
+              'Submitted':      _fmtDateLong(w.created_at),
+            }
+          : {
+              'Amount':                 '$' + Math.abs(parseFloat(w.amount||0)).toFixed(2),
+              'Method':                 'Bank Transfer',
+              'Bank Name':              bankName || '—',
+              'Account Name':           w.destination_name || '—',
+              'Account Number / IBAN':  acctNum  || '—',
+              'Reference':              w.id.slice(0,8).toUpperCase(),
+              'Submitted':              _fmtDateLong(w.created_at),
+            };
+        return {
+          id: w.id, reqId: w.id, date: w.created_at,
+          type: 'withdrawal_request', label: 'Withdrawal Request',
+          amount: -Math.abs(parseFloat(w.amount || 0)), status: w.status || 'pending',
+          canCancel: w.status === 'pending',
+          detail,
+        };
+      }),
     ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     window._txnRows = rows;

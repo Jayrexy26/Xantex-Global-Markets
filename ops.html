@@ -1962,7 +1962,7 @@ window.execDeleteUser = async function() {
     // Delete related records then user row
     await db.from('deposits').delete().eq('user_email', _delUserEmail);
     await db.from('withdrawals').delete().eq('user_email', _delUserEmail);
-    await db.from('user_notices').delete().eq('user_id', _delUserId);
+    await db.from('notifications').delete().eq('user_id', _delUserId);
     const { error } = await db.from('users').delete().eq('id', _delUserId);
     if (error) throw error;
 
@@ -2358,10 +2358,16 @@ async function renderNotificationsLive() {
   const tbody = document.getElementById('notif-tbody');
   if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted);">Loading…</td></tr>';
 
-  const [{ data: users }, { data: notifs }] = await Promise.all([
-    db.from('users').select('id, full_name, email').order('email', { ascending: true }),
-    db.from('user_notices').select('*'),
-  ]);
+  let users = [];
+  try {
+    const res = await fetchAdminAPI('list_users');
+    users = res.data || res.users || [];
+  } catch (e) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted);">Failed to load users: ${e.message}</td></tr>`;
+    return;
+  }
+
+  const { data: notifs } = await db.from('notifications').select('*');
 
   if (!users?.length) {
     if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted);">No users found</td></tr>';
@@ -2374,7 +2380,7 @@ async function renderNotificationsLive() {
   const COLORS = ['#1a5cff','#22a06b','#7c3aed','#f5a623','#e60023'];
   if (tbody) tbody.innerHTML = users.map((u, i) => {
     const n    = notifMap[u.id] || {};
-    const name = u.full_name || u.email;
+    const name = u.name || u.full_name || `${u.first_name||''} ${u.last_name||''}`.trim() || u.email;
     const init = name.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
     const col  = COLORS[i % COLORS.length];
     const enabled = !!n.enabled;
@@ -2403,7 +2409,7 @@ window.opsSaveNotif = async userId => {
   const title   = document.getElementById('ntitle-'+userId)?.value?.trim() || '';
   const message = document.getElementById('nmsg-'+userId)?.value?.trim() || '';
   const enabled = document.getElementById('nenabled-'+userId)?.checked || false;
-  const { error } = await window.XANTEX_DB.from('user_notices').upsert(
+  const { error } = await window.XANTEX_DB.from('notifications').upsert(
     { user_id: userId, title, message, enabled, updated_at: new Date().toISOString() },
     { onConflict: 'user_id' }
   );
@@ -2411,7 +2417,7 @@ window.opsSaveNotif = async userId => {
   showToast('Notification saved','success');
 };
 window.opsClearNotif = async userId => {
-  await window.XANTEX_DB.from('user_notices').upsert(
+  await window.XANTEX_DB.from('notifications').upsert(
     { user_id: userId, title: '', message: '', enabled: false, updated_at: new Date().toISOString() },
     { onConflict: 'user_id' }
   );

@@ -420,6 +420,46 @@ async function adminClearPnl(db: ReturnType<typeof createClient>, payload: Recor
   return ok({ success: true });
 }
 
+async function adminApproveKYC(db: ReturnType<typeof createClient>, payload: Record<string, unknown>, adminId: string) {
+  const submissionId = payload.submission_id as string;
+  if (!submissionId) throw new Error('submission_id required');
+
+  const { data: sub, error: subErr } = await db.from('kyc_submissions').select('user_id, status').eq('id', submissionId).single();
+  if (subErr || !sub) throw new Error('KYC submission not found');
+
+  await db.from('kyc_submissions').update({
+    status: 'verified',
+    reviewed_by: adminId,
+    reviewed_at: new Date().toISOString(),
+  }).eq('id', submissionId);
+
+  await db.from('profiles').update({ kyc_status: 'approved' }).eq('id', sub.user_id);
+  await audit(db, adminId, 'approve_kyc', sub.user_id, `KYC submission ${submissionId.slice(0,8).toUpperCase()} approved`);
+
+  return ok({ success: true });
+}
+
+async function adminRejectKYC(db: ReturnType<typeof createClient>, payload: Record<string, unknown>, adminId: string) {
+  const submissionId = payload.submission_id as string;
+  const reason       = (payload.reason as string) ?? '';
+  if (!submissionId) throw new Error('submission_id required');
+
+  const { data: sub, error: subErr } = await db.from('kyc_submissions').select('user_id, status').eq('id', submissionId).single();
+  if (subErr || !sub) throw new Error('KYC submission not found');
+
+  await db.from('kyc_submissions').update({
+    status: 'rejected',
+    rejection_reason: reason,
+    reviewed_by: adminId,
+    reviewed_at: new Date().toISOString(),
+  }).eq('id', submissionId);
+
+  await db.from('profiles').update({ kyc_status: 'rejected' }).eq('id', sub.user_id);
+  await audit(db, adminId, 'reject_kyc', sub.user_id, `KYC submission ${submissionId.slice(0,8).toUpperCase()} rejected: ${reason}`);
+
+  return ok({ success: true });
+}
+
 // ─── Router ───────────────────────────────────────────────────────────────────
 
 type Handler = (db: ReturnType<typeof createClient>, payload: Record<string, unknown>, adminId: string) => Promise<Response>;
@@ -439,6 +479,8 @@ const HANDLERS: Record<string, Handler> = {
   admin_adjust_balance:     (db, p, id)  => adminAdjustBalance(db, p, id),
   admin_complete_plan:      (db, p, id)  => adminCompletePlan(db, p, id),
   admin_clear_pnl:          (db, p, id)  => adminClearPnl(db, p, id),
+  admin_approve_kyc:        (db, p, id)  => adminApproveKYC(db, p, id),
+  admin_reject_kyc:         (db, p, id)  => adminRejectKYC(db, p, id),
 };
 
 // ─── Entry point ─────────────────────────────────────────────────────────────

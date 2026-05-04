@@ -1659,11 +1659,11 @@
                   </div>
                 </div>
                 <div class="sett-card__foot" id="kyc-upload-foot">
-                  <button class="btn btn--primary" onclick="window.location.href='register.html'">
+                  <button class="btn btn--primary" onclick="openModal('kyc-submit')">
                     <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Upload Documents
                   </button>
-                  <span style="font-size:12px;color:var(--muted);">You will be guided through the verification process</span>
+                  <span style="font-size:12px;color:var(--muted);">Upload your ID and selfie to verify your identity</span>
                 </div>
               </div>
 
@@ -1852,6 +1852,48 @@
     <div class="modal__foot">
       <button class="btn btn--outline" onclick="closeModal('withdraw')">Cancel</button>
       <button class="btn btn--red" id="wd-submit-btn">Request Withdrawal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     KYC SUBMIT MODAL
+============================================================ -->
+<div class="modal-overlay" id="modal-kyc-submit">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal__head">
+      <div class="modal__title">Identity Verification</div>
+      <button class="modal__close" onclick="closeModal('kyc-submit')">✕</button>
+    </div>
+    <div class="modal__body" style="display:flex;flex-direction:column;gap:16px;">
+      <div class="field">
+        <label>Document Type <span style="color:var(--red)">*</span></label>
+        <select id="kyc-doc-type">
+          <option value="" disabled selected>Select document type…</option>
+          <option value="Passport">Passport</option>
+          <option value="National ID">National ID card</option>
+          <option value="Driver's licence">Driver's licence</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>ID Front Photo <span style="color:var(--red)">*</span></label>
+        <input type="file" id="kyc-id-front" accept=".jpg,.jpeg,.png,.pdf" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;width:100%;background:var(--bg);">
+      </div>
+      <div class="field">
+        <label>Selfie with Document <span style="color:var(--red)">*</span></label>
+        <input type="file" id="kyc-selfie" accept=".jpg,.jpeg,.png" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;width:100%;background:var(--bg);">
+        <span style="font-size:11px;color:var(--muted);">Hold your ID next to your face, clearly visible.</span>
+      </div>
+      <div class="field">
+        <label>Proof of Address <span style="color:var(--red)">*</span></label>
+        <input type="file" id="kyc-proof" accept=".jpg,.jpeg,.png,.pdf" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;width:100%;background:var(--bg);">
+        <span style="font-size:11px;color:var(--muted);">Utility bill, bank statement (within 3 months).</span>
+      </div>
+      <div id="kyc-submit-msg" style="font-size:13px;min-height:18px;"></div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="closeModal('kyc-submit')">Cancel</button>
+      <button class="btn btn--primary" id="kyc-submit-btn" onclick="submitKYC()">Submit for Review</button>
     </div>
   </div>
 </div>
@@ -2940,6 +2982,57 @@ function savePreferences() {
     if (error) { alert('Trade error: ' + error.message); return; }
     closeModal('new-trade');
     location.reload();
+  };
+
+  // ── KYC document submission ───────────────────────────────
+  window.submitKYC = async function() {
+    const docType   = document.getElementById('kyc-doc-type')?.value;
+    const frontFile = document.getElementById('kyc-id-front')?.files?.[0];
+    const selfieFile= document.getElementById('kyc-selfie')?.files?.[0];
+    const proofFile = document.getElementById('kyc-proof')?.files?.[0];
+    const btn       = document.getElementById('kyc-submit-btn');
+    const msg       = document.getElementById('kyc-submit-msg');
+
+    if (!docType)    { if(msg){msg.style.color='var(--red)';msg.textContent='Please select a document type.';} return; }
+    if (!frontFile)  { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload the front of your ID.';} return; }
+    if (!selfieFile) { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload your selfie with document.';} return; }
+    if (!proofFile)  { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload proof of address.';} return; }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Uploading…'; }
+    if (msg) { msg.style.color = 'var(--muted)'; msg.textContent = 'Uploading documents…'; }
+
+    async function up(bucket, file, path) {
+      const ext = file.name.split('.').pop();
+      await db.storage.from(bucket).upload(`${path}.${ext}`, file, { upsert: true });
+      return db.storage.from(bucket).getPublicUrl(`${path}.${ext}`).data.publicUrl;
+    }
+
+    try {
+      const [frontUrl, selfieUrl, proofUrl] = await Promise.all([
+        up('kyc-docs', frontFile,  `${userId}/id_front`),
+        up('avatars',  selfieFile, `${userId}`),
+        up('kyc-docs', proofFile,  `${userId}/proof_address`),
+      ]);
+
+      await db.from('profiles').update({ kyc_status: 'pending', avatar_url: selfieUrl }).eq('id', userId);
+      const { error } = await db.from('kyc_submissions').upsert({
+        user_id: userId, document_type: docType,
+        front_url: frontUrl, selfie_url: selfieUrl, proof_address_url: proofUrl,
+        submitted_at: new Date().toISOString(), status: 'pending',
+      }, { onConflict: 'user_id' });
+
+      if (error) throw error;
+
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit for Review'; }
+      if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Documents submitted! We'll review within 24 hours.'; }
+      setTimeout(() => closeModal('kyc-submit'), 2500);
+      if (window._applyAvatar) window._applyAvatar(selfieUrl, window._currentInit || '?');
+      Object.assign(_profile, { kyc_status: 'pending', avatar_url: selfieUrl });
+      if (window._populateSettings) window._populateSettings();
+    } catch(e) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit for Review'; }
+      if (msg) { msg.style.color = 'var(--red)'; msg.textContent = 'Upload failed: ' + e.message; }
+    }
   };
 
   // ── Deposit — crypto only ─────────────────────────────────

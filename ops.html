@@ -2045,15 +2045,32 @@ window.viewKYCDocs = function(encoded) {
 };
 
 window.opsApproveKYC = async id => {
-  // id here is user id (KYC is derived from users in this schema)
-  const { error } = await window.XANTEX_DB.from('users').update({ notes: 'KYC: verified' }).eq('id', id);
-  if (error) { showToast('Error: '+error.message,'error'); return; }
-  showToast('KYC approved','success'); renderKYCLive();
+  const confirmed = await showConfirmModal({
+    title: 'Approve KYC', message: 'Mark this submission as <strong>Verified</strong>? The user\'s profile will be updated to Approved.',
+    dangerLevel: 'low', confirmLabel: 'Approve',
+  });
+  if (!confirmed) return;
+  try {
+    await fetchAdminAPI('admin_approve_kyc', { submission_id: id });
+    showToast('KYC approved ✓', 'success');
+    addAuditEntry('APPROVE_KYC', id.slice(0,8).toUpperCase(), 'KYC submission approved');
+    renderKYCLive();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
 };
+
 window.opsRejectKYC = async id => {
-  const { error } = await window.XANTEX_DB.from('users').update({ notes: 'KYC: rejected' }).eq('id', id);
-  if (error) { showToast('Error: '+error.message,'error'); return; }
-  showToast('KYC rejected','error'); renderKYCLive();
+  const reason = window.prompt('Rejection reason (shown to user):') ?? '';
+  const confirmed = await showConfirmModal({
+    title: 'Reject KYC', message: `Reject this submission?${reason ? `<br><em>Reason: ${reason}</em>` : ''}`,
+    dangerLevel: 'medium', confirmLabel: 'Reject',
+  });
+  if (!confirmed) return;
+  try {
+    await fetchAdminAPI('admin_reject_kyc', { submission_id: id, reason });
+    showToast('KYC rejected', 'error');
+    addAuditEntry('REJECT_KYC', id.slice(0,8).toUpperCase(), reason || '(no reason given)');
+    renderKYCLive();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
 };
 
 // renderAccountsLive, renderPositionsLive, renderDepositsLive,

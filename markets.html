@@ -231,6 +231,12 @@
     .spark-up   { fill: none; stroke: var(--green); stroke-width: 1.5; }
     .spark-down { fill: none; stroke: var(--red);   stroke-width: 1.5; }
 
+    /* Price flash animations */
+    @keyframes price-flash-up   { 0% { background: rgba(34,160,107,0.35); } 100% { background: transparent; } }
+    @keyframes price-flash-down { 0% { background: rgba(230,0,35,0.35);   } 100% { background: transparent; } }
+    .pf-up   { animation: price-flash-up   0.7s ease-out; }
+    .pf-down { animation: price-flash-down 0.7s ease-out; }
+
     /* Volume / Market cap bar */
     .vol-bar-wrap { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
     .vol-bar { height: 5px; border-radius: 3px; background: var(--blue-lt); flex-shrink: 0; }
@@ -842,16 +848,16 @@
     const tbody = document.getElementById('tbody-forex');
     tbody.innerHTML = DATA.forex.map(r => {
       const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
+      return `<tr class="mkt-row" data-sym="${r.sym}">
         <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">${r.bid}</td>
-        <td class="mkt-price">${r.ask}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td>${r.high}</td><td>${r.low}</td>
+        <td class="mkt-price" data-field="bid">${r.bid}</td>
+        <td class="mkt-price" data-field="ask">${r.ask}</td>
+        <td data-field="chg" style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td data-field="chgp">${chgBadge(r.chgp)}</td>
+        <td data-field="high">${r.high}</td><td data-field="low">${r.low}</td>
         <td><span style="font-size:12px;color:var(--muted);">${r.spread}</span></td>
         <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
+        <td data-field="sent">${sentBadge(r.sent)}</td>
         <td>${tradeBtn(r.sym)}</td>
       </tr>`;
     }).join('');
@@ -861,16 +867,16 @@
     const tbody = document.getElementById('tbody-crypto');
     tbody.innerHTML = DATA.crypto.map(r => {
       const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
+      return `<tr class="mkt-row" data-sym="${r.sym}">
         <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">$${r.price}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td style="color:var(--green);font-weight:600;">$${r.high}</td>
-        <td style="color:var(--red);font-weight:600;">$${r.low}</td>
+        <td class="mkt-price" data-field="price">$${r.price}</td>
+        <td data-field="chgp">${chgBadge(r.chgp)}</td>
+        <td data-field="high" style="color:var(--green);font-weight:600;">$${r.high}</td>
+        <td data-field="low" style="color:var(--red);font-weight:600;">$${r.low}</td>
         <td style="font-size:12px;">${r.mcap}</td>
         <td style="font-size:12px;">${r.vol}</td>
         <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
+        <td data-field="sent">${sentBadge(r.sent)}</td>
         <td>${tradeBtn(r.sym)}</td>
       </tr>`;
     }).join('');
@@ -894,17 +900,17 @@
     const tbody = document.getElementById('tbody-stocks');
     tbody.innerHTML = DATA.stocks.map(r => {
       const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
+      return `<tr class="mkt-row" data-sym="${r.sym}">
         <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">$${r.price}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
+        <td class="mkt-price" data-field="price">$${r.price}</td>
+        <td data-field="chg" style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td data-field="chgp">${chgBadge(r.chgp)}</td>
         <td>$${r.open}</td>
-        <td style="color:var(--green);">$${r.high}</td>
-        <td style="color:var(--red);">$${r.low}</td>
+        <td data-field="high" style="color:var(--green);">$${r.high}</td>
+        <td data-field="low" style="color:var(--red);">$${r.low}</td>
         <td style="font-size:12px;">${r.vol}</td>
         <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
+        <td data-field="sent">${sentBadge(r.sent)}</td>
         <td>${tradeBtn(r.sym)}</td>
       </tr>`;
     }).join('');
@@ -914,16 +920,16 @@
     const tbody = document.getElementById('tbody-indices');
     tbody.innerHTML = DATA.indices.map(r => {
       const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
+      return `<tr class="mkt-row" data-sym="${r.sym}">
         <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">${r.price}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td style="color:var(--green);">${r.high}</td>
-        <td style="color:var(--red);">${r.low}</td>
+        <td class="mkt-price" data-field="price">${r.price}</td>
+        <td data-field="chg" style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td data-field="chgp">${chgBadge(r.chgp)}</td>
+        <td data-field="high" style="color:var(--green);">${r.high}</td>
+        <td data-field="low" style="color:var(--red);">${r.low}</td>
         <td><span style="font-size:12px;color:var(--muted);">${r.region}</span></td>
         <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
+        <td data-field="sent">${sentBadge(r.sent)}</td>
         <td>${tradeBtn(r.sym)}</td>
       </tr>`;
     }).join('');
@@ -933,17 +939,17 @@
     const tbody = document.getElementById('tbody-metals');
     tbody.innerHTML = DATA.metals.map(r => {
       const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
+      return `<tr class="mkt-row" data-sym="${r.sym}">
         <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">${r.bid}</td>
-        <td class="mkt-price">${r.ask}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td style="color:var(--green);">${r.high}</td>
-        <td style="color:var(--red);">${r.low}</td>
+        <td class="mkt-price" data-field="bid">${r.bid}</td>
+        <td class="mkt-price" data-field="ask">${r.ask}</td>
+        <td data-field="chg" style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td data-field="chgp">${chgBadge(r.chgp)}</td>
+        <td data-field="high" style="color:var(--green);">${r.high}</td>
+        <td data-field="low" style="color:var(--red);">${r.low}</td>
         <td style="font-size:12px;color:var(--muted);">${r.unit}</td>
         <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
+        <td data-field="sent">${sentBadge(r.sent)}</td>
         <td>${tradeBtn(r.sym)}</td>
       </tr>`;
     }).join('');
@@ -953,17 +959,17 @@
     const tbody = document.getElementById('tbody-energy');
     tbody.innerHTML = DATA.energy.map(r => {
       const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
+      return `<tr class="mkt-row" data-sym="${r.sym}">
         <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">$${r.bid}</td>
-        <td class="mkt-price">$${r.ask}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td style="color:var(--green);">$${r.high}</td>
-        <td style="color:var(--red);">$${r.low}</td>
+        <td class="mkt-price" data-field="bid">$${r.bid}</td>
+        <td class="mkt-price" data-field="ask">$${r.ask}</td>
+        <td data-field="chg" style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td data-field="chgp">${chgBadge(r.chgp)}</td>
+        <td data-field="high" style="color:var(--green);">$${r.high}</td>
+        <td data-field="low" style="color:var(--red);">$${r.low}</td>
         <td style="font-size:12px;color:var(--muted);">${r.unit}</td>
         <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
+        <td data-field="sent">${sentBadge(r.sent)}</td>
         <td>${tradeBtn(r.sym)}</td>
       </tr>`;
     }).join('');
@@ -973,16 +979,16 @@
     const tbody = document.getElementById('tbody-etfs');
     tbody.innerHTML = DATA.etfs.map(r => {
       const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
+      return `<tr class="mkt-row" data-sym="${r.sym}">
         <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">$${r.price}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
+        <td class="mkt-price" data-field="price">$${r.price}</td>
+        <td data-field="chg" style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+        <td data-field="chgp">${chgBadge(r.chgp)}</td>
         <td style="font-size:12px;">${r.aum}</td>
         <td style="font-size:12px;">${r.exp}</td>
         <td style="font-size:12px;">${r.vol}</td>
         <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
+        <td data-field="sent">${sentBadge(r.sent)}</td>
         <td>${tradeBtn(r.sym)}</td>
       </tr>`;
     }).join('');
@@ -993,21 +999,53 @@
   ============================================================ */
   function renderStats() {
     const stats = [
-      { label:'S&P 500',     value:'5,254', change:'+0.48%', up:true  },
-      { label:'Nasdaq 100',  value:'18,241',change:'+0.72%', up:true  },
-      { label:'Gold',        value:'$2,341',change:'+0.87%', up:true  },
-      { label:'BTC/USD',     value:'$78,450',change:'+2.14%',up:true  },
-      { label:'EUR/USD',     value:'1.0843', change:'+0.21%',up:true  },
-      { label:'WTI Crude',   value:'$82.34', change:'-0.55%',up:false },
-      { label:'Fear & Greed',value:'68 — Greed', change:'',  up:true  },
-      { label:'VIX',         value:'14.82', change:'-1.24%', up:false },
+      { id:'stat-spx',    label:'S&P 500',      value:'5,254',      change:'+0.48%', up:true  },
+      { id:'stat-nas',    label:'Nasdaq 100',    value:'18,241',     change:'+0.72%', up:true  },
+      { id:'stat-gold',   label:'Gold',          value:'$2,341',     change:'+0.87%', up:true  },
+      { id:'stat-btc',    label:'BTC/USD',       value:'$78,450',    change:'+2.14%', up:true  },
+      { id:'stat-eurusd', label:'EUR/USD',        value:'1.08432',    change:'+0.21%', up:true  },
+      { id:'stat-wti',    label:'WTI Crude',     value:'$82.34',     change:'-0.55%', up:false },
+      { id:'stat-fg',     label:'Fear & Greed',  value:'68 — Greed', change:'',       up:true  },
+      { id:'stat-vix',    label:'VIX',           value:'14.82',      change:'-1.24%', up:false },
     ];
     document.getElementById('overview-stats').innerHTML = stats.map(s => `
-      <div class="stat-card">
+      <div class="stat-card" id="${s.id}">
         <div class="stat-card__label">${s.label}</div>
-        <div class="stat-card__value">${s.value}</div>
-        ${s.change ? `<div class="stat-card__change ${s.up?'up':'down'}">${s.up?'▲':'▼'} ${s.change}</div>` : ''}
+        <div class="stat-card__value" data-val>${s.value}</div>
+        ${s.change ? `<div class="stat-card__change ${s.up?'up':'down'}" data-chg>${s.up?'▲':'▼'} ${s.change}</div>` : '<div data-chg></div>'}
       </div>`).join('');
+  }
+
+  function updateOverviewStats(prices) {
+    function set(id, val, chgp) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const valEl = el.querySelector('[data-val]');
+      const chgEl = el.querySelector('[data-chg]');
+      if (valEl && val != null) {
+        valEl.textContent = val;
+        valEl.classList.remove('pf-up', 'pf-down');
+        void valEl.offsetWidth;
+        valEl.classList.add(chgp >= 0 ? 'pf-up' : 'pf-down');
+      }
+      if (chgEl && chgp != null) {
+        const up = chgp >= 0;
+        chgEl.textContent = `${up ? '▲' : '▼'} ${(up ? '+' : '')}${parseFloat(chgp).toFixed(2)}%`;
+        chgEl.className = `stat-card__change ${up ? 'up' : 'down'}`;
+      }
+    }
+    const spx = prices['SPX500'];
+    if (spx?.price) set('stat-spx', spx.price.toLocaleString('en-US', { maximumFractionDigits: 0 }), spx.chgp);
+    const nas = prices['NAS100'];
+    if (nas?.price) set('stat-nas', nas.price.toLocaleString('en-US', { maximumFractionDigits: 0 }), nas.chgp);
+    const gold = prices['XAU/USD'];
+    if (gold?.price) set('stat-gold', '$' + gold.price.toFixed(1), gold.chgp);
+    const btc = prices['BTC/USD'];
+    if (btc?.price) set('stat-btc', '$' + btc.price.toLocaleString('en-US', { maximumFractionDigits: 0 }), btc.chgp);
+    const eurusd = prices['EUR/USD'];
+    if (eurusd?.price) set('stat-eurusd', eurusd.price.toFixed(5), eurusd.chgp);
+    const wti = prices['WTI/USD'];
+    if (wti?.price) set('stat-wti', '$' + wti.price.toFixed(2), wti.chgp);
   }
 
   /* ============================================================
@@ -1208,18 +1246,58 @@
       if (!cat || !DATA[cat]) return;
       const idx = DATA[cat].findIndex(d => d.sym === sym);
       if (idx < 0) return;
-      const row = DATA[cat][idx];
-      const bid  = fmtNum(p.bid  ?? p.price);
-      const ask  = fmtNum(p.ask  ?? p.price);
+      const row  = DATA[cat][idx];
+      const bid   = fmtNum(p.bid  ?? p.price);
+      const ask   = fmtNum(p.ask  ?? p.price);
       const price = fmtNum(p.price);
-      const chg  = fmtChg(p.chg);
-      const chgp = fmtChgP(p.chgp);
-      const high = fmtNum(p.high);
-      const low  = fmtNum(p.low);
-      const sent = p.chgp == null ? row.sent : (p.chgp > 0.5 ? 'bull' : p.chgp < -0.5 ? 'bear' : 'neut');
+      const chg   = fmtChg(p.chg);
+      const chgp  = fmtChgP(p.chgp);
+      const high  = fmtNum(p.high);
+      const low   = fmtNum(p.low);
+      const sent  = p.chgp == null ? row.sent : (parseFloat(p.chgp) > 0.5 ? 'bull' : parseFloat(p.chgp) < -0.5 ? 'bear' : 'neut');
+      const up    = parseFloat(p.chgp ?? 0) >= 0;
       DATA[cat][idx] = { ...row, bid, ask, price, chg, chgp, high, low, sent };
+
+      const tr = document.querySelector(`tr[data-sym="${sym}"]`);
+      if (!tr) return;
+
+      function flash(field, text, isHTML) {
+        const td = tr.querySelector(`[data-field="${field}"]`);
+        if (!td) return;
+        if (isHTML) td.innerHTML = text; else td.textContent = text;
+        td.classList.remove('pf-up', 'pf-down');
+        void td.offsetWidth;
+        td.classList.add(up ? 'pf-up' : 'pf-down');
+      }
+
+      // Primary price cell
+      if (cat === 'forex')               { flash('bid', bid); flash('ask', ask); }
+      else if (cat === 'metals')         { flash('bid', bid); flash('ask', ask); }
+      else if (cat === 'energy')         { flash('bid', '$' + bid); flash('ask', '$' + ask); }
+      else if (cat === 'indices')        { flash('price', price); }
+      else                               { flash('price', '$' + price); } // crypto, stocks, etfs
+
+      // Change value
+      const chgTd = tr.querySelector('[data-field="chg"]');
+      if (chgTd) { chgTd.textContent = chg; chgTd.style.color = up ? 'var(--green)' : 'var(--red)'; }
+
+      // Change % badge
+      flash('chgp', chgBadge(chgp), true);
+
+      // High / Low
+      const dollarPfx = (cat === 'stocks' || cat === 'crypto' || cat === 'etfs' || cat === 'energy') ? '$' : '';
+      const highTd = tr.querySelector('[data-field="high"]');
+      if (highTd && high !== '—') highTd.textContent = dollarPfx + high;
+      const lowTd = tr.querySelector('[data-field="low"]');
+      if (lowTd  && low  !== '—') lowTd.textContent  = dollarPfx + low;
+
+      // Sentiment
+      const sentTd = tr.querySelector('[data-field="sent"]');
+      if (sentTd) sentTd.innerHTML = sentBadge(sent);
     });
-    renderAll();
+
+    updateOverviewStats(prices);
+
     const ts = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
     const el = document.getElementById('last-updated');
     if (el) el.textContent = `Live prices · Updated ${ts}`;

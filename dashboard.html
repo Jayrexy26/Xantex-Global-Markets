@@ -514,12 +514,7 @@
       .grid-3 { grid-template-columns: 1fr; }
       .summary-cards { grid-template-columns: 1fr 1fr; }
       .content { padding: 16px; }
-      /* History table: hide Date and Details on small screens */
       #page-history { padding: 16px !important; }
-      #page-history thead th:nth-child(1),
-      #page-history thead th:nth-child(4),
-      #page-history tbody td:nth-child(1),
-      #page-history tbody td:nth-child(4) { display: none; }
     }
     @media (max-width: 480px) {
       .summary-cards { grid-template-columns: 1fr; }
@@ -1223,15 +1218,14 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Type</th>
+                  <th>Transaction</th>
                   <th>Amount</th>
-                  <th>Details</th>
                   <th>Status</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody id="history-tbody">
-                <tr><td colspan="5" style="text-align:center;padding:28px;color:var(--muted);">Loading…</td></tr>
+                <tr><td colspan="4" style="text-align:center;padding:28px;color:var(--muted);">Loading…</td></tr>
               </tbody>
             </table>
           </div>
@@ -1857,6 +1851,19 @@
   </div>
 </div>
 
+<!-- ============================================================
+     TRANSACTION DETAIL MODAL
+============================================================ -->
+<div class="modal-overlay" id="modal-txn-detail">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal__head">
+      <div class="modal__title" id="txn-detail-title">Transaction Details</div>
+      <button class="modal__close" onclick="closeModal('txn-detail')">✕</button>
+    </div>
+    <div id="txn-detail-body"></div>
+  </div>
+</div>
+
 <script>
   // ── Dark mode ─────────────────────────────────────────────
   const sunIcon  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
@@ -1916,70 +1923,141 @@
   }
 
   // ── Transaction history renderer ───────────────────────────
+  const _HIST_STATUS = {
+    pending:    { bg:'rgba(245,166,35,0.12)',  color:'#f5a623', label:'Pending'    },
+    processing: { bg:'rgba(26,92,255,0.12)',   color:'#1a5cff', label:'Processing' },
+    completed:  { bg:'rgba(34,160,107,0.12)',  color:'#22a06b', label:'Completed'  },
+    approved:   { bg:'rgba(34,160,107,0.12)',  color:'#22a06b', label:'Approved'   },
+    rejected:   { bg:'rgba(230,0,35,0.12)',    color:'#e60023', label:'Rejected'   },
+    cancelled:  { bg:'rgba(156,163,175,0.12)', color:'#9ca3af', label:'Cancelled'  },
+  };
+
+  function _fmtDate(d) {
+    return d ? new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  }
+  function _fmtDateLong(d) {
+    return d ? new Date(d).toLocaleString('en-US',{dateStyle:'long',timeStyle:'short'}) : '—';
+  }
+
   function _renderHistory() {
     const tbody = document.getElementById('history-tbody');
     if (!tbody) return;
-    const data   = window._dashData || {};
-    const txns   = data.txns   || [];
-    const wdReqs = data.wdReqs || [];
-
-    const TYPE_LABEL = {
-      deposit:'Deposit', withdrawal:'Withdrawal', adjustment:'Balance Adjustment',
-      bonus:'Bonus Credit', trade_pnl:'Trade P&L', balance_set:'Balance Set',
-      fee:'Fee', transfer:'Transfer', withdrawal_request:'Withdrawal Request',
-    };
-    const STATUS = {
-      pending:    { bg:'rgba(245,166,35,0.12)',  color:'#f5a623', label:'Pending'    },
-      processing: { bg:'rgba(26,92,255,0.12)',   color:'#1a5cff', label:'Processing' },
-      completed:  { bg:'rgba(34,160,107,0.12)',  color:'#22a06b', label:'Completed'  },
-      approved:   { bg:'rgba(34,160,107,0.12)',  color:'#22a06b', label:'Approved'   },
-      rejected:   { bg:'rgba(230,0,35,0.12)',    color:'#e60023', label:'Rejected'   },
-      cancelled:  { bg:'rgba(156,163,175,0.12)', color:'#9ca3af', label:'Cancelled'  },
-    };
+    const data    = window._dashData || {};
+    const txns    = data.txns    || [];
+    const wdReqs  = data.wdReqs  || [];
+    const depReqs = data.depReqs || [];
 
     const rows = [
-      ...txns.filter(t => t.type === 'deposit' || t.type === 'withdrawal').map(t => ({
-        date:    t.created_at,
-        type:    t.type,
-        amount:  parseFloat(t.amount || 0),
-        details: t.description || '—',
-        status:  t.status || 'completed',
+      // Completed/approved transactions inserted by admin
+      ...txns.filter(t => t.type === 'deposit' || t.type === 'withdrawal').map(t => {
+        const desc = (t.description || '—')
+          .replace('Deposit approved by admin',    'Xantex approved your deposit')
+          .replace('Withdrawal approved by admin', 'Xantex approved your withdrawal');
+        return {
+          id: t.id, reqId: t.reference, date: t.created_at,
+          type: t.type, label: t.type === 'deposit' ? 'Deposit' : 'Withdrawal',
+          amount: parseFloat(t.amount || 0), status: t.status || 'completed',
+          canCancel: false,
+          detail: { 'Description': desc, 'Reference': t.reference ? t.reference.slice(0,8).toUpperCase() : '—', 'Date': _fmtDateLong(t.created_at) },
+        };
+      }),
+      // Pending / rejected deposit requests (approved ones already appear as txns above)
+      ...depReqs.filter(d => d.status !== 'approved').map(d => ({
+        id: d.id, reqId: d.id, date: d.created_at,
+        type: 'deposit_request', label: 'Deposit Request',
+        amount: parseFloat(d.amount || 0), status: d.status || 'pending',
+        canCancel: d.status === 'pending',
+        detail: {
+          'Amount':   '$' + parseFloat(d.amount||0).toFixed(2),
+          'Method':   d.payment_method || d.method || '—',
+          'Reference': d.id.slice(0,8).toUpperCase(),
+          'Submitted': _fmtDateLong(d.created_at),
+          ...(d.notes     ? { 'Notes': d.notes }         : {}),
+          ...(d.proof_url ? { 'Proof URL': d.proof_url } : {}),
+        },
       })),
-      ...wdReqs.map(w => ({
-        date:    w.created_at,
-        type:    'withdrawal_request',
-        amount:  -Math.abs(parseFloat(w.amount || 0)),
-        details: [w.destination_type, w.destination_name, w.destination_ref].filter(Boolean).join(' · '),
-        status:  w.status || 'pending',
+      // Pending / rejected withdrawal requests
+      ...wdReqs.filter(w => w.status !== 'approved').map(w => ({
+        id: w.id, reqId: w.id, date: w.created_at,
+        type: 'withdrawal_request', label: 'Withdrawal Request',
+        amount: -Math.abs(parseFloat(w.amount || 0)), status: w.status || 'pending',
+        canCancel: w.status === 'pending',
+        detail: {
+          'Amount':           '$' + Math.abs(parseFloat(w.amount||0)).toFixed(2),
+          'Method':           w.destination_type || '—',
+          'Account Name':     w.destination_name || '—',
+          'Account / Address': w.destination_ref || '—',
+          'Reference':        w.id.slice(0,8).toUpperCase(),
+          'Submitted':        _fmtDateLong(w.created_at),
+        },
       })),
     ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
+    window._txnRows = rows;
+
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted);">No transactions yet</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--muted);">No transactions yet</td></tr>';
       return;
     }
 
-    tbody.innerHTML = rows.map(r => {
-      const ss  = STATUS[r.status] || STATUS.pending;
+    tbody.innerHTML = rows.map((r, i) => {
+      const ss  = _HIST_STATUS[r.status] || _HIST_STATUS.pending;
       const pos = r.amount >= 0;
       const absA = Math.abs(r.amount).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
       const amtStr = (pos ? '+' : '−') + '$' + absA;
       const amtColor = pos ? 'var(--green)' : 'var(--red)';
-      const fmtDate = r.date ? new Date(r.date).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-      const label = TYPE_LABEL[r.type] || r.type;
-      const rawDet = String(r.details)
-        .replace('Deposit approved by admin',    'Xantex approved your deposit')
-        .replace('Withdrawal approved by admin', 'Xantex approved your withdrawal');
-      const det = rawDet.replace(/</g,'&lt;');
+      const cancelBtn = r.canCancel
+        ? `<button onclick="_cancelTxn(${i})" style="margin-left:6px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(230,0,35,0.08);color:var(--red);border:1px solid rgba(230,0,35,0.18);cursor:pointer;white-space:nowrap;">Cancel</button>`
+        : '';
       return `<tr>
-        <td style="font-size:12px;color:var(--muted);white-space:nowrap;">${fmtDate}</td>
-        <td style="font-weight:600;">${label}</td>
+        <td>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px;white-space:nowrap;">${_fmtDate(r.date)}</div>
+          <div style="font-weight:700;font-size:13px;">${r.label}</div>
+        </td>
         <td style="font-weight:700;color:${amtColor};white-space:nowrap;">${amtStr}</td>
-        <td style="font-size:12px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${det}">${det}</td>
-        <td><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${ss.bg};color:${ss.color};">${ss.label}</span></td>
+        <td><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${ss.bg};color:${ss.color};white-space:nowrap;">${ss.label}</span></td>
+        <td style="white-space:nowrap;">
+          <button onclick="_openTxnDetail(${i})" style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(26,92,255,0.08);color:var(--blue);border:1px solid rgba(26,92,255,0.18);cursor:pointer;white-space:nowrap;">View Details</button>${cancelBtn}
+        </td>
       </tr>`;
     }).join('');
   }
+
+  window._openTxnDetail = function(i) {
+    const r = (window._txnRows || [])[i];
+    if (!r) return;
+    const ss = _HIST_STATUS[r.status] || _HIST_STATUS.pending;
+    document.getElementById('txn-detail-title').textContent = r.label + ' Details';
+    const pos = r.amount >= 0;
+    const absA = Math.abs(r.amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const detailRows = Object.entries(r.detail).filter(([,v]) => v && v !== '—').map(([k,v]) => `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:12px;color:var(--muted);flex-shrink:0;margin-right:16px;">${k}</span>
+        <span style="font-size:13px;font-weight:600;text-align:right;word-break:break-all;">${String(v).replace(/</g,'&lt;')}</span>
+      </div>`).join('');
+    document.getElementById('txn-detail-body').innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px 16px;border-bottom:1px solid var(--border);">
+        <span style="font-size:30px;font-weight:800;color:${pos?'var(--green)':'var(--red)'};">${pos?'+':'−'}$${absA}</span>
+        <span style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;background:${ss.bg};color:${ss.color};">${ss.label}</span>
+      </div>
+      <div style="padding:0 24px 20px;">${detailRows}</div>`;
+    document.getElementById('modal-txn-detail').classList.add('open');
+  };
+
+  window._cancelTxn = async function(i) {
+    const r = (window._txnRows || [])[i];
+    if (!r || !r.canCancel) return;
+    if (!confirm('Cancel this request? This cannot be undone.')) return;
+    const table = r.type === 'deposit_request' ? 'deposit_requests' : 'withdrawal_requests';
+    const { error } = await db.from(table).update({ status: 'cancelled' }).eq('id', r.reqId).eq('status', 'pending');
+    if (error) { alert('Could not cancel: ' + error.message); return; }
+    if (r.type === 'deposit_request') {
+      window._dashData.depReqs = (window._dashData.depReqs||[]).map(d => d.id===r.reqId ? {...d,status:'cancelled'} : d);
+    } else {
+      window._dashData.wdReqs = (window._dashData.wdReqs||[]).map(w => w.id===r.reqId ? {...w,status:'cancelled'} : w);
+    }
+    _renderHistory();
+  };
 
   // ── Modals ────────────────────────────────────────────────
   function openModal(id) {
@@ -2224,7 +2302,7 @@ function savePreferences() {
   ]);
 
   // ── Expose data for history page renderer ─────────────────
-  window._dashData = { txns, wdReqs };
+  window._dashData = { txns, wdReqs, depReqs };
 
   // ── Build crypto address map ──────────────────────────────
   const CRYPTO_ADDRS = {};

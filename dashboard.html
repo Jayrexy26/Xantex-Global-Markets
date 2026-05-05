@@ -241,6 +241,9 @@
     .summary-card--blue .summary-card__label { color: rgba(255,255,255,0.7); }
     .summary-card--blue .summary-card__label svg { stroke: rgba(255,255,255,0.7); }
     .summary-card--blue .summary-card__change { color: rgba(255,255,255,0.8); }
+    @keyframes card-pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+    .card-loading { animation: card-pulse 1.4s ease-in-out infinite; color: var(--muted) !important; }
+    .summary-card--blue .card-loading { color: rgba(255,255,255,0.5) !important; }
 
     /* ============================================================
        TWO-COL GRID
@@ -1028,32 +1031,32 @@
               <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
               Total Balance
             </div>
-            <div class="summary-card__value" id="card-balance">—</div>
-            <div class="summary-card__change" id="card-balance-sub" style="color:var(--muted);">—</div>
+            <div class="summary-card__value card-loading" id="card-balance">—</div>
+            <div class="summary-card__change card-loading" id="card-balance-sub" style="color:var(--muted);">Loading…</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
               Open P&L
             </div>
-            <div class="summary-card__value" id="card-pnl" style="color:var(--muted);">—</div>
-            <div class="summary-card__change" id="card-pnl-sub" style="color:var(--muted);">—</div>
+            <div class="summary-card__value card-loading" id="card-pnl" style="color:var(--muted);">—</div>
+            <div class="summary-card__change card-loading" id="card-pnl-sub" style="color:var(--muted);">Loading…</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
               Free Margin
             </div>
-            <div class="summary-card__value" id="card-margin">—</div>
-            <div class="summary-card__change" id="card-margin-sub" style="color:var(--muted);">—</div>
+            <div class="summary-card__value card-loading" id="card-margin">—</div>
+            <div class="summary-card__change card-loading" id="card-margin-sub" style="color:var(--muted);">Loading…</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               Deposits / Withdrawals
             </div>
-            <div class="summary-card__value" id="card-txn">—</div>
-            <div class="summary-card__change" id="card-txn-sub" style="color:var(--muted);">—</div>
+            <div class="summary-card__value card-loading" id="card-txn">—</div>
+            <div class="summary-card__change card-loading" id="card-txn-sub" style="color:var(--muted);">Loading…</div>
           </div>
         </div>
 
@@ -2807,11 +2810,12 @@ function savePreferences() {
   }
 
   // ── Accounts ─────────────────────────────────────────────
+  const _stopLoad = id => { const el = document.getElementById(id); if (el) el.classList.remove('card-loading'); };
   const totalBalance = (accounts||[]).reduce((s,a) => s + (parseFloat(a.balance)||0), 0);
   if (accounts && accounts.length) {
     const totalFree   = accounts.reduce((s,a) => s + (parseFloat(a.free_margin)||parseFloat(a.balance)||0), 0);
     const liveAccts   = accounts.filter(a => a.type === 'live');
-    const set = (id, v, style) => { const el = document.getElementById(id); if(el){el.textContent=v; if(style) Object.assign(el.style, style);} };
+    const set = (id, v, style) => { const el = document.getElementById(id); if(el){el.textContent=v; el.classList.remove('card-loading'); if(style) Object.assign(el.style, style);} };
     set('card-balance', fmt(totalBalance));
     set('card-balance-sub', `${accounts.length} account${accounts.length!==1?'s':''}`, {color:''});
     set('card-margin',  fmt(totalFree));
@@ -2852,8 +2856,8 @@ function savePreferences() {
     const refEl = document.getElementById('dep-bank-ref');
     if (refEl && accounts[0]) refEl.textContent = '#' + (accounts[0].account_number || accounts[0].id.slice(0,8));
   } else {
-    ['card-balance','card-margin'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='$0.00'; });
-    ['card-balance-sub','card-margin-sub'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='No accounts'; });
+    ['card-balance','card-margin'].forEach(id => { const el=document.getElementById(id); if(el){ el.textContent='$0.00'; el.classList.remove('card-loading'); } });
+    ['card-balance-sub','card-margin-sub'].forEach(id => { const el=document.getElementById(id); if(el){ el.textContent='No accounts'; el.classList.remove('card-loading'); } });
   }
 
   // ── Positions & Open P&L ─────────────────────────────────
@@ -2874,18 +2878,21 @@ function savePreferences() {
     if ($pnl) {
       $pnl.textContent = (totalPnl >= 0 ? '+' : '') + fmt(totalPnl);
       $pnl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+      $pnl.classList.remove('card-loading');
     }
     if ($pnlSub) {
       $pnlSub.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
       $pnlSub.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+      $pnlSub.classList.remove('card-loading');
     }
   } else {
-    if ($pnl) { $pnl.textContent = '$0.00'; $pnl.style.color = 'var(--muted)'; }
+    if ($pnl) { $pnl.textContent = '$0.00'; $pnl.style.color = 'var(--muted)'; $pnl.classList.remove('card-loading'); }
     if ($pnlSub) {
       $pnlSub.textContent = (positions&&positions.length)
         ? `${positions.length} open position${positions.length!==1?'s':''}`
         : 'No open positions';
       $pnlSub.style.color = 'var(--muted)';
+      $pnlSub.classList.remove('card-loading');
     }
   }
 
@@ -2912,8 +2919,8 @@ function savePreferences() {
   const pendingWd  = (wdReqs  ||[]).filter(r=>['pending','processing'].includes(r.status)).length;
   const $txn    = document.getElementById('card-txn');
   const $txnSub = document.getElementById('card-txn-sub');
-  if ($txn)    $txn.textContent    = (depReqs||[]).length + (wdReqs||[]).length;
-  if ($txnSub) $txnSub.textContent = `${pendingDep} deposit${pendingDep!==1?'s':''}, ${pendingWd} withdrawal${pendingWd!==1?'s':''} pending`;
+  if ($txn)    { $txn.textContent    = (depReqs||[]).length + (wdReqs||[]).length; $txn.classList.remove('card-loading'); }
+  if ($txnSub) { $txnSub.textContent = `${pendingDep} deposit${pendingDep!==1?'s':''}, ${pendingWd} withdrawal${pendingWd!==1?'s':''} pending`; $txnSub.classList.remove('card-loading'); }
 
   // ── Activity feed (real transactions) ─────────────────────
   const activityList = document.querySelector('.activity-list');
@@ -3291,10 +3298,10 @@ function savePreferences() {
   console.error('Dashboard load error:', err);
   // Ensure cards show empty state rather than "Loading..."
   ['card-balance','card-margin','card-pnl','card-txn'].forEach(id => {
-    const el = document.getElementById(id); if (el && el.textContent === '—') el.textContent = '$0.00';
+    const el = document.getElementById(id); if (el) { el.classList.remove('card-loading'); if (el.textContent === '—') el.textContent = '$0.00'; }
   });
   ['card-balance-sub','card-margin-sub','card-pnl-sub','card-txn-sub'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.textContent = 'Could not load data — try refreshing';
+    const el = document.getElementById(id); if (el) { el.classList.remove('card-loading'); el.textContent = 'Could not load data — try refreshing'; }
   });
   const titleEl = document.querySelector('#page-overview .page-header__title');
   if (titleEl && titleEl.textContent === 'Welcome back 👋') titleEl.textContent = 'Welcome back 👋';

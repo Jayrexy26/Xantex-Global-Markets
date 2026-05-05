@@ -439,8 +439,9 @@
       history.replaceState(null, '', location.pathname);
       return;
     }
+    // Visiting the login page always requires fresh credentials — sign out any existing session
     const { data: { session } } = await db.auth.getSession();
-    if (session) window.location.href = 'dashboard.html';
+    if (session) await db.auth.signOut();
   })();
 
   // ── Clear errors on input ─────────────────────────────────

@@ -2490,15 +2490,13 @@ function savePreferences() {
   const userId = session.user.id;
   console.log('[dashboard] auth uid:', userId, '|', session.user.email);
 
-  // ── Ban check — force-logout deleted accounts ─────────────
-  try {
-    const { data: ban } = await db.from('banned_users').select('user_id').eq('user_id', userId).maybeSingle();
-    if (ban) {
-      await db.auth.signOut();
-      window.location.href = 'login.html?account=deleted';
-      return;
-    }
-  } catch(e) { console.warn('[dashboard] ban check:', e.message); }
+  // ── Ban check — non-blocking, runs in background ────────────
+  Promise.race([
+    db.from('banned_users').select('user_id').eq('user_id', userId).maybeSingle(),
+    new Promise(r => setTimeout(r, 3000)),
+  ]).then(res => {
+    if (res?.data) { db.auth.signOut(); window.location.href = 'login.html?account=deleted'; }
+  }).catch(() => {});
 
   // ── PIN gate — must unlock before dashboard is usable ─────
   const _storedPin = session.user.user_metadata?.trading_pin;

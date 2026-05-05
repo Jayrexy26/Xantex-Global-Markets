@@ -2572,9 +2572,6 @@ function savePreferences() {
     if (s < 86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
   }
 
-  // ── Refresh JWT so queries carry a valid auth token ────────
-  try { await db.auth.refreshSession(); } catch(e) { console.warn('[dashboard] refreshSession:', e.message); }
-
   async function rpcCfg() {
     try {
       const { data, error } = await db.from('platform_settings').select('key,value').like('key','crypto_%');
@@ -2627,15 +2624,21 @@ function savePreferences() {
     return null;
   }
 
-  let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns] = await Promise.all([
-    loadProfile(),
-    loadRows('accounts',  'get_my_accounts',    'trading_accounts',    q => q.order('created_at',{ascending:false})),
-    loadRows('positions', 'get_my_positions',   'positions',           q => q.eq('status','open').order('opened_at',{ascending:false})),
-    loadRows('txns',      'get_my_transactions','transactions',        q => q.order('created_at',{ascending:false})),
-    loadRows('depReqs',   'get_my_deposits',    'deposit_requests',    q => q.order('created_at',{ascending:false})),
-    loadRows('wdReqs',    'get_my_withdrawals', 'withdrawal_requests', q => q.order('created_at',{ascending:false})),
-    rpcCfg(),
-    loadRows('adjTxns',   'get_my_adj_txns',    'transactions',        q => q.eq('type','adjustment')),
+  const _loadTimeout = new Promise(resolve =>
+    setTimeout(() => resolve([null,[],[],[],[],[],null,[]]), 10000)
+  );
+  let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns] = await Promise.race([
+    Promise.all([
+      loadProfile(),
+      loadRows('accounts',  'get_my_accounts',    'trading_accounts',    q => q.order('created_at',{ascending:false})),
+      loadRows('positions', 'get_my_positions',   'positions',           q => q.eq('status','open').order('opened_at',{ascending:false})),
+      loadRows('txns',      'get_my_transactions','transactions',        q => q.order('created_at',{ascending:false})),
+      loadRows('depReqs',   'get_my_deposits',    'deposit_requests',    q => q.order('created_at',{ascending:false})),
+      loadRows('wdReqs',    'get_my_withdrawals', 'withdrawal_requests', q => q.order('created_at',{ascending:false})),
+      rpcCfg(),
+      loadRows('adjTxns',   'get_my_adj_txns',    'transactions',        q => q.eq('type','adjustment')),
+    ]),
+    _loadTimeout,
   ]);
 
   // ── Expose data for history page renderer ─────────────────
@@ -2671,7 +2674,7 @@ function savePreferences() {
         email: session.user.email || '',
         first_name: meta.first_name || meta.full_name?.split(' ')[0] || '',
         last_name:  meta.last_name  || meta.full_name?.split(' ').slice(1).join(' ') || '',
-        kyc_status: 'not_submitted',
+        kyc_status: 'pending',
       }, { onConflict: 'id' });
       const { data: fresh } = await db.from('profiles').select('*').eq('id', userId).maybeSingle();
       if (fresh) { profile = fresh; console.log('[dashboard] profile auto-created for', userId); }
@@ -2761,8 +2764,8 @@ function savePreferences() {
 
       // ── Security tab — KYC badge ──
       const kycStatus = _profile.kyc_status || 'not_submitted';
-      const kycBadge  = { approved:'sett-badge--on', pending:'sett-badge--warn', rejected:'sett-badge--off', not_submitted:'sett-badge--off', submitted:'sett-badge--warn' };
-      const kycLabel  = { approved:'Verified', pending:'Pending Review', rejected:'Rejected', not_submitted:'Not Verified', submitted:'Under Review' };
+      const kycBadge  = { verified:'sett-badge--on', approved:'sett-badge--on', pending:'sett-badge--warn', rejected:'sett-badge--off', not_submitted:'sett-badge--off', submitted:'sett-badge--warn' };
+      const kycLabel  = { verified:'Verified', approved:'Verified', pending:'Pending Review', rejected:'Rejected', not_submitted:'Not Verified', submitted:'Under Review' };
       const badgeEl   = document.getElementById('badge-kyc');
       if (badgeEl) { badgeEl.textContent = kycLabel[kycStatus]||kycStatus; badgeEl.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
       const kycsub = document.getElementById('kyc-security-sub');
@@ -2773,21 +2776,22 @@ function savePreferences() {
       const bannerSub   = document.getElementById('kyc-banner-sub');
       const bannerBadge = document.getElementById('kyc-banner-badge');
       const bannerIcon  = document.getElementById('kyc-banner-icon');
-      const bannerTitles = { approved:'Identity Verified', pending:'Verification Pending', rejected:'Verification Rejected', not_submitted:'Verification Required', submitted:'Documents Under Review' };
-      const bannerSubs   = { approved:'Your account is fully verified. All features are unlocked.', pending:'We are reviewing your documents. This may take up to 24 hours.', rejected:'Your documents were rejected. Please re-upload with correct documents.', not_submitted:'Please upload your identity documents to unlock full trading access.', submitted:'Your documents are under review by our compliance team.' };
-      const bannerColors = { approved:'var(--green)', pending:'var(--orange)', rejected:'var(--red)', not_submitted:'var(--blue)', submitted:'var(--orange)' };
+      const bannerTitles = { verified:'Identity Verified', approved:'Identity Verified', pending:'Verification Pending', rejected:'Verification Rejected', not_submitted:'Verification Required', submitted:'Documents Under Review' };
+      const bannerSubs   = { verified:'Your account is fully verified. All features are unlocked.', approved:'Your account is fully verified. All features are unlocked.', pending:'We are reviewing your documents. This may take up to 24 hours.', rejected:'Your documents were rejected. Please re-upload with correct documents.', not_submitted:'Please upload your identity documents to unlock full trading access.', submitted:'Your documents are under review by our compliance team.' };
+      const bannerColors = { verified:'var(--green)', approved:'var(--green)', pending:'var(--orange)', rejected:'var(--red)', not_submitted:'var(--blue)', submitted:'var(--orange)' };
       if (bannerTitle) bannerTitle.textContent = bannerTitles[kycStatus] || 'Verification Required';
       if (bannerSub)   bannerSub.textContent   = bannerSubs[kycStatus]   || '';
       if (bannerBadge) { bannerBadge.textContent = kycLabel[kycStatus]||kycStatus; bannerBadge.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
       if (bannerIcon)  bannerIcon.style.background = (bannerColors[kycStatus]||'var(--blue)') + '22';
-      const docBadgeCls = kycStatus === 'approved' ? 'sett-badge--on' : kycStatus === 'rejected' ? 'sett-badge--off' : 'sett-badge--warn';
-      const docBadgeTxt = kycStatus === 'approved' ? 'Approved' : kycStatus === 'not_submitted' ? 'Not uploaded' : 'Under review';
+      const isVerified = kycStatus === 'verified' || kycStatus === 'approved';
+      const docBadgeCls = isVerified ? 'sett-badge--on' : kycStatus === 'rejected' ? 'sett-badge--off' : 'sett-badge--warn';
+      const docBadgeTxt = isVerified ? 'Approved' : kycStatus === 'not_submitted' ? 'Not uploaded' : 'Under review';
       ['doc-id-badge','doc-address-badge','doc-selfie-badge'].forEach(id => {
         const el = document.getElementById(id);
         if (el) { el.textContent = docBadgeTxt; el.className = 'sett-badge ' + docBadgeCls; }
       });
       const foot = document.getElementById('kyc-upload-foot');
-      if (foot) foot.style.display = kycStatus === 'approved' ? 'none' : '';
+      if (foot) foot.style.display = isVerified ? 'none' : '';
 
       // ── Preferences tab — dark mode sync ──
       const prefDark = document.getElementById('pref-dark');

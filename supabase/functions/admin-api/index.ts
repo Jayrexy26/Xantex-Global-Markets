@@ -433,7 +433,7 @@ async function adminApproveKYC(db: ReturnType<typeof createClient>, payload: Rec
     reviewed_at: new Date().toISOString(),
   }).eq('id', submissionId);
 
-  await db.from('profiles').update({ kyc_status: 'approved' }).eq('id', sub.user_id);
+  await db.from('profiles').update({ kyc_status: 'verified' }).eq('id', sub.user_id);
   await audit(db, adminId, 'approve_kyc', sub.user_id, `KYC submission ${submissionId.slice(0,8).toUpperCase()} approved`);
 
   return ok({ success: true });

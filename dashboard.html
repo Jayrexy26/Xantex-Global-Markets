@@ -2625,7 +2625,7 @@ function savePreferences() {
   }
 
   const _loadTimeout = new Promise(resolve =>
-    setTimeout(() => resolve([null,[],[],[],[],[],null,[]]), 10000)
+    setTimeout(() => resolve([null,[],[],[],[],[],null,[]]), 6000)
   );
   let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns] = await Promise.race([
     Promise.all([
@@ -2644,9 +2644,8 @@ function savePreferences() {
   // ── Expose data for history page renderer ─────────────────
   window._dashData = { txns, wdReqs, depReqs };
 
-  // ── Notification bell dot ─────────────────────────────────
-  try {
-    const { data: notifRows } = await db.from('notifications').select('id').eq('user_id', userId);
+  // ── Notification bell dot (non-blocking — don't await) ───────
+  db.from('notifications').select('id').eq('user_id', userId).then(({ data: notifRows }) => {
     const nc = (notifRows || []).length;
     if (nc > 0) {
       const dot = document.getElementById('notif-bell-dot');
@@ -2654,7 +2653,7 @@ function savePreferences() {
       const badge = document.getElementById('notif-nav-badge');
       if (badge) { badge.textContent = nc > 99 ? '99+' : String(nc); badge.style.display = ''; }
     }
-  } catch(e) {}
+  }).catch(() => {});
 
   // ── Build crypto address map ──────────────────────────────
   const CRYPTO_ADDRS = {};
@@ -2665,20 +2664,18 @@ function savePreferences() {
     if (!CRYPTO_ADDRS[c]) CRYPTO_ADDRS[c] = localStorage.getItem('xantex_addr_'+c) || '';
   });
 
-  // ── Auto-create profile if missing (trigger may not have fired) ──
+  // ── Auto-create profile if missing (non-blocking — trigger should handle this) ──
   if (!profile) {
-    try {
-      const meta = session.user.user_metadata || {};
-      await db.from('profiles').upsert({
-        id: userId,
-        email: session.user.email || '',
-        first_name: meta.first_name || meta.full_name?.split(' ')[0] || '',
-        last_name:  meta.last_name  || meta.full_name?.split(' ').slice(1).join(' ') || '',
-        kyc_status: 'pending',
-      }, { onConflict: 'id' });
-      const { data: fresh } = await db.from('profiles').select('*').eq('id', userId).maybeSingle();
-      if (fresh) { profile = fresh; console.log('[dashboard] profile auto-created for', userId); }
-    } catch(e) { console.warn('[dashboard] profile upsert:', e.message); }
+    const meta = session.user.user_metadata || {};
+    profile = {
+      id: userId,
+      email: session.user.email || '',
+      first_name: meta.first_name || meta.full_name?.split(' ')[0] || '',
+      last_name:  meta.last_name  || meta.full_name?.split(' ').slice(1).join(' ') || '',
+      kyc_status: 'pending',
+    };
+    // Persist in background without blocking render
+    db.from('profiles').upsert(profile, { onConflict: 'id' }).catch(() => {});
   }
 
   // ── Profile ───────────────────────────────────────────────

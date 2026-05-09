@@ -114,6 +114,8 @@
     .main {
       margin-left: var(--sidebar-w);
       flex: 1;
+      min-width: 0;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
@@ -239,6 +241,9 @@
     .summary-card--blue .summary-card__label { color: rgba(255,255,255,0.7); }
     .summary-card--blue .summary-card__label svg { stroke: rgba(255,255,255,0.7); }
     .summary-card--blue .summary-card__change { color: rgba(255,255,255,0.8); }
+    @keyframes card-pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+    .card-loading { animation: card-pulse 1.4s ease-in-out infinite; color: var(--muted) !important; }
+    .summary-card--blue .card-loading { color: rgba(255,255,255,0.5) !important; }
 
     /* ============================================================
        TWO-COL GRID
@@ -372,26 +377,19 @@
     ============================================================ */
     .chart-area {
       height: 220px;
-      background: linear-gradient(180deg, var(--bg) 0%, #fff 100%);
+      background: transparent;
       border-radius: 8px;
-      display: flex;
-      align-items: flex-end;
-      padding: 16px;
-      gap: 3px;
       overflow: hidden;
+      position: relative;
     }
-    .chart-bar {
-      flex: 1;
-      border-radius: 3px 3px 0 0;
-      background: var(--blue-lt);
-      transition: background 0.15s;
-      cursor: pointer;
-    }
-    .chart-bar:hover { background: var(--blue); }
-    .chart-bar.up    { background: rgba(34,160,107,0.25); }
-    .chart-bar.up:hover { background: var(--green); }
-    .chart-bar.down  { background: rgba(230,0,35,0.15); }
-    .chart-bar.down:hover { background: var(--red); }
+    .chart-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+    .chart-svg .line-path { fill: none; stroke: var(--blue); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .chart-svg .fill-path { stroke: none; opacity: 0.12; fill: var(--blue); }
+    .chart-svg .up  .line-path { stroke: var(--green); }
+    .chart-svg .up  .fill-path { fill: var(--green); }
+    .chart-svg .down .line-path { stroke: var(--red); }
+    .chart-svg .down .fill-path { fill: var(--red); }
+    .chart-svg .dot { fill: var(--blue); }
 
     /* Chart tabs */
     .chart-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
@@ -449,16 +447,20 @@
        DEPOSIT/WITHDRAW MODAL
     ============================================================ */
     .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45); z-index: 500;
+      display: none; position: fixed;
+      top: 0; right: 0; bottom: 0; left: var(--sidebar-w);
+      background: rgba(0,0,0,0.55); z-index: 500;
       align-items: center; justify-content: center;
       padding: 20px;
     }
     .modal-overlay.open { display: flex; }
     .modal {
       background: #fff; border-radius: 14px; width: 100%;
-      max-width: 420px; overflow: hidden;
+      max-width: 460px; max-height: 90vh; overflow-y: auto;
       animation: modalIn 0.2s ease;
+    }
+    @media (max-width: 768px) {
+      .modal-overlay { left: 0; }
     }
     @keyframes modalIn {
       from { opacity: 0; transform: scale(0.95) translateY(12px); }
@@ -502,12 +504,13 @@
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
-      .main { margin-left: 0; }
+      .main { margin-left: 0; min-width: 0; overflow-x: hidden; }
       .topbar__hamburger { display: flex; }
       .topbar__search { display: none; }
       .grid-3 { grid-template-columns: 1fr; }
       .summary-cards { grid-template-columns: 1fr 1fr; }
       .content { padding: 16px; }
+      #page-history { padding: 16px !important; }
     }
     @media (max-width: 480px) {
       .summary-cards { grid-template-columns: 1fr; }
@@ -553,6 +556,46 @@
     body.dark .account-icon--tv     { background: rgba(46,125,50,0.18); }
     body.dark .topbar__icon-btn     { background: #0f1117; }
 
+    /* ── Custom scrollbars ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    body.dark ::-webkit-scrollbar-thumb { background: #2a2d3a; }
+    body.dark ::-webkit-scrollbar-thumb:hover { background: #3a3e52; }
+    * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+    /* ── Withdraw button ── */
+    .btn--withdraw {
+      background: linear-gradient(135deg, #1a1d27 0%, #1a5cff 100%);
+      color: #fff !important; border: none;
+    }
+    .btn--withdraw:hover { opacity: 0.9; }
+    .btn--withdraw svg { stroke: #fff; }
+
+    /* ── Country flag in topbar ── */
+    .topbar__flag { font-size: 22px; line-height: 1; display: flex; align-items: center; }
+
+    /* ── PIN modal ── */
+    .pin-dots { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
+    .pin-dot  { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); transition: background .15s, border-color .15s; }
+    .pin-dot.filled { background: var(--blue); border-color: var(--blue); }
+    .pin-pad  { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .pin-key  { height: 52px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg); font-size: 18px; font-weight: 600; cursor: pointer; transition: background .12s; }
+    .pin-key:hover { background: var(--blue-lt); border-color: var(--blue); }
+
+    /* ── SVG line chart ── */
+    .chart-svg { width: 100%; height: 220px; }
+
+    /* ── Notifications page ── */
+    .notif-item { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--blue-lt); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .notif-icon svg { width: 18px; height: 18px; fill: none; stroke: var(--blue); stroke-width: 2; }
+    .notif-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+    .notif-msg   { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .notif-time  { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
     .dark-toggle {
       width: 34px; height: 34px; border-radius: 50%;
       background: var(--bg); border: 1.5px solid var(--border);
@@ -561,6 +604,291 @@
     }
     .dark-toggle:hover { border-color: var(--blue); }
     .dark-toggle svg { width: 16px; height: 16px; fill: none; stroke: var(--text); stroke-width: 2; }
+
+    /* ============================================================
+       DEPOSIT MODAL — CRYPTO
+    ============================================================ */
+    .dep-modal { max-width: 520px !important; }
+
+    .dep-steps {
+      display: flex; align-items: center;
+      padding: 14px 24px; border-bottom: 1px solid var(--border); gap: 0;
+    }
+    .dep-step {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap;
+    }
+    .dep-step__num {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid var(--border); background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0; transition: background .2s, border-color .2s;
+    }
+    .dep-step.active { color: var(--text); font-weight: 600; }
+    .dep-step.active .dep-step__num { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .dep-step.done   .dep-step__num { background: var(--green); border-color: var(--green); color: #fff; }
+    .dep-step-line   { flex: 1; height: 1px; background: var(--border); min-width: 20px; }
+
+    .dep-coins { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .dep-coin {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 14px 10px; border-radius: 12px; border: 2px solid var(--border);
+      background: #fff; cursor: pointer; transition: border-color .15s, background .15s;
+      text-align: center;
+    }
+    .dep-coin:hover  { border-color: var(--blue); background: var(--blue-lt); }
+    .dep-coin.active { border-color: var(--blue); background: var(--blue-lt); }
+    .dep-coin__icon  {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 900;
+    }
+    .dep-coin__icon.btc  { background: #fff3e0; color: #f7931a; }
+    .dep-coin__icon.eth  { background: #ecebfc; color: #627eea; }
+    .dep-coin__icon.usdt { background: #e6f7ef; color: #26a17b; }
+    .dep-coin__name { font-size: 13px; font-weight: 600; }
+    .dep-coin__sym  { font-size: 11px; color: var(--muted); }
+
+    .dep-networks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+    .dep-net {
+      padding: 11px 14px; border-radius: 10px; border: 2px solid var(--border);
+      background: #fff; cursor: pointer; text-align: left;
+      transition: border-color .15s, background .15s;
+    }
+    .dep-net:hover  { border-color: var(--blue); }
+    .dep-net.active { border-color: var(--blue); background: var(--blue-lt); }
+    .dep-net__name  { font-size: 13px; font-weight: 700; }
+    .dep-net__sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .dep-addr-card {
+      border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      background: var(--bg); text-align: center;
+    }
+    .dep-addr-qr {
+      width: 164px; height: 164px; border-radius: 10px; object-fit: cover;
+      border: 5px solid #fff; box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+    }
+    .dep-addr-label { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .dep-addr-row {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px;
+    }
+    .dep-addr-row code {
+      flex: 1; font-size: 11px; font-family: monospace; word-break: break-all;
+      color: var(--text); line-height: 1.5;
+    }
+    .dep-addr-copy {
+      flex-shrink: 0; font-size: 12px; font-weight: 600; padding: 5px 12px;
+      border-radius: 6px; border: 1.5px solid var(--blue); color: var(--blue);
+      background: transparent; cursor: pointer; white-space: nowrap; transition: background .15s, color .15s;
+    }
+    .dep-addr-copy:hover { background: var(--blue); color: #fff; }
+    .dep-addr-network {
+      font-size: 11px; font-weight: 700; padding: 3px 12px;
+      border-radius: 20px; text-transform: uppercase; letter-spacing: .06em;
+    }
+    .dep-addr-network.btc  { background: #fff3e0; color: #f7931a; }
+    .dep-addr-network.eth  { background: #ecebfc; color: #627eea; }
+    .dep-addr-network.usdt { background: #e6f7ef; color: #26a17b; }
+    .dep-addr-warning {
+      font-size: 11px; font-weight: 600; color: var(--red);
+      background: #fff0f0; border-radius: 8px; padding: 9px 14px; width: 100%; line-height: 1.5;
+    }
+    .dep-conversion { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    body.dark .dep-coin      { background: #0f1117; }
+    body.dark .dep-net       { background: #0f1117; }
+    body.dark .dep-addr-card { background: #0f1117; }
+    body.dark .dep-addr-row  { background: #1a1d27; border-color: var(--border); }
+    body.dark .dep-step__num { background: #1a1d27; }
+
+    /* ============================================================
+       SETTINGS
+    ============================================================ */
+    .sett-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 20px;
+      align-items: start;
+      max-width: 1000px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .sett-layout > * { min-width: 0; }
+    #page-settings { overflow-x: hidden; }
+    .sett-nav {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: calc(var(--topbar-h) + 20px);
+    }
+    .sett-nav__item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 18px; font-size: 13px; font-weight: 500;
+      color: var(--muted); background: none; border: none;
+      border-left: 3px solid transparent;
+      text-align: left; cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sett-nav__item:hover { background: var(--bg); color: var(--text); }
+    .sett-nav__item.active { color: var(--blue); border-left-color: var(--blue); background: var(--blue-lt); }
+    .sett-nav__item svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; flex-shrink: 0; }
+    .sett-nav__divider { height: 1px; background: var(--border); margin: 4px 0; }
+    .sett-panel { display: flex; flex-direction: column; gap: 20px; }
+    .sett-panel.hidden { display: none; }
+
+    /* Settings cards */
+    .sett-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    }
+    .sett-card__head {
+      padding: 18px 22px 0;
+    }
+    .sett-card__title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .sett-card__sub   { font-size: 12px; color: var(--muted); padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .sett-card__body  { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+    .sett-card__foot  { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+
+    /* Settings fields (general, not inside modal) */
+    .sett-field { display: flex; flex-direction: column; gap: 5px; }
+    .sett-field label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .sett-field input,
+    .sett-field select,
+    .sett-field textarea {
+      height: 42px; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 0 14px; font-size: 13px; font-family: inherit;
+      outline: none; background: #fff; color: var(--text);
+      transition: border-color 0.15s;
+      appearance: none; width: 100%;
+    }
+    .sett-field input:focus,
+    .sett-field select:focus { border-color: var(--blue); background: #fff; }
+    .sett-field input[readonly] { background: var(--bg); cursor: default; }
+    .sett-field textarea { height: auto; min-height: 80px; padding: 10px 14px; resize: vertical; }
+    .sett-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* Profile avatar section */
+    .sett-avatar-wrap {
+      display: flex; align-items: center; gap: 20px; padding: 20px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sett-avatar-circle {
+      width: 80px; height: 80px; border-radius: 50%; background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 700; color: #fff;
+      position: relative; cursor: pointer; flex-shrink: 0; overflow: hidden;
+    }
+    .sett-avatar-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .sett-avatar-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.45); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .sett-avatar-circle:hover .sett-avatar-overlay { opacity: 1; }
+    .sett-avatar-overlay svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2; }
+    .sett-avatar-info { flex: 1; }
+    .sett-avatar-name  { font-size: 17px; font-weight: 700; }
+    .sett-avatar-email { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .sett-avatar-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+    /* Profile completion bar */
+    .sett-completion {
+      display: flex; align-items: center; gap: 12px; padding: 12px 22px;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+    }
+    .sett-completion__label { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+    .sett-completion__bar {
+      flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+    }
+    .sett-completion__fill {
+      height: 100%; background: var(--blue); border-radius: 3px; transition: width 0.5s;
+    }
+    .sett-completion__pct { font-size: 12px; font-weight: 700; color: var(--blue); white-space: nowrap; }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--border); gap: 16px;
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-row__info { flex: 1; }
+    .toggle-row__label { font-size: 13px; font-weight: 600; }
+    .toggle-row__sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .toggle-sw { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-sw__track {
+      position: absolute; inset: 0; background: var(--border); border-radius: 24px;
+      cursor: pointer; transition: background 0.25s;
+    }
+    .toggle-sw__track::before {
+      content: ''; position: absolute;
+      height: 18px; width: 18px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: transform 0.25s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-sw input:checked + .toggle-sw__track { background: var(--blue); }
+    .toggle-sw input:checked + .toggle-sw__track::before { transform: translateX(20px); }
+
+    /* Security rows */
+    .sett-security-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 0; border-bottom: 1px solid var(--border);
+    }
+    .sett-security-row:last-child { border-bottom: none; }
+    .sett-security-row__icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sett-security-row__icon svg { width: 20px; height: 20px; fill: none; stroke-width: 1.8; }
+    .sett-security-row__info { flex: 1; }
+    .sett-security-row__label { font-size: 13px; font-weight: 600; }
+    .sett-security-row__sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .sett-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+    }
+    .sett-badge--on  { background: var(--green-lt); color: var(--green); }
+    .sett-badge--off { background: #fff0f0; color: var(--red); }
+    .sett-badge--warn { background: #fff8e0; color: #b45309; }
+
+    /* KYC document rows */
+    .sett-doc-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .sett-doc-row:last-child { border-bottom: none; }
+    .sett-doc-icon {
+      width: 42px; height: 42px; border-radius: 10px; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sett-doc-icon svg { width: 20px; height: 20px; fill: none; stroke: var(--blue); stroke-width: 1.8; }
+    .sett-doc-info { flex: 1; }
+    .sett-doc-label { font-size: 13px; font-weight: 600; }
+    .sett-doc-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* Dark mode — settings */
+    body.dark .sett-nav,
+    body.dark .sett-card       { background: #1a1d27; }
+    body.dark .sett-nav__item.active { background: rgba(26,92,255,0.15); }
+    body.dark .sett-field input,
+    body.dark .sett-field select { background: #0f1117; color: var(--text); border-color: var(--border); }
+    body.dark .sett-field input[readonly] { background: #0f1117; }
+    body.dark .sett-completion  { background: #0f1117; }
+    body.dark .sett-doc-icon    { background: #0f1117; }
+    body.dark .sett-security-row__icon { background: #0f1117; }
+
+    @media (max-width: 768px) {
+      .sett-layout { grid-template-columns: 1fr; }
+      .sett-nav { flex-direction: row; overflow-x: auto; position: static; border-radius: 10px; }
+      .sett-nav__item { flex-direction: column; gap: 4px; padding: 10px 14px; font-size: 11px; white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; }
+      .sett-nav__item.active { border-left-color: transparent; border-bottom-color: var(--blue); }
+      .sett-nav__divider { display: none; }
+      .sett-grid-2 { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -572,7 +900,6 @@
   ============================================================ -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__logo">
-      <a href="index.html">
         <img src="/images/logo.png" alt="Xantex"
           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
         <span class="sidebar__logo-text" style="display:none;">Xantex</span>
@@ -615,6 +942,12 @@
         <span class="nav-item__badge">3</span>
       </button>
 
+      <button class="nav-item" id="nav-notifications" onclick="setPage('notifications')">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+        <span class="nav-item__badge" id="notif-nav-badge" style="display:none;background:#e60023;"></span>
+      </button>
+
       <div class="sidebar__section-label">Account</div>
 
       <button class="nav-item" onclick="setPage('verification')">
@@ -626,19 +959,15 @@
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Settings
       </button>
-      <a class="nav-item" href="index.html">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-        Main Site
-      </a>
     </nav>
 
     <div class="sidebar__footer">
       <div class="sidebar__avatar"></div>
       <div>
-        <div class="sidebar__user-name"></div>
+        <div class="sidebar__user-name">—</div>
         <div class="sidebar__user-role">Live account</div>
       </div>
-      <button class="sidebar__logout" onclick="window.location='login.html'" title="Sign out">
+      <button class="sidebar__logout" onclick="signOut()" title="Sign out">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
@@ -660,15 +989,13 @@
         <input type="text" placeholder="Search instruments…">
       </div>
       <div class="topbar__right">
+        <div class="topbar__flag" id="topbar-flag" title="Country"></div>
         <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">
           <svg id="dark-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
-        <button class="topbar__icon-btn" title="Notifications">
+        <button class="topbar__icon-btn" id="notif-bell-btn" title="Notifications" onclick="setPage('notifications')">
           <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <div class="topbar__notif-dot"></div>
-        </button>
-        <button class="topbar__icon-btn" title="Messages">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <div class="topbar__notif-dot" id="notif-bell-dot" style="display:none;"></div>
         </button>
         <div class="topbar__avatar" title="Profile"></div>
       </div>
@@ -686,7 +1013,7 @@
             <div class="page-header__sub">Here's your portfolio summary for today</div>
           </div>
           <div class="page-header__actions">
-            <button class="btn btn--outline" onclick="openModal('withdraw')">
+            <button class="btn btn--withdraw" onclick="openModal('withdraw')">
               <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
               Withdraw
             </button>
@@ -704,32 +1031,32 @@
               <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
               Total Balance
             </div>
-            <div class="summary-card__value" id="val-balance">—</div>
-            <div class="summary-card__change up" id="val-balance-sub"></div>
+            <div class="summary-card__value card-loading" id="card-balance">—</div>
+            <div class="summary-card__change card-loading" id="card-balance-sub" style="color:var(--muted);">Loading…</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
               Open P&L
             </div>
-            <div class="summary-card__value" id="val-pnl" style="color:var(--green);">—</div>
-            <div class="summary-card__change up" id="val-pnl-sub"></div>
+            <div class="summary-card__value card-loading" id="card-pnl" style="color:var(--muted);">—</div>
+            <div class="summary-card__change card-loading" id="card-pnl-sub" style="color:var(--muted);">Loading…</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
               Free Margin
             </div>
-            <div class="summary-card__value" id="val-margin">—</div>
-            <div class="summary-card__change" id="val-margin-sub" style="color:var(--muted);"></div>
+            <div class="summary-card__value card-loading" id="card-margin">—</div>
+            <div class="summary-card__change card-loading" id="card-margin-sub" style="color:var(--muted);">Loading…</div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              Today's Trades
+              Deposits / Withdrawals
             </div>
-            <div class="summary-card__value" id="val-trades">—</div>
-            <div class="summary-card__change" id="val-trades-sub"></div>
+            <div class="summary-card__value card-loading" id="card-txn">—</div>
+            <div class="summary-card__change card-loading" id="card-txn-sub" style="color:var(--muted);">Loading…</div>
           </div>
         </div>
 
@@ -756,43 +1083,8 @@
               <div class="card__title">Market Watch</div>
               <span class="card__action">See all →</span>
             </div>
-            <div class="market-list">
-              <div class="market-row">
-                <div class="market-flag">💱</div>
-                <div class="market-name"><div class="market-name__sym">EUR/USD</div><div class="market-name__full">Euro / US Dollar</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,20 8,16 16,18 24,10 32,12 40,6 48,8 56,4" fill="none" stroke="#22a06b" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">1.08432</div><div class="market-price__chg up">+0.42%</div></div>
-              </div>
-              <div class="market-row">
-                <div class="market-flag">💷</div>
-                <div class="market-name"><div class="market-name__sym">GBP/USD</div><div class="market-name__full">British Pound / US Dollar</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,8 8,12 16,10 24,16 32,14 40,18 48,16 56,20" fill="none" stroke="#e60023" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">1.26718</div><div class="market-price__chg down">-0.18%</div></div>
-              </div>
-              <div class="market-row">
-                <div class="market-flag">🥇</div>
-                <div class="market-name"><div class="market-name__sym">XAU/USD</div><div class="market-name__full">Gold / US Dollar</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,18 8,14 16,16 24,8 32,10 40,4 48,6 56,2" fill="none" stroke="#22a06b" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">2,341.50</div><div class="market-price__chg up">+0.87%</div></div>
-              </div>
-              <div class="market-row">
-                <div class="market-flag">📈</div>
-                <div class="market-name"><div class="market-name__sym">US30</div><div class="market-name__full">Dow Jones Industrial</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,14 8,10 16,12 24,6 32,8 40,4 48,6 56,3" fill="none" stroke="#22a06b" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">39,142.0</div><div class="market-price__chg up">+0.31%</div></div>
-              </div>
-              <div class="market-row">
-                <div class="market-flag">₿</div>
-                <div class="market-name"><div class="market-name__sym">BTC/USD</div><div class="market-name__full">Bitcoin / US Dollar</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,10 8,14 16,8 24,16 32,6 40,12 48,4 56,8" fill="none" stroke="#22a06b" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">78,450.0</div><div class="market-price__chg up">+2.14%</div></div>
-              </div>
-              <div class="market-row">
-                <div class="market-flag">🛢️</div>
-                <div class="market-name"><div class="market-name__sym">WTI/USD</div><div class="market-name__full">Crude Oil West Texas</div></div>
-                <svg class="market-spark" viewBox="0 0 56 28"><polyline points="0,12 8,16 16,14 24,18 32,16 40,20 48,18 56,22" fill="none" stroke="#e60023" stroke-width="1.5"/></svg>
-                <div class="market-price"><div class="market-price__val">82.340</div><div class="market-price__chg down">-0.55%</div></div>
-              </div>
+            <div class="market-list" id="dash-market-watch">
+              <div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Loading live prices…</div>
             </div>
           </div>
         </div>
@@ -817,7 +1109,9 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody id="positions-tbody"></tbody>
+                <tbody id="positions-tbody">
+                  <tr id="positions-empty-row"><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">No open positions</td></tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -860,7 +1154,33 @@
 
             <div class="card">
               <div class="card__head"><div class="card__title">Recent Activity</div></div>
-              <div class="activity-list" id="activity-list"></div>
+              <div class="activity-list">
+                <div class="activity-row">
+                  <div class="activity-dot activity-dot--green"></div>
+                  <div class="activity-text">Deposit of <strong>$5,000</strong> confirmed</div>
+                  <div class="activity-time">2m ago</div>
+                </div>
+                <div class="activity-row">
+                  <div class="activity-dot activity-dot--blue"></div>
+                  <div class="activity-text">Buy EUR/USD opened at <strong>1.08210</strong></div>
+                  <div class="activity-time">14m ago</div>
+                </div>
+                <div class="activity-row">
+                  <div class="activity-dot activity-dot--orange"></div>
+                  <div class="activity-text">ID verification <strong>pending review</strong></div>
+                  <div class="activity-time">1h ago</div>
+                </div>
+                <div class="activity-row">
+                  <div class="activity-dot activity-dot--red"></div>
+                  <div class="activity-text">Sell BTC/USD closed at <strong>loss -$48.20</strong></div>
+                  <div class="activity-time">3h ago</div>
+                </div>
+                <div class="activity-row">
+                  <div class="activity-dot activity-dot--green"></div>
+                  <div class="activity-text">Buy XAU/USD closed <strong>+$220.00 profit</strong></div>
+                  <div class="activity-time">5h ago</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -871,142 +1191,609 @@
             <div class="card__title">My Trading Accounts</div>
             <span class="card__action">Open new account →</span>
           </div>
-          <div class="account-list" id="account-list"></div>
+          <div class="account-list">
+            <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Loading accounts…</div>
+          </div>
         </div>
 
       </div><!-- /page-overview -->
 
-      <!-- ── My Accounts ───────────────────────────────────── -->
-      <div id="page-accounts" style="display:none;">
+      <!-- ── NOTIFICATIONS PAGE ────────────────────────────────────── -->
+      <div id="page-notifications" style="display:none;padding:24px 28px;">
         <div class="page-header">
           <div>
-            <div class="page-header__title">My Trading Accounts</div>
-            <div class="page-header__sub">All your trading accounts in one place</div>
+            <div class="page-header__title">Notifications</div>
+            <div class="page-header__sub">Messages and alerts from Xantex</div>
           </div>
         </div>
         <div class="card">
-          <div class="card__head"><div class="card__title">Trading Accounts</div></div>
-          <div class="account-list" id="accounts-page-list"></div>
+          <div class="card__body" id="notif-list-body">
+            <div style="text-align:center;padding:32px;color:var(--muted);">Loading notifications…</div>
+          </div>
         </div>
-      </div>
+      </div><!-- /page-notifications -->
 
-      <!-- ── Transaction History ───────────────────────────── -->
-      <div id="page-history" style="display:none;">
+      <!-- ── TRANSACTION HISTORY PAGE ─────────────────────────────── -->
+      <div id="page-history" style="display:none;padding:24px 28px;">
         <div class="page-header">
           <div>
             <div class="page-header__title">Transaction History</div>
-            <div class="page-header__sub">Your deposits, withdrawals and adjustments</div>
+            <div class="page-header__sub">All deposits, withdrawals, and account activity</div>
           </div>
         </div>
         <div class="card">
-          <div class="card__head"><div class="card__title">All Transactions</div></div>
-          <div class="table-wrap">
-            <table>
+          <div class="card__body--p0 table-wrap">
+            <table class="data-table">
               <thead>
-                <tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Description</th></tr>
+                <tr>
+                  <th>Transaction</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
               </thead>
               <tbody id="history-tbody">
-                <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>
+                <tr><td colspan="4" style="text-align:center;padding:28px;color:var(--muted);">Loading…</td></tr>
               </tbody>
             </table>
           </div>
         </div>
-      </div>
+      </div><!-- /page-history -->
 
-      <!-- ── Verification ──────────────────────────────────── -->
-      <div id="page-verification" style="display:none;">
-        <div class="page-header">
-          <div>
-            <div class="page-header__title">Identity Verification</div>
-            <div class="page-header__sub">Verify your identity to unlock full account features</div>
-          </div>
-        </div>
-        <div class="card" style="max-width:600px;">
-          <div class="card__head"><div class="card__title">KYC Status</div></div>
-          <div class="card__body" style="padding:24px;">
-            <div id="kyc-status-block" style="margin-bottom:24px;padding:16px;border-radius:10px;background:var(--bg);font-size:14px;">
-              Checking verification status…
-            </div>
-            <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">To verify your identity, please contact our support team or submit your documents through the platform. Verified accounts get higher withdrawal limits and access to all features.</p>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;">
-              <a href="mailto:support@xantex.com" class="btn btn--primary" style="text-decoration:none;">Contact Support</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Settings ──────────────────────────────────────── -->
+      <!-- ── SETTINGS PAGE ──────────────────────────────────────── -->
       <div id="page-settings" style="display:none;">
         <div class="page-header">
           <div>
             <div class="page-header__title">Account Settings</div>
-            <div class="page-header__sub">Manage your profile and preferences</div>
+            <div class="page-header__sub">Manage your profile, security and preferences</div>
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:20px;max-width:600px;">
-          <div class="card">
-            <div class="card__head"><div class="card__title">Personal Information</div></div>
-            <div class="card__body" style="padding:24px;display:flex;flex-direction:column;gap:16px;">
-              <div class="field"><label>First Name</label><input type="text" id="set-first" placeholder="—"></div>
-              <div class="field"><label>Last Name</label><input type="text" id="set-last" placeholder="—"></div>
-              <div class="field"><label>Email</label><input type="email" id="set-email" placeholder="—" disabled style="opacity:.6;cursor:not-allowed;"></div>
-              <button class="btn btn--primary" style="align-self:flex-start;" onclick="saveProfile()">Save Changes</button>
-              <p id="set-msg" style="font-size:12px;color:var(--green);display:none;">Saved successfully.</p>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card__head"><div class="card__title">Change Password</div></div>
-            <div class="card__body" style="padding:24px;display:flex;flex-direction:column;gap:16px;">
-              <div class="field"><label>New Password</label><input type="password" id="set-pwd" placeholder="Min. 8 characters"></div>
-              <div class="field"><label>Confirm Password</label><input type="password" id="set-pwd2" placeholder="Repeat password"></div>
-              <button class="btn btn--primary" style="align-self:flex-start;" onclick="changePassword()">Update Password</button>
-              <p id="set-pwd-msg" style="font-size:12px;display:none;"></p>
-            </div>
-          </div>
-        </div>
-      </div>
+
+        <div class="sett-layout">
+
+          <!-- ── Tab nav ── -->
+          <nav class="sett-nav">
+            <button class="sett-nav__item active" onclick="settTab('profile',this)">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profile
+            </button>
+            <button class="sett-nav__item" onclick="settTab('security',this)">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Security
+            </button>
+            <button class="sett-nav__item" onclick="settTab('notifications',this)">
+              <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              Notifications
+            </button>
+            <div class="sett-nav__divider"></div>
+            <button class="sett-nav__item" onclick="settTab('preferences',this)">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Preferences
+            </button>
+            <button class="sett-nav__item" onclick="settTab('documents',this)">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              Documents
+            </button>
+          </nav>
+
+          <!-- ── Panels ── -->
+          <div id="sett-panels">
+
+            <!-- ════ PROFILE ════ -->
+            <div id="sett-profile" class="sett-panel">
+              <div class="sett-card">
+                <!-- Avatar row -->
+                <div class="sett-avatar-wrap">
+                  <div class="sett-avatar-circle" id="sett-big-avatar" onclick="document.getElementById('avatar-upload').click()">
+                    <span id="settings-avatar-init"></span>
+                    <img id="settings-avatar-img" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                    <div class="sett-avatar-overlay">
+                      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </div>
+                  </div>
+                  <input type="file" id="avatar-upload" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
+                  <div class="sett-avatar-info">
+                    <div class="sett-avatar-name" id="sett-avatar-name">—</div>
+                    <div class="sett-avatar-email" id="sett-avatar-email">—</div>
+                    <div class="sett-avatar-actions">
+                      <button class="btn btn--outline" style="font-size:12px;padding:6px 14px;height:32px;" onclick="document.getElementById('avatar-upload').click()">Change Photo</button>
+                      <div id="avatar-upload-status" style="font-size:12px;color:var(--green);display:flex;align-items:center;"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Profile completion bar -->
+                <div class="sett-completion">
+                  <span class="sett-completion__label">Profile completion</span>
+                  <div class="sett-completion__bar"><div class="sett-completion__fill" id="sett-completion-fill" style="width:0%"></div></div>
+                  <span class="sett-completion__pct" id="sett-completion-pct">0%</span>
+                </div>
+                <!-- Personal info -->
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Personal Information</div>
+                  <div class="sett-card__sub">Your name and personal details</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="sett-grid-2">
+                    <div class="sett-field"><label>First Name</label><input type="text" id="prof-fname" placeholder="Enter first name"></div>
+                    <div class="sett-field"><label>Last Name</label><input type="text" id="prof-lname" placeholder="Enter last name"></div>
+                  </div>
+                  <div class="sett-grid-2">
+                    <div class="sett-field"><label>Date of Birth</label><input type="date" id="prof-dob"></div>
+                    <div class="sett-field"><label>Nationality</label>
+                      <select id="prof-nationality">
+                        <option value="">— Select nationality —</option>
+                        <option>American</option><option>British</option><option>Canadian</option>
+                        <option>Australian</option><option>German</option><option>French</option>
+                        <option>Nigerian</option><option>Ghanaian</option><option>South African</option>
+                        <option>Kenyan</option><option>Indian</option><option>Chinese</option>
+                        <option>Brazilian</option><option>Other</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <!-- Contact info -->
+                <div class="sett-card__head" style="padding-top:0;">
+                  <div style="border-top:1px solid var(--border);padding-top:18px;">
+                    <div class="sett-card__title">Contact Information</div>
+                    <div class="sett-card__sub">Email and phone cannot be changed here — contact support</div>
+                  </div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="sett-grid-2">
+                    <div class="sett-field"><label>Email Address</label><input type="email" id="prof-email" readonly></div>
+                    <div class="sett-field"><label>Phone Number</label><input type="tel" id="prof-phone" placeholder="+1 234 567 8900"></div>
+                  </div>
+                  <div class="sett-grid-2">
+                    <div class="sett-field"><label>Country of Residence</label>
+                      <select id="prof-country">
+                        <option value="">— Select country —</option>
+                        <option>United States</option><option>United Kingdom</option><option>Canada</option>
+                        <option>Australia</option><option>Germany</option><option>France</option>
+                        <option>Nigeria</option><option>Ghana</option><option>South Africa</option>
+                        <option>Kenya</option><option>India</option><option>China</option>
+                        <option>Brazil</option><option>Other</option>
+                      </select>
+                    </div>
+                    <div class="sett-field"><label>City</label><input type="text" id="prof-city" placeholder="Your city"></div>
+                  </div>
+                  <div class="sett-field"><label>Account ID (for support)</label><input type="text" id="prof-uid" readonly style="font-family:monospace;font-size:11px;"></div>
+                </div>
+                <div class="sett-card__foot">
+                  <button class="btn btn--primary" onclick="saveProfile()" id="save-profile-btn">Save Changes</button>
+                  <span id="save-profile-msg" style="font-size:12px;color:var(--green);"></span>
+                </div>
+              </div>
+            </div><!-- /sett-profile -->
+
+            <!-- ════ SECURITY ════ -->
+            <div id="sett-security" class="sett-panel hidden">
+              <!-- Password change -->
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Change Password</div>
+                  <div class="sett-card__sub">Use a strong password with at least 8 characters</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="sett-field">
+                    <label>Current Password</label>
+                    <div style="position:relative;">
+                      <input type="password" id="pw-current" placeholder="Enter current password" style="padding-right:42px;">
+                      <button type="button" onclick="togglePw('pw-current')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:0;">
+                        <svg id="pw-current-eye" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="sett-field">
+                    <label>New Password</label>
+                    <div style="position:relative;">
+                      <input type="password" id="pw-new" placeholder="Min. 8 characters" style="padding-right:42px;" oninput="checkPwStrength(this.value)">
+                      <button type="button" onclick="togglePw('pw-new')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:0;">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                    </div>
+                    <!-- Password strength bar -->
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+                      <div style="flex:1;height:4px;background:var(--border);border-radius:2px;">
+                        <div id="pw-strength-bar" style="height:100%;border-radius:2px;transition:width .3s,background .3s;width:0%;background:var(--red);"></div>
+                      </div>
+                      <span id="pw-strength-label" style="font-size:11px;color:var(--muted);width:48px;text-align:right;"></span>
+                    </div>
+                  </div>
+                  <div class="sett-field">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="pw-confirm" placeholder="Repeat new password">
+                  </div>
+                </div>
+                <div class="sett-card__foot">
+                  <button class="btn btn--primary" onclick="changePassword()" id="change-pw-btn">Update Password</button>
+                  <span id="change-pw-msg" style="font-size:12px;"></span>
+                </div>
+              </div>
+
+              <!-- Security overview -->
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Security Overview</div>
+                  <div class="sett-card__sub">Your account security status</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="sett-security-row">
+                    <div class="sett-security-row__icon" style="background:var(--green-lt);">
+                      <svg viewBox="0 0 24 24" style="stroke:var(--green);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div class="sett-security-row__info">
+                      <div class="sett-security-row__label">Email Verified</div>
+                      <div class="sett-security-row__sub">Your email address is confirmed</div>
+                    </div>
+                    <span class="sett-badge sett-badge--on" id="badge-email-verified">Verified</span>
+                  </div>
+                  <div class="sett-security-row">
+                    <div class="sett-security-row__icon" style="background:var(--blue-lt);">
+                      <svg viewBox="0 0 24 24" style="stroke:var(--blue);"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    </div>
+                    <div class="sett-security-row__info">
+                      <div class="sett-security-row__label">Two-Factor Authentication</div>
+                      <div class="sett-security-row__sub">Add an extra layer of security to your account</div>
+                    </div>
+                    <span class="sett-badge sett-badge--warn">Coming soon</span>
+                  </div>
+                  <div class="sett-security-row">
+                    <div class="sett-security-row__icon" style="background:#fff3e0;">
+                      <svg viewBox="0 0 24 24" style="stroke:#e65c00;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <div class="sett-security-row__info">
+                      <div class="sett-security-row__label">KYC Verification</div>
+                      <div class="sett-security-row__sub" id="kyc-security-sub">Upload your documents to verify your identity</div>
+                    </div>
+                    <span class="sett-badge" id="badge-kyc">Pending</span>
+                  </div>
+                </div>
+              </div>
+            </div><!-- /sett-security -->
+
+            <!-- ════ NOTIFICATIONS ════ -->
+            <div id="sett-notifications" class="sett-panel hidden">
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Email Notifications</div>
+                  <div class="sett-card__sub">Control which emails you receive from us</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Deposit Confirmed</div>
+                      <div class="toggle-row__sub">When your deposit is verified and credited</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-deposit" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Withdrawal Processed</div>
+                      <div class="toggle-row__sub">When your withdrawal is approved and sent</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-withdrawal" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Account Balance Update</div>
+                      <div class="toggle-row__sub">When your balance is adjusted by our team</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-balance" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">KYC Status Update</div>
+                      <div class="toggle-row__sub">When your verification documents are reviewed</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-kyc" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Platform Alerts</div>
+                  <div class="sett-card__sub">In-platform notifications and announcements</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Market News & Analysis</div>
+                      <div class="toggle-row__sub">Daily market updates and trading signals</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-news" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Promotions & Offers</div>
+                      <div class="toggle-row__sub">Bonus offers, contests, and special events</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-promos"><span class="toggle-sw__track"></span></label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Platform Announcements</div>
+                      <div class="toggle-row__sub">Maintenance windows and new features</div>
+                    </div>
+                    <label class="toggle-sw"><input type="checkbox" id="notif-platform" checked><span class="toggle-sw__track"></span></label>
+                  </div>
+                </div>
+                <div class="sett-card__foot">
+                  <button class="btn btn--primary" onclick="saveNotifications()">Save Preferences</button>
+                  <span id="notif-save-msg" style="font-size:12px;color:var(--green);"></span>
+                </div>
+              </div>
+            </div><!-- /sett-notifications -->
+
+            <!-- ════ PREFERENCES ════ -->
+            <div id="sett-preferences" class="sett-panel hidden">
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Appearance</div>
+                  <div class="sett-card__sub">Customise how the platform looks</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <div class="toggle-row__label">Dark Mode</div>
+                      <div class="toggle-row__sub">Switch between light and dark interface</div>
+                    </div>
+                    <label class="toggle-sw">
+                      <input type="checkbox" id="pref-dark" onchange="toggleDarkFromPref(this.checked)">
+                      <span class="toggle-sw__track"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sett-card">
+                <div class="sett-card__head">
+                  <div class="sett-card__title">Regional Settings</div>
+                  <div class="sett-card__sub">Language, timezone and display preferences</div>
+                </div>
+                <div class="sett-card__body">
+                  <div class="sett-grid-2">
+                    <div class="sett-field">
+                      <label>Language</label>
+                      <select id="pref-lang">
+                        <option value="en" selected>English</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="es">Español</option>
+                        <option value="pt">Português</option>
+                        <option value="ar">العربية</option>
+                        <option value="zh">中文</option>
+                      </select>
+                    </div>
+                    <div class="sett-field">
+                      <label>Timezone</label>
+                      <select id="pref-tz">
+                        <option value="UTC">UTC / GMT+0</option>
+                        <option value="America/New_York">Eastern Time (ET)</option>
+                        <option value="America/Chicago">Central Time (CT)</option>
+                        <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                        <option value="Europe/London">London (BST)</option>
+                        <option value="Europe/Berlin">Central European (CET)</option>
+                        <option value="Africa/Lagos">Lagos (WAT)</option>
+                        <option value="Africa/Nairobi">Nairobi (EAT)</option>
+                        <option value="Asia/Dubai">Dubai (GST)</option>
+                        <option value="Asia/Tokyo">Tokyo (JST)</option>
+                        <option value="Australia/Sydney">Sydney (AEST)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="sett-grid-2">
+                    <div class="sett-field">
+                      <label>Display Currency</label>
+                      <select id="pref-currency">
+                        <option value="USD" selected>USD — US Dollar</option>
+                        <option value="EUR">EUR — Euro</option>
+                        <option value="GBP">GBP — British Pound</option>
+                        <option value="NGN">NGN — Nigerian Naira</option>
+                        <option value="GHS">GHS — Ghanaian Cedi</option>
+                        <option value="KES">KES — Kenyan Shilling</option>
+                        <option value="ZAR">ZAR — South African Rand</option>
+                      </select>
+                    </div>
+                    <div class="sett-field">
+                      <label>Date Format</label>
+                      <select id="pref-datefmt">
+                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="sett-card__foot">
+                  <button class="btn btn--primary" onclick="savePreferences()">Save Preferences</button>
+                  <span id="pref-save-msg" style="font-size:12px;color:var(--green);"></span>
+                </div>
+              </div>
+            </div><!-- /sett-preferences -->
+
+            <!-- ════ DOCUMENTS ════ -->
+            <div id="sett-documents" class="sett-panel hidden">
+              <!-- KYC status banner -->
+              <div class="sett-card">
+                <div id="kyc-banner" style="padding:18px 22px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);">
+                  <div id="kyc-banner-icon" style="width:46px;height:46px;border-radius:12px;background:var(--blue-lt);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:var(--blue);stroke-width:1.8;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  </div>
+                  <div style="flex:1;">
+                    <div id="kyc-banner-title" style="font-size:14px;font-weight:700;"></div>
+                    <div id="kyc-banner-sub"   style="font-size:12px;color:var(--muted);margin-top:2px;"></div>
+                  </div>
+                  <span class="sett-badge" id="kyc-banner-badge"></span>
+                </div>
+                <div class="sett-card__body">
+                  <!-- ID document -->
+                  <div class="sett-doc-row">
+                    <div class="sett-doc-icon">
+                      <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    </div>
+                    <div class="sett-doc-info">
+                      <div class="sett-doc-label">Government-Issued ID</div>
+                      <div class="sett-doc-sub">Passport, national ID or driver's licence</div>
+                    </div>
+                    <span class="sett-badge" id="doc-id-badge">Not uploaded</span>
+                  </div>
+                  <!-- Address proof -->
+                  <div class="sett-doc-row">
+                    <div class="sett-doc-icon">
+                      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </div>
+                    <div class="sett-doc-info">
+                      <div class="sett-doc-label">Proof of Address</div>
+                      <div class="sett-doc-sub">Utility bill or bank statement (within 3 months)</div>
+                    </div>
+                    <span class="sett-badge" id="doc-address-badge">Not uploaded</span>
+                  </div>
+                  <!-- Selfie -->
+                  <div class="sett-doc-row">
+                    <div class="sett-doc-icon">
+                      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="sett-doc-info">
+                      <div class="sett-doc-label">Selfie / Liveness Check</div>
+                      <div class="sett-doc-sub">Clear photo of your face holding your ID</div>
+                    </div>
+                    <span class="sett-badge" id="doc-selfie-badge">Not uploaded</span>
+                  </div>
+                </div>
+                <div class="sett-card__foot" id="kyc-upload-foot">
+                  <button class="btn btn--primary" onclick="openModal('kyc-submit')">
+                    <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Upload Documents
+                  </button>
+                  <span style="font-size:12px;color:var(--muted);">Upload your ID and selfie to verify your identity</span>
+                </div>
+              </div>
+
+              <!-- Help card -->
+              <div class="sett-card" style="background:linear-gradient(135deg,var(--blue) 0%,var(--blue-dk) 100%);border-color:var(--blue);color:#fff;">
+                <div class="sett-card__body" style="flex-direction:row;align-items:center;gap:16px;">
+                  <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Need help with verification?</div>
+                    <div style="font-size:12px;opacity:.8;">Our support team is available 24/7 to assist you with your account verification process.</div>
+                  </div>
+                  <button class="btn" style="background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.3);white-space:nowrap;flex-shrink:0;">Contact Support</button>
+                </div>
+              </div>
+            </div><!-- /sett-documents -->
+
+          </div><!-- /sett-panels -->
+        </div><!-- /sett-layout -->
+      </div><!-- /page-settings -->
 
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /layout -->
 
 <!-- ============================================================
-     DEPOSIT MODAL
+     DEPOSIT MODAL — CRYPTO ONLY
 ============================================================ -->
 <div class="modal-overlay" id="modal-deposit">
-  <div class="modal">
-    <div class="modal__head">
-      <div class="modal__title">Deposit Funds</div>
-      <button class="modal__close" onclick="closeModal('deposit')">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+  <div class="modal dep-modal">
+
+    <!-- Header -->
+    <div class="modal__head" style="padding-bottom:14px;">
+      <div>
+        <div class="modal__title">Deposit Funds</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">Cryptocurrency only · Credited after 1 confirmation</div>
+      </div>
+      <button class="modal__close" onclick="closeModal('deposit')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div class="modal__body">
-      <div class="field">
-        <label>Select account</label>
-        <select id="deposit-account-select"></select>
-      </div>
-      <div class="field">
-        <label>Payment method</label>
-        <select>
-          <option>💳 Credit / Debit Card</option>
-          <option>🏦 Bank Transfer</option>
-          <option>₿ Cryptocurrency</option>
-          <option>📱 Skrill</option>
-          <option>📱 Neteller</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Amount (USD)</label>
-        <input type="number" placeholder="Minimum $100" min="100">
-      </div>
-      <p style="font-size:12px;color:var(--muted);background:var(--bg);padding:10px 12px;border-radius:8px;">
-        💡 Deposits are processed instantly for card payments. Bank transfers may take 1–3 business days.
-      </p>
+
+    <!-- Step indicator -->
+    <div class="dep-steps">
+      <div class="dep-step active" id="dep-step-1"><span class="dep-step__num">1</span>Select coin</div>
+      <div class="dep-step-line"></div>
+      <div class="dep-step" id="dep-step-2"><span class="dep-step__num">2</span>Get address</div>
+      <div class="dep-step-line"></div>
+      <div class="dep-step" id="dep-step-3"><span class="dep-step__num">3</span>Send &amp; confirm</div>
     </div>
+
+    <div class="modal__body" style="gap:18px;">
+
+      <!-- Account selector -->
+      <div class="field">
+        <label>Credit to Account</label>
+        <select id="dep-account"></select>
+      </div>
+
+      <!-- Coin picker -->
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px;">Select Cryptocurrency</div>
+        <div class="dep-coins">
+          <button class="dep-coin" id="dep-coin-BTC" onclick="depSelectCoin('BTC')">
+            <div class="dep-coin__icon btc">₿</div>
+            <div class="dep-coin__name">Bitcoin</div>
+            <div class="dep-coin__sym">BTC</div>
+          </button>
+          <button class="dep-coin" id="dep-coin-ETH" onclick="depSelectCoin('ETH')">
+            <div class="dep-coin__icon eth" style="font-size:20px;letter-spacing:-1px;">Ξ</div>
+            <div class="dep-coin__name">Ethereum</div>
+            <div class="dep-coin__sym">ETH</div>
+          </button>
+          <button class="dep-coin" id="dep-coin-USDT" onclick="depSelectCoin('USDT')">
+            <div class="dep-coin__icon usdt">₮</div>
+            <div class="dep-coin__name">Tether</div>
+            <div class="dep-coin__sym">USDT</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Network selector — only shown for USDT -->
+      <div id="dep-network-wrap" style="display:none;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px;">Select Network</div>
+        <div class="dep-networks">
+          <button class="dep-net active" id="dep-net-ERC20" onclick="depSelectNetwork('ERC20')">
+            <div class="dep-net__name">ERC20</div>
+            <div class="dep-net__sub">Ethereum network</div>
+          </button>
+          <button class="dep-net" id="dep-net-TRC20" onclick="depSelectNetwork('TRC20')">
+            <div class="dep-net__name">TRC20</div>
+            <div class="dep-net__sub">Tron network</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div class="field">
+        <label>Amount you are sending (USD equivalent)</label>
+        <input type="number" id="dep-amount" placeholder="e.g. 500" min="10" oninput="depUpdateConversion()">
+        <div class="dep-conversion" id="dep-conversion"></div>
+      </div>
+
+      <!-- Address + QR — hidden until coin selected -->
+      <div id="dep-addr-section" style="display:none;">
+        <div class="dep-addr-card">
+          <span class="dep-addr-network" id="dep-network-badge"></span>
+          <img id="dep-qr-img" class="dep-addr-qr" src="" alt="Wallet QR Code">
+          <div class="dep-addr-label" id="dep-addr-label">Send only to this address</div>
+          <div class="dep-addr-row">
+            <code id="dep-addr-text"></code>
+            <button class="dep-addr-copy" id="dep-copy-btn" onclick="depCopyAddress()">Copy</button>
+          </div>
+          <div class="dep-addr-warning" id="dep-coin-warning"></div>
+        </div>
+      </div>
+
+      <!-- "No address" message -->
+      <div id="dep-no-addr-msg" style="display:none;text-align:center;padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--border);">
+        <div style="font-size:13px;font-weight:600;color:var(--muted);">Address not configured yet</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">Please contact support to complete your deposit.</div>
+      </div>
+
+    </div>
+
     <div class="modal__foot">
       <button class="btn btn--outline" onclick="closeModal('deposit')">Cancel</button>
-      <button class="btn btn--primary">Continue to Payment</button>
+      <button class="btn btn--primary" id="dep-submit-btn" disabled style="gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="20 6 9 17 4 12"/></svg>
+        I've Sent the Payment
+      </button>
     </div>
   </div>
 </div>
@@ -1015,37 +1802,201 @@
      WITHDRAW MODAL
 ============================================================ -->
 <div class="modal-overlay" id="modal-withdraw">
-  <div class="modal">
+  <div class="modal" style="max-width:480px;">
     <div class="modal__head">
       <div class="modal__title">Withdraw Funds</div>
-      <button class="modal__close" onclick="closeModal('withdraw')">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <button class="modal__close" onclick="closeModal('withdraw')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div class="modal__body">
+    <div class="modal__body" style="display:flex;flex-direction:column;gap:14px;">
       <div class="field">
-        <label>From account</label>
-        <select id="withdraw-account-select"></select>
-      </div>
-      <div class="field">
-        <label>Withdraw to</label>
-        <select>
-          <option>💳 Visa ending in 4242</option>
-          <option>🏦 Bank account ••••8821</option>
-        </select>
+        <label>From Account</label>
+        <select id="wd-account"></select>
       </div>
       <div class="field">
         <label>Amount (USD)</label>
-        <input type="number" placeholder="Enter amount" min="10">
+        <input type="number" id="wd-amount" placeholder="Minimum $10" min="10">
       </div>
-      <p style="font-size:12px;color:var(--muted);background:var(--bg);padding:10px 12px;border-radius:8px;">
-        ⏱ Withdrawals are processed within 24 hours on business days. Your identity must be verified to withdraw.
-      </p>
+      <div class="field">
+        <label>Withdrawal Method</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button id="wd-btn-bank"   onclick="wdSelectMethod('bank')"   style="padding:10px;border-radius:8px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;cursor:pointer;font-size:13px;">🏦 Bank Transfer</button>
+          <button id="wd-btn-crypto" onclick="wdSelectMethod('crypto')" style="padding:10px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;cursor:pointer;font-size:13px;">₿ Cryptocurrency</button>
+        </div>
+      </div>
+      <!-- Bank details form -->
+      <div id="wd-bank-info">
+        <div class="field"><label>Bank Name</label><input type="text" id="wd-bank-name" placeholder="e.g. Barclays Bank"></div>
+        <div class="field"><label>Account Name</label><input type="text" id="wd-acct-name" placeholder="Full name on account"></div>
+        <div class="field"><label>Account Number / IBAN</label><input type="text" id="wd-acct-num" placeholder="Account number or IBAN"></div>
+        <p style="font-size:11px;color:var(--muted);">Processed within 24 hours on business days. KYC verification required.</p>
+      </div>
+      <!-- Crypto withdrawal form -->
+      <div id="wd-crypto-info" style="display:none;">
+        <div class="field">
+          <label>Cryptocurrency</label>
+          <select id="wd-crypto-coin">
+            <option value="">— choose a coin —</option>
+            <option value="ETH">ETH — Ethereum</option>
+            <option value="USDT">USDT — Tether (ERC20)</option>
+            <option value="USDC">USDC — USD Coin (ERC20)</option>
+            <option value="WBTC">WBTC — Wrapped Bitcoin (ERC20)</option>
+            <option value="BNB">BNB — BNB (ERC20)</option>
+            <option value="LINK">LINK — Chainlink (ERC20)</option>
+            <option value="UNI">UNI — Uniswap (ERC20)</option>
+            <option value="DAI">DAI — Dai (ERC20)</option>
+            <option value="SHIB">SHIB — Shiba Inu (ERC20)</option>
+            <option value="AAVE">AAVE — Aave (ERC20)</option>
+          </select>
+        </div>
+        <div class="field"><label>Your Wallet Address (ERC20 Network)</label><input type="text" id="wd-wallet-addr" placeholder="0x…" style="font-family:monospace;font-size:12px;"></div>
+        <p style="font-size:11px;color:var(--red);font-weight:600;">⚠ Only provide an ERC20-compatible wallet address. Wrong network = lost funds.</p>
+      </div>
     </div>
     <div class="modal__foot">
       <button class="btn btn--outline" onclick="closeModal('withdraw')">Cancel</button>
-      <button class="btn btn--red">Request Withdrawal</button>
+      <button class="btn btn--red" id="wd-submit-btn">Request Withdrawal</button>
     </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     KYC SUBMIT MODAL
+============================================================ -->
+<div class="modal-overlay" id="modal-kyc-submit">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal__head">
+      <div class="modal__title">Identity Verification</div>
+      <button class="modal__close" onclick="closeModal('kyc-submit')">✕</button>
+    </div>
+    <div class="modal__body" style="display:flex;flex-direction:column;gap:16px;">
+      <div class="field">
+        <label>Document Type <span style="color:var(--red)">*</span></label>
+        <select id="kyc-doc-type">
+          <option value="" disabled selected>Select document type…</option>
+          <option value="Passport">Passport</option>
+          <option value="National ID">National ID card</option>
+          <option value="Driver's licence">Driver's licence</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>ID Front Photo <span style="color:var(--red)">*</span></label>
+        <input type="file" id="kyc-id-front" accept=".jpg,.jpeg,.png,.pdf" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;width:100%;background:var(--bg);">
+      </div>
+      <div class="field">
+        <label>Selfie with Document <span style="color:var(--red)">*</span></label>
+        <input type="file" id="kyc-selfie" accept=".jpg,.jpeg,.png" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;width:100%;background:var(--bg);">
+        <span style="font-size:11px;color:var(--muted);">Hold your ID next to your face, clearly visible.</span>
+      </div>
+      <div class="field">
+        <label>Proof of Address <span style="color:var(--red)">*</span></label>
+        <input type="file" id="kyc-proof" accept=".jpg,.jpeg,.png,.pdf" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;width:100%;background:var(--bg);">
+        <span style="font-size:11px;color:var(--muted);">Utility bill, bank statement (within 3 months).</span>
+      </div>
+      <div id="kyc-submit-msg" style="font-size:13px;min-height:18px;"></div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="closeModal('kyc-submit')">Cancel</button>
+      <button class="btn btn--primary" id="kyc-submit-btn" onclick="submitKYC()">Submit for Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PIN MODALS
+============================================================ -->
+<div class="modal-overlay" id="modal-pin-create" style="z-index:600;">
+  <div class="modal" style="max-width:360px;text-align:center;">
+    <div class="modal__head" style="justify-content:center;border-bottom:none;padding-bottom:0;">
+      <div>
+        <div style="font-size:32px;margin-bottom:8px;">🔐</div>
+        <div class="modal__title" id="create-pin-title">Create Your PIN</div>
+        <div id="create-pin-subtitle" style="font-size:13px;color:var(--muted);margin-top:4px;">Set a 4-digit PIN for account security</div>
+      </div>
+    </div>
+    <div style="padding:20px 24px 24px;">
+      <div class="pin-dots" id="create-pin-dots"><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span></div>
+      <div id="create-pin-error" style="color:var(--red);font-size:12px;min-height:16px;margin-bottom:10px;"></div>
+      <div class="pin-pad" id="create-pin-pad"></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:16px;">This PIN is required every time you log in and for withdrawals.</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-pin-enter" style="z-index:600;">
+  <div class="modal" style="max-width:360px;text-align:center;">
+    <div class="modal__head" style="justify-content:center;border-bottom:none;padding-bottom:0;">
+      <div>
+        <div style="font-size:32px;margin-bottom:8px;">🔑</div>
+        <div class="modal__title">Enter Your PIN</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;">Enter your 4-digit security PIN to continue</div>
+      </div>
+    </div>
+    <div style="padding:20px 24px 24px;">
+      <div class="pin-dots" id="enter-pin-dots"><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span></div>
+      <div id="enter-pin-error" style="color:var(--red);font-size:12px;min-height:16px;margin-bottom:10px;"></div>
+      <div class="pin-pad" id="enter-pin-pad"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     NEW TRADE MODAL
+============================================================ -->
+<div class="modal-overlay" id="modal-new-trade">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal__head">
+      <div class="modal__title">Place Trade</div>
+      <button class="modal__close" onclick="closeModal('new-trade')">✕</button>
+    </div>
+    <div class="modal__body" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="field">
+        <label>Instrument</label>
+        <select id="trade-symbol">
+          <option value="EUR/USD">EUR/USD — Euro / US Dollar</option>
+          <option value="GBP/USD">GBP/USD — British Pound / USD</option>
+          <option value="XAU/USD">XAU/USD — Gold / US Dollar</option>
+          <option value="BTC/USD">BTC/USD — Bitcoin / USD</option>
+          <option value="US30">US30 — Dow Jones</option>
+          <option value="WTI/USD">WTI/USD — Crude Oil</option>
+          <option value="USD/JPY">USD/JPY</option>
+          <option value="AUD/USD">AUD/USD</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Direction</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button id="trade-buy-btn" onclick="tradeDir('buy')" style="padding:12px;border-radius:8px;border:2px solid var(--green);background:var(--green);color:#fff;font-weight:700;cursor:pointer;font-size:14px;">▲ BUY</button>
+          <button id="trade-sell-btn" onclick="tradeDir('sell')" style="padding:12px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:700;cursor:pointer;font-size:14px;">▼ SELL</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Lot Size</label>
+        <input type="number" id="trade-lots" value="0.01" min="0.01" step="0.01" placeholder="e.g. 0.10">
+        <span style="font-size:11px;color:var(--muted);">1 lot = 100,000 units. Min 0.01 lots.</span>
+      </div>
+      <div class="field">
+        <label>Account</label>
+        <select id="trade-account"></select>
+      </div>
+      <div id="trade-price-display" style="background:var(--bg);border-radius:8px;padding:12px 14px;font-size:13px;"></div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="closeModal('new-trade')">Cancel</button>
+      <button class="btn btn--primary" id="trade-submit-btn" onclick="submitTrade()">Open Position</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TRANSACTION DETAIL MODAL
+============================================================ -->
+<div class="modal-overlay" id="modal-txn-detail">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal__head">
+      <div class="modal__title" id="txn-detail-title">Transaction Details</div>
+      <button class="modal__close" onclick="closeModal('txn-detail')">✕</button>
+    </div>
+    <div id="txn-detail-body"></div>
   </div>
 </div>
 
@@ -1079,22 +2030,206 @@
   });
 
   // ── Page switcher ─────────────────────────────────────────
-  const pages = { overview: 'Overview', accounts: 'My Accounts', history: 'Transaction History', verification: 'Verification', settings: 'Settings' };
+  const pages = { overview:'Overview', accounts:'My Accounts', trade:'Trade', markets:'Markets', history:'Transaction History', notifications:'Notifications', verification:'Verification', settings:'Settings' };
   function setPage(id) {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    if (event?.currentTarget) event.currentTarget.classList.add('active');
     document.getElementById('topbar-title').textContent = pages[id] || id;
     document.getElementById('sidebar').classList.remove('open');
-    // Show the correct page section
-    Object.keys(pages).forEach(p => {
-      const el = document.getElementById('page-' + p);
-      if (el) el.style.display = p === id ? '' : 'none';
-    });
-    if (id === 'settings') _loadSettings();
-    if (id === 'history')  _loadHistory();
-    if (id === 'verification') _loadKyc();
-    if (id === 'accounts') _loadAccountsPage();
+    const allPages = ['page-overview','page-history','page-settings','page-notifications'];
+    allPages.forEach(p => { const el=document.getElementById(p); if(el) el.style.display='none'; });
+    if (id === 'overview')  document.getElementById('page-overview')?.style && (document.getElementById('page-overview').style.display = '');
+    if (id === 'history')   { document.getElementById('page-history').style.display = ''; _renderHistory(); }
+    if (id === 'notifications') { document.getElementById('page-notifications').style.display = ''; _renderNotifications(); }
+    if (id === 'settings' || id === 'verification') {
+      document.getElementById('page-settings').style.display = '';
+      if (window._populateSettings) window._populateSettings();
+      if (id === 'verification') {
+        document.querySelectorAll('.sett-panel').forEach(p => p.classList.add('hidden'));
+        document.getElementById('sett-documents')?.classList.remove('hidden');
+        document.querySelectorAll('.sett-nav__item').forEach(b => b.classList.remove('active'));
+        document.querySelector('.sett-nav__item[onclick*="documents"]')?.classList.add('active');
+      }
+    }
   }
+
+  // ── Notifications renderer ───────────────────────────────
+  async function _renderNotifications() {
+    const body = document.getElementById('notif-list-body');
+    if (!body) return;
+    const db = window.XANTEX_DB;
+    if (!db) return;
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) return;
+      const { data: notifs } = await db.from('notifications').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false });
+      if (!notifs || !notifs.length) {
+        body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">No notifications yet</div>';
+        return;
+      }
+      body.innerHTML = notifs.map(n => `
+        <div class="notif-item">
+          <div class="notif-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div style="flex:1;">
+            <div class="notif-title">${String(n.title||'Notice').replace(/</g,'&lt;')}</div>
+            <div class="notif-msg">${String(n.message||'').replace(/</g,'&lt;')}</div>
+            <div class="notif-time">${n.created_at ? new Date(n.created_at).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'}) : ''}</div>
+          </div>
+        </div>`).join('');
+    } catch(e) { body.innerHTML = '<div style="padding:20px;color:var(--muted);">Could not load notifications</div>'; }
+  }
+
+  // ── Transaction history renderer ───────────────────────────
+  const _HIST_STATUS = {
+    pending:    { bg:'rgba(245,166,35,0.12)',  color:'#f5a623', label:'Pending'    },
+    processing: { bg:'rgba(26,92,255,0.12)',   color:'#1a5cff', label:'Processing' },
+    completed:  { bg:'rgba(34,160,107,0.12)',  color:'#22a06b', label:'Completed'  },
+    approved:   { bg:'rgba(34,160,107,0.12)',  color:'#22a06b', label:'Approved'   },
+    rejected:   { bg:'rgba(230,0,35,0.12)',    color:'#e60023', label:'Rejected'   },
+    cancelled:  { bg:'rgba(156,163,175,0.12)', color:'#9ca3af', label:'Cancelled'  },
+  };
+
+  function _fmtDate(d) {
+    return d ? new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  }
+  function _fmtDateLong(d) {
+    return d ? new Date(d).toLocaleString('en-US',{dateStyle:'long',timeStyle:'short'}) : '—';
+  }
+
+  function _renderHistory() {
+    const tbody = document.getElementById('history-tbody');
+    if (!tbody) return;
+    const data    = window._dashData || {};
+    const txns    = data.txns    || [];
+    const wdReqs  = data.wdReqs  || [];
+    const depReqs = data.depReqs || [];
+
+    const rows = [
+      // Completed/approved transactions inserted by admin
+      ...txns.filter(t => t.type === 'deposit' || t.type === 'withdrawal').map(t => {
+        const desc = (t.description || '—')
+          .replace('Deposit approved by admin',    'Xantex approved your deposit')
+          .replace('Withdrawal approved by admin', 'Xantex approved your withdrawal');
+        return {
+          id: t.id, reqId: t.reference, date: t.created_at,
+          type: t.type, label: t.type === 'deposit' ? 'Deposit' : 'Withdrawal',
+          amount: parseFloat(t.amount || 0), status: t.status || 'completed',
+          canCancel: false,
+          detail: { 'Description': desc, 'Reference': t.reference ? t.reference.slice(0,8).toUpperCase() : '—', 'Date': _fmtDateLong(t.created_at) },
+        };
+      }),
+      // Pending / rejected deposit requests (approved ones already appear as txns above)
+      ...depReqs.filter(d => d.status !== 'approved').map(d => ({
+        id: d.id, reqId: d.id, date: d.created_at,
+        type: 'deposit_request', label: 'Deposit Request',
+        amount: parseFloat(d.amount || 0), status: d.status || 'pending',
+        canCancel: d.status === 'pending',
+        detail: {
+          'Amount':   '$' + parseFloat(d.amount||0).toFixed(2),
+          'Method':   d.payment_method || d.method || '—',
+          'Reference': d.id.slice(0,8).toUpperCase(),
+          'Submitted': _fmtDateLong(d.created_at),
+          ...(d.notes     ? { 'Notes': d.notes }         : {}),
+          ...(d.proof_url ? { 'Proof URL': d.proof_url } : {}),
+        },
+      })),
+      // Pending / rejected withdrawal requests
+      ...wdReqs.filter(w => w.status !== 'approved').map(w => {
+        const isCrypto = (w.destination_type || '').toLowerCase().includes('crypto');
+        const [bankName, acctNum] = isCrypto ? [] : (w.destination_ref || '').split(' | ');
+        const detail = isCrypto
+          ? {
+              'Amount':         '$' + Math.abs(parseFloat(w.amount||0)).toFixed(2),
+              'Method':         'Cryptocurrency',
+              'Coin':           w.destination_name || '—',
+              'Wallet Address': w.destination_ref  || '—',
+              'Reference':      w.id.slice(0,8).toUpperCase(),
+              'Submitted':      _fmtDateLong(w.created_at),
+            }
+          : {
+              'Amount':                 '$' + Math.abs(parseFloat(w.amount||0)).toFixed(2),
+              'Method':                 'Bank Transfer',
+              'Bank Name':              bankName || '—',
+              'Account Name':           w.destination_name || '—',
+              'Account Number / IBAN':  acctNum  || '—',
+              'Reference':              w.id.slice(0,8).toUpperCase(),
+              'Submitted':              _fmtDateLong(w.created_at),
+            };
+        return {
+          id: w.id, reqId: w.id, date: w.created_at,
+          type: 'withdrawal_request', label: 'Withdrawal Request',
+          amount: -Math.abs(parseFloat(w.amount || 0)), status: w.status || 'pending',
+          canCancel: w.status === 'pending',
+          detail,
+        };
+      }),
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    window._txnRows = rows;
+
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--muted);">No transactions yet</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = rows.map((r, i) => {
+      const ss  = _HIST_STATUS[r.status] || _HIST_STATUS.pending;
+      const pos = r.amount >= 0;
+      const absA = Math.abs(r.amount).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+      const amtStr = (pos ? '+' : '−') + '$' + absA;
+      const amtColor = pos ? 'var(--green)' : 'var(--red)';
+      const cancelBtn = r.canCancel
+        ? `<button onclick="_cancelTxn(${i})" style="margin-left:6px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(230,0,35,0.08);color:var(--red);border:1px solid rgba(230,0,35,0.18);cursor:pointer;white-space:nowrap;">Cancel</button>`
+        : '';
+      return `<tr>
+        <td>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px;white-space:nowrap;">${_fmtDate(r.date)}</div>
+          <div style="font-weight:700;font-size:13px;">${r.label}</div>
+        </td>
+        <td style="font-weight:700;color:${amtColor};white-space:nowrap;">${amtStr}</td>
+        <td><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${ss.bg};color:${ss.color};white-space:nowrap;">${ss.label}</span></td>
+        <td style="white-space:nowrap;">
+          <button onclick="_openTxnDetail(${i})" style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(26,92,255,0.08);color:var(--blue);border:1px solid rgba(26,92,255,0.18);cursor:pointer;white-space:nowrap;">View Details</button>${cancelBtn}
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  window._openTxnDetail = function(i) {
+    const r = (window._txnRows || [])[i];
+    if (!r) return;
+    const ss = _HIST_STATUS[r.status] || _HIST_STATUS.pending;
+    document.getElementById('txn-detail-title').textContent = r.label + ' Details';
+    const pos = r.amount >= 0;
+    const absA = Math.abs(r.amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const detailRows = Object.entries(r.detail).filter(([,v]) => v && v !== '—').map(([k,v]) => `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:12px;color:var(--muted);flex-shrink:0;margin-right:16px;">${k}</span>
+        <span style="font-size:13px;font-weight:600;text-align:right;word-break:break-all;">${String(v).replace(/</g,'&lt;')}</span>
+      </div>`).join('');
+    document.getElementById('txn-detail-body').innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px 16px;border-bottom:1px solid var(--border);">
+        <span style="font-size:30px;font-weight:800;color:${pos?'var(--green)':'var(--red)'};">${pos?'+':'−'}$${absA}</span>
+        <span style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;background:${ss.bg};color:${ss.color};">${ss.label}</span>
+      </div>
+      <div style="padding:0 24px 20px;">${detailRows}</div>`;
+    document.getElementById('modal-txn-detail').classList.add('open');
+  };
+
+  window._cancelTxn = async function(i) {
+    const r = (window._txnRows || [])[i];
+    if (!r || !r.canCancel) return;
+    if (!confirm('Cancel this request? This cannot be undone.')) return;
+    const table = r.type === 'deposit_request' ? 'deposit_requests' : 'withdrawal_requests';
+    const { error } = await db.from(table).update({ status: 'cancelled' }).eq('id', r.reqId).eq('status', 'pending');
+    if (error) { alert('Could not cancel: ' + error.message); return; }
+    if (r.type === 'deposit_request') {
+      window._dashData.depReqs = (window._dashData.depReqs||[]).map(d => d.id===r.reqId ? {...d,status:'cancelled'} : d);
+    } else {
+      window._dashData.wdReqs = (window._dashData.wdReqs||[]).map(w => w.id===r.reqId ? {...w,status:'cancelled'} : w);
+    }
+    _renderHistory();
+  };
 
   // ── Modals ────────────────────────────────────────────────
   function openModal(id) {
@@ -1105,23 +2240,57 @@
   }
   // Close on overlay click
   document.querySelectorAll('.modal-overlay').forEach(el => {
-    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+    el.addEventListener('click', e => { if (e.target === el && !el.classList.contains('pin-persistent')) el.classList.remove('open'); });
   });
   // Close on Escape
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => { if (!el.classList.contains('pin-persistent')) el.classList.remove('open'); });
   });
 
-  // ── Chart bars ────────────────────────────────────────────
-  const chartData = [40,55,38,62,48,70,52,80,65,90,72,85,60,95,78,88,64,76,82,92,68,74,86,98,70,84,90,76,88,94,82,96,72,86,78,92,88,96,84,100,78,92,86,96,82,90,94,88,96,92,86,94,90,98,84,88,96,92,88,94];
-  const chartArea = document.getElementById('chart-area');
-  const maxV = Math.max(...chartData);
-  chartData.forEach((v, i) => {
-    const bar = document.createElement('div');
-    bar.className = 'chart-bar ' + (v > chartData[i-1] || i === 0 ? 'up' : 'down');
-    bar.style.height = (v / maxV * 100) + '%';
-    chartArea.appendChild(bar);
-  });
+  // ── Portfolio SVG line chart ──────────────────────────────
+  window._buildChart = function(txns, currentBalance) {
+    const chartArea = document.getElementById('chart-area');
+    if (!chartArea) return;
+    const sorted = [...(txns||[])].reverse();
+    let running = currentBalance;
+    const points = [];
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      const t = sorted[i];
+      const amt = parseFloat(t.amount || 0);
+      if (['deposit','bonus','adjustment'].includes(t.type)) running -= amt;
+      else if (t.type === 'withdrawal') running += amt;
+      points.unshift(Math.max(0, running));
+    }
+    points.push(currentBalance);
+    if (points.length < 2) { points.unshift(0); }
+
+    const W = 600, H = 200, pad = 10;
+    const minV = Math.min(...points);
+    const maxV = Math.max(...points, minV + 1);
+    const range = maxV - minV || 1;
+    const xs = points.map((_, i) => pad + (i / (points.length - 1)) * (W - 2 * pad));
+    const ys = points.map(v => pad + (1 - (v - minV) / range) * (H - 2 * pad));
+    const pathD = xs.map((x, i) => (i === 0 ? `M${x},${ys[i]}` : `L${x},${ys[i]}`)).join(' ');
+    const fillD = `${pathD} L${xs[xs.length-1]},${H} L${xs[0]},${H} Z`;
+    const isUp = points[points.length-1] >= points[0];
+    const cls  = isUp ? 'up' : 'down';
+    // Y-axis labels
+    const yLabels = [minV, (minV+maxV)/2, maxV].map((v, i) => {
+      const y = pad + (1 - (v - minV) / range) * (H - 2 * pad);
+      return `<text x="4" y="${y+4}" fill="var(--muted)" font-size="9" font-family="Inter,sans-serif">$${v >= 1000 ? (v/1000).toFixed(1)+'k' : v.toFixed(0)}</text>`;
+    }).join('');
+    chartArea.innerHTML = `<svg class="chart-svg ${cls}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${isUp?'#22a06b':'#e60023'}" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="${isUp?'#22a06b':'#e60023'}" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="fill-path" d="${fillD}" fill="url(#chartGrad)" style="opacity:1;"/>
+      <path class="line-path" d="${pathD}"/>
+      <circle class="dot" cx="${xs[xs.length-1]}" cy="${ys[ys.length-1]}" r="4" fill="${isUp?'#22a06b':'#e60023'}"/>
+    </svg>`;
+  };
 
   // ── Chart tab switcher ────────────────────────────────────
   document.querySelectorAll('.chart-tab').forEach(tab => {
@@ -1130,282 +2299,1054 @@
       tab.classList.add('active');
     });
   });
+
+  // ── PIN helpers ────────────────────────────────────────────
+  function _sha256(str) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))
+      .then(h => Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join(''));
+  }
+  function _buildPinPad(padId, dotsId, errorId, onComplete) {
+    let buf = '';
+    const pad  = document.getElementById(padId);
+    const dots = document.getElementById(dotsId);
+    if (!pad) return;
+    const sync = () => dots?.querySelectorAll('.pin-dot').forEach((d,i) => d.classList.toggle('filled', i < buf.length));
+    const press = v => {
+      const errEl = document.getElementById(errorId);
+      if (errEl) errEl.textContent = '';
+      if (v === '⌫') { buf = buf.slice(0,-1); sync(); return; }
+      if (buf.length >= 4) return;
+      buf += v; sync();
+      if (buf.length === 4) { const pin = buf; buf = ''; setTimeout(sync, 180); onComplete(pin); }
+    };
+    pad.innerHTML = ['1','2','3','4','5','6','7','8','9','','0','⌫']
+      .map(k => k === '' ? '<div></div>' : `<button class="pin-key" data-pkey="${k}">${k}</button>`).join('');
+    pad.onclick = e => { const b = e.target.closest('[data-pkey]'); if (b) press(b.dataset.pkey); };
+  }
+
+  // ── Trade direction toggle ─────────────────────────────────
+  window._tradeDir = 'buy';
+  function tradeDir(dir) {
+    window._tradeDir = dir;
+    const buy  = document.getElementById('trade-buy-btn');
+    const sell = document.getElementById('trade-sell-btn');
+    if (!buy || !sell) return;
+    const base = 'padding:12px;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;';
+    buy.style.cssText  = dir==='buy'  ? base+'border:2px solid var(--green);background:var(--green);color:#fff;'
+                                       : base+'border:2px solid var(--border);background:transparent;color:var(--text);';
+    sell.style.cssText = dir==='sell' ? base+'border:2px solid var(--red);background:var(--red);color:#fff;'
+                                       : base+'border:2px solid var(--border);background:transparent;color:var(--text);';
+  }
+
+  function updateTradePrice() {
+    const sym  = document.getElementById('trade-symbol')?.value;
+    const disp = document.getElementById('trade-price-display');
+    if (!disp || !sym) return;
+    const p = window.LIVE_PRICES?.[sym];
+    if (p) {
+      const bid = window.fmtPrice ? window.fmtPrice(sym, p.bid||p.price) : parseFloat(p.bid||p.price||0).toFixed(5);
+      const ask = window.fmtPrice ? window.fmtPrice(sym, p.ask||p.price) : parseFloat(p.ask||p.price||0).toFixed(5);
+      disp.innerHTML = `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;"><span>Sell (Bid): <strong style="color:var(--red);">${bid}</strong></span><span>Buy (Ask): <strong style="color:var(--green);">${ask}</strong></span></div>`;
+    } else {
+      disp.innerHTML = '<span style="color:var(--muted);font-size:12px;">Price loading…</span>';
+    }
+  }
+  document.getElementById('trade-symbol')?.addEventListener('change', updateTradePrice);
+  window.addEventListener('prices:update', updateTradePrice);
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase.js"></script>
+<script src="./notification.js"></script>
+<script src="./prices.js"></script>
 <script>
+async function signOut() {
+  const db = window.XANTEX_DB;
+  if (db) await db.auth.signOut();
+  window.location.href = 'login.html?signout';
+}
+
+function _countryFlag(name) {
+  const m = {
+    'Nigeria':'NG','United States':'US','United Kingdom':'GB','Canada':'CA','Australia':'AU',
+    'Germany':'DE','France':'FR','Italy':'IT','Spain':'ES','Japan':'JP','China':'CN','India':'IN',
+    'Brazil':'BR','South Africa':'ZA','Ghana':'GH','Kenya':'KE','Egypt':'EG','Saudi Arabia':'SA',
+    'United Arab Emirates':'AE','UAE':'AE','Pakistan':'PK','Bangladesh':'BD','Russia':'RU',
+    'Mexico':'MX','Turkey':'TR','Indonesia':'ID','Netherlands':'NL','Belgium':'BE','Sweden':'SE',
+    'Norway':'NO','Denmark':'DK','Finland':'FI','Switzerland':'CH','Austria':'AT','Poland':'PL',
+    'Portugal':'PT','Greece':'GR','Singapore':'SG','Malaysia':'MY','Thailand':'TH',
+    'Philippines':'PH','Vietnam':'VN','South Korea':'KR','New Zealand':'NZ','Argentina':'AR',
+    'Chile':'CL','Colombia':'CO','Peru':'PE','Morocco':'MA','Tunisia':'TN','Tanzania':'TZ',
+    'Uganda':'UG','Ethiopia':'ET','Cameroon':'CM','Zimbabwe':'ZW','Zambia':'ZM','Senegal':'SN',
+    "Ivory Coast":'CI','Sudan':'SD','Iraq':'IQ','Iran':'IR','Israel':'IL','Jordan':'JO',
+    'Lebanon':'LB','Kuwait':'KW','Qatar':'QA','Bahrain':'BH','Oman':'OM','Sri Lanka':'LK',
+    'Nepal':'NP','Myanmar':'MM','Cambodia':'KH','Ireland':'IE','Romania':'RO','Hungary':'HU',
+    'Czech Republic':'CZ','Slovakia':'SK','Bulgaria':'BG','Croatia':'HR','Serbia':'RS',
+    'Ukraine':'UA','Belarus':'BY','Kazakhstan':'KZ','Uzbekistan':'UZ','Azerbaijan':'AZ',
+    'Georgia':'GE','Armenia':'AM','Afghanistan':'AF','Algeria':'DZ','Angola':'AO',
+    'Botswana':'BW','Congo':'CG','Mozambique':'MZ','Namibia':'NA','Rwanda':'RW',
+    'Libya':'LY','Syria':'SY','Yemen':'YE','Somalia':'SO','Mauritius':'MU','Jamaica':'JM',
+    'Trinidad and Tobago':'TT','Cuba':'CU','Honduras':'HN','Guatemala':'GT','El Salvador':'SV',
+    'Nicaragua':'NI','Costa Rica':'CR','Panama':'PA','Bolivia':'BO','Paraguay':'PY',
+    'Uruguay':'UY','Venezuela':'VE','Ecuador':'EC',
+  };
+  const code = m[name];
+  if (!code) return '';
+  return String.fromCodePoint(...[...code].map(c => 0x1F1E6 + c.charCodeAt(0) - 65));
+}
+
+// ── Settings tab switcher ─────────────────────────────────────
+function settTab(id, btn) {
+  document.querySelectorAll('.sett-nav__item').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.sett-panel').forEach(p => p.classList.add('hidden'));
+  const panel = document.getElementById('sett-' + id);
+  if (panel) panel.classList.remove('hidden');
+}
+
+// ── Password visibility toggle ────────────────────────────────
+function togglePw(id) {
+  const el = document.getElementById(id);
+  if (el) el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+// ── Password strength indicator ───────────────────────────────
+function checkPwStrength(pw) {
+  const bar   = document.getElementById('pw-strength-bar');
+  const label = document.getElementById('pw-strength-label');
+  if (!bar || !label) return;
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const levels = [{w:'15%',c:'#e60023',t:'Weak'},{w:'40%',c:'#f5a623',t:'Fair'},{w:'65%',c:'#f5a623',t:'Good'},{w:'90%',c:'#22a06b',t:'Strong'},{w:'100%',c:'#22a06b',t:'Very strong'}];
+  const lvl = levels[Math.min(score, levels.length-1)];
+  bar.style.width = pw ? lvl.w : '0%';
+  bar.style.background = lvl.c;
+  label.textContent = pw ? lvl.t : '';
+}
+
+// ── Change password ───────────────────────────────────────────
+async function changePassword() {
+  const cur  = document.getElementById('pw-current')?.value;
+  const pw   = document.getElementById('pw-new')?.value;
+  const conf = document.getElementById('pw-confirm')?.value;
+  const msg  = document.getElementById('change-pw-msg');
+  const btn  = document.getElementById('change-pw-btn');
+  if (!pw || pw.length < 8) { if(msg){msg.style.color='var(--red)';msg.textContent='Password must be at least 8 characters';} return; }
+  if (pw !== conf) { if(msg){msg.style.color='var(--red)';msg.textContent='Passwords do not match';} return; }
+  btn.disabled = true; btn.textContent = 'Updating…';
+  const { error } = await window.XANTEX_DB.auth.updateUser({ password: pw });
+  btn.disabled = false; btn.textContent = 'Update Password';
+  if (error) { if(msg){msg.style.color='var(--red)';msg.textContent=error.message;} return; }
+  if (msg) { msg.style.color='var(--green)'; msg.textContent='Password updated successfully ✓'; }
+  ['pw-current','pw-new','pw-confirm'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  setTimeout(() => { if(msg) msg.textContent=''; }, 4000);
+}
+
+// ── Dark mode from preferences toggle ────────────────────────
+function toggleDarkFromPref(on) {
+  document.body.classList.toggle('dark', on);
+  localStorage.setItem('xantex-theme', on ? 'dark' : 'light');
+  const icon = document.getElementById('dark-icon');
+  if (icon) icon.innerHTML = on
+    ? `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`
+    : `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+}
+
+// ── Save notifications ────────────────────────────────────────
+function saveNotifications() {
+  ['notif-deposit','notif-withdrawal','notif-balance','notif-kyc','notif-news','notif-promos','notif-platform'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) localStorage.setItem('xantex-' + id, el.checked);
+  });
+  const msg = document.getElementById('notif-save-msg');
+  if (msg) { msg.textContent = 'Preferences saved ✓'; setTimeout(() => { msg.textContent=''; }, 3000); }
+}
+
+// ── Save preferences ──────────────────────────────────────────
+function savePreferences() {
+  const vals = { 'xantex-lang': 'pref-lang', 'xantex-tz': 'pref-tz', 'xantex-currency': 'pref-currency', 'xantex-datefmt': 'pref-datefmt' };
+  Object.entries(vals).forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    if (el) localStorage.setItem(key, el.value);
+  });
+  const msg = document.getElementById('pref-save-msg');
+  if (msg) { msg.textContent = 'Preferences saved ✓'; setTimeout(() => { msg.textContent=''; }, 3000); }
+}
+
 (async () => {
   const db = window.XANTEX_DB;
-  if (!db) return;
+  if (!db) { console.error('Supabase client not loaded'); return; }
 
-  // ── Auth guard ──────────────────────────────────────────
-  const { data: { session } } = await db.auth.getSession();
+  // ── Session check ─────────────────────────────────────────
+  let session;
+  try {
+    const { data, error } = await db.auth.getSession();
+    session = data?.session;
+  } catch (e) { console.error('getSession error:', e); }
   if (!session) { window.location.href = 'login.html'; return; }
-
   const userId = session.user.id;
-  let _profile = null;
+  console.log('[dashboard] auth uid:', userId, '|', session.user.email);
 
-  // ── Load profile ────────────────────────────────────────
-  const { data: profile } = await db
-    .from('profiles')
-    .select('first_name, last_name, email, kyc_status')
-    .eq('id', userId)
-    .single();
+  // ── Ban check — force-logout deleted accounts ─────────────
+  try {
+    const { data: ban } = await db.from('banned_users').select('user_id').eq('user_id', userId).maybeSingle();
+    if (ban) {
+      await db.auth.signOut();
+      window.location.href = 'login.html?account=deleted';
+      return;
+    }
+  } catch(e) { console.warn('[dashboard] ban check:', e.message); }
 
-  if (profile) {
-    _profile = profile;
-    const name  = `${profile.first_name} ${profile.last_name}`;
-    const init  = (profile.first_name[0] + profile.last_name[0]).toUpperCase();
-    const first = profile.first_name;
-    const hour  = new Date().getHours();
+  // ── PIN gate — must unlock before dashboard is usable ─────
+  const _storedPin = session.user.user_metadata?.trading_pin;
+  let _pinUnlocked = !_storedPin; // if no PIN set yet, unlocked after creation
+
+  function _showPinCreate() {
+    const overlay = document.getElementById('modal-pin-create');
+    if (!overlay) { _pinUnlocked = true; return; }
+    overlay.classList.add('open', 'pin-persistent');
+    let phase = 1, firstPin = '';
+    const titleEl    = document.getElementById('create-pin-title');
+    const subtitleEl = document.getElementById('create-pin-subtitle');
+    const errEl      = document.getElementById('create-pin-error');
+    _buildPinPad('create-pin-pad', 'create-pin-dots', 'create-pin-error', async pin => {
+      if (phase === 1) {
+        firstPin = pin; phase = 2;
+        if (titleEl)    titleEl.textContent    = 'Confirm PIN';
+        if (subtitleEl) subtitleEl.textContent = 'Re-enter your PIN to confirm';
+      } else {
+        if (pin === firstPin) {
+          const hash = await _sha256(pin);
+          await db.auth.updateUser({ data: { trading_pin: hash } });
+          overlay.classList.remove('open', 'pin-persistent');
+          _pinUnlocked = true;
+        } else {
+          if (errEl) errEl.textContent = 'PINs do not match. Try again.';
+          phase = 1; firstPin = '';
+          if (titleEl)    titleEl.textContent    = 'Create Your PIN';
+          if (subtitleEl) subtitleEl.textContent = 'Set a 4-digit PIN for account security';
+        }
+      }
+    });
+  }
+
+  function _showPinEnter(persistent, cb) {
+    const overlay = document.getElementById('modal-pin-enter');
+    if (!overlay) { if (persistent) _pinUnlocked = true; if (cb) cb(); return; }
+    if (persistent) overlay.classList.add('pin-persistent');
+    overlay.classList.add('open');
+    let attempts = 0;
+    const errEl = document.getElementById('enter-pin-error');
+    if (errEl) errEl.textContent = '';
+    _buildPinPad('enter-pin-pad', 'enter-pin-dots', 'enter-pin-error', async pin => {
+      const hash = await _sha256(pin);
+      const currentPin = (await db.auth.getSession()).data.session?.user?.user_metadata?.trading_pin || _storedPin;
+      if (hash === currentPin) {
+        overlay.classList.remove('open', 'pin-persistent');
+        if (persistent) _pinUnlocked = true;
+        if (cb) cb();
+      } else {
+        attempts++;
+        if (errEl) errEl.textContent = attempts >= 3 ? 'Incorrect PIN.' : 'Wrong PIN. Try again.';
+        if (attempts >= 5) { await db.auth.signOut(); window.location.href = 'login.html'; }
+      }
+    });
+  }
+
+  window._requirePin = cb => _showPinEnter(false, cb);
+
+  if (!_storedPin) {
+    _showPinCreate();
+  } else {
+    _showPinEnter(true, null);
+  }
+  // ── End PIN gate ─────────────────────────────────────────
+
+  function fmt(n) { return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function timeSince(ts) {
+    const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+    if (s < 60) return s + 's ago'; if (s < 3600) return Math.floor(s/60)+'m ago';
+    if (s < 86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago';
+  }
+
+  // ── Refresh JWT so queries carry a valid auth token ────────
+  try { await db.auth.refreshSession(); } catch(e) { console.warn('[dashboard] refreshSession:', e.message); }
+
+  async function rpcCfg() {
+    try {
+      const { data, error } = await db.from('platform_settings').select('key,value').like('key','crypto_%');
+      return error ? null : data;
+    } catch(e) { return null; }
+  }
+
+  // ── Direct-first loader (RPC auth.uid() is unreliable from CDN client) ─
+  async function loadRows(label, rpcFn, table, extraFn) {
+    // Attempt 1: direct query — userId comes from JS session, always correct
+    try {
+      let q = db.from(table).select('*').eq('user_id', userId);
+      if (extraFn) q = extraFn(q);
+      const { data, error } = await q;
+      if (!error) {
+        const rows = data || [];
+        console.log('[dashboard]', label, 'direct ✓', rows.length, 'rows');
+        return rows;
+      }
+      console.warn('[dashboard]', label, 'direct ✗:', error.message, '— trying rpc');
+    } catch(e) { console.warn('[dashboard]', label, 'direct exc:', e.message, '— trying rpc'); }
+    // Attempt 2: RPC fallback
+    try {
+      const { data, error } = await db.rpc(rpcFn);
+      if (!error) {
+        const rows = Array.isArray(data) ? data : (data ? [data] : []);
+        console.log('[dashboard]', label, 'rpc ✓', rows.length, 'rows');
+        return rows;
+      }
+      console.error('[dashboard]', label, 'rpc ✗:', error.message);
+    } catch(e) { console.error('[dashboard]', label, 'rpc exc:', e.message); }
+    return [];
+  }
+
+  async function loadProfile() {
+    // Direct query — use userId from JS session
+    try {
+      const { data, error } = await db.from('profiles').select('*').eq('id', userId).maybeSingle();
+      if (!error) { console.log('[dashboard] profile direct ✓', data ? 'found' : 'null'); return data; }
+      console.warn('[dashboard] profile direct ✗:', error.message, '— trying rpc');
+    } catch(e) { console.warn('[dashboard] profile direct exc:', e.message, '— trying rpc'); }
+    // RPC fallback
+    try {
+      const { data, error } = await db.rpc('get_my_profile');
+      if (!error && data) {
+        const r = Array.isArray(data) ? data[0] : data;
+        console.log('[dashboard] profile rpc ✓', r ? 'found' : 'null'); return r || null;
+      } else if (error) console.error('[dashboard] profile rpc ✗:', error.message);
+    } catch(e) { console.error('[dashboard] profile rpc exc:', e.message); }
+    return null;
+  }
+
+  let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns] = await Promise.all([
+    loadProfile(),
+    loadRows('accounts',  'get_my_accounts',    'trading_accounts',    q => q.order('created_at',{ascending:false})),
+    loadRows('positions', 'get_my_positions',   'positions',           q => q.eq('status','open').order('opened_at',{ascending:false})),
+    loadRows('txns',      'get_my_transactions','transactions',        q => q.order('created_at',{ascending:false})),
+    loadRows('depReqs',   'get_my_deposits',    'deposit_requests',    q => q.order('created_at',{ascending:false})),
+    loadRows('wdReqs',    'get_my_withdrawals', 'withdrawal_requests', q => q.order('created_at',{ascending:false})),
+    rpcCfg(),
+    loadRows('adjTxns',   'get_my_adj_txns',    'transactions',        q => q.eq('type','adjustment')),
+  ]);
+
+  // ── Expose data for history page renderer ─────────────────
+  window._dashData = { txns, wdReqs, depReqs };
+
+  // ── Notification bell dot ─────────────────────────────────
+  try {
+    const { data: notifRows } = await db.from('notifications').select('id').eq('user_id', userId);
+    const nc = (notifRows || []).length;
+    if (nc > 0) {
+      const dot = document.getElementById('notif-bell-dot');
+      if (dot) dot.style.display = '';
+      const badge = document.getElementById('notif-nav-badge');
+      if (badge) { badge.textContent = nc > 99 ? '99+' : String(nc); badge.style.display = ''; }
+    }
+  } catch(e) {}
+
+  // ── Build crypto address map ──────────────────────────────
+  const CRYPTO_ADDRS = {};
+  try {
+    (cryptoCfg||[]).forEach(r => { if(r&&r.key) CRYPTO_ADDRS[r.key.replace('crypto_address_','')] = r.value||''; });
+  } catch(e) {}
+  ['BTC','ETH','USDT','USDT_TRC20'].forEach(c => {
+    if (!CRYPTO_ADDRS[c]) CRYPTO_ADDRS[c] = localStorage.getItem('xantex_addr_'+c) || '';
+  });
+
+  // ── Auto-create profile if missing (trigger may not have fired) ──
+  if (!profile) {
+    try {
+      const meta = session.user.user_metadata || {};
+      await db.from('profiles').upsert({
+        id: userId,
+        email: session.user.email || '',
+        first_name: meta.first_name || meta.full_name?.split(' ')[0] || '',
+        last_name:  meta.last_name  || meta.full_name?.split(' ').slice(1).join(' ') || '',
+        kyc_status: 'not_submitted',
+      }, { onConflict: 'id' });
+      const { data: fresh } = await db.from('profiles').select('*').eq('id', userId).maybeSingle();
+      if (fresh) { profile = fresh; console.log('[dashboard] profile auto-created for', userId); }
+    } catch(e) { console.warn('[dashboard] profile upsert:', e.message); }
+  }
+
+  // ── Profile ───────────────────────────────────────────────
+  let _profile = profile || {};
+  if (_profile) {
+    const fn   = _profile.first_name || '';
+    const ln   = _profile.last_name  || '';
+    const name = (fn+' '+ln).trim() || session.user.email;
+    const init = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
+    const hour = new Date().getHours();
     const greet = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-
     document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
-    document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => el.textContent = init);
     const titleEl = document.querySelector('#page-overview .page-header__title');
-    if (titleEl) titleEl.textContent = `Good ${greet}, ${first} 👋`;
-  }
+    if (titleEl) titleEl.textContent = `Good ${greet}, ${fn||'Trader'} 👋`;
 
-  // ── Helper: direct query with RPC fallback ─────────────────
-  async function loadTable(table, rpcFn, applyFilters) {
-    let q = db.from(table).select('*').eq('user_id', userId);
-    if (applyFilters) q = applyFilters(q);
-    const { data, error } = await q;
-    console.log(`[dash] ${table} direct →`, data, error?.message);
-    if (!error && data) return data;
-    const { data: rpcData, error: rpcErr } = await db.rpc(rpcFn);
-    console.log(`[dash] ${table} rpc(${rpcFn}) →`, rpcData, rpcErr?.message);
-    return Array.isArray(rpcData) ? rpcData : (rpcData ? [rpcData] : []);
-  }
+    // Avatar — photo if uploaded, otherwise initials
+    function applyAvatar(avatarUrl, initials) {
+      document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => {
+        if (avatarUrl) {
+          el.style.backgroundImage = `url(${avatarUrl})`;
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+          el.textContent = '';
+        } else {
+          el.style.backgroundImage = '';
+          el.textContent = initials;
+        }
+      });
+      // Settings page avatar
+      const sInit = document.getElementById('settings-avatar-init');
+      const sImg  = document.getElementById('settings-avatar-img');
+      if (sInit) sInit.textContent = initials;
+      if (avatarUrl && sImg) { sImg.src = avatarUrl; sImg.style.display = 'block'; if(sInit) sInit.style.display='none'; }
+    }
+    applyAvatar(_profile.avatar_url, init);
+    window._currentInit = init;
+    window._applyAvatar = applyAvatar;
 
-  const accounts  = await loadTable('trading_accounts', 'get_my_accounts',
-    q => q.order('created_at', { ascending: false }));
-  const positions = await loadTable('positions', 'get_my_positions',
-    q => q.eq('status', 'open').order('opened_at', { ascending: false }));
-  const txns      = await loadTable('transactions', 'get_my_transactions',
-    q => q.order('created_at', { ascending: false }).limit(5));
-
-  // ── Render accounts ─────────────────────────────────────
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  if (accounts.length) {
-    const totalBalance = accounts.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
-    const totalFree    = accounts.reduce((s, a) => s + (parseFloat(a.free_margin) || parseFloat(a.balance) || 0), 0);
-
-    set('val-balance', '$' + totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 }));
-    set('val-margin',  '$' + totalFree.toLocaleString('en-US', { minimumFractionDigits: 2 }));
-    set('val-balance-sub', `${accounts.length} account${accounts.length !== 1 ? 's' : ''}`);
-
-    const platformMap = { MT4: 'account-icon--mt4', MT5: 'account-icon--mt5', cTrader: 'account-icon--ct', TradingView: 'account-icon--tv' };
-    const accountList = document.getElementById('account-list');
-    if (accountList) {
-      accountList.innerHTML = accounts.map(a => {
-        const cls  = platformMap[a.platform] || 'account-icon--mt4';
-        const bal  = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-        const live = a.type?.toLowerCase().includes('live');
-        return `<div class="account-row">
-          <div class="account-icon ${cls}">${a.platform?.slice(0,2).toUpperCase() || 'MT'}</div>
-          <div class="account-col">
-            <div class="account-col__id">#${a.account_number || a.id.slice(0,8)}</div>
-            <div class="account-col__type">${a.platform || '—'} · ${a.account_type || '—'} · ${a.currency || 'USD'}</div>
-          </div>
-          <span class="account-status ${live ? 'account-status--live' : 'account-status--demo'}">${live ? 'Live' : 'Demo'}</span>
-          <div class="account-balance">
-            <div class="account-balance__val">$${bal}</div>
-          </div>
-        </div>`;
-      }).join('');
+    // Country flag in topbar
+    const flagEl = document.getElementById('topbar-flag');
+    if (flagEl && _profile.country) {
+      const flag = _countryFlag(_profile.country);
+      if (flag) { flagEl.textContent = flag; flagEl.title = _profile.country; }
     }
 
-    const liveAccounts = accounts.filter(a => a.type?.toLowerCase().includes('live'));
-    const acctOptions  = liveAccounts.map(a =>
-      `<option value="${a.id}">#${a.account_number || a.id.slice(0,8)} — ${a.platform} ${a.account_type} $${parseFloat(a.balance||0).toLocaleString()}</option>`
-    ).join('');
-    const depSel = document.getElementById('deposit-account-select');
-    const wdSel  = document.getElementById('withdraw-account-select');
-    if (depSel) depSel.innerHTML = acctOptions;
-    if (wdSel)  wdSel.innerHTML  = acctOptions;
-  } else {
-    set('val-balance', '$0.00');
-    set('val-margin',  '$0.00');
-    set('val-balance-sub', 'No accounts');
+    // Populate settings page fields
+    window._populateSettings = function() {
+      const set    = (id, v) => { const el = document.getElementById(id); if(el) el.value = v||''; };
+      const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v||''; };
+
+      // ── Profile tab ──
+      set('prof-fname',       _profile.first_name);
+      set('prof-lname',       _profile.last_name);
+      set('prof-email',       _profile.email || session.user.email);
+      set('prof-phone',       _profile.phone);
+      set('prof-country',     _profile.country);
+      set('prof-city',        _profile.city);
+      set('prof-dob',         _profile.date_of_birth);
+      set('prof-nationality', _profile.nationality);
+      set('prof-uid',         userId);
+
+      // Avatar
+      setTxt('sett-avatar-name',  ((_profile.first_name||'') + ' ' + (_profile.last_name||'')).trim() || session.user.email);
+      setTxt('sett-avatar-email', _profile.email || session.user.email);
+      const sImg  = document.getElementById('settings-avatar-img');
+      const sInit = document.getElementById('settings-avatar-init');
+      if (_profile.avatar_url && sImg) {
+        sImg.src = _profile.avatar_url; sImg.style.display = 'block';
+        if (sInit) sInit.style.display = 'none';
+      } else {
+        if (sInit) sInit.textContent = init;
+        if (sImg)  sImg.style.display = 'none';
+      }
+
+      // Profile completion bar
+      const fields = [_profile.first_name, _profile.last_name, _profile.phone, _profile.country, _profile.date_of_birth, _profile.avatar_url];
+      const filled = fields.filter(Boolean).length;
+      const pct    = Math.round((filled / fields.length) * 100);
+      const fill   = document.getElementById('sett-completion-fill');
+      const pctEl  = document.getElementById('sett-completion-pct');
+      if (fill)  fill.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = pct + '%';
+
+      // ── Security tab — KYC badge ──
+      const kycStatus = _profile.kyc_status || 'not_submitted';
+      const kycBadge  = { approved:'sett-badge--on', pending:'sett-badge--warn', rejected:'sett-badge--off', not_submitted:'sett-badge--off', submitted:'sett-badge--warn' };
+      const kycLabel  = { approved:'Verified', pending:'Pending Review', rejected:'Rejected', not_submitted:'Not Verified', submitted:'Under Review' };
+      const badgeEl   = document.getElementById('badge-kyc');
+      if (badgeEl) { badgeEl.textContent = kycLabel[kycStatus]||kycStatus; badgeEl.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
+      const kycsub = document.getElementById('kyc-security-sub');
+      if (kycsub) kycsub.textContent = kycStatus === 'approved' ? 'Your identity is verified' : 'Upload your documents to verify your identity';
+
+      // ── Documents tab — KYC banner & badges ──
+      const bannerTitle = document.getElementById('kyc-banner-title');
+      const bannerSub   = document.getElementById('kyc-banner-sub');
+      const bannerBadge = document.getElementById('kyc-banner-badge');
+      const bannerIcon  = document.getElementById('kyc-banner-icon');
+      const bannerTitles = { approved:'Identity Verified', pending:'Verification Pending', rejected:'Verification Rejected', not_submitted:'Verification Required', submitted:'Documents Under Review' };
+      const bannerSubs   = { approved:'Your account is fully verified. All features are unlocked.', pending:'We are reviewing your documents. This may take up to 24 hours.', rejected:'Your documents were rejected. Please re-upload with correct documents.', not_submitted:'Please upload your identity documents to unlock full trading access.', submitted:'Your documents are under review by our compliance team.' };
+      const bannerColors = { approved:'var(--green)', pending:'var(--orange)', rejected:'var(--red)', not_submitted:'var(--blue)', submitted:'var(--orange)' };
+      if (bannerTitle) bannerTitle.textContent = bannerTitles[kycStatus] || 'Verification Required';
+      if (bannerSub)   bannerSub.textContent   = bannerSubs[kycStatus]   || '';
+      if (bannerBadge) { bannerBadge.textContent = kycLabel[kycStatus]||kycStatus; bannerBadge.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
+      if (bannerIcon)  bannerIcon.style.background = (bannerColors[kycStatus]||'var(--blue)') + '22';
+      const docBadgeCls = kycStatus === 'approved' ? 'sett-badge--on' : kycStatus === 'rejected' ? 'sett-badge--off' : 'sett-badge--warn';
+      const docBadgeTxt = kycStatus === 'approved' ? 'Approved' : kycStatus === 'not_submitted' ? 'Not uploaded' : 'Under review';
+      ['doc-id-badge','doc-address-badge','doc-selfie-badge'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = docBadgeTxt; el.className = 'sett-badge ' + docBadgeCls; }
+      });
+      const foot = document.getElementById('kyc-upload-foot');
+      if (foot) foot.style.display = kycStatus === 'approved' ? 'none' : '';
+
+      // ── Preferences tab — dark mode sync ──
+      const prefDark = document.getElementById('pref-dark');
+      if (prefDark) prefDark.checked = document.body.classList.contains('dark');
+
+      // Restore saved preferences
+      const lang = localStorage.getItem('xantex-lang') || 'en';
+      const tz   = localStorage.getItem('xantex-tz') || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+      const cur  = localStorage.getItem('xantex-currency') || 'USD';
+      const dfmt = localStorage.getItem('xantex-datefmt') || 'DD/MM/YYYY';
+      set('pref-lang', lang); set('pref-tz', tz); set('pref-currency', cur); set('pref-datefmt', dfmt);
+
+      // Notification prefs from localStorage
+      ['notif-deposit','notif-withdrawal','notif-balance','notif-kyc','notif-news','notif-platform'].forEach(id => {
+        const el = document.getElementById(id);
+        const saved = localStorage.getItem('xantex-' + id);
+        if (el && saved !== null) el.checked = saved === 'true';
+      });
+    };
   }
 
-  // ── Render open positions ───────────────────────────────
+  // ── Accounts ─────────────────────────────────────────────
+  const _stopLoad = id => { const el = document.getElementById(id); if (el) el.classList.remove('card-loading'); };
+  const totalBalance = (accounts||[]).reduce((s,a) => s + (parseFloat(a.balance)||0), 0);
+  if (accounts && accounts.length) {
+    const totalFree   = accounts.reduce((s,a) => s + (parseFloat(a.free_margin)||parseFloat(a.balance)||0), 0);
+    const liveAccts   = accounts.filter(a => a.type === 'live');
+    const set = (id, v, style) => { const el = document.getElementById(id); if(el){el.textContent=v; el.classList.remove('card-loading'); if(style) Object.assign(el.style, style);} };
+    set('card-balance', fmt(totalBalance));
+    set('card-balance-sub', `${accounts.length} account${accounts.length!==1?'s':''}`, {color:''});
+    set('card-margin',  fmt(totalFree));
+    set('card-margin-sub', `${liveAccts.length} live account${liveAccts.length!==1?'s':''}`);
+
+    const accountList = document.querySelector('.account-list');
+    if (accountList) {
+      const platformMap = {MT4:'account-icon--mt4',MT5:'account-icon--mt5',cTrader:'account-icon--ct',TradingView:'account-icon--tv'};
+      accountList.innerHTML = accounts.map(a => {
+        const cls  = platformMap[a.platform] || 'account-icon--mt4';
+        const bal  = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2});
+        const pnl  = parseFloat(a.equity||a.balance||0) - parseFloat(a.balance||0);
+        const live = a.type === 'live';
+        return `<div class="account-row">
+          <div class="account-icon ${cls}">${(a.platform||'MT').slice(0,2).toUpperCase()}</div>
+          <div class="account-col">
+            <div class="account-col__id">#${a.account_number||a.id.slice(0,8)}</div>
+            <div class="account-col__type">${a.platform||'—'} · ${a.account_type||'—'} · ${a.currency||'USD'}</div>
+          </div>
+          <span class="account-status ${live?'account-status--live':'account-status--demo'}">${live?'Live':'Demo'}</span>
+          <div class="account-balance">
+            <div class="account-balance__val">$${bal}</div>
+            <div class="account-balance__pnl ${pnl>=0?'up':'down'}" style="color:${pnl>=0?'var(--green)':'var(--red)'};">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)} P&L</div>
+          </div>
+        </div>`;
+      }).join('') || '<div style="padding:16px;color:var(--muted);text-align:center;">No accounts yet</div>';
+    }
+
+    // Populate account selects in deposit / withdraw modals
+    const opts = accounts.map(a => `<option value="${a.id}">#${a.account_number||a.id.slice(0,8)} — ${a.platform} ${a.account_type} ${fmt(a.balance)}</option>`).join('');
+    const depAcct   = document.getElementById('dep-account');
+    const wdAcct    = document.getElementById('wd-account');
+    const tradeAcct = document.getElementById('trade-account');
+    if (depAcct   && opts) depAcct.innerHTML   = opts;
+    if (wdAcct    && opts) wdAcct.innerHTML    = opts;
+    if (tradeAcct && opts) tradeAcct.innerHTML = opts;
+    // Bank ref = first account number
+    const refEl = document.getElementById('dep-bank-ref');
+    if (refEl && accounts[0]) refEl.textContent = '#' + (accounts[0].account_number || accounts[0].id.slice(0,8));
+  } else {
+    ['card-balance','card-margin'].forEach(id => { const el=document.getElementById(id); if(el){ el.textContent='$0.00'; el.classList.remove('card-loading'); } });
+    ['card-balance-sub','card-margin-sub'].forEach(id => { const el=document.getElementById(id); if(el){ el.textContent='No accounts'; el.classList.remove('card-loading'); } });
+  }
+
+  // ── Positions & Open P&L ─────────────────────────────────
   const tbody = document.getElementById('positions-tbody');
-  if (tbody) {
-    if (positions.length) {
-      set('val-pnl-sub', `${positions.length} open position${positions.length !== 1 ? 's' : ''}`);
-      const totalPnl = positions.reduce((s, p) => s + (parseFloat(p.floating_pnl) || 0), 0);
-      const pnlEl = document.getElementById('val-pnl');
-      if (pnlEl) { pnlEl.textContent = (totalPnl >= 0 ? '+' : '') + '$' + Math.abs(totalPnl).toFixed(2); pnlEl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)'; }
+
+  // Net admin adjustment (signed: +credit, -debit)
+  const netAdj      = (adjTxns||[]).reduce((s,t) => s + parseFloat(t.amount||0), 0);
+  const posPnl      = (positions||[]).reduce((s,p) => s + (parseFloat(p.floating_pnl)||0), 0);
+  const totalPnl    = posPnl + netAdj;
+  const currentBal  = parseFloat(accounts?.[0]?.balance ?? 0);
+  const baseBal     = currentBal - totalPnl;
+  const pct         = baseBal !== 0 ? (totalPnl / Math.abs(baseBal)) * 100 : 0;
+
+  const $pnl    = document.getElementById('card-pnl');
+  const $pnlSub = document.getElementById('card-pnl-sub');
+
+  if (totalPnl !== 0) {
+    if ($pnl) {
+      $pnl.textContent = (totalPnl >= 0 ? '+' : '') + fmt(totalPnl);
+      $pnl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+      $pnl.classList.remove('card-loading');
+    }
+    if ($pnlSub) {
+      $pnlSub.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+      $pnlSub.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+      $pnlSub.classList.remove('card-loading');
+    }
+  } else {
+    if ($pnl) { $pnl.textContent = '$0.00'; $pnl.style.color = 'var(--muted)'; $pnl.classList.remove('card-loading'); }
+    if ($pnlSub) {
+      $pnlSub.textContent = (positions&&positions.length)
+        ? `${positions.length} open position${positions.length!==1?'s':''}`
+        : 'No open positions';
+      $pnlSub.style.color = 'var(--muted)';
+      $pnlSub.classList.remove('card-loading');
+    }
+  }
+
+  // Render positions table rows
+  if (positions && positions.length) {
+    if (tbody) {
+      document.getElementById('positions-empty-row')?.remove();
       tbody.innerHTML = positions.map(p => {
-        const isBuy  = p.direction === 'buy';
-        const pnl    = parseFloat(p.floating_pnl || 0);
-        const pnlTxt = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
+        const isBuy = p.direction==='buy';
+        const pnl   = parseFloat(p.floating_pnl||0);
         return `<tr>
           <td class="pos-symbol">${p.symbol}</td>
-          <td><span class="pos-type ${isBuy ? 'pos-type--buy' : 'pos-type--sell'}">${isBuy ? 'Buy' : 'Sell'}</span></td>
-          <td>${p.lots}</td>
-          <td>${p.open_price}</td>
-          <td>${p.current_price || p.open_price}</td>
-          <td class="pos-pnl ${pnl >= 0 ? 'up' : 'down'}">${pnlTxt}</td>
+          <td><span class="pos-type ${isBuy?'pos-type--buy':'pos-type--sell'}">${isBuy?'Buy':'Sell'}</span></td>
+          <td>${p.lots}</td><td>${p.open_price}</td><td>${p.current_price||p.open_price}</td>
+          <td class="pos-pnl ${pnl>=0?'up':'down'}" style="color:${pnl>=0?'var(--green)':'var(--red)'};">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)}</td>
           <td><button class="pos-close" onclick="closePosition('${p.id}')">Close</button></td>
         </tr>`;
       }).join('');
-    } else {
-      set('val-pnl', '$0.00');
-      set('val-pnl-sub', 'No open positions');
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">No open positions</td></tr>';
     }
   }
 
-  // ── Render recent activity ──────────────────────────────
-  const activityList = document.getElementById('activity-list');
-  if (activityList) {
-    if (txns.length) {
-      set('val-trades', txns.length.toString());
-      const dotColor = { deposit: 'green', withdrawal: 'orange', trade: 'blue', bonus: 'blue' };
-      activityList.innerHTML = txns.map(t => {
-        const color = dotColor[t.type] || 'blue';
-        const amt   = parseFloat(t.amount || 0);
-        const ago   = timeSince(t.created_at);
-        const desc  = t.description || `${t.type} of <strong>$${Math.abs(amt).toLocaleString()}</strong>`;
-        return `<div class="activity-row">
-          <div class="activity-dot activity-dot--${color}"></div>
-          <div class="activity-text">${desc}</div>
-          <div class="activity-time">${ago}</div>
-        </div>`;
-      }).join('');
-    } else {
-      set('val-trades', '0');
-      activityList.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No recent activity</div>';
-    }
+  // ── Deposit / Withdrawal counts ───────────────────────────
+  const pendingDep = (depReqs ||[]).filter(r=>['pending','processing'].includes(r.status)).length;
+  const pendingWd  = (wdReqs  ||[]).filter(r=>['pending','processing'].includes(r.status)).length;
+  const $txn    = document.getElementById('card-txn');
+  const $txnSub = document.getElementById('card-txn-sub');
+  if ($txn)    { $txn.textContent    = (depReqs||[]).length + (wdReqs||[]).length; $txn.classList.remove('card-loading'); }
+  if ($txnSub) { $txnSub.textContent = `${pendingDep} deposit${pendingDep!==1?'s':''}, ${pendingWd} withdrawal${pendingWd!==1?'s':''} pending`; $txnSub.classList.remove('card-loading'); }
+
+  // ── Activity feed (real transactions) ─────────────────────
+  const activityList = document.querySelector('.activity-list');
+  if (txns && txns.length && activityList) {
+    const dotColor = {deposit:'green',withdrawal:'orange',adjustment:'blue',bonus:'blue',fee:'red',trade_pnl:'green',transfer:'blue'};
+    activityList.innerHTML = txns.slice(0,8).map(t => {
+      const color = dotColor[t.type]||'blue';
+      const amt   = parseFloat(t.amount||0);
+      const ago   = timeSince(t.created_at);
+      const desc  = t.description || `${(t.type||'').replace(/_/g,' ')} — <strong>${fmt(amt)}</strong>`;
+      return `<div class="activity-row"><div class="activity-dot activity-dot--${color}"></div><div class="activity-text">${desc}</div><div class="activity-time">${ago}</div></div>`;
+    }).join('');
+  } else if (activityList) {
+    activityList.innerHTML = '<div class="activity-row"><div class="activity-text" style="color:var(--muted);">No recent activity</div></div>';
   }
 
-  // ── Sign out ────────────────────────────────────────────
+  // ── Portfolio chart from real data ────────────────────────
+  if (window._buildChart) window._buildChart(txns, totalBalance);
+
+  // ── Sign out ──────────────────────────────────────────────
   document.querySelectorAll('.sidebar__logout').forEach(btn => {
-    btn.onclick = async () => {
-      await db.auth.signOut();
-      window.location.href = 'login.html';
-    };
+    btn.onclick = async () => { await db.auth.signOut(); window.location.href = 'login.html'; };
   });
 
-  // ── Close position ──────────────────────────────────────
+  // ── Close position ────────────────────────────────────────
   window.closePosition = async (id) => {
     if (!confirm('Close this position?')) return;
-    const { error } = await db.from('positions').update({ status: 'closed' }).eq('id', id);
-    if (!error) location.reload();
+    await db.from('positions').update({ status:'closed', closed_at: new Date().toISOString() }).eq('id', id);
+    location.reload();
   };
 
-  function timeSince(ts) {
-    const secs = Math.floor((Date.now() - new Date(ts)) / 1000);
-    if (secs < 60)   return secs + 's ago';
-    if (secs < 3600) return Math.floor(secs / 60) + 'm ago';
-    if (secs < 86400)return Math.floor(secs / 3600) + 'h ago';
-    return Math.floor(secs / 86400) + 'd ago';
+  // ── Place trade ───────────────────────────────────────────
+  window.submitTrade = async function() {
+    const sym    = document.getElementById('trade-symbol')?.value;
+    const lots   = parseFloat(document.getElementById('trade-lots')?.value);
+    const acctId = document.getElementById('trade-account')?.value;
+    const dir    = window._tradeDir || 'buy';
+    const btn    = document.getElementById('trade-submit-btn');
+
+    if (!sym || !lots || lots <= 0) { alert('Please fill in all trade details.'); return; }
+    if (!acctId) { alert('Please select a trading account.'); return; }
+
+    const acct  = (accounts||[]).find(a => a.id === acctId);
+    const liveP = window.LIVE_PRICES?.[sym];
+    const price = liveP ? (dir === 'buy' ? (liveP.ask||liveP.price) : (liveP.bid||liveP.price)) : 0;
+    if (!price) { alert('Live price not available yet. Please wait a moment and try again.'); return; }
+
+    // Estimate required margin: lots × contract size × price ÷ leverage
+    const contractSize = sym.includes('BTC') ? 1 : sym.includes('XAU') ? 100 : sym.includes('US30') || sym.includes('WTI') ? 10 : 100000;
+    const leverage     = parseFloat((acct?.leverage||'1:100').replace(/.*:/,'')) || 100;
+    const margin       = (lots * contractSize * price) / leverage;
+    const balance      = parseFloat(acct?.balance || 0);
+    if (balance < margin) {
+      alert(`Insufficient balance.\nRequired margin: ${fmt(margin)}\nAvailable: ${fmt(balance)}`);
+      return;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Opening…'; }
+    const { error } = await db.from('positions').insert({
+      user_id: userId, account_id: acctId, symbol: sym,
+      direction: dir, lots, open_price: price,
+      current_price: price, status: 'open',
+      opened_at: new Date().toISOString(), floating_pnl: 0,
+    });
+    if (btn) { btn.disabled = false; btn.textContent = 'Open Position'; }
+    if (error) { alert('Trade error: ' + error.message); return; }
+    closeModal('new-trade');
+    location.reload();
+  };
+
+  // ── KYC document submission ───────────────────────────────
+  window.submitKYC = async function() {
+    const docType   = document.getElementById('kyc-doc-type')?.value;
+    const frontFile = document.getElementById('kyc-id-front')?.files?.[0];
+    const selfieFile= document.getElementById('kyc-selfie')?.files?.[0];
+    const proofFile = document.getElementById('kyc-proof')?.files?.[0];
+    const btn       = document.getElementById('kyc-submit-btn');
+    const msg       = document.getElementById('kyc-submit-msg');
+
+    if (!docType)    { if(msg){msg.style.color='var(--red)';msg.textContent='Please select a document type.';} return; }
+    if (!frontFile)  { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload the front of your ID.';} return; }
+    if (!selfieFile) { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload your selfie with document.';} return; }
+    if (!proofFile)  { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload proof of address.';} return; }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Uploading…'; }
+    if (msg) { msg.style.color = 'var(--muted)'; msg.textContent = 'Uploading documents…'; }
+
+    async function up(bucket, file, path) {
+      const ext = file.name.split('.').pop();
+      await db.storage.from(bucket).upload(`${path}.${ext}`, file, { upsert: true });
+      return db.storage.from(bucket).getPublicUrl(`${path}.${ext}`).data.publicUrl;
+    }
+
+    try {
+      const [frontUrl, selfieUrl, proofUrl] = await Promise.all([
+        up('kyc-docs', frontFile,  `${userId}/id_front`),
+        up('avatars',  selfieFile, `${userId}`),
+        up('kyc-docs', proofFile,  `${userId}/proof_address`),
+      ]);
+
+      await db.from('profiles').update({ kyc_status: 'pending', avatar_url: selfieUrl }).eq('id', userId);
+      const { error } = await db.from('kyc_submissions').upsert({
+        user_id: userId, document_type: docType,
+        front_url: frontUrl, selfie_url: selfieUrl, proof_address_url: proofUrl,
+        submitted_at: new Date().toISOString(), status: 'pending',
+      }, { onConflict: 'user_id' });
+
+      if (error) throw error;
+
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit for Review'; }
+      if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Documents submitted! We'll review within 24 hours.'; }
+      setTimeout(() => closeModal('kyc-submit'), 2500);
+      if (window._applyAvatar) window._applyAvatar(selfieUrl, window._currentInit || '?');
+      Object.assign(_profile, { kyc_status: 'pending', avatar_url: selfieUrl });
+      if (window._populateSettings) window._populateSettings();
+    } catch(e) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit for Review'; }
+      if (msg) { msg.style.color = 'var(--red)'; msg.textContent = 'Upload failed: ' + e.message; }
+    }
+  };
+
+  // ── Deposit — crypto only ─────────────────────────────────
+  let _depCoin    = null;
+  let _depNetwork = 'ERC20';
+
+  window.depSelectCoin = function(coin) {
+    _depCoin = coin;
+    ['BTC','ETH','USDT'].forEach(c => {
+      document.getElementById('dep-coin-'+c)?.classList.toggle('active', c === coin);
+    });
+    const netWrap = document.getElementById('dep-network-wrap');
+    if (netWrap) netWrap.style.display = coin === 'USDT' ? '' : 'none';
+    _depNetwork = coin === 'USDT' ? 'ERC20' : coin === 'BTC' ? 'BTC' : 'ERC20';
+    // Advance step 1 → done, step 2 → active
+    document.getElementById('dep-step-1')?.classList.add('done');
+    document.getElementById('dep-step-1')?.classList.remove('active');
+    document.getElementById('dep-step-2')?.classList.add('active');
+    depRenderAddress();
+    depUpdateConversion();
+  };
+
+  window.depSelectNetwork = function(net) {
+    _depNetwork = net;
+    ['ERC20','TRC20'].forEach(n => document.getElementById('dep-net-'+n)?.classList.toggle('active', n === net));
+    depRenderAddress();
+  };
+
+  function depRenderAddress() {
+    const addrSection  = document.getElementById('dep-addr-section');
+    const noAddrMsg    = document.getElementById('dep-no-addr-msg');
+    const addrTxt      = document.getElementById('dep-addr-text');
+    const qrImg        = document.getElementById('dep-qr-img');
+    const warning      = document.getElementById('dep-coin-warning');
+    const netBadge     = document.getElementById('dep-network-badge');
+    const addrLabel    = document.getElementById('dep-addr-label');
+    const submitBtn    = document.getElementById('dep-submit-btn');
+    if (!_depCoin) return;
+
+    const addrKey = (_depCoin === 'USDT' && _depNetwork === 'TRC20') ? 'USDT_TRC20' : _depCoin;
+    const addr    = CRYPTO_ADDRS[addrKey] || '';
+
+    if (!addr) {
+      if (addrSection) addrSection.style.display = 'none';
+      if (noAddrMsg)   noAddrMsg.style.display = '';
+      if (submitBtn)   submitBtn.disabled = true;
+      return;
+    }
+    if (noAddrMsg) noAddrMsg.style.display = 'none';
+
+    const netMeta = {
+      BTC:  { label: 'Bitcoin Network',    cls: 'btc',  warn: '⚠ Send BTC on the Bitcoin (BTC) network only. Other coins or networks = permanent loss.' },
+      ERC20:{ label: 'Ethereum (ERC20)',    cls: 'eth',  warn: '⚠ Send on the Ethereum ERC20 network only. Do NOT use BEP20, TRC20 or any other chain.' },
+      TRC20:{ label: 'Tron (TRC20)',        cls: 'usdt', warn: '⚠ Send on the Tron TRC20 network only. Do NOT use ERC20 or any other chain.' },
+    };
+    const meta = netMeta[_depNetwork] || netMeta.ERC20;
+
+    if (addrTxt) addrTxt.textContent = addr;
+    if (qrImg)   qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(addr)}`;
+    if (warning) warning.textContent = meta.warn;
+    if (netBadge){ netBadge.textContent = meta.label; netBadge.className = 'dep-addr-network ' + meta.cls; }
+    if (addrLabel) addrLabel.textContent = `Send ${_depCoin} to this address`;
+    if (addrSection) addrSection.style.display = '';
+    if (submitBtn)   submitBtn.disabled = false;
+    // Step 3 active
+    document.getElementById('dep-step-2')?.classList.add('done');
+    document.getElementById('dep-step-2')?.classList.remove('active');
+    document.getElementById('dep-step-3')?.classList.add('active');
   }
 
-  // ── Accounts page ───────────────────────────────────────
-  function _loadAccountsPage() {
-    const list = document.getElementById('accounts-page-list');
-    if (!list) return;
-    if (!accounts.length) { list.innerHTML = '<p style="color:var(--muted);padding:16px;">No trading accounts found.</p>'; return; }
-    const platformMap = { MT4:'account-icon--mt4', MT5:'account-icon--mt5', cTrader:'account-icon--ct', TradingView:'account-icon--tv' };
-    list.innerHTML = accounts.map(a => {
-      const cls  = platformMap[a.platform] || 'account-icon--mt4';
-      const bal  = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-      const live = a.type?.toLowerCase().includes('live');
-      return `<div class="account-row">
-        <div class="account-icon ${cls}">${a.platform?.slice(0,2).toUpperCase() || 'MT'}</div>
-        <div class="account-col">
-          <div class="account-col__id">#${a.account_number || a.id.slice(0,8)}</div>
-          <div class="account-col__type">${a.platform || '—'} · ${a.account_type || '—'} · ${a.currency || 'USD'}</div>
+  window.depUpdateConversion = function() {
+    const amt = parseFloat(document.getElementById('dep-amount')?.value) || 0;
+    const el  = document.getElementById('dep-conversion');
+    if (!el) return;
+    if (!_depCoin || !amt) { el.innerHTML = ''; return; }
+    const rates = { BTC: 97000, ETH: 3400, USDT: 1 };
+    const rate  = rates[_depCoin] || 1;
+    const coinAmt = _depCoin === 'USDT' ? amt.toFixed(2) : (amt / rate).toFixed(6);
+    el.innerHTML = `≈ <strong>${coinAmt} ${_depCoin}</strong> at approximate market rate`;
+  };
+
+  window.depCopyAddress = function() {
+    const addr = document.getElementById('dep-addr-text')?.textContent;
+    const btn  = document.getElementById('dep-copy-btn');
+    if (!addr || !btn) return;
+    const orig = btn.textContent;
+    const done = () => { btn.textContent = 'Copied ✓'; setTimeout(() => btn.textContent = orig, 2500); };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(addr).then(done).catch(() => done());
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = addr; document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); done();
+    }
+  };
+
+  // Reset deposit modal state when opened
+  const _origOpenModal = window.openModal;
+  window.openModal = function(id) {
+    if (id === 'withdraw') {
+      window._requirePin(() => {
+        if (typeof _origOpenModal === 'function') _origOpenModal.call(window, 'withdraw');
+        else document.getElementById('modal-withdraw')?.classList.add('open');
+      });
+      return;
+    }
+    if (id === 'deposit') {
+      _depCoin = null; _depNetwork = 'ERC20';
+      ['BTC','ETH','USDT'].forEach(c => document.getElementById('dep-coin-'+c)?.classList.remove('active'));
+      document.getElementById('dep-network-wrap')?.style && (document.getElementById('dep-network-wrap').style.display = 'none');
+      document.getElementById('dep-addr-section')?.style && (document.getElementById('dep-addr-section').style.display = 'none');
+      document.getElementById('dep-no-addr-msg')?.style  && (document.getElementById('dep-no-addr-msg').style.display = 'none');
+      const amtEl = document.getElementById('dep-amount'); if (amtEl) amtEl.value = '';
+      const convEl = document.getElementById('dep-conversion'); if (convEl) convEl.innerHTML = '';
+      const submitBtn = document.getElementById('dep-submit-btn'); if (submitBtn) submitBtn.disabled = true;
+      // Reset steps
+      ['dep-step-1','dep-step-2','dep-step-3'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('active','done'); }
+      });
+      document.getElementById('dep-step-1')?.classList.add('active');
+      // Reset USDT network to ERC20
+      ['ERC20','TRC20'].forEach(n => { const b = document.getElementById('dep-net-'+n); if(b) b.classList.toggle('active', n==='ERC20'); });
+    }
+    if (typeof _origOpenModal === 'function') _origOpenModal.call(this, id);
+    else document.getElementById('modal-' + id)?.classList.add('open');
+  };
+
+  // ── Deposit submit ────────────────────────────────────────
+  document.getElementById('dep-submit-btn')?.addEventListener('click', async () => {
+    const accountId = document.getElementById('dep-account')?.value;
+    const amount    = parseFloat(document.getElementById('dep-amount')?.value);
+    if (!_depCoin) { alert('Please select a cryptocurrency first.'); return; }
+    if (!amount || amount < 10) { alert('Please enter the amount you are sending (minimum $10).'); return; }
+    const networkLabel = _depCoin === 'USDT' ? `USDT (${_depNetwork})` : _depCoin;
+    const btn = document.getElementById('dep-submit-btn');
+    btn.disabled = true; btn.innerHTML = 'Submitting…';
+    const { error } = await db.from('deposit_requests').insert({
+      user_id: userId, account_id: accountId||null, amount,
+      payment_method: 'Crypto — ' + networkLabel, status: 'pending',
+    });
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="20 6 9 17 4 12"/></svg> I\'ve Sent the Payment';
+    if (error) { alert('Error: ' + error.message); return; }
+    closeModal('deposit');
+    alert('Payment confirmed! We will credit your account after blockchain verification — usually within 30 minutes.');
+    location.reload();
+  });
+
+  // ── Withdrawal method toggle ──────────────────────────────
+  let _wdMethod = 'bank';
+  window.wdSelectMethod = function(m) {
+    _wdMethod = m;
+    const bankBtn   = document.getElementById('wd-btn-bank');
+    const cryptoBtn = document.getElementById('wd-btn-crypto');
+    const bankInfo  = document.getElementById('wd-bank-info');
+    const cryptoInfo= document.getElementById('wd-crypto-info');
+    if (m === 'bank') {
+      bankBtn.style.cssText   = 'padding:10px;border-radius:8px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;cursor:pointer;font-size:13px;';
+      cryptoBtn.style.cssText = 'padding:10px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;cursor:pointer;font-size:13px;';
+      bankInfo.style.display  = ''; cryptoInfo.style.display = 'none';
+    } else {
+      cryptoBtn.style.cssText = 'padding:10px;border-radius:8px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;cursor:pointer;font-size:13px;';
+      bankBtn.style.cssText   = 'padding:10px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;cursor:pointer;font-size:13px;';
+      bankInfo.style.display  = 'none'; cryptoInfo.style.display = '';
+    }
+  };
+
+  // ── Withdrawal submit ─────────────────────────────────────
+  document.getElementById('wd-submit-btn')?.addEventListener('click', async () => {
+    const accountId = document.getElementById('wd-account')?.value;
+    const amount    = parseFloat(document.getElementById('wd-amount')?.value);
+    if (!amount || amount < 10) { alert('Enter a valid amount (minimum $10)'); return; }
+    const acct = (accounts||[]).find(a => a.id === accountId);
+    if (acct && parseFloat(acct.balance) < amount) { alert('Insufficient account balance'); return; }
+    let destType = 'Bank Transfer', destName = '', destRef = '';
+    if (_wdMethod === 'bank') {
+      destType = 'Bank Transfer';
+      destName = document.getElementById('wd-acct-name')?.value || '';
+      destRef  = [document.getElementById('wd-bank-name')?.value, document.getElementById('wd-acct-num')?.value].filter(Boolean).join(' | ');
+    } else {
+      destType = 'Crypto';
+      destName = document.getElementById('wd-crypto-coin')?.value || '';
+      destRef  = document.getElementById('wd-wallet-addr')?.value || '';
+      if (!destRef) { alert('Please enter your wallet address'); return; }
+    }
+    const btn = document.getElementById('wd-submit-btn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    const { error } = await db.from('withdrawal_requests').insert({ user_id: userId, account_id: accountId||null, amount, destination_type: destType, destination_name: destName, destination_ref: destRef, status: 'pending' });
+    btn.disabled = false; btn.textContent = 'Request Withdrawal';
+    if (error) { alert('Error: '+error.message); return; }
+    closeModal('withdraw');
+    alert('Withdrawal request submitted. It will be processed within 24 hours.');
+    location.reload();
+  });
+
+  // ── Save profile ──────────────────────────────────────────
+  window.saveProfile = async function() {
+    const btn = document.getElementById('save-profile-btn');
+    const msg = document.getElementById('save-profile-msg');
+    const g = id => document.getElementById(id)?.value?.trim() || null;
+    const updates = {
+      first_name:    g('prof-fname'),
+      last_name:     g('prof-lname'),
+      phone:         g('prof-phone'),
+      country:       g('prof-country'),
+      city:          g('prof-city'),
+      date_of_birth: g('prof-dob'),
+      nationality:   g('prof-nationality'),
+    };
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    const { error } = await db.from('profiles').update(updates).eq('id', userId);
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Changes'; }
+    if (error) {
+      if (msg) { msg.style.color = 'var(--red)'; msg.textContent = error.message; }
+    } else {
+      Object.assign(_profile, updates);
+      // Refresh sidebar name + avatar initials
+      const fn   = _profile.first_name || '';
+      const ln   = _profile.last_name  || '';
+      const name = (fn+' '+ln).trim() || session.user.email;
+      document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
+      const init2 = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || '?';
+      window._currentInit = init2;
+      if (!_profile.avatar_url) { document.querySelectorAll('.sidebar__avatar,.topbar__avatar').forEach(el => el.textContent = init2); }
+      // Refresh completion bar
+      const sett = document.getElementById('sett-avatar-name');
+      if (sett) sett.textContent = name;
+      if (window._populateSettings) window._populateSettings();
+      if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Changes saved ✓'; setTimeout(() => { msg.textContent=''; }, 4000); }
+    }
+  };
+
+  // ── Avatar upload ─────────────────────────────────────────
+  window.uploadAvatar = async function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB'); return; }
+    const statusEl = document.getElementById('avatar-upload-status');
+    if (statusEl) statusEl.textContent = 'Uploading…';
+    const ext  = file.name.split('.').pop();
+    const path = `${userId}/avatar.${ext}`;
+    const { error: upErr } = await db.storage.from('avatars').upload(path, file, { upsert: true });
+    if (upErr) { if(statusEl) statusEl.textContent = 'Upload failed: '+upErr.message; return; }
+    const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(path);
+    await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId);
+    if (window._applyAvatar) window._applyAvatar(publicUrl, window._currentInit || '?');
+    if (statusEl) statusEl.textContent = 'Photo updated ✓';
+    // Update settings page
+    const sImg  = document.getElementById('settings-avatar-img');
+    const sInit = document.getElementById('settings-avatar-init');
+    if (sImg)  { sImg.src = publicUrl; sImg.style.display = 'block'; }
+    if (sInit) sInit.style.display = 'none';
+  };
+})().catch(err => {
+  console.error('Dashboard load error:', err);
+  // Ensure cards show empty state rather than "Loading..."
+  ['card-balance','card-margin','card-pnl','card-txn'].forEach(id => {
+    const el = document.getElementById(id); if (el) { el.classList.remove('card-loading'); if (el.textContent === '—') el.textContent = '$0.00'; }
+  });
+  ['card-balance-sub','card-margin-sub','card-pnl-sub','card-txn-sub'].forEach(id => {
+    const el = document.getElementById(id); if (el) { el.classList.remove('card-loading'); el.textContent = 'Could not load data — try refreshing'; }
+  });
+  const titleEl = document.querySelector('#page-overview .page-header__title');
+  if (titleEl && titleEl.textContent === 'Welcome back 👋') titleEl.textContent = 'Welcome back 👋';
+});
+
+// ── Market Watch — updated by prices.js live data ────────────
+(function () {
+  const WATCH = [
+    { sym: 'EUR/USD', name: 'Euro / US Dollar',     icon: '💱' },
+    { sym: 'GBP/USD', name: 'British Pound / USD',  icon: '💷' },
+    { sym: 'XAU/USD', name: 'Gold / US Dollar',     icon: '🥇' },
+    { sym: 'US30',    name: 'Dow Jones',             icon: '📈' },
+    { sym: 'BTC/USD', name: 'Bitcoin / USD',         icon: '₿'  },
+    { sym: 'WTI/USD', name: 'Crude Oil WTI',         icon: '🛢️' },
+  ];
+
+  function buildWatch(prices) {
+    const container = document.getElementById('dash-market-watch');
+    if (!container) return;
+    container.innerHTML = WATCH.map(w => {
+      const p    = prices[w.sym];
+      const val  = p ? window.fmtPrice(w.sym, p.ask || p.price) : '—';
+      const chgp = p ? parseFloat(p.chgp || 0) : null;
+      const up   = chgp == null ? true : chgp >= 0;
+      const chgTxt = chgp != null ? (chgp >= 0 ? '+' : '') + chgp.toFixed(2) + '%' : '—';
+      const color  = chgp == null ? '#888' : (up ? 'var(--green)' : 'var(--red)');
+      const stroke = up ? '#22a06b' : '#e60023';
+      return `<div class="market-row">
+        <div class="market-flag">${w.icon}</div>
+        <div class="market-name"><div class="market-name__sym">${w.sym}</div><div class="market-name__full">${w.name}</div></div>
+        <svg class="market-spark" viewBox="0 0 56 28">
+          <polyline points="0,20 8,16 16,18 24,10 32,12 40,6 48,8 56,4" fill="none" stroke="${stroke}" stroke-width="1.5"/>
+        </svg>
+        <div class="market-price">
+          <div class="market-price__val">${val}</div>
+          <div class="market-price__chg" style="color:${color};">${chgTxt}</div>
         </div>
-        <span class="account-status ${live ? 'account-status--live' : 'account-status--demo'}">${live ? 'Live' : 'Demo'}</span>
-        <div class="account-balance"><div class="account-balance__val">$${bal}</div></div>
       </div>`;
     }).join('');
   }
 
-  // ── Transaction history page ────────────────────────────
-  async function _loadHistory() {
-    const tbody = document.getElementById('history-tbody');
-    if (!tbody) return;
-    const allTxns = await loadTable('transactions', 'get_my_transactions', q => q.order('created_at', { ascending: false }));
-    if (!allTxns.length) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">No transactions yet.</td></tr>';
-      return;
-    }
-    const statusColor = { completed:'var(--green)', pending:'var(--orange)', failed:'var(--red)', cancelled:'var(--muted)' };
-    tbody.innerHTML = allTxns.map(t => {
-      const amt   = parseFloat(t.amount || 0);
-      const sign  = ['deposit','bonus','credit'].includes(t.type) ? '+' : '-';
-      const color = ['deposit','bonus','credit'].includes(t.type) ? 'var(--green)' : 'var(--red)';
-      const date  = new Date(t.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
-      const sColor = statusColor[t.status] || 'var(--muted)';
-      return `<tr>
-        <td style="white-space:nowrap;">${date}</td>
-        <td style="text-transform:capitalize;">${t.type || '—'}</td>
-        <td style="font-weight:600;color:${color};">${sign}$${Math.abs(amt).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
-        <td><span style="color:${sColor};font-weight:600;text-transform:capitalize;">${t.status || '—'}</span></td>
-        <td style="color:var(--muted);">${t.description || '—'}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  // ── KYC / Verification page ─────────────────────────────
-  async function _loadKyc() {
-    const block = document.getElementById('kyc-status-block');
-    if (!block || !_profile) return;
-    const status = _profile.kyc_status || 'not_started';
-    const map = {
-      verified:    { text: 'Verified', color: 'var(--green)',  bg: 'var(--green-lt)' },
-      pending:     { text: 'Pending review', color: 'var(--orange)', bg: '#fff8e6' },
-      rejected:    { text: 'Rejected — please resubmit', color: 'var(--red)', bg: '#fff0f0' },
-      not_started: { text: 'Not started', color: 'var(--muted)', bg: 'var(--bg)' },
-    };
-    const s = map[status] || map['not_started'];
-    block.style.background = s.bg;
-    block.innerHTML = `<strong style="color:${s.color};">Status: ${s.text}</strong>`;
-  }
-
-  // ── Settings page ───────────────────────────────────────
-  function _loadSettings() {
-    if (!_profile) return;
-    const f = document.getElementById('set-first');
-    const l = document.getElementById('set-last');
-    const e = document.getElementById('set-email');
-    if (f) f.value = _profile.first_name || '';
-    if (l) l.value = _profile.last_name  || '';
-    if (e) e.value = _profile.email      || '';
-  }
-  window.saveProfile = async () => {
-    const first = document.getElementById('set-first')?.value.trim();
-    const last  = document.getElementById('set-last')?.value.trim();
-    const msg   = document.getElementById('set-msg');
-    if (!first || !last) return;
-    const { error } = await db.from('profiles').update({ first_name: first, last_name: last }).eq('id', userId);
-    if (!error) {
-      _profile = { ..._profile, first_name: first, last_name: last };
-      const init = (first[0] + last[0]).toUpperCase();
-      document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => el.textContent = init);
-      document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = `${first} ${last}`);
-      if (msg) { msg.style.display = ''; setTimeout(() => msg.style.display = 'none', 3000); }
-    }
-  };
-  window.changePassword = async () => {
-    const pwd  = document.getElementById('set-pwd')?.value;
-    const pwd2 = document.getElementById('set-pwd2')?.value;
-    const msg  = document.getElementById('set-pwd-msg');
-    if (!msg) return;
-    if (!pwd || pwd.length < 8) { msg.style.color='var(--red)'; msg.textContent='Password must be at least 8 characters.'; msg.style.display=''; return; }
-    if (pwd !== pwd2) { msg.style.color='var(--red)'; msg.textContent='Passwords do not match.'; msg.style.display=''; return; }
-    const { error } = await db.auth.updateUser({ password: pwd });
-    msg.style.color = error ? 'var(--red)' : 'var(--green)';
-    msg.textContent = error ? error.message : 'Password updated successfully.';
-    msg.style.display = '';
-  };
+  // Build once prices arrive
+  window.addEventListener('prices:update', e => buildWatch(e.detail || {}));
+  // If prices.js already fired before this listener was added, use existing data
+  if (window.LIVE_PRICES && Object.keys(window.LIVE_PRICES).length) buildWatch(window.LIVE_PRICES);
 })();
 </script>
 </body>

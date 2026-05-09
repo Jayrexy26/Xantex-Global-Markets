@@ -876,6 +876,96 @@
 
       </div><!-- /page-overview -->
 
+      <!-- ── My Accounts ───────────────────────────────────── -->
+      <div id="page-accounts" style="display:none;">
+        <div class="page-header">
+          <div>
+            <div class="page-header__title">My Trading Accounts</div>
+            <div class="page-header__sub">All your trading accounts in one place</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__head"><div class="card__title">Trading Accounts</div></div>
+          <div class="account-list" id="accounts-page-list"></div>
+        </div>
+      </div>
+
+      <!-- ── Transaction History ───────────────────────────── -->
+      <div id="page-history" style="display:none;">
+        <div class="page-header">
+          <div>
+            <div class="page-header__title">Transaction History</div>
+            <div class="page-header__sub">Your deposits, withdrawals and adjustments</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__head"><div class="card__title">All Transactions</div></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Description</th></tr>
+              </thead>
+              <tbody id="history-tbody">
+                <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Verification ──────────────────────────────────── -->
+      <div id="page-verification" style="display:none;">
+        <div class="page-header">
+          <div>
+            <div class="page-header__title">Identity Verification</div>
+            <div class="page-header__sub">Verify your identity to unlock full account features</div>
+          </div>
+        </div>
+        <div class="card" style="max-width:600px;">
+          <div class="card__head"><div class="card__title">KYC Status</div></div>
+          <div class="card__body" style="padding:24px;">
+            <div id="kyc-status-block" style="margin-bottom:24px;padding:16px;border-radius:10px;background:var(--bg);font-size:14px;">
+              Checking verification status…
+            </div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">To verify your identity, please contact our support team or submit your documents through the platform. Verified accounts get higher withdrawal limits and access to all features.</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <a href="mailto:support@xantex.com" class="btn btn--primary" style="text-decoration:none;">Contact Support</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Settings ──────────────────────────────────────── -->
+      <div id="page-settings" style="display:none;">
+        <div class="page-header">
+          <div>
+            <div class="page-header__title">Account Settings</div>
+            <div class="page-header__sub">Manage your profile and preferences</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:20px;max-width:600px;">
+          <div class="card">
+            <div class="card__head"><div class="card__title">Personal Information</div></div>
+            <div class="card__body" style="padding:24px;display:flex;flex-direction:column;gap:16px;">
+              <div class="field"><label>First Name</label><input type="text" id="set-first" placeholder="—"></div>
+              <div class="field"><label>Last Name</label><input type="text" id="set-last" placeholder="—"></div>
+              <div class="field"><label>Email</label><input type="email" id="set-email" placeholder="—" disabled style="opacity:.6;cursor:not-allowed;"></div>
+              <button class="btn btn--primary" style="align-self:flex-start;" onclick="saveProfile()">Save Changes</button>
+              <p id="set-msg" style="font-size:12px;color:var(--green);display:none;">Saved successfully.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__head"><div class="card__title">Change Password</div></div>
+            <div class="card__body" style="padding:24px;display:flex;flex-direction:column;gap:16px;">
+              <div class="field"><label>New Password</label><input type="password" id="set-pwd" placeholder="Min. 8 characters"></div>
+              <div class="field"><label>Confirm Password</label><input type="password" id="set-pwd2" placeholder="Repeat password"></div>
+              <button class="btn btn--primary" style="align-self:flex-start;" onclick="changePassword()">Update Password</button>
+              <p id="set-pwd-msg" style="font-size:12px;display:none;"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /layout -->
@@ -989,13 +1079,21 @@
   });
 
   // ── Page switcher ─────────────────────────────────────────
-  const pages = { overview: 'Overview', accounts: 'My Accounts', trade: 'Trade', markets: 'Markets', history: 'Transaction History', verification: 'Verification', settings: 'Settings' };
+  const pages = { overview: 'Overview', accounts: 'My Accounts', history: 'Transaction History', verification: 'Verification', settings: 'Settings' };
   function setPage(id) {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     event.currentTarget.classList.add('active');
     document.getElementById('topbar-title').textContent = pages[id] || id;
-    // For demo, only overview is built
     document.getElementById('sidebar').classList.remove('open');
+    // Show the correct page section
+    Object.keys(pages).forEach(p => {
+      const el = document.getElementById('page-' + p);
+      if (el) el.style.display = p === id ? '' : 'none';
+    });
+    if (id === 'settings') _loadSettings();
+    if (id === 'history')  _loadHistory();
+    if (id === 'verification') _loadKyc();
+    if (id === 'accounts') _loadAccountsPage();
   }
 
   // ── Modals ────────────────────────────────────────────────
@@ -1046,6 +1144,7 @@
   if (!session) { window.location.href = 'login.html'; return; }
 
   const userId = session.user.id;
+  let _profile = null;
 
   // ── Load profile ────────────────────────────────────────
   const { data: profile } = await db
@@ -1055,6 +1154,7 @@
     .single();
 
   if (profile) {
+    _profile = profile;
     const name  = `${profile.first_name} ${profile.last_name}`;
     const init  = (profile.first_name[0] + profile.last_name[0]).toUpperCase();
     const first = profile.first_name;
@@ -1063,9 +1163,8 @@
 
     document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
     document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => el.textContent = init);
-    document.querySelector('.page-header__title')?.textContent && (
-      document.querySelector('.page-header__title').textContent = `Good ${greet}, ${first} 👋`
-    );
+    const titleEl = document.querySelector('#page-overview .page-header__title');
+    if (titleEl) titleEl.textContent = `Good ${greet}, ${first} 👋`;
   }
 
   // ── Helper: direct query with RPC fallback ─────────────────
@@ -1206,6 +1305,107 @@
     if (secs < 86400)return Math.floor(secs / 3600) + 'h ago';
     return Math.floor(secs / 86400) + 'd ago';
   }
+
+  // ── Accounts page ───────────────────────────────────────
+  function _loadAccountsPage() {
+    const list = document.getElementById('accounts-page-list');
+    if (!list) return;
+    if (!accounts.length) { list.innerHTML = '<p style="color:var(--muted);padding:16px;">No trading accounts found.</p>'; return; }
+    const platformMap = { MT4:'account-icon--mt4', MT5:'account-icon--mt5', cTrader:'account-icon--ct', TradingView:'account-icon--tv' };
+    list.innerHTML = accounts.map(a => {
+      const cls  = platformMap[a.platform] || 'account-icon--mt4';
+      const bal  = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+      const live = a.type?.toLowerCase().includes('live');
+      return `<div class="account-row">
+        <div class="account-icon ${cls}">${a.platform?.slice(0,2).toUpperCase() || 'MT'}</div>
+        <div class="account-col">
+          <div class="account-col__id">#${a.account_number || a.id.slice(0,8)}</div>
+          <div class="account-col__type">${a.platform || '—'} · ${a.account_type || '—'} · ${a.currency || 'USD'}</div>
+        </div>
+        <span class="account-status ${live ? 'account-status--live' : 'account-status--demo'}">${live ? 'Live' : 'Demo'}</span>
+        <div class="account-balance"><div class="account-balance__val">$${bal}</div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Transaction history page ────────────────────────────
+  async function _loadHistory() {
+    const tbody = document.getElementById('history-tbody');
+    if (!tbody) return;
+    const allTxns = await loadTable('transactions', 'get_my_transactions', q => q.order('created_at', { ascending: false }));
+    if (!allTxns.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">No transactions yet.</td></tr>';
+      return;
+    }
+    const statusColor = { completed:'var(--green)', pending:'var(--orange)', failed:'var(--red)', cancelled:'var(--muted)' };
+    tbody.innerHTML = allTxns.map(t => {
+      const amt   = parseFloat(t.amount || 0);
+      const sign  = ['deposit','bonus','credit'].includes(t.type) ? '+' : '-';
+      const color = ['deposit','bonus','credit'].includes(t.type) ? 'var(--green)' : 'var(--red)';
+      const date  = new Date(t.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+      const sColor = statusColor[t.status] || 'var(--muted)';
+      return `<tr>
+        <td style="white-space:nowrap;">${date}</td>
+        <td style="text-transform:capitalize;">${t.type || '—'}</td>
+        <td style="font-weight:600;color:${color};">${sign}$${Math.abs(amt).toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+        <td><span style="color:${sColor};font-weight:600;text-transform:capitalize;">${t.status || '—'}</span></td>
+        <td style="color:var(--muted);">${t.description || '—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── KYC / Verification page ─────────────────────────────
+  async function _loadKyc() {
+    const block = document.getElementById('kyc-status-block');
+    if (!block || !_profile) return;
+    const status = _profile.kyc_status || 'not_started';
+    const map = {
+      verified:    { text: 'Verified', color: 'var(--green)',  bg: 'var(--green-lt)' },
+      pending:     { text: 'Pending review', color: 'var(--orange)', bg: '#fff8e6' },
+      rejected:    { text: 'Rejected — please resubmit', color: 'var(--red)', bg: '#fff0f0' },
+      not_started: { text: 'Not started', color: 'var(--muted)', bg: 'var(--bg)' },
+    };
+    const s = map[status] || map['not_started'];
+    block.style.background = s.bg;
+    block.innerHTML = `<strong style="color:${s.color};">Status: ${s.text}</strong>`;
+  }
+
+  // ── Settings page ───────────────────────────────────────
+  function _loadSettings() {
+    if (!_profile) return;
+    const f = document.getElementById('set-first');
+    const l = document.getElementById('set-last');
+    const e = document.getElementById('set-email');
+    if (f) f.value = _profile.first_name || '';
+    if (l) l.value = _profile.last_name  || '';
+    if (e) e.value = _profile.email      || '';
+  }
+  window.saveProfile = async () => {
+    const first = document.getElementById('set-first')?.value.trim();
+    const last  = document.getElementById('set-last')?.value.trim();
+    const msg   = document.getElementById('set-msg');
+    if (!first || !last) return;
+    const { error } = await db.from('profiles').update({ first_name: first, last_name: last }).eq('id', userId);
+    if (!error) {
+      _profile = { ..._profile, first_name: first, last_name: last };
+      const init = (first[0] + last[0]).toUpperCase();
+      document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => el.textContent = init);
+      document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = `${first} ${last}`);
+      if (msg) { msg.style.display = ''; setTimeout(() => msg.style.display = 'none', 3000); }
+    }
+  };
+  window.changePassword = async () => {
+    const pwd  = document.getElementById('set-pwd')?.value;
+    const pwd2 = document.getElementById('set-pwd2')?.value;
+    const msg  = document.getElementById('set-pwd-msg');
+    if (!msg) return;
+    if (!pwd || pwd.length < 8) { msg.style.color='var(--red)'; msg.textContent='Password must be at least 8 characters.'; msg.style.display=''; return; }
+    if (pwd !== pwd2) { msg.style.color='var(--red)'; msg.textContent='Passwords do not match.'; msg.style.display=''; return; }
+    const { error } = await db.auth.updateUser({ password: pwd });
+    msg.style.color = error ? 'var(--red)' : 'var(--green)';
+    msg.textContent = error ? error.message : 'Password updated successfully.';
+    msg.style.display = '';
+  };
 })();
 </script>
 </body>

@@ -704,41 +704,32 @@
               <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
               Total Balance
             </div>
-            <div class="summary-card__value">$24,830.50</div>
-            <div class="summary-card__change up">
-              <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-              +$1,240.20 today
-            </div>
+            <div class="summary-card__value" id="val-balance">—</div>
+            <div class="summary-card__change up" id="val-balance-sub"></div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
               Open P&L
             </div>
-            <div class="summary-card__value" style="color:var(--green);">+$842.30</div>
-            <div class="summary-card__change up">
-              <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-              6 open positions
-            </div>
+            <div class="summary-card__value" id="val-pnl" style="color:var(--green);">—</div>
+            <div class="summary-card__change up" id="val-pnl-sub"></div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
               Free Margin
             </div>
-            <div class="summary-card__value">$18,420.00</div>
-            <div class="summary-card__change" style="color:var(--muted);">Margin level: 312%</div>
+            <div class="summary-card__value" id="val-margin">—</div>
+            <div class="summary-card__change" id="val-margin-sub" style="color:var(--muted);"></div>
           </div>
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               Today's Trades
             </div>
-            <div class="summary-card__value">14</div>
-            <div class="summary-card__change down">
-              <svg viewBox="0 0 24 24"><polyline points="18 9 12 15 6 9"/></svg>
-              -$120.40 closed P&L
-            </div>
+            <div class="summary-card__value" id="val-trades">—</div>
+            <div class="summary-card__change" id="val-trades-sub"></div>
           </div>
         </div>
 
@@ -826,62 +817,7 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td class="pos-symbol">EUR/USD</td>
-                    <td><span class="pos-type pos-type--buy">Buy</span></td>
-                    <td>0.50</td>
-                    <td>1.08210</td>
-                    <td>1.08432</td>
-                    <td class="pos-pnl up">+$111.00</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                  <tr>
-                    <td class="pos-symbol">XAU/USD</td>
-                    <td><span class="pos-type pos-type--buy">Buy</span></td>
-                    <td>0.10</td>
-                    <td>2,310.00</td>
-                    <td>2,341.50</td>
-                    <td class="pos-pnl up">+$315.00</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                  <tr>
-                    <td class="pos-symbol">GBP/USD</td>
-                    <td><span class="pos-type pos-type--sell">Sell</span></td>
-                    <td>0.30</td>
-                    <td>1.26900</td>
-                    <td>1.26718</td>
-                    <td class="pos-pnl up">+$54.60</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                  <tr>
-                    <td class="pos-symbol">BTC/USD</td>
-                    <td><span class="pos-type pos-type--sell">Sell</span></td>
-                    <td>0.05</td>
-                    <td>76,200.0</td>
-                    <td>78,450.0</td>
-                    <td class="pos-pnl down">-$112.50</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                  <tr>
-                    <td class="pos-symbol">US30</td>
-                    <td><span class="pos-type pos-type--buy">Buy</span></td>
-                    <td>1.00</td>
-                    <td>38,900.0</td>
-                    <td>39,142.0</td>
-                    <td class="pos-pnl up">+$242.00</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                  <tr>
-                    <td class="pos-symbol">WTI/USD</td>
-                    <td><span class="pos-type pos-type--buy">Buy</span></td>
-                    <td>2.00</td>
-                    <td>83.100</td>
-                    <td>82.340</td>
-                    <td class="pos-pnl down">-$152.00</td>
-                    <td><button class="pos-close">Close</button></td>
-                  </tr>
-                </tbody>
+                <tbody id="positions-tbody"></tbody>
               </table>
             </div>
           </div>
@@ -924,33 +860,7 @@
 
             <div class="card">
               <div class="card__head"><div class="card__title">Recent Activity</div></div>
-              <div class="activity-list">
-                <div class="activity-row">
-                  <div class="activity-dot activity-dot--green"></div>
-                  <div class="activity-text">Deposit of <strong>$5,000</strong> confirmed</div>
-                  <div class="activity-time">2m ago</div>
-                </div>
-                <div class="activity-row">
-                  <div class="activity-dot activity-dot--blue"></div>
-                  <div class="activity-text">Buy EUR/USD opened at <strong>1.08210</strong></div>
-                  <div class="activity-time">14m ago</div>
-                </div>
-                <div class="activity-row">
-                  <div class="activity-dot activity-dot--orange"></div>
-                  <div class="activity-text">ID verification <strong>pending review</strong></div>
-                  <div class="activity-time">1h ago</div>
-                </div>
-                <div class="activity-row">
-                  <div class="activity-dot activity-dot--red"></div>
-                  <div class="activity-text">Sell BTC/USD closed at <strong>loss -$48.20</strong></div>
-                  <div class="activity-time">3h ago</div>
-                </div>
-                <div class="activity-row">
-                  <div class="activity-dot activity-dot--green"></div>
-                  <div class="activity-text">Buy XAU/USD closed <strong>+$220.00 profit</strong></div>
-                  <div class="activity-time">5h ago</div>
-                </div>
-              </div>
+              <div class="activity-list" id="activity-list"></div>
             </div>
           </div>
         </div>
@@ -961,56 +871,7 @@
             <div class="card__title">My Trading Accounts</div>
             <span class="card__action">Open new account →</span>
           </div>
-          <div class="account-list">
-            <div class="account-row">
-              <div class="account-icon account-icon--mt4">MT4</div>
-              <div class="account-col">
-                <div class="account-col__id">#10482931</div>
-                <div class="account-col__type">MetaTrader 4 · Raw+ · USD</div>
-              </div>
-              <span class="account-status account-status--live">Live</span>
-              <div class="account-balance">
-                <div class="account-balance__val">$14,830.50</div>
-                <div class="account-balance__pnl up">+$842.30 P&L</div>
-              </div>
-            </div>
-            <div class="account-row">
-              <div class="account-icon account-icon--mt5">MT5</div>
-              <div class="account-col">
-                <div class="account-col__id">#10483012</div>
-                <div class="account-col__type">MetaTrader 5 · Instant · EUR</div>
-              </div>
-              <span class="account-status account-status--live">Live</span>
-              <div class="account-balance">
-                <div class="account-balance__val">$8,200.00</div>
-                <div class="account-balance__pnl up">+$124.00 P&L</div>
-              </div>
-            </div>
-            <div class="account-row">
-              <div class="account-icon account-icon--ct">CT</div>
-              <div class="account-col">
-                <div class="account-col__id">#10483088</div>
-                <div class="account-col__type">cTrader · Raw+ · USD</div>
-              </div>
-              <span class="account-status account-status--demo">Demo</span>
-              <div class="account-balance">
-                <div class="account-balance__val">$50,000.00</div>
-                <div class="account-balance__pnl down">-$312.10 P&L</div>
-              </div>
-            </div>
-            <div class="account-row">
-              <div class="account-icon account-icon--tv">TV</div>
-              <div class="account-col">
-                <div class="account-col__id">#10483144</div>
-                <div class="account-col__type">TradingView · Instant · GBP</div>
-              </div>
-              <span class="account-status account-status--live">Live</span>
-              <div class="account-balance">
-                <div class="account-balance__val">$1,800.00</div>
-                <div class="account-balance__pnl up">+$76.00 P&L</div>
-              </div>
-            </div>
-          </div>
+          <div class="account-list" id="account-list"></div>
         </div>
 
       </div><!-- /page-overview -->
@@ -1033,11 +894,7 @@
     <div class="modal__body">
       <div class="field">
         <label>Select account</label>
-        <select>
-          <option>#10482931 — MT4 Raw+ (Live) $14,830.50</option>
-          <option>#10483012 — MT5 Instant (Live) $8,200.00</option>
-          <option>#10483144 — TradingView (Live) $1,800.00</option>
-        </select>
+        <select id="deposit-account-select"></select>
       </div>
       <div class="field">
         <label>Payment method</label>
@@ -1078,11 +935,7 @@
     <div class="modal__body">
       <div class="field">
         <label>From account</label>
-        <select>
-          <option>#10482931 — MT4 Raw+ $14,830.50</option>
-          <option>#10483012 — MT5 Instant $8,200.00</option>
-          <option>#10483144 — TradingView $1,800.00</option>
-        </select>
+        <select id="withdraw-account-select"></select>
       </div>
       <div class="field">
         <label>Withdraw to</label>
@@ -1188,12 +1041,6 @@
   const db = window.XANTEX_DB;
   if (!db) return;
 
-  // Clear hardcoded placeholders immediately so they never flash on screen
-  document.querySelectorAll('.summary-card__value').forEach(el => el.textContent = '—');
-  document.querySelectorAll('.account-list').forEach(el => el.innerHTML = '');
-  document.querySelectorAll('tbody').forEach(el => el.innerHTML = '');
-  document.querySelectorAll('.activity-list').forEach(el => el.innerHTML = '');
-
   // ── Auth guard ──────────────────────────────────────────
   const { data: { session } } = await db.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
@@ -1241,17 +1088,18 @@
     q => q.order('created_at', { ascending: false }).limit(5));
 
   // ── Render accounts ─────────────────────────────────────
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   if (accounts.length) {
     const totalBalance = accounts.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
     const totalFree    = accounts.reduce((s, a) => s + (parseFloat(a.free_margin) || parseFloat(a.balance) || 0), 0);
 
-    const set = (sel, val) => { const el = document.querySelector(sel); if (el) el.textContent = val; };
-    set('.summary-card--blue .summary-card__value', '$' + totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 }));
-    set('.summary-cards .summary-card:nth-child(3) .summary-card__value', '$' + totalFree.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+    set('val-balance', '$' + totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+    set('val-margin',  '$' + totalFree.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+    set('val-balance-sub', `${accounts.length} account${accounts.length !== 1 ? 's' : ''}`);
 
-    const accountList = document.querySelector('.account-list');
+    const platformMap = { MT4: 'account-icon--mt4', MT5: 'account-icon--mt5', cTrader: 'account-icon--ct', TradingView: 'account-icon--tv' };
+    const accountList = document.getElementById('account-list');
     if (accountList) {
-      const platformMap = { MT4: 'account-icon--mt4', MT5: 'account-icon--mt5', cTrader: 'account-icon--ct', TradingView: 'account-icon--tv' };
       accountList.innerHTML = accounts.map(a => {
         const cls  = platformMap[a.platform] || 'account-icon--mt4';
         const bal  = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
@@ -1270,18 +1118,28 @@
       }).join('');
     }
 
-    document.querySelectorAll('#modal-deposit select, #modal-withdraw select').forEach(sel => {
-      sel.innerHTML = accounts
-        .filter(a => a.type?.toLowerCase().includes('live'))
-        .map(a => `<option value="${a.id}">#${a.account_number || a.id.slice(0,8)} — ${a.platform} ${a.account_type} $${parseFloat(a.balance||0).toLocaleString()}</option>`)
-        .join('');
-    });
+    const liveAccounts = accounts.filter(a => a.type?.toLowerCase().includes('live'));
+    const acctOptions  = liveAccounts.map(a =>
+      `<option value="${a.id}">#${a.account_number || a.id.slice(0,8)} — ${a.platform} ${a.account_type} $${parseFloat(a.balance||0).toLocaleString()}</option>`
+    ).join('');
+    const depSel = document.getElementById('deposit-account-select');
+    const wdSel  = document.getElementById('withdraw-account-select');
+    if (depSel) depSel.innerHTML = acctOptions;
+    if (wdSel)  wdSel.innerHTML  = acctOptions;
+  } else {
+    set('val-balance', '$0.00');
+    set('val-margin',  '$0.00');
+    set('val-balance-sub', 'No accounts');
   }
 
   // ── Render open positions ───────────────────────────────
-  if (positions.length) {
-    const tbody = document.querySelector('tbody');
-    if (tbody) {
+  const tbody = document.getElementById('positions-tbody');
+  if (tbody) {
+    if (positions.length) {
+      set('val-pnl-sub', `${positions.length} open position${positions.length !== 1 ? 's' : ''}`);
+      const totalPnl = positions.reduce((s, p) => s + (parseFloat(p.floating_pnl) || 0), 0);
+      const pnlEl = document.getElementById('val-pnl');
+      if (pnlEl) { pnlEl.textContent = (totalPnl >= 0 ? '+' : '') + '$' + Math.abs(totalPnl).toFixed(2); pnlEl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)'; }
       tbody.innerHTML = positions.map(p => {
         const isBuy  = p.direction === 'buy';
         const pnl    = parseFloat(p.floating_pnl || 0);
@@ -1296,16 +1154,19 @@
           <td><button class="pos-close" onclick="closePosition('${p.id}')">Close</button></td>
         </tr>`;
       }).join('');
+    } else {
+      set('val-pnl', '$0.00');
+      set('val-pnl-sub', 'No open positions');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">No open positions</td></tr>';
     }
-    const posCount = document.querySelectorAll('.summary-card')[1]?.querySelector('.summary-card__change');
-    if (posCount) posCount.lastChild.textContent = ` ${positions.length} open position${positions.length !== 1 ? 's' : ''}`;
   }
 
   // ── Render recent activity ──────────────────────────────
-  if (txns.length) {
-    const dotColor = { deposit: 'green', withdrawal: 'orange', trade: 'blue', bonus: 'blue' };
-    const activityList = document.querySelector('.activity-list');
-    if (activityList) {
+  const activityList = document.getElementById('activity-list');
+  if (activityList) {
+    if (txns.length) {
+      set('val-trades', txns.length.toString());
+      const dotColor = { deposit: 'green', withdrawal: 'orange', trade: 'blue', bonus: 'blue' };
       activityList.innerHTML = txns.map(t => {
         const color = dotColor[t.type] || 'blue';
         const amt   = parseFloat(t.amount || 0);
@@ -1317,6 +1178,9 @@
           <div class="activity-time">${ago}</div>
         </div>`;
       }).join('');
+    } else {
+      set('val-trades', '0');
+      activityList.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No recent activity</div>';
     }
   }
 

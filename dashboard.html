@@ -1220,8 +1220,10 @@
     let q = db.from(table).select('*').eq('user_id', userId);
     if (applyFilters) q = applyFilters(q);
     const { data, error } = await q;
+    console.log(`[dash] ${table} direct →`, data, error?.message);
     if (!error && data) return data;
-    const { data: rpcData } = await db.rpc(rpcFn);
+    const { data: rpcData, error: rpcErr } = await db.rpc(rpcFn);
+    console.log(`[dash] ${table} rpc(${rpcFn}) →`, rpcData, rpcErr?.message);
     return Array.isArray(rpcData) ? rpcData : (rpcData ? [rpcData] : []);
   }
 

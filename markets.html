@@ -426,9 +426,9 @@
       </a>
     </nav>
     <div class="sidebar__footer">
-      <div class="sidebar__avatar">JD</div>
+      <div class="sidebar__avatar"></div>
       <div>
-        <div class="sidebar__user-name">John Doe</div>
+        <div class="sidebar__user-name"></div>
         <div class="sidebar__user-role">Live account</div>
       </div>
       <button class="sidebar__logout" onclick="window.location='login.html'" title="Sign out">
@@ -460,7 +460,7 @@
           <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <div class="topbar__notif-dot"></div>
         </button>
-        <div class="topbar__avatar">JD</div>
+        <div class="topbar__avatar"></div>
       </div>
     </div>
 
@@ -1193,6 +1193,20 @@
 
   renderAll();
   document.getElementById('last-updated').textContent = 'Live prices · Updated from database';
+
+  // Load real user name & initials
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
+  const { data: profile } = await db.from('profiles').select('first_name,last_name').eq('id', session.user.id).single();
+  if (profile) {
+    const init = (profile.first_name[0] + profile.last_name[0]).toUpperCase();
+    const name = `${profile.first_name} ${profile.last_name}`;
+    document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => el.textContent = init);
+    document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
+  }
+  document.querySelectorAll('.sidebar__logout').forEach(btn => {
+    btn.onclick = async () => { await db.auth.signOut(); window.location.href = 'login.html'; };
+  });
 })();
 </script>
 </body>

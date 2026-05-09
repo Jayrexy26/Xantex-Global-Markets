@@ -1188,6 +1188,12 @@
   const db = window.XANTEX_DB;
   if (!db) return;
 
+  // Clear hardcoded placeholders immediately so they never flash on screen
+  document.querySelectorAll('.summary-card__value').forEach(el => el.textContent = '—');
+  document.querySelectorAll('.account-list').forEach(el => el.innerHTML = '');
+  document.querySelectorAll('tbody').forEach(el => el.innerHTML = '');
+  document.querySelectorAll('.activity-list').forEach(el => el.innerHTML = '');
+
   // ── Auth guard ──────────────────────────────────────────
   const { data: { session } } = await db.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }

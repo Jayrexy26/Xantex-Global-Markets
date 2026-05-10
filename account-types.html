@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Account Types — Xantex Global Markets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:       #e60023;
+      --blue:      #1a5cff;
+      --blue-dk:   #1244cc;
+      --blue-lt:   #e8eeff;
+      --green:     #22a06b;
+      --green-lt:  #e6f7ef;
+      --orange:    #f5a623;
+      --purple:    #7c3aed;
+      --gold:      #f59e0b;
+      --bg:        #f4f6f9;
+      --white:     #ffffff;
+      --text:      #111111;
+      --muted:     #666666;
+      --border:    #e0e3e8;
+      --card-bg:   #ffffff;
+      --sidebar-w: 240px;
+      --topbar-h:  64px;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.6; }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w); background: #0d1120; color: #fff;
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 200;
+      transition: transform 0.25s ease;
+    }
+    .sidebar__logo {
+      height: var(--topbar-h); display: flex; align-items: center;
+      padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
+    }
+    .sidebar__logo img  { height: 130px; width: auto; }
+    .sidebar__logo-text { font-size: 22px; font-weight: 700; color: var(--red); }
+    .sidebar__nav       { flex: 1; overflow-y: auto; padding: 12px 0; }
+    .sidebar__section-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: rgba(255,255,255,0.3);
+      padding: 10px 20px 4px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 10px 20px;
+      background: none; border: none; color: rgba(255,255,255,0.65);
+      font-size: 13px; font-weight: 500; text-align: left;
+      cursor: pointer; transition: background 0.15s, color 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-item.active { background: rgba(26,92,255,0.2); color: #fff; border-left-color: var(--blue); }
+    .nav-item svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; flex-shrink: 0; }
+    .sidebar__logout {
+      display: flex; align-items: center; gap: 10px;
+      margin: 12px; padding: 10px 12px;
+      background: rgba(230,0,35,0.1); border: 1px solid rgba(230,0,35,0.2);
+      border-radius: 8px; color: #ff6b6b; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .sidebar__logout:hover { background: rgba(230,0,35,0.2); }
+    .sidebar__logout svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .sidebar__overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 199;
+    }
+
+    /* ── Main ── */
+    .main { flex: 1; margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: var(--topbar-h); background: var(--white);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 24px; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar__menu { display: none; background: none; border: none; padding: 4px; }
+    .topbar__menu svg { width: 22px; height: 22px; fill: none; stroke: var(--text); stroke-width: 2; }
+    .topbar__title { font-size: 15px; font-weight: 700; }
+    .topbar__right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+    .topbar__avatar {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff;
+      background-size: cover; background-position: center;
+    }
+    .dark-toggle {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--bg);
+      border: 1.5px solid var(--border); display: flex; align-items: center;
+      justify-content: center; cursor: pointer;
+    }
+    .dark-toggle svg { width: 16px; height: 16px; fill: none; stroke: var(--text); stroke-width: 2; }
+
+    /* ── Content ── */
+    .content { flex: 1; padding: 28px 28px 48px; max-width: 1100px; width: 100%; margin: 0 auto; }
+    .page-header { margin-bottom: 32px; }
+    .page-header__title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    .page-header__sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* ── Animated border ── */
+    @property --raw-angle   { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+    @property --elite-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+    @property --mstr-angle  { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+    @keyframes raw-spin   { to { --raw-angle:   360deg; } }
+    @keyframes elite-spin { to { --elite-angle: 360deg; } }
+    @keyframes mstr-spin  { to { --mstr-angle:  360deg; } }
+
+    /* ── Plans grid ── */
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .plan-card {
+      border-radius: 20px;
+      border: 2px solid transparent;
+      padding: 30px 26px 28px;
+      background: var(--card-bg);
+      position: relative;
+      transition: transform 0.2s;
+    }
+    .plan-card:hover { transform: translateY(-4px); }
+
+    .plan-raw {
+      background:
+        linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+        conic-gradient(from var(--raw-angle),
+          transparent 0%, #1a5cff 18%, #00c6ff 28%, transparent 44%
+        ) border-box;
+      animation: raw-spin 3.5s linear infinite;
+    }
+    .plan-elite {
+      background:
+        linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+        conic-gradient(from var(--elite-angle),
+          transparent 0%, #7c3aed 18%, #c084fc 28%, transparent 44%
+        ) border-box;
+      animation: elite-spin 3.5s linear infinite;
+    }
+    .plan-master {
+      background:
+        linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+        conic-gradient(from var(--mstr-angle),
+          transparent 0%, #f59e0b 18%, #fde68a 28%, transparent 44%
+        ) border-box;
+      animation: mstr-spin 3.5s linear infinite;
+    }
+
+    /* ── Plan card internals ── */
+    .plan-badge {
+      display: inline-block;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 4px 12px;
+      border-radius: 20px; margin-bottom: 20px;
+    }
+    .plan-raw   .plan-badge { background: rgba(26,92,255,0.12);  color: #1a5cff; }
+    .plan-elite .plan-badge { background: rgba(124,58,237,0.12); color: #7c3aed; }
+    .plan-master .plan-badge { background: rgba(245,158,11,0.12); color: #d97706; }
+
+    .plan-name {
+      font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px;
+    }
+    .plan-raw    .plan-name { color: #1a5cff; }
+    .plan-elite  .plan-name { color: #7c3aed; }
+    .plan-master .plan-name { color: #d97706; }
+
+    .plan-tagline { font-size: 12px; color: var(--muted); margin-bottom: 22px; }
+
+    .plan-price-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px; }
+    .plan-price { font-size: 38px; font-weight: 800; letter-spacing: -1px; }
+    .plan-raw    .plan-price { color: #1a5cff; }
+    .plan-elite  .plan-price { color: #7c3aed; }
+    .plan-master .plan-price { color: #d97706; }
+    .plan-price-label { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+
+    .plan-divider {
+      height: 1px; background: var(--border); margin-bottom: 20px;
+    }
+
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 11px; margin-bottom: 28px; }
+    .plan-features li {
+      display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text);
+    }
+    .plan-features li svg {
+      width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px;
+    }
+    .plan-raw    .plan-features li svg { stroke: #1a5cff; }
+    .plan-elite  .plan-features li svg { stroke: #7c3aed; }
+    .plan-master .plan-features li svg { stroke: #d97706; }
+
+    .plan-limit {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; padding: 8px 12px;
+      border-radius: 8px; margin-bottom: 24px;
+    }
+    .plan-raw    .plan-limit { background: rgba(26,92,255,0.08);  color: #1a5cff; }
+    .plan-elite  .plan-limit { background: rgba(124,58,237,0.08); color: #7c3aed; }
+    .plan-master .plan-limit { background: rgba(245,158,11,0.08); color: #d97706; }
+    .plan-limit svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; flex-shrink: 0; }
+
+    .plan-btn {
+      width: 100%; padding: 13px;
+      border: none; border-radius: 12px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+    }
+    .plan-btn:hover  { opacity: 0.88; }
+    .plan-btn:active { transform: scale(0.98); }
+    .plan-raw    .plan-btn { background: linear-gradient(135deg, #1a5cff, #00c6ff); color: #fff; }
+    .plan-elite  .plan-btn { background: linear-gradient(135deg, #7c3aed, #c084fc); color: #fff; }
+    .plan-master .plan-btn { background: linear-gradient(135deg, #f59e0b, #fde68a); color: #1a1200; }
+
+    /* ── Upgrade modal ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 500;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--white); border-radius: 18px;
+      padding: 32px 28px; width: 100%; max-width: 420px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; color: var(--muted); cursor: pointer; padding: 4px;
+    }
+    .modal-close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .modal-icon { font-size: 40px; margin-bottom: 12px; text-align: center; }
+    .modal-title { font-size: 19px; font-weight: 800; text-align: center; margin-bottom: 6px; }
+    .modal-sub { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 22px; line-height: 1.6; }
+    .modal-steps { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .modal-steps li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 13px; line-height: 1.5;
+    }
+    .modal-step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .modal-btn {
+      display: block; width: 100%; padding: 13px;
+      border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; text-align: center; color: #fff;
+      transition: opacity 0.15s;
+    }
+    .modal-btn:hover { opacity: 0.88; }
+    .modal-btn-secondary {
+      display: block; width: 100%; padding: 10px;
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 13px; font-weight: 500;
+      cursor: pointer; color: var(--muted); margin-top: 10px;
+      font-family: inherit; transition: border-color 0.15s, color 0.15s;
+    }
+    .modal-btn-secondary:hover { border-color: var(--text); color: var(--text); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #111; color: #fff; padding: 12px 22px; border-radius: 10px;
+      font-size: 13px; font-weight: 500; z-index: 9999;
+      transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0; pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* ── Dark mode ── */
+    body.dark {
+      --bg:      #0f1117;
+      --white:   #1a1d27;
+      --text:    #e8eaf0;
+      --muted:   #8b90a0;
+      --border:  #2a2d3a;
+      --card-bg: #1a1d27;
+    }
+    body.dark .topbar    { background: #1a1d27; border-color: #2a2d3a; }
+    body.dark .plan-card { box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    body.dark .modal-box { background: #1a1d27; }
+    body.dark .modal-btn-secondary { border-color: #2a2d3a; }
+
+    /* ── Scrollbar ── */
+    * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .plans-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar__overlay { display: block; }
+      .main { margin-left: 0; }
+      .topbar__menu { display: flex; }
+      .content { padding: 20px 16px 40px; }
+    }
+
+    body { visibility: hidden; }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <img src="/images/logo.png" alt="Xantex" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="sidebar__logo-text" style="display:none;">Xantex</span>
+    </div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Main</div>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        My Accounts
+      </button>
+      <button class="nav-item active" onclick="window.location.href='account-types.html'">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        Account Types
+      </button>
+      <button class="nav-item" onclick="window.location.href='trade.html'">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Trade
+      </button>
+      <button class="nav-item" onclick="window.location.href='markets.html'">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Markets
+      </button>
+      <div class="sidebar__section-label">Finance</div>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Deposit
+      </button>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
+        Withdraw
+      </button>
+      <button class="nav-item" onclick="window.location.href='trade-history.html'">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Trade History
+      </button>
+      <button class="nav-item" onclick="window.location.href='history.html'">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Transaction History
+      </button>
+      <div class="sidebar__section-label">Account</div>
+      <button class="nav-item" onclick="window.location.href='notifications.html'">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+      </button>
+      <button class="nav-item" onclick="window.location.href='settings.html'">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </nav>
+    <button class="sidebar__logout" onclick="signOut()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </aside>
+  <div class="sidebar__overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <button class="topbar__menu" id="menu-btn" onclick="openSidebar()">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar__title">Account Types</div>
+      <div class="topbar__right">
+        <div class="dark-toggle" id="dark-toggle" title="Toggle theme">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </div>
+        <div class="topbar__avatar" id="topbar-avatar">?</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="page-header__title">Account Types</div>
+        <div class="page-header__sub">Upgrade your account for higher limits, advanced tools, and priority support</div>
+      </div>
+
+      <div class="plans-grid">
+
+        <!-- RAW+ -->
+        <div class="plan-card plan-raw">
+          <div class="plan-badge">Most Popular</div>
+          <div class="plan-name">RAW+</div>
+          <div class="plan-tagline">Professional-grade trading, zero compromise</div>
+          <div class="plan-price-row">
+            <div class="plan-price">$500</div>
+          </div>
+          <div class="plan-price-label">one-time upgrade fee</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              24/7 Priority Support
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Professional Charts &amp; Analytics
+            </li>
+          </ul>
+          <div class="plan-limit">
+            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Balance Limit: $50,000
+          </div>
+          <button class="plan-btn" onclick="openUpgradeModal('RAW+','#1a5cff','$500')">Upgrade to RAW+</button>
+        </div>
+
+        <!-- ELITE -->
+        <div class="plan-card plan-elite">
+          <div class="plan-badge">Recommended</div>
+          <div class="plan-name">ELITE</div>
+          <div class="plan-tagline">Institutional tools for serious traders</div>
+          <div class="plan-price-row">
+            <div class="plan-price">$1,000</div>
+          </div>
+          <div class="plan-price-label">one-time upgrade fee</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              24/7 Priority Support
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Professional Charts &amp; Analytics
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              SMS &amp; Email Trade Alerts
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Copy Trading Access
+            </li>
+          </ul>
+          <div class="plan-limit">
+            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Balance Limit: $100,000
+          </div>
+          <button class="plan-btn" onclick="openUpgradeModal('ELITE','#7c3aed','$1,000')">Upgrade to ELITE</button>
+        </div>
+
+        <!-- MASTER -->
+        <div class="plan-card plan-master">
+          <div class="plan-badge">Premium</div>
+          <div class="plan-name">MASTER</div>
+          <div class="plan-tagline">Maximum power for elite-level performance</div>
+          <div class="plan-price-row">
+            <div class="plan-price">$5,000</div>
+          </div>
+          <div class="plan-price-label">one-time upgrade fee</div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              24/7 Priority Support
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Professional Charts &amp; Analytics
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              SMS &amp; Email Trade Alerts
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Copy Trading Access
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Advanced AI Integration &amp; UI
+            </li>
+          </ul>
+          <div class="plan-limit">
+            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Balance Limit: $1,000,000
+          </div>
+          <button class="plan-btn" onclick="openUpgradeModal('MASTER','#d97706','$5,000')">Upgrade to MASTER</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div class="modal-overlay" id="upgrade-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeUpgradeModal()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-icon">🚀</div>
+    <div class="modal-title" id="modal-title">Upgrade to RAW+</div>
+    <div class="modal-sub" id="modal-sub">Follow these steps to complete your account upgrade.</div>
+    <ol class="modal-steps">
+      <li>
+        <div class="modal-step-num" id="step-color-1" style="background:#1a5cff;">1</div>
+        <div>Deposit the upgrade fee of <strong id="modal-fee">$500</strong> to your Xantex account.</div>
+      </li>
+      <li>
+        <div class="modal-step-num" id="step-color-2" style="background:#1a5cff;">2</div>
+        <div>Contact support with your account number and mention the plan you want to activate.</div>
+      </li>
+      <li>
+        <div class="modal-step-num" id="step-color-3" style="background:#1a5cff;">3</div>
+        <div>Our team will upgrade your account within 24 hours and notify you by email.</div>
+      </li>
+    </ol>
+    <button class="modal-btn" id="modal-deposit-btn" style="background:#1a5cff;" onclick="goDeposit()">
+      Deposit &amp; Upgrade
+    </button>
+    <button class="modal-btn-secondary" onclick="closeUpgradeModal()">Maybe later</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+(async () => {
+  const db = window.XANTEX_DB;
+  if (!db) { window.location.href = 'login.html'; return; }
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
+  document.body.style.visibility = 'visible';
+
+  const userId = session.user.id;
+
+  // Dark mode
+  const saved = localStorage.getItem('xantex-theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
+    document.body.classList.add('dark');
+  }
+  document.getElementById('dark-toggle').addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('xantex-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+  });
+
+  // Avatar
+  try {
+    const { data: prof } = await db.from('profiles').select('first_name,last_name,avatar_url').eq('id', userId).maybeSingle();
+    const av = document.getElementById('topbar-avatar');
+    if (prof?.avatar_url) {
+      av.style.backgroundImage = `url(${prof.avatar_url})`;
+      av.style.backgroundSize = 'cover';
+      av.style.backgroundPosition = 'center';
+      av.textContent = '';
+    } else {
+      const fn = prof?.first_name || '', ln = prof?.last_name || '';
+      av.textContent = ((fn[0]||'') + (ln[0]||'')).toUpperCase() || '?';
+    }
+  } catch(e) {}
+})();
+
+// Sidebar mobile
+function openSidebar()  { document.getElementById('sidebar').classList.add('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
+
+async function signOut() {
+  const db = window.XANTEX_DB;
+  if (db) await db.auth.signOut();
+  sessionStorage.removeItem('xantex_pin_ok');
+  window.location.href = 'login.html';
+}
+
+// Upgrade modal
+let _upgradeColor = '#1a5cff';
+function openUpgradeModal(plan, color, fee) {
+  _upgradeColor = color;
+  document.getElementById('modal-title').textContent = `Upgrade to ${plan}`;
+  document.getElementById('modal-sub').textContent  = `Complete the steps below to activate your ${plan} account.`;
+  document.getElementById('modal-fee').textContent  = fee;
+  ['step-color-1','step-color-2','step-color-3'].forEach(id => {
+    document.getElementById(id).style.background = color;
+  });
+  document.getElementById('modal-deposit-btn').style.background = color;
+  document.getElementById('upgrade-modal').classList.add('open');
+}
+function closeUpgradeModal() {
+  document.getElementById('upgrade-modal').classList.remove('open');
+}
+function goDeposit() {
+  closeUpgradeModal();
+  window.location.href = 'dashboard.html';
+}
+
+// Close modal on backdrop click
+document.getElementById('upgrade-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeUpgradeModal();
+});
+</script>
+</body>
+</html>

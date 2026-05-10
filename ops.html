@@ -842,7 +842,7 @@
             <div class="page-header__title">Deposit Management</div>
             <div class="page-header__sub">Review, approve or reject incoming deposits</div>
           </div>
-          <button class="btn btn--primary" onclick="openModal('modal-manual-deposit')">
+          <button class="btn btn--primary" onclick="opsOpenManualDepositModal()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Manual Deposit
           </button>
@@ -1242,10 +1242,29 @@
     </div>
     <div class="modal__body">
       <div class="form-grid">
-        <div class="field--full field"><label>Account ID or Account Number</label><input id="manual-dep-account" type="text" placeholder="UUID or account number…"></div>
+        <div class="field--full field">
+          <label>Account</label>
+          <select id="manual-dep-account">
+            <option value="">— Select an account —</option>
+          </select>
+        </div>
         <div class="field"><label>Amount (USD)</label><input id="manual-dep-amount" type="number" placeholder="0.00" min="0" step="0.01"></div>
-        <div class="field"><label>Payment Method</label><select id="manual-dep-method"><option>Bank Transfer</option><option>Card</option><option>Crypto</option><option>Internal</option></select></div>
-        <div class="field--full field"><label>Reference / Notes</label><input id="manual-dep-notes" type="text" placeholder="Transaction reference…"></div>
+        <div class="field">
+          <label>Payment Method</label>
+          <div style="height:40px;display:flex;align-items:center;padding:0 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-weight:600;color:var(--muted);gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#f7931a;display:inline-block;flex-shrink:0;"></span>Crypto
+          </div>
+        </div>
+        <div class="field">
+          <label>Cryptocurrency</label>
+          <select id="manual-dep-crypto">
+            <option value="BTC">Bitcoin (BTC)</option>
+            <option value="ETH">Ethereum ERC20 (ETH)</option>
+            <option value="USDT">Tether ERC20 (USDT)</option>
+            <option value="USDT_TRC20">Tether TRC20 (USDT)</option>
+          </select>
+        </div>
+        <div class="field--full field"><label>Reference / Notes</label><input id="manual-dep-notes" type="text" placeholder="Transaction reference or tx hash…"></div>
       </div>
     </div>
     <div class="modal__foot">
@@ -1415,6 +1434,7 @@
   function toggleUserStatus() {}
   function deleteUser() {}
   function opsManualDeposit() {}
+  function opsOpenManualDepositModal() { openModal('modal-manual-deposit'); }
   function opsToggleAccount() {}
   function opsCreateAccount() { showToast('Have user register at /register.html first','error'); }
   function opsForceCloseAll() { if (confirm('Force close ALL open positions?')) showToast('Use per-position force-close buttons','error'); }
@@ -2420,36 +2440,74 @@ async function renderActivityLive() {
 window.renderActivityLive = renderActivityLive;
 
 // ── Manual Deposit (modal handler) ───────────────────────────
-window.opsManualDeposit = async function() {
-  const accInput = document.getElementById('manual-dep-account')?.value?.trim();
-  const amount   = parseFloat(document.getElementById('manual-dep-amount')?.value);
-  const method   = document.getElementById('manual-dep-method')?.value?.trim() || 'Manual';
-  const notes    = document.getElementById('manual-dep-notes')?.value?.trim() || '';
-  if (!accInput || !amount) { showToast('Account and amount are required','error'); return; }
+window.opsOpenManualDepositModal = async function() {
+  openModal('modal-manual-deposit');
   const db = window.XANTEX_DB; if (!db) return;
+  const sel = document.getElementById('manual-dep-account'); if (!sel) return;
+  sel.innerHTML = '<option value="">Loading…</option>';
 
-  const isUUID = /^[0-9a-f-]{36}$/i.test(accInput);
-  let q = isUUID
-    ? db.from('trading_accounts').select('id, balance, user_id, account_number').eq('id', accInput)
-    : db.from('trading_accounts').select('id, balance, user_id, account_number').eq('account_number', accInput);
-  const { data: acc, error: accErr } = await q.single();
+  // Fetch all trading accounts with profile name
+  const { data: accounts } = await db
+    .from('trading_accounts')
+    .select('id, account_number, balance, user_id, profiles(first_name, last_name, email)')
+    .order('account_number');
+
+  if (!accounts?.length) {
+    sel.innerHTML = '<option value="">No accounts found</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">— Select an account —</option>' +
+    accounts.map(a => {
+      const p = a.profiles;
+      const name = p ? `${p.first_name||''} ${p.last_name||''}`.trim() || p.email : 'Unknown';
+      const bal = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+      return `<option value="${a.id}">${name} — #${a.account_number} ($${bal})</option>`;
+    }).join('');
+
+  // Reset other fields
+  const amtEl = document.getElementById('manual-dep-amount'); if (amtEl) amtEl.value = '';
+  const notesEl = document.getElementById('manual-dep-notes'); if (notesEl) notesEl.value = '';
+  const cryptoEl = document.getElementById('manual-dep-crypto'); if (cryptoEl) cryptoEl.selectedIndex = 0;
+};
+
+window.opsManualDeposit = async function() {
+  const accountId = document.getElementById('manual-dep-account')?.value;
+  const amount    = parseFloat(document.getElementById('manual-dep-amount')?.value);
+  const coin      = document.getElementById('manual-dep-crypto')?.value || 'BTC';
+  const notes     = document.getElementById('manual-dep-notes')?.value?.trim() || '';
+
+  if (!accountId) { showToast('Please select an account','error'); return; }
+  if (!amount || amount <= 0) { showToast('Please enter a valid amount','error'); return; }
+
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data: acc, error: accErr } = await db
+    .from('trading_accounts').select('id, balance, user_id, account_number').eq('id', accountId).single();
   if (accErr || !acc) { showToast('Account not found','error'); return; }
+
+  const coinLabels = { BTC:'Bitcoin (BTC)', ETH:'Ethereum ERC20 (ETH)', USDT:'Tether ERC20 (USDT)', USDT_TRC20:'Tether TRC20 (USDT)' };
+  const method = 'Crypto — ' + (coinLabels[coin] || coin);
+  const now    = new Date().toISOString();
 
   const newBal = parseFloat(acc.balance||0) + amount;
   await db.from('trading_accounts').update({ balance: newBal }).eq('id', acc.id);
+
   await db.from('deposit_requests').insert({
     user_id: acc.user_id, account_id: acc.id,
-    amount, currency:'USD', payment_method: method,
-    notes, status:'approved',
-    reviewed_by: _adminUser?.id, reviewed_at: new Date().toISOString(),
+    amount, currency: 'USD', payment_method: method,
+    notes, status: 'approved',
+    reviewed_by: _adminUser?.id, reviewed_at: now,
   });
-  await db.from('transactions').insert({
+
+  const { error: txErr } = await db.from('transactions').insert({
     user_id: acc.user_id, account_id: acc.id,
-    type:'deposit', amount, status:'approved',
-    description: notes || 'Manual deposit by admin', payment_method: method,
+    type: 'deposit', amount, status: 'completed',
+    description: notes || 'Manual deposit by admin',
+    created_at: now,
   });
-  await logAudit('MANUAL_DEPOSIT', acc.id, `#${acc.account_number||acc.id.slice(0,8)}: +$${amount.toFixed(2)} via ${method}`);
-  showToast('Manual deposit applied','success');
+  if (txErr) console.error('[opsManualDeposit] tx insert failed:', txErr.message);
+
+  await logAudit('MANUAL_DEPOSIT', acc.id, `#${acc.account_number}: +$${amount.toFixed(2)} via ${method}`);
+  showToast('Manual deposit applied — balance updated','success');
   closeModal('modal-manual-deposit');
   renderDepositsLive();
   renderAccountsLive();

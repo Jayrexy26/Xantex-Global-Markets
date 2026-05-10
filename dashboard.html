@@ -546,6 +546,8 @@
     body.dark .summary-card--pnl {
       background-image: linear-gradient(#1a1d27, #1a1d27),
                         linear-gradient(to right, var(--green) 50%, var(--red) 50%);
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
     }
     body.dark .topbar__search input { background: #0f1117; color: var(--text); }
     body.dark .account-row:hover,

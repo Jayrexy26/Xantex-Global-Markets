@@ -1089,6 +1089,62 @@
             </div>
           </div>
         </div>
+
+        <!-- Deposit Addresses -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card__head">
+            <div>
+              <div class="card__title">Deposit Addresses</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Crypto wallet addresses shown to users in the deposit modal</div>
+            </div>
+          </div>
+          <div class="card__body">
+            <div class="form-grid">
+              <div class="field">
+                <label>
+                  <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#f7931a;display:inline-block;"></span>
+                    Bitcoin (BTC)
+                  </span>
+                </label>
+                <input type="text" id="dep-addr-BTC" placeholder="bc1q… or 1… or 3…" style="font-family:monospace;font-size:13px;">
+              </div>
+              <div class="field">
+                <label>
+                  <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#627eea;display:inline-block;"></span>
+                    Ethereum ERC20 (ETH)
+                  </span>
+                </label>
+                <input type="text" id="dep-addr-ETH" placeholder="0x…" style="font-family:monospace;font-size:13px;">
+              </div>
+              <div class="field">
+                <label>
+                  <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#26a17b;display:inline-block;"></span>
+                    Tether ERC20 (USDT)
+                  </span>
+                </label>
+                <input type="text" id="dep-addr-USDT" placeholder="0x…" style="font-family:monospace;font-size:13px;">
+              </div>
+              <div class="field">
+                <label>
+                  <span style="display:inline-flex;align-items:center;gap:6px;">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#ef0027;display:inline-block;"></span>
+                    Tether TRC20 (USDT)
+                  </span>
+                </label>
+                <input type="text" id="dep-addr-USDT_TRC20" placeholder="T…" style="font-family:monospace;font-size:13px;">
+              </div>
+            </div>
+            <div style="margin-top:16px;">
+              <button class="btn btn--primary" onclick="saveDepositAddresses()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save Addresses
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ════════════════════ AUDIT LOG ════════════════════ -->
@@ -1332,6 +1388,10 @@
       showToast('Settings saved', 'success');
     }
   }
+
+  /* ── Deposit address stubs — overridden by Supabase layer ── */
+  function loadDepositAddresses() {}
+  function saveDepositAddresses() { showToast('Authentication loading…','error'); }
 
   /* ── Dashboard date ───────────────────────────────────────── */
   (function() {
@@ -2380,6 +2440,36 @@ window.opsManualDeposit = async function() {
   loadDashStats();
 };
 
+// ── Deposit Addresses ─────────────────────────────────────────
+const _DEP_ADDR_KEYS = ['BTC','ETH','USDT','USDT_TRC20'];
+
+window.loadDepositAddresses = async function() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('platform_settings')
+    .select('key,value')
+    .in('key', _DEP_ADDR_KEYS.map(k => 'crypto_address_' + k));
+  if (!data) return;
+  data.forEach(row => {
+    const coin = row.key.replace('crypto_address_', '');
+    const el = document.getElementById('dep-addr-' + coin);
+    if (el) el.value = row.value || '';
+  });
+};
+
+window.saveDepositAddresses = async function() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const rows = _DEP_ADDR_KEYS.map(coin => ({
+    key:   'crypto_address_' + coin,
+    value: (document.getElementById('dep-addr-' + coin)?.value || '').trim(),
+    updated_at: new Date().toISOString(),
+  }));
+  const { error } = await db.from('platform_settings').upsert(rows, { onConflict: 'key' });
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  await logAudit('UPDATE_DEPOSIT_ADDRESSES', 'platform_settings', 'Crypto deposit addresses updated');
+  showToast('Deposit addresses saved', 'success');
+};
+
 // ── Override renderAll to use live versions ───────────────────
 window.renderAll = async function() {
   loadDashStats();
@@ -2396,6 +2486,7 @@ window.renderAll = async function() {
   renderAdjLogLive();
   renderActivityLive();
   renderMarketsControl();
+  loadDepositAddresses();
 };
 </script>
 </body>

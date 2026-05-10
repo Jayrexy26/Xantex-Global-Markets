@@ -67,7 +67,7 @@
     _removePopup(); // prevent duplicates
     _injectStyles();
 
-    const color = TYPE_COLORS[notif.type] || TYPE_COLORS.info;
+    const color = TYPE_COLORS[notif.type] || TYPE_COLORS['info'];
     const overlay = document.createElement('div');
     overlay.id = 'xnp-overlay';
     overlay.innerHTML = `
@@ -90,13 +90,14 @@
   window.initNotifPopup = async function(db, userId) {
     if (!db || !userId) return;
     try {
-      const { data } = await db
+      const { data, error } = await db
         .from('notifications')
-        .select('id, title, message, enabled, type, created_at')
+        .select('id, title, message, enabled, created_at')
         .eq('user_id', userId)
         .eq('enabled', true)
         .order('created_at', { ascending: false })
         .limit(1);
+      if (error) console.warn('[notif-popup] query error:', error.message);
       if (data?.length) _showPopup(data[0]);
     } catch (_) {}
   };

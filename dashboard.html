@@ -543,6 +543,38 @@
       .quick-actions { grid-template-columns: repeat(2,1fr); }
     }
     /* ============================================================
+       PLAN THEMES
+    ============================================================ */
+    /* RAW+ — deep cyan-blue */
+    body.plan-raw {
+      --blue:    #0070f3;
+      --blue-dk: #005cc5;
+      --blue-lt: #dbeafe;
+    }
+    body.plan-raw .nav-item.active { background: rgba(0,112,243,0.18); }
+
+    /* ELITE — purple */
+    body.plan-elite {
+      --blue:    #7c3aed;
+      --blue-dk: #6d28d9;
+      --blue-lt: #ede9fe;
+    }
+    body.plan-elite .nav-item.active { background: rgba(124,58,237,0.18); }
+
+    /* MASTER — amber/gold */
+    body.plan-master {
+      --blue:    #d97706;
+      --blue-dk: #b45309;
+      --blue-lt: #fef3c7;
+    }
+    body.plan-master .nav-item.active  { background: rgba(217,119,6,0.18); }
+    body.plan-master .summary-card--blue { color: #1a0f00; }
+    body.plan-master .summary-card--blue .summary-card__label { color: rgba(26,15,0,0.65); }
+    body.plan-master .summary-card--blue .summary-card__label svg { stroke: rgba(26,15,0,0.65); }
+    body.plan-master .summary-card--blue .summary-card__change { color: rgba(26,15,0,0.75); }
+    body.plan-master .summary-card--blue .card-loading { color: rgba(26,15,0,0.4) !important; }
+
+    /* ============================================================
        DARK MODE
     ============================================================ */
     body.dark {
@@ -2703,6 +2735,10 @@ function savePreferences() {
     document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
     const planBadge = document.getElementById('card-plan-badge');
     if (planBadge) planBadge.textContent = _profile.plan || 'Standard';
+    // Apply plan theme class
+    document.body.classList.remove('plan-standard','plan-raw','plan-elite','plan-master');
+    const _planClass = { Standard:'plan-standard', 'RAW+':'plan-raw', ELITE:'plan-elite', MASTER:'plan-master' }[_profile.plan || 'Standard'] || 'plan-standard';
+    document.body.classList.add(_planClass);
     const titleEl = document.querySelector('#page-overview .page-header__title');
     if (titleEl) titleEl.textContent = `Good ${greet}, ${fn||'Trader'} 👋`;
 

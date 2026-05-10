@@ -259,6 +259,17 @@
     @keyframes card-pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
     .card-loading { animation: card-pulse 1.4s ease-in-out infinite; color: var(--muted) !important; }
     .summary-card--blue .card-loading { color: rgba(255,255,255,0.5) !important; }
+    .plan-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 3px 9px; border-radius: 20px;
+      background: rgba(255,255,255,0.18); color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .summary-card__footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 10px;
+    }
 
     /* ============================================================
        TWO-COL GRID
@@ -1085,7 +1096,10 @@
               Total Balance
             </div>
             <div class="summary-card__value card-loading" id="card-balance">—</div>
-            <div class="summary-card__change card-loading" id="card-balance-sub" style="color:var(--muted);">Loading…</div>
+            <div class="summary-card__footer">
+              <div class="summary-card__change card-loading" id="card-balance-sub" style="color:rgba(255,255,255,0.8);">Loading…</div>
+              <span class="plan-badge" id="card-plan-badge">Standard</span>
+            </div>
           </div>
           <div class="summary-card summary-card--pnl">
             <div class="summary-card__label">
@@ -2687,6 +2701,8 @@ function savePreferences() {
     const hour = new Date().getHours();
     const greet = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
     document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
+    const planBadge = document.getElementById('card-plan-badge');
+    if (planBadge) planBadge.textContent = _profile.plan || 'Standard';
     const titleEl = document.querySelector('#page-overview .page-header__title');
     if (titleEl) titleEl.textContent = `Good ${greet}, ${fn||'Trader'} 👋`;
 

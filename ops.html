@@ -1629,6 +1629,33 @@ window.adminLogin = async function() {
   showPage(savedPage, savedBtn);
 };
 
+// ── Auto-resume existing session on refresh ───────────────────
+(async function resumeSession() {
+  const db = window.XANTEX_DB;
+  if (!db) return;
+
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) return; // no session — stay on login gate
+
+  const user = session.user;
+  const { data: adminRow } = await db
+    .from('admin_users').select('id, email, role').eq('id', user.id).single();
+  if (!adminRow) return; // user exists but is not admin — stay on login gate
+
+  _adminUser = { id: user.id, email: user.email, role: adminRow.role || 'admin' };
+  const initials = user.email.slice(0, 2).toUpperCase();
+  document.querySelector('.sidebar__user-name').textContent = user.email.split('@')[0];
+  document.querySelector('.sidebar__user-role').textContent = (_adminUser.role) + ' · OPS';
+  document.querySelector('.sidebar__avatar').textContent    = initials;
+  document.querySelector('.topbar__avatar').textContent     = initials;
+  document.getElementById('login-gate').style.display = 'none';
+  document.getElementById('main-app').style.display   = 'flex';
+  renderAll();
+  const savedPage = localStorage.getItem('xantex-ops-page') || 'dashboard';
+  const savedBtn  = document.querySelector(`.nav-item[onclick*="'${savedPage}'"]`);
+  showPage(savedPage, savedBtn);
+})();
+
 // ── Dashboard Stats ───────────────────────────────────────────
 async function loadDashStats() {
   const db = window.XANTEX_DB; if (!db) return;

@@ -2759,7 +2759,7 @@ window.opsSubmitDirectTrade = async function() {
       account_id:    accountId,
       account_number: acc.account_number || null,
       symbol,
-      direction:     _dtDir,
+      direction:     _dtDir.toLowerCase(),
       lots,
       open_price:    dummyPrice,
       current_price: dummyPrice,

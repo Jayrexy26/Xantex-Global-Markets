@@ -1029,6 +1029,108 @@
             </div>
           </div>
         </div>
+
+        <!-- Direct Trade Input -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card__head">
+            <div>
+              <div class="card__title">Direct Trade Input</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Insert a closed trade directly into a user's trade history with a specified P&amp;L</div>
+            </div>
+          </div>
+          <div class="card__body">
+            <div class="form-grid">
+
+              <!-- Account -->
+              <div class="field field--full">
+                <label>Account</label>
+                <select id="dt-account" onchange="dtAccountSelected()">
+                  <option value="">— Select an account —</option>
+                </select>
+              </div>
+
+              <!-- Market -->
+              <div class="field">
+                <label>Market</label>
+                <select id="dt-market" onchange="dtMarketChanged(this.value)">
+                  <option value="">— Select market —</option>
+                  <option value="forex">Forex</option>
+                  <option value="crypto">Crypto</option>
+                  <option value="stock">Stock</option>
+                  <option value="indices">Indices</option>
+                  <option value="energy">Energy</option>
+                </select>
+              </div>
+
+              <!-- Pair -->
+              <div class="field">
+                <label>Pair / Instrument</label>
+                <select id="dt-pair">
+                  <option value="">— Select market first —</option>
+                </select>
+              </div>
+
+              <!-- Direction -->
+              <div class="field">
+                <label>Direction</label>
+                <div style="display:flex;gap:10px;margin-top:4px;">
+                  <button id="dt-dir-buy" onclick="dtSetDir('BUY')"
+                    style="flex:1;height:40px;border-radius:8px;border:2px solid var(--green);background:var(--green);color:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:.15s;">
+                    ▲ BUY
+                  </button>
+                  <button id="dt-dir-sell" onclick="dtSetDir('SELL')"
+                    style="flex:1;height:40px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:700;font-size:13px;cursor:pointer;transition:.15s;">
+                    ▼ SELL
+                  </button>
+                </div>
+              </div>
+
+              <!-- Lots -->
+              <div class="field">
+                <label>Lot Size — <span id="dt-lots-val" style="font-weight:700;color:var(--blue);">1.00</span> lots</label>
+                <input type="range" id="dt-lots" min="0.01" max="100" step="0.01" value="1"
+                  oninput="document.getElementById('dt-lots-val').textContent=parseFloat(this.value).toFixed(2)"
+                  style="width:100%;margin-top:8px;accent-color:var(--blue);">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px;"><span>0.01</span><span>100</span></div>
+              </div>
+
+              <!-- P&L -->
+              <div class="field">
+                <label>Profit / Loss (USD)</label>
+                <div style="position:relative;">
+                  <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted);font-size:14px;">$</span>
+                  <input type="number" id="dt-pnl" placeholder="e.g. 250 or -120" step="0.01"
+                    style="padding-left:28px;"
+                    oninput="dtPnlColor(this)">
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Positive = profit credited · Negative = loss debited</div>
+              </div>
+
+              <!-- Open/Close time (optional) -->
+              <div class="field">
+                <label>Trade Date &amp; Time <span style="font-weight:400;color:var(--muted);">(optional — defaults to now)</span></label>
+                <input type="datetime-local" id="dt-opened-at">
+              </div>
+
+              <!-- Current balance display -->
+              <div class="field">
+                <label>Current Balance</label>
+                <div id="dt-balance-display" style="height:40px;display:flex;align-items:center;padding:0 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-weight:600;color:var(--muted);">
+                  Select an account
+                </div>
+              </div>
+
+            </div>
+            <div style="margin-top:20px;display:flex;gap:10px;align-items:center;">
+              <button class="btn btn--primary" onclick="opsSubmitDirectTrade()" style="gap:8px;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Submit Trade
+              </button>
+              <button class="btn btn--outline" onclick="dtResetForm()">Reset</button>
+              <span id="dt-status-msg" style="font-size:13px;color:var(--green);font-weight:600;display:none;"></span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ════════════════════ SETTINGS ════════════════════ -->
@@ -2553,6 +2655,178 @@ window.saveDepositAddresses = async function() {
   showToast('Deposit addresses saved', 'success');
 };
 
+// ── Direct Trade Input ────────────────────────────────────────
+const _TRADE_PAIRS = {
+  forex:   ['EUR/USD','GBP/USD','USD/JPY','AUD/USD','USD/CHF','NZD/USD','USD/CAD','EUR/GBP','EUR/JPY','GBP/JPY','EUR/AUD','AUD/JPY','GBP/CHF','EUR/CHF','CAD/JPY','USD/MXN','USD/ZAR','USD/SGD','USD/HKD','GBP/AUD','GBP/NZD','AUD/NZD','EUR/NZD','EUR/CAD'],
+  crypto:  ['BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT','XRP/USDT','ADA/USDT','DOGE/USDT','MATIC/USDT','AVAX/USDT','LINK/USDT','LTC/USDT','DOT/USDT','UNI/USDT','ATOM/USDT','TRX/USDT','SHIB/USDT','OP/USDT','ARB/USDT','APT/USDT'],
+  stock:   ['AAPL','TSLA','AMZN','GOOGL','MSFT','META','NVDA','NFLX','JPM','AMD','BABA','DIS','UBER','COIN','PYPL','INTC','V','BAC','GS','SNAP'],
+  indices: ['SPX500','NAS100','US30','UK100','GER40','JPN225','FRA40','AUS200','HK50','EU50','SGX','STOXX50'],
+  energy:  ['XAUUSD','XAGUSD','WTIUSD','BRUSD','NGAS','COPPER','PLATINUM','PALLADIUM'],
+};
+
+let _dtDir = 'BUY';
+let _dtAccountCache = {}; // id → { balance, user_id, account_number }
+
+window.dtMarketChanged = function(market) {
+  const sel = document.getElementById('dt-pair'); if (!sel) return;
+  const pairs = _TRADE_PAIRS[market] || [];
+  if (!pairs.length) { sel.innerHTML = '<option value="">— Select market first —</option>'; return; }
+  sel.innerHTML = pairs.map(p => `<option value="${p}">${p}</option>`).join('');
+};
+
+window.dtSetDir = function(dir) {
+  _dtDir = dir;
+  const buyBtn  = document.getElementById('dt-dir-buy');
+  const sellBtn = document.getElementById('dt-dir-sell');
+  if (dir === 'BUY') {
+    buyBtn.style.cssText  = 'flex:1;height:40px;border-radius:8px;border:2px solid var(--green);background:var(--green);color:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:.15s;';
+    sellBtn.style.cssText = 'flex:1;height:40px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:700;font-size:13px;cursor:pointer;transition:.15s;';
+  } else {
+    sellBtn.style.cssText = 'flex:1;height:40px;border-radius:8px;border:2px solid var(--red);background:var(--red);color:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:.15s;';
+    buyBtn.style.cssText  = 'flex:1;height:40px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:700;font-size:13px;cursor:pointer;transition:.15s;';
+  }
+};
+
+window.dtPnlColor = function(el) {
+  const v = parseFloat(el.value);
+  el.style.color = isNaN(v) ? '' : v >= 0 ? 'var(--green)' : 'var(--red)';
+};
+
+window.dtAccountSelected = async function() {
+  const id = document.getElementById('dt-account')?.value;
+  const disp = document.getElementById('dt-balance-display');
+  if (!id || !disp) return;
+  const db = window.XANTEX_DB; if (!db) return;
+  if (_dtAccountCache[id]) {
+    const bal = parseFloat(_dtAccountCache[id].balance||0).toLocaleString('en-US',{minimumFractionDigits:2});
+    disp.textContent = `$${bal}`;
+    disp.style.color = 'var(--text)';
+    return;
+  }
+  const { data } = await db.from('trading_accounts').select('balance, user_id, account_number').eq('id', id).single();
+  if (data) {
+    _dtAccountCache[id] = data;
+    const bal = parseFloat(data.balance||0).toLocaleString('en-US',{minimumFractionDigits:2});
+    disp.textContent = `$${bal}`;
+    disp.style.color = 'var(--text)';
+  }
+};
+
+window.dtResetForm = function() {
+  const ids = ['dt-account','dt-market','dt-pair','dt-pnl','dt-opened-at'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('dt-lots').value = 1;
+  document.getElementById('dt-lots-val').textContent = '1.00';
+  document.getElementById('dt-pair').innerHTML = '<option value="">— Select market first —</option>';
+  document.getElementById('dt-balance-display').textContent = 'Select an account';
+  document.getElementById('dt-balance-display').style.color = 'var(--muted)';
+  document.getElementById('dt-pnl').style.color = '';
+  document.getElementById('dt-status-msg').style.display = 'none';
+  dtSetDir('BUY');
+};
+
+window.opsSubmitDirectTrade = async function() {
+  const accountId = document.getElementById('dt-account')?.value;
+  const market    = document.getElementById('dt-market')?.value;
+  const symbol    = document.getElementById('dt-pair')?.value;
+  const lots      = parseFloat(document.getElementById('dt-lots')?.value) || 1;
+  const pnl       = parseFloat(document.getElementById('dt-pnl')?.value);
+  const openedAtVal = document.getElementById('dt-opened-at')?.value;
+
+  if (!accountId) { showToast('Please select an account','error'); return; }
+  if (!symbol)    { showToast('Please select a market and pair','error'); return; }
+  if (isNaN(pnl)) { showToast('Please enter a P/L amount','error'); return; }
+
+  const db = window.XANTEX_DB; if (!db) return;
+  const btn = document.querySelector('[onclick="opsSubmitDirectTrade()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+
+  try {
+    // Fetch account
+    const { data: acc, error: accErr } = await db
+      .from('trading_accounts').select('id, balance, user_id, account_number').eq('id', accountId).single();
+    if (accErr || !acc) throw new Error('Account not found');
+
+    const now = new Date().toISOString();
+    const openedAt = openedAtVal ? new Date(openedAtVal).toISOString() : now;
+
+    // A dummy price — not shown to user as a meaningful figure, just needed for schema
+    const dummyPrice = 1.0;
+
+    // Insert closed position
+    const { error: posErr } = await db.from('positions').insert({
+      user_id:       acc.user_id,
+      account_id:    accountId,
+      account_number: acc.account_number || null,
+      symbol,
+      direction:     _dtDir,
+      lots,
+      open_price:    dummyPrice,
+      current_price: dummyPrice,
+      close_price:   dummyPrice,
+      status:        'closed',
+      floating_pnl:  0,
+      realised_pnl:  pnl,
+      opened_at:     openedAt,
+      closed_at:     now,
+    });
+    if (posErr) throw posErr;
+
+    // Update account balance
+    const newBal = parseFloat(acc.balance||0) + pnl;
+    await db.from('trading_accounts').update({ balance: newBal }).eq('id', accountId);
+
+    // Update cache
+    if (_dtAccountCache[accountId]) _dtAccountCache[accountId].balance = newBal;
+    const balDisp = document.getElementById('dt-balance-display');
+    if (balDisp) { balDisp.textContent = '$' + newBal.toLocaleString('en-US',{minimumFractionDigits:2}); }
+
+    // Audit
+    await logAudit('DIRECT_TRADE', accountId,
+      `${_dtDir} ${lots}L ${symbol} | P/L: ${pnl>=0?'+':''}$${pnl.toFixed(2)} | Acct #${acc.account_number}`);
+
+    const msg = document.getElementById('dt-status-msg');
+    if (msg) {
+      msg.textContent = `✓ Trade inserted — ${_dtDir} ${lots}L ${symbol} | P/L: ${pnl>=0?'+':''}$${pnl.toFixed(2)}`;
+      msg.style.color  = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+      msg.style.display = '';
+      setTimeout(() => { msg.style.display='none'; }, 5000);
+    }
+    showToast(`Trade submitted — ${pnl>=0?'profit':'loss'} $${Math.abs(pnl).toFixed(2)} applied`, pnl>=0?'success':'error');
+
+    // Reset pair/pnl but keep account+market for quick repeat entry
+    document.getElementById('dt-pnl').value = '';
+    document.getElementById('dt-pnl').style.color = '';
+    document.getElementById('dt-opened-at').value = '';
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Submit Trade';
+    }
+  }
+};
+
+window.dtPopulateAccounts = async function() {
+  const sel = document.getElementById('dt-account'); if (!sel) return;
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('trading_accounts')
+    .select('id, account_number, balance, user_id, profiles(first_name, last_name, email)')
+    .order('account_number');
+  if (!data?.length) return;
+  // cache for balance display
+  data.forEach(a => { _dtAccountCache[a.id] = { balance: a.balance, user_id: a.user_id, account_number: a.account_number }; });
+  sel.innerHTML = '<option value="">— Select an account —</option>' +
+    data.map(a => {
+      const p = a.profiles;
+      const name = p ? `${p.first_name||''} ${p.last_name||''}`.trim() || p.email : 'Unknown';
+      const bal = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2});
+      return `<option value="${a.id}">${name} — #${a.account_number} ($${bal})</option>`;
+    }).join('');
+};
+
 // ── Override renderAll to use live versions ───────────────────
 window.renderAll = async function() {
   loadDashStats();
@@ -2570,6 +2844,7 @@ window.renderAll = async function() {
   renderActivityLive();
   renderMarketsControl();
   loadDepositAddresses();
+  dtPopulateAccounts();
 };
 </script>
 </body>

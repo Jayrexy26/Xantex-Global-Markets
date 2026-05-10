@@ -235,6 +235,21 @@
     .pill-purple { background: var(--purple-lt); color: var(--purple); }
     .pill-grey   { background: var(--bg);        color: var(--muted); }
 
+    /* Plan upgrade option rows */
+    .plan-option {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 10px;
+      border: 1.5px solid var(--border); cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .plan-option:hover { border-color: var(--blue); background: var(--blue-lt); }
+    .plan-option input[type=radio] { accent-color: var(--blue); flex-shrink: 0; }
+    .plan-option input[type=radio]:checked ~ * { color: var(--text); }
+    .plan-option:has(input:checked) { border-color: var(--blue); background: var(--blue-lt); }
+    .plan-option__content { flex: 1; }
+    .plan-option__name { display: block; font-size: 13px; font-weight: 600; }
+    .plan-option__desc { display: block; font-size: 11px; color: var(--muted); margin-top: 1px; }
+
     /* User avatar in table */
     .user-cell { display: flex; align-items: center; gap: 10px; }
     .user-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
@@ -703,7 +718,7 @@
               <thead><tr>
                 <th><input type="checkbox" onchange="toggleSelectAll(this)"></th>
                 <th>User</th><th>Country</th><th>Account Type</th>
-                <th>Balance</th><th>Joined</th><th>Status</th><th>KYC</th><th>Actions</th>
+                <th>Balance</th><th>Joined</th><th>Status</th><th>KYC</th><th>Plan</th><th>Actions</th>
               </tr></thead>
               <tbody id="users-tbody"></tbody>
             </table>
@@ -1316,6 +1331,60 @@
 
 <!-- ════════ MODALS ════════ -->
 
+<!-- Upgrade Plan -->
+<div class="modal-overlay" id="modal-upgrade-plan">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal__head">
+      <div class="modal__title">Upgrade Account Plan</div>
+      <button class="modal__close" onclick="closeModal('modal-upgrade-plan')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:18px;">
+        Changing plan for <strong id="upgrade-user-name" style="color:var(--text);"></strong>
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;" id="plan-option-list">
+        <label class="plan-option" data-plan="Standard">
+          <input type="radio" name="plan-select" value="Standard">
+          <div class="plan-option__content">
+            <span class="plan-option__name">Standard</span>
+            <span class="plan-option__desc">Default tier — no upgrade fee</span>
+          </div>
+          <span class="badge-pill pill-blue">Standard</span>
+        </label>
+        <label class="plan-option" data-plan="RAW+">
+          <input type="radio" name="plan-select" value="RAW+">
+          <div class="plan-option__content">
+            <span class="plan-option__name">RAW+</span>
+            <span class="plan-option__desc">Balance limit $50,000 — $500 fee</span>
+          </div>
+          <span class="badge-pill pill-blue">RAW+</span>
+        </label>
+        <label class="plan-option" data-plan="ELITE">
+          <input type="radio" name="plan-select" value="ELITE">
+          <div class="plan-option__content">
+            <span class="plan-option__name">ELITE</span>
+            <span class="plan-option__desc">Balance limit $100,000 — $1,000 fee</span>
+          </div>
+          <span class="badge-pill pill-purple">ELITE</span>
+        </label>
+        <label class="plan-option" data-plan="MASTER">
+          <input type="radio" name="plan-select" value="MASTER">
+          <div class="plan-option__content">
+            <span class="plan-option__name">MASTER</span>
+            <span class="plan-option__desc">Balance limit $1,000,000 — $5,000 fee</span>
+          </div>
+          <span class="badge-pill pill-orange">MASTER</span>
+        </label>
+      </div>
+      <input type="hidden" id="upgrade-user-id">
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="closeModal('modal-upgrade-plan')">Cancel</button>
+      <button class="btn btn--primary" onclick="saveUpgradePlan()">Save Plan</button>
+    </div>
+  </div>
+</div>
+
 <!-- Add User -->
 <div class="modal-overlay" id="modal-add-user">
   <div class="modal">
@@ -1722,7 +1791,7 @@ async function _loadUsers() {
   const db = window.XANTEX_DB;
   if (!db) return null;
   const [{ data: profiles }, { data: accounts }] = await Promise.all([
-    db.from('profiles').select('id, first_name, last_name, email, country, kyc_status, status, created_at').order('created_at', { ascending: false }),
+    db.from('profiles').select('id, first_name, last_name, email, country, kyc_status, status, plan, created_at').order('created_at', { ascending: false }),
     db.from('trading_accounts').select('user_id, balance, type'),
   ]);
   if (!profiles?.length) return null;
@@ -1741,6 +1810,7 @@ async function _loadUsers() {
       joined:  new Date(p.created_at).toLocaleDateString('en-GB'),
       status:  p.status || 'active',
       kyc:     p.kyc_status || 'pending',
+      plan:    p.plan || 'Standard',
       color:   COLORS[i % COLORS.length],
     };
   });
@@ -1757,12 +1827,14 @@ function _renderUsersTable(users) {
       <td>${u.joined}</td>
       <td><span class="badge-pill ${u.status==='active'?'pill-green':u.status==='suspended'?'pill-orange':'pill-red'}">${u.status}</span></td>
       <td><span class="badge-pill ${u.kyc==='verified'?'pill-blue':u.kyc==='pending'?'pill-orange':'pill-red'}">${u.kyc}</span></td>
+      <td><span class="badge-pill ${ {Standard:'pill-blue',['RAW+']:'pill-blue',ELITE:'pill-purple',MASTER:'pill-orange'}[u.plan]||'pill-blue' }">${u.plan}</span></td>
       <td><div class="row-actions">
+        <button class="btn btn--sm btn--primary" onclick="openUpgradePlan('${u.id}','${u.name.replace(/'/g,"\\'")}','${u.plan}')">Upgrade</button>
         <button class="btn btn--sm btn--${u.status==='active'?'orange':'green'}" onclick="toggleUserStatus('${u.id}','${u.status}')">${u.status==='active'?'Suspend':'Activate'}</button>
         <button class="btn btn--sm btn--red" onclick="deleteUser('${u.id}')">Delete</button>
       </div></td>
     </tr>`).join('')
-    : '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">No users found</td></tr>';
+    : '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:24px;">No users found</td></tr>';
 }
 
 function renderRecentUsersLive(users) {
@@ -1856,6 +1928,28 @@ window.deleteUser = async function(userId) {
   await logAudit('User Deleted', userId, 'User permanently deleted by admin');
   showToast('User deleted', 'error');
   renderUsersLive(); loadDashStats();
+};
+
+window.openUpgradePlan = function(userId, userName, currentPlan) {
+  document.getElementById('upgrade-user-id').value = userId;
+  document.getElementById('upgrade-user-name').textContent = userName;
+  document.querySelectorAll('input[name=plan-select]').forEach(r => {
+    r.checked = r.value === currentPlan;
+  });
+  openModal('modal-upgrade-plan');
+};
+
+window.saveUpgradePlan = async function() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const userId = document.getElementById('upgrade-user-id').value;
+  const plan   = document.querySelector('input[name=plan-select]:checked')?.value;
+  if (!plan) { showToast('Please select a plan', 'error'); return; }
+  const { error } = await db.from('profiles').update({ plan }).eq('id', userId);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  await logAudit('Plan Changed', userId, `Account plan set to ${plan}`);
+  showToast(`Plan updated to ${plan}`, 'success');
+  closeModal('modal-upgrade-plan');
+  renderUsersLive();
 };
 
 // ── KYC ───────────────────────────────────────────────────────

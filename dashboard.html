@@ -3028,7 +3028,7 @@ function savePreferences() {
       if (error) throw error;
 
       if (btn) { btn.disabled = false; btn.textContent = 'Submit for Review'; }
-      if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Documents submitted! We'll review within 24 hours.'; }
+      if (msg) { msg.style.color = 'var(--green)'; msg.textContent = `Documents submitted! We'll review within 24 hours.`; }
       setTimeout(() => closeModal('kyc-submit'), 2500);
       if (window._applyAvatar) window._applyAvatar(selfieUrl, window._currentInit || '?');
       Object.assign(_profile, { kyc_status: 'pending', avatar_url: selfieUrl });

@@ -2164,7 +2164,8 @@
   function _renderAccountsPage() {
     const list = document.getElementById('accounts-page-list');
     if (!list) return;
-    if (!accounts || accounts.length === 0) {
+    const accounts = (window._dashData || {}).accounts || [];
+    if (!accounts.length) {
       list.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);">No accounts yet</div>';
       return;
     }
@@ -2731,7 +2732,7 @@ function savePreferences() {
   }
 
   // ── Expose data for history page renderer ─────────────────
-  window._dashData = { txns, wdReqs, depReqs };
+  window._dashData = { txns, wdReqs, depReqs, accounts };
 
   // ── Notification bell dot ─────────────────────────────────
   try {

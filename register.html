@@ -794,10 +794,19 @@
     submitBtn.disabled = true;
 
     const db = window.XANTEX_DB;
+    const fullPhone = phoneCode + phone;
     const { data, error } = await db.auth.signUp({
       email,
       password,
-      options: { data: { first_name: firstName, last_name: lastName } },
+      options: {
+        data: {
+          first_name:    firstName,
+          last_name:     lastName,
+          phone:         fullPhone,
+          country,
+          date_of_birth: dob || '',
+        },
+      },
     });
 
     if (error) {
@@ -808,63 +817,62 @@
     }
 
     if (data.user) {
-      const userId = data.user.id;
+      const userId  = data.user.id;
+      const session = data.session;
 
-      // Save profile including date of birth
-      await db.from('profiles').upsert({
-        id:            userId,
-        first_name:    firstName,
-        last_name:     lastName,
-        email,
-        phone:         phoneCode + phone,
-        country,
-        date_of_birth: dob,
-        kyc_status:    'pending',
-      });
+      // If we have a live session, update profile with all fields and upload files
+      if (session) {
+        await db.from('profiles').update({
+          phone:         fullPhone,
+          country,
+          date_of_birth: dob || null,
+          kyc_status:    'pending',
+        }).eq('id', userId);
 
-      // Upload KYC documents and record submission
-      try {
-        let frontUrl = null, backUrl = null, selfieUrl = null;
+        try {
+          let frontUrl = null, backUrl = null, selfieUrl = null;
 
-        if (idFile) {
-          const ext = idFile.name.split('.').pop().toLowerCase();
-          const { error: e } = await db.storage.from('kyc-docs').upload(`${userId}/id-front.${ext}`, idFile, { upsert: true });
-          if (!e) frontUrl = `${userId}/id-front.${ext}`;
-        }
-
-        const idBackFile = document.getElementById('upload-id-back').files[0];
-        if (idBackFile) {
-          const ext = idBackFile.name.split('.').pop().toLowerCase();
-          const { error: e } = await db.storage.from('kyc-docs').upload(`${userId}/id-back.${ext}`, idBackFile, { upsert: true });
-          if (!e) backUrl = `${userId}/id-back.${ext}`;
-        }
-
-        const selfieFile = document.getElementById('upload-selfie').files[0];
-        if (selfieFile) {
-          const ext      = selfieFile.name.split('.').pop().toLowerCase();
-          const avatarPath = `${userId}/avatar.${ext}`;
-          const { error: e } = await db.storage.from('avatars').upload(avatarPath, selfieFile, { upsert: true });
-          if (!e) {
-            const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(avatarPath);
-            selfieUrl = publicUrl;
-            // Save avatar to profile
-            await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId);
+          if (idFile) {
+            const ext = idFile.name.split('.').pop().toLowerCase();
+            const { error: e } = await db.storage.from('kyc-docs').upload(`${userId}/id-front.${ext}`, idFile, { upsert: true });
+            if (!e) frontUrl = `${userId}/id-front.${ext}`;
           }
-        }
 
-        if (frontUrl || backUrl || selfieUrl) {
-          await db.from('kyc_submissions').insert({
-            user_id:     userId,
-            front_url:   frontUrl,
-            back_url:    backUrl,
-            selfie_url:  selfieUrl,
-            status:      'pending',
-            submitted_at: new Date().toISOString(),
-          });
+          const idBackFile = document.getElementById('upload-id-back').files[0];
+          if (idBackFile) {
+            const ext = idBackFile.name.split('.').pop().toLowerCase();
+            const { error: e } = await db.storage.from('kyc-docs').upload(`${userId}/id-back.${ext}`, idBackFile, { upsert: true });
+            if (!e) backUrl = `${userId}/id-back.${ext}`;
+          }
+
+          const selfieFile = document.getElementById('upload-selfie').files[0];
+          if (selfieFile) {
+            const ext        = selfieFile.name.split('.').pop().toLowerCase();
+            const avatarPath = `${userId}/avatar.${ext}`;
+            const { error: e } = await db.storage.from('avatars').upload(avatarPath, selfieFile, { upsert: true });
+            if (!e) {
+              const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(avatarPath);
+              selfieUrl = publicUrl;
+              await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId);
+            }
+          }
+
+          if (frontUrl || backUrl || selfieUrl) {
+            await db.from('kyc_submissions').insert({
+              user_id:      userId,
+              document_type: idType || 'National ID',
+              front_url:    frontUrl,
+              back_url:     backUrl,
+              selfie_url:   selfieUrl,
+              status:       'pending',
+            });
+          }
+        } catch (kycErr) {
+          console.error('KYC upload error:', kycErr);
         }
-      } catch (kycErr) {
-        console.error('KYC upload error:', kycErr);
       }
+      // If no session (email confirmation required), the trigger already saved
+      // phone/country/DOB from signUp metadata — uploads will be available after login
     }
 
     submitBtn.classList.remove('loading');

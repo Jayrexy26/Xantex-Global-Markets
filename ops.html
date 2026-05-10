@@ -919,7 +919,10 @@
             <div class="form-grid">
               <div class="field field--full">
                 <label>Title</label>
-                <input type="text" placeholder="Announcement title…" id="ann-title">
+                <select id="ann-title">
+                  <option value="Notice 🔔">Notice 🔔</option>
+                  <option value="Attention ⚠️">Attention ⚠️</option>
+                </select>
               </div>
               <div class="field field--full">
                 <label>Message</label>
@@ -1957,7 +1960,8 @@ async function populateAnnUserDropdown() {
 
 window.resetAnnForm = function() {
   _editingAnnId = null;
-  ['ann-title','ann-body'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  const annTitle = document.getElementById('ann-title'); if(annTitle) annTitle.selectedIndex = 0;
+  const annBody = document.getElementById('ann-body'); if(annBody) annBody.value = '';
   const aud = document.getElementById('ann-audience'); if(aud) aud.value = 'all';
   const type = document.getElementById('ann-type'); if(type) type.value = 'info';
   const wrap = document.getElementById('ann-specific-wrap'); if(wrap) wrap.style.display='none';

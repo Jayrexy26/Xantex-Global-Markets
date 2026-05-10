@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Trade History — Xantex Global Markets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:      #e60023;
+      --blue:     #1a5cff;
+      --blue-dk:  #1244cc;
+      --blue-lt:  #e8eeff;
+      --green:    #22a06b;
+      --green-lt: #e6f7ef;
+      --orange:   #f5a623;
+      --bg:       #f4f6f9;
+      --white:    #ffffff;
+      --text:     #111111;
+      --muted:    #666666;
+      --border:   #e0e3e8;
+      --sidebar-w: 240px;
+      --topbar-h:  64px;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.6; }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+    ul { list-style: none; }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w); background: #0d1120; color: #fff;
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 200;
+      transition: transform 0.25s ease;
+    }
+    .sidebar__logo {
+      height: var(--topbar-h); display: flex; align-items: center;
+      padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
+    }
+    .sidebar__logo img     { height: 130px; width: auto; }
+    .sidebar__logo-text    { font-size: 22px; font-weight: 700; color: var(--red); }
+    .sidebar__nav          { flex: 1; overflow-y: auto; padding: 12px 0; }
+    .sidebar__section-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 16px 20px 6px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.6); cursor: pointer;
+      border: none; background: none; width: 100%; text-align: left;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-item:hover  { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-item.active { background: rgba(26,92,255,0.18); color: #fff; border-left: 3px solid var(--blue); }
+    .nav-item svg    { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; flex-shrink: 0; }
+    .sidebar__footer {
+      padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar__avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden;
+    }
+    .sidebar__user-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .sidebar__user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .sidebar__logout    { margin-left: auto; background: none; border: none; color: rgba(255,255,255,0.4); padding: 4px; cursor: pointer; }
+    .sidebar__logout:hover { color: var(--red); }
+    .sidebar__logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* Mobile sidebar */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.4); }
+      .topbar__hamburger { display: flex !important; }
+      .main { margin-left: 0 !important; }
+    }
+
+    /* ── Main ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: var(--topbar-h); background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 20px; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar__hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; padding: 4px; cursor: pointer;
+    }
+    .topbar__hamburger span { display: block; width: 20px; height: 2px; background: var(--text); border-radius: 2px; }
+    .topbar__title { font-size: 16px; font-weight: 700; flex: 1; }
+    .topbar__right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+    .topbar__avatar {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff; overflow: hidden;
+    }
+    .dark-toggle {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--bg); border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    .dark-toggle:hover { border-color: var(--blue); }
+    .dark-toggle svg { width: 16px; height: 16px; fill: none; stroke: var(--text); stroke-width: 2; }
+
+    /* ── Content ── */
+    .content { flex: 1; padding: 28px 24px; }
+
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 16px; }
+    .page-header__title { font-size: 22px; font-weight: 700; }
+    .page-header__sub   { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Card ── */
+    .card { background: #fff; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
+
+    /* ── Stats row ── */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); padding: 18px 20px; }
+    .stat-card__label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 8px; }
+    .stat-card__value { font-size: 24px; font-weight: 700; }
+    .stat-card__value.up   { color: var(--green); }
+    .stat-card__value.down { color: var(--red); }
+
+    /* ── Filter bar ── */
+    .filter-bar { display: flex; gap: 10px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    .filter-btn {
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn.active, .filter-btn:hover { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    /* ── Table ── */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--muted);
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      text-align: left; white-space: nowrap;
+    }
+    .data-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover { background: var(--bg); }
+
+    /* Direction badges */
+    .dir-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .dir-badge.buy  { background: var(--green-lt); color: var(--green); }
+    .dir-badge.sell { background: rgba(230,0,35,0.10); color: var(--red); }
+
+    /* ── Dark mode ── */
+    body.dark { background: #0f1117; color: #e8eaf0; }
+    body.dark .topbar        { background: #1a1d27; border-color: #2a2d3a; }
+    body.dark .topbar__title { color: #e8eaf0; }
+    body.dark .card          { background: #1a1d27; border-color: #2a2d3a; }
+    body.dark .stat-card     { background: #1a1d27; border-color: #2a2d3a; }
+    body.dark .data-table th { color: #666d80; border-color: #2a2d3a; }
+    body.dark .data-table td { border-color: #2a2d3a; color: #c0c4d0; }
+    body.dark .data-table tbody tr:hover { background: #0f1117; }
+    body.dark .filter-bar    { border-color: #2a2d3a; }
+    body.dark .filter-btn    { border-color: #2a2d3a; color: #666d80; }
+    body.dark .dark-toggle   { background: #0f1117; border-color: #2a2d3a; }
+    body.dark .dark-toggle svg { stroke: #e8eaf0; }
+    body.dark .page-header__sub { color: #666d80; }
+    body.dark .stat-card__label { color: #666d80; }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    body.dark ::-webkit-scrollbar-thumb { background: #2a2d3a; }
+    * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <img src="/images/logo.png" alt="Xantex" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="sidebar__logo-text" style="display:none;">Xantex</span>
+    </div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Main</div>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" onclick="window.location.href='trade.html'">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Trade
+      </button>
+      <button class="nav-item" onclick="window.location.href='markets.html'">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Markets
+      </button>
+      <div class="sidebar__section-label">Finance</div>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Deposit
+      </button>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
+        Withdraw
+      </button>
+      <button class="nav-item active" onclick="window.location.href='trade-history.html'">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/><circle cx="12" cy="12" r="3" fill="none"/></svg>
+        Trade History
+      </button>
+      <button class="nav-item" onclick="window.location.href='history.html'">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Transaction History
+      </button>
+      <button class="nav-item" onclick="window.location.href='notifications.html'">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+      </button>
+      <div class="sidebar__section-label">Account</div>
+      <button class="nav-item" onclick="window.location.href='settings.html#documents'">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Verification
+      </button>
+      <button class="nav-item" onclick="window.location.href='settings.html'">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="sidebar__avatar"></div>
+      <div>
+        <div class="sidebar__user-name"></div>
+        <div class="sidebar__user-role">Live account</div>
+      </div>
+      <button class="sidebar__logout" onclick="signOut()" title="Sign out">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="topbar__hamburger" id="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar__title">Trade History</div>
+      <div class="topbar__right">
+        <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">
+          <svg id="dark-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div class="topbar__avatar"></div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <div class="page-header">
+        <div>
+          <div class="page-header__title">Trade History</div>
+          <div class="page-header__sub">All your closed trades and realised P&amp;L</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card__label">Total Trades</div>
+          <div class="stat-card__value" id="stat-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Realised P&amp;L</div>
+          <div class="stat-card__value" id="stat-pnl">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Win Rate</div>
+          <div class="stat-card__value" id="stat-winrate">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">Best Trade</div>
+          <div class="stat-card__value up" id="stat-best">—</div>
+        </div>
+      </div>
+
+      <!-- Table card -->
+      <div class="card">
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterTrades('all',this)">All</button>
+          <button class="filter-btn" onclick="filterTrades('buy',this)">Buy</button>
+          <button class="filter-btn" onclick="filterTrades('sell',this)">Sell</button>
+          <button class="filter-btn" onclick="filterTrades('profit',this)">Profit</button>
+          <button class="filter-btn" onclick="filterTrades('loss',this)">Loss</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Direction</th>
+                <th>Lots</th>
+                <th>Open Price</th>
+                <th>Close Price</th>
+                <th>Realised P&amp;L</th>
+                <th>Date Closed</th>
+              </tr>
+            </thead>
+            <tbody id="trade-history-tbody">
+              <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script src="./notif-popup.js"></script>
+<script>
+  if (localStorage.getItem('xantex-theme') === 'dark') document.body.classList.add('dark');
+
+  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+  document.addEventListener('click', e => {
+    const sb = document.getElementById('sidebar');
+    const hb = document.getElementById('hamburger');
+    if (sb.classList.contains('open') && !sb.contains(e.target) && !hb.contains(e.target)) sb.classList.remove('open');
+  });
+
+  function toggleDark() {
+    const isDark = document.body.classList.toggle('dark');
+    const sun  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+    const moon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+    document.getElementById('dark-icon').innerHTML = isDark ? sun : moon;
+    localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
+  }
+  if (document.body.classList.contains('dark')) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('dark-icon');
+      if (el) el.innerHTML = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+    });
+  }
+
+  async function signOut() { await window.XANTEX_DB.auth.signOut(); window.location.href = 'login.html'; }
+
+  let _allTrades = [];
+
+  function fmtPx(v) {
+    const n = parseFloat(v);
+    if (isNaN(n)) return '—';
+    return n >= 100
+      ? n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : n.toFixed(5);
+  }
+
+  function renderTable(trades) {
+    const tbody = document.getElementById('trade-history-tbody');
+    if (!trades.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">No trades found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = trades.map(t => {
+      const pnl    = parseFloat(t.realised_pnl || 0);
+      const pnlStr = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
+      const pnlCol = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+      const dir    = (t.direction || 'buy').toLowerCase();
+      const date   = t.closed_at ? new Date(t.closed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+      return `<tr>
+        <td style="font-weight:700;">${t.symbol}</td>
+        <td><span class="dir-badge ${dir}">${dir.toUpperCase()}</span></td>
+        <td>${parseFloat(t.lots).toFixed(2)}</td>
+        <td>${fmtPx(t.open_price)}</td>
+        <td>${t.close_price ? fmtPx(t.close_price) : '—'}</td>
+        <td style="font-weight:700;color:${pnlCol};">${pnlStr}</td>
+        <td style="color:var(--muted);font-size:12px;">${date}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  window.filterTrades = function(type, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    let filtered = _allTrades;
+    if (type === 'buy')    filtered = _allTrades.filter(t => t.direction === 'buy');
+    if (type === 'sell')   filtered = _allTrades.filter(t => t.direction === 'sell');
+    if (type === 'profit') filtered = _allTrades.filter(t => parseFloat(t.realised_pnl || 0) > 0);
+    if (type === 'loss')   filtered = _allTrades.filter(t => parseFloat(t.realised_pnl || 0) < 0);
+    renderTable(filtered);
+  };
+
+  (async () => {
+    const db = window.XANTEX_DB;
+    if (!db) return;
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    const userId = session.user.id;
+    initNotifPopup(db, userId);
+
+    // Profile
+    const { data: profile } = await db.from('profiles').select('first_name,last_name,avatar_url').eq('id', userId).single();
+    if (profile) {
+      const init = ((profile.first_name || '')[0] || (profile.last_name || '')[0] || '?').toUpperCase()
+                 + ((profile.last_name || '')[0] || '').toUpperCase();
+      const name = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || session.user.email;
+      document.querySelectorAll('.sidebar__avatar,.topbar__avatar').forEach(el => el.textContent = init);
+      document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
+      if (profile.avatar_url) {
+        document.querySelectorAll('.sidebar__avatar,.topbar__avatar').forEach(el => {
+          el.innerHTML = `<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        });
+      }
+    }
+
+    // Fetch closed trades
+    const { data: trades, error } = await db
+      .from('positions')
+      .select('id, symbol, direction, lots, open_price, close_price, realised_pnl, closed_at')
+      .eq('user_id', userId)
+      .eq('status', 'closed')
+      .order('closed_at', { ascending: false });
+
+    if (error || !trades?.length) {
+      document.getElementById('trade-history-tbody').innerHTML =
+        '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">No closed trades yet</td></tr>';
+      document.getElementById('stat-total').textContent   = '0';
+      document.getElementById('stat-pnl').textContent     = '$0.00';
+      document.getElementById('stat-winrate').textContent = '0%';
+      document.getElementById('stat-best').textContent    = '$0.00';
+      return;
+    }
+
+    _allTrades = trades;
+
+    // Stats
+    const totalPnl  = trades.reduce((s, t) => s + parseFloat(t.realised_pnl || 0), 0);
+    const winners   = trades.filter(t => parseFloat(t.realised_pnl || 0) > 0);
+    const bestPnl   = Math.max(...trades.map(t => parseFloat(t.realised_pnl || 0)));
+    const winRate   = trades.length ? Math.round((winners.length / trades.length) * 100) : 0;
+
+    const statPnlEl = document.getElementById('stat-pnl');
+    statPnlEl.textContent = (totalPnl >= 0 ? '+' : '') + '$' + Math.abs(totalPnl).toFixed(2);
+    statPnlEl.className   = 'stat-card__value ' + (totalPnl >= 0 ? 'up' : 'down');
+
+    document.getElementById('stat-total').textContent   = trades.length;
+    document.getElementById('stat-winrate').textContent = winRate + '%';
+    document.getElementById('stat-best').textContent    = '+$' + bestPnl.toFixed(2);
+
+    renderTable(trades);
+  })();
+</script>
+</body>
+</html>

@@ -310,7 +310,6 @@
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
-      .sidebar__overlay { display: block; }
       .main { margin-left: 0; }
       .topbar__menu { display: flex; }
       .content { padding: 20px 16px 40px; }
@@ -382,19 +381,19 @@
       Sign Out
     </button>
   </aside>
-  <div class="sidebar__overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <div class="sidebar__overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
   <!-- MAIN -->
   <div class="main">
     <header class="topbar">
-      <button class="topbar__menu" id="menu-btn" onclick="openSidebar()">
+      <button class="topbar__menu" id="hamburger" onclick="toggleSidebar()">
         <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
       <div class="topbar__title">Account Types</div>
       <div class="topbar__right">
-        <div class="dark-toggle" id="dark-toggle" title="Toggle theme">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        </div>
+        <button class="dark-toggle" onclick="toggleDark()" title="Toggle theme">
+          <svg id="dark-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
         <div class="topbar__avatar" id="topbar-avatar">?</div>
       </div>
     </header>
@@ -549,6 +548,39 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase.js"></script>
 <script>
+// ── Synchronous dark mode init (must run before paint) ──
+if (localStorage.getItem('xantex-theme') === 'dark') document.body.classList.add('dark');
+
+function toggleDark() {
+  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
+  const icon = document.getElementById('dark-icon');
+  if (!icon) return;
+  if (isDark) {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  } else {
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  }
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  const isOpen = sb.classList.toggle('open');
+  ov.style.display = isOpen ? 'block' : 'none';
+}
+
+document.addEventListener('click', function(e) {
+  const sb = document.getElementById('sidebar');
+  if (!sb.classList.contains('open')) return;
+  const hamburger = document.getElementById('hamburger');
+  if (!sb.contains(e.target) && !hamburger.contains(e.target)) {
+    sb.classList.remove('open');
+    document.getElementById('sidebar-overlay').style.display = 'none';
+  }
+});
+
 (async () => {
   const db = window.XANTEX_DB;
   if (!db) { window.location.href = 'login.html'; return; }
@@ -557,16 +589,6 @@
   document.body.style.visibility = 'visible';
 
   const userId = session.user.id;
-
-  // Dark mode
-  const saved = localStorage.getItem('xantex-theme');
-  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
-    document.body.classList.add('dark');
-  }
-  document.getElementById('dark-toggle').addEventListener('click', () => {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('xantex-theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-  });
 
   // Avatar
   try {
@@ -583,10 +605,6 @@
     }
   } catch(e) {}
 })();
-
-// Sidebar mobile
-function openSidebar()  { document.getElementById('sidebar').classList.add('open'); }
-function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
 
 async function signOut() {
   const db = window.XANTEX_DB;

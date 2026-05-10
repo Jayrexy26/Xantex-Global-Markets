@@ -241,6 +241,13 @@
     .summary-card--blue .summary-card__label { color: rgba(255,255,255,0.7); }
     .summary-card--blue .summary-card__label svg { stroke: rgba(255,255,255,0.7); }
     .summary-card--blue .summary-card__change { color: rgba(255,255,255,0.8); }
+    .summary-card--pnl {
+      border: 1.5px solid transparent;
+      background-image: linear-gradient(#fff, #fff),
+                        linear-gradient(to right, var(--green) 50%, var(--red) 50%);
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+    }
     @keyframes card-pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
     .card-loading { animation: card-pulse 1.4s ease-in-out infinite; color: var(--muted) !important; }
     .summary-card--blue .card-loading { color: rgba(255,255,255,0.5) !important; }
@@ -536,6 +543,10 @@
     body.dark .account-row,
     body.dark .testimonial         { background: #1a1d27; }
     body.dark .summary-card--blue  { background: var(--blue); }
+    body.dark .summary-card--pnl {
+      background-image: linear-gradient(#1a1d27, #1a1d27),
+                        linear-gradient(to right, var(--green) 50%, var(--red) 50%);
+    }
     body.dark .topbar__search input { background: #0f1117; color: var(--text); }
     body.dark .account-row:hover,
     body.dark tbody tr:hover        { background: #0f1117; }
@@ -1057,7 +1068,7 @@
             <div class="summary-card__value card-loading" id="card-balance">—</div>
             <div class="summary-card__change card-loading" id="card-balance-sub" style="color:var(--muted);">Loading…</div>
           </div>
-          <div class="summary-card">
+          <div class="summary-card summary-card--pnl">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
               Open P&L

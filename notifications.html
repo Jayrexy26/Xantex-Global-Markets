@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notifications — Xantex Global Markets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       TOKENS
+    ============================================================ */
+    :root {
+      --red:      #e60023;
+      --blue:     #1a5cff;
+      --blue-dk:  #1244cc;
+      --blue-lt:  #e8eeff;
+      --green:    #22a06b;
+      --green-lt: #e6f7ef;
+      --orange:   #f5a623;
+      --bg:       #f4f6f9;
+      --white:    #ffffff;
+      --text:     #111111;
+      --muted:    #666666;
+      --border:   #e0e3e8;
+      --sidebar-w: 240px;
+      --topbar-h:  64px;
+    }
+
+    /* ============================================================
+       RESET
+    ============================================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.6; }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+    ul { list-style: none; }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    .layout { display: flex; min-height: 100vh; }
+
+    /* ============================================================
+       SIDEBAR
+    ============================================================ */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: #0d1120;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 200;
+      transition: transform 0.25s ease;
+    }
+    .sidebar__logo {
+      height: var(--topbar-h);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .sidebar__logo img  { height: 130px; width: auto; }
+    .sidebar__logo-text { font-size: 22px; font-weight: 700; color: var(--red); }
+    .sidebar__nav { flex: 1; overflow-y: auto; padding: 12px 0; }
+    .sidebar__section-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.3);
+      padding: 16px 20px 6px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.6); border-radius: 0;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer; border: none; background: none;
+      width: 100%; text-align: left;
+    }
+    .nav-item:hover  { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-item.active { background: rgba(26,92,255,0.18); color: #fff; border-left: 3px solid var(--blue); }
+    .nav-item svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; flex-shrink: 0; }
+    .nav-item__badge {
+      margin-left: auto; background: var(--red); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 1px 6px;
+      border-radius: 10px; min-width: 18px; text-align: center;
+    }
+    .sidebar__footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar__avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--blue); display: flex; align-items: center;
+      justify-content: center; font-size: 13px; font-weight: 700;
+      color: #fff; flex-shrink: 0;
+    }
+    .sidebar__user-name  { font-size: 13px; font-weight: 600; color: #fff; }
+    .sidebar__user-role  { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .sidebar__logout {
+      margin-left: auto; background: none; border: none;
+      color: rgba(255,255,255,0.4); padding: 4px;
+    }
+    .sidebar__logout:hover { color: var(--red); }
+    .sidebar__logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* ============================================================
+       MAIN
+    ============================================================ */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-width: 0;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ============================================================
+       TOPBAR
+    ============================================================ */
+    .topbar {
+      height: var(--topbar-h);
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar__hamburger {
+      display: none; background: none; border: none;
+      flex-direction: column; gap: 4px; padding: 4px;
+    }
+    .topbar__hamburger span { display: block; width: 20px; height: 2px; background: var(--text); border-radius: 2px; }
+    .topbar__title { font-size: 16px; font-weight: 600; }
+    .topbar__right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+    .topbar__avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--blue); display: flex; align-items: center;
+      justify-content: center; font-size: 13px; font-weight: 700;
+      color: #fff; cursor: pointer;
+    }
+
+    /* ============================================================
+       CONTENT
+    ============================================================ */
+    .content { padding: 28px; flex: 1; }
+
+    /* Page header */
+    .page-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 16px;
+      margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .page-header__title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    .page-header__sub   { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      border-radius: 8px; font-size: 13px; font-weight: 500;
+      padding: 9px 18px; border: none; cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .btn--primary { background: var(--blue); color: #fff; }
+    .btn--primary:hover { background: var(--blue-dk); }
+    .btn--outline { background: #fff; color: var(--text); border: 1.5px solid var(--border); }
+    .btn--outline:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ============================================================
+       CARD
+    ============================================================ */
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .card__body { padding: 20px; }
+
+    /* ============================================================
+       MODAL
+    ============================================================ */
+    .modal-overlay {
+      display: none; position: fixed;
+      top: 0; right: 0; bottom: 0; left: var(--sidebar-w);
+      background: rgba(0,0,0,0.55); z-index: 500;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 14px; width: 100%;
+      max-width: 460px; max-height: 90vh; overflow-y: auto;
+      animation: modalIn 0.2s ease;
+    }
+    @media (max-width: 768px) { .modal-overlay { left: 0; } }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal__head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+    }
+    .modal__title { font-size: 16px; font-weight: 700; }
+    .modal__close { background: none; border: none; color: var(--muted); padding: 4px; }
+    .modal__close:hover { color: var(--text); }
+    .modal__close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* ============================================================
+       MOBILE
+    ============================================================ */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .topbar__hamburger { display: flex; }
+      .content { padding: 16px; }
+    }
+
+    /* ============================================================
+       DARK MODE
+    ============================================================ */
+    body.dark {
+      --bg:       #0f1117;
+      --white:    #1a1d27;
+      --text:     #e8eaf0;
+      --muted:    #8b90a0;
+      --border:   #2a2d3a;
+      --blue-lt:  #1a2444;
+      --green-lt: #0d2b1e;
+    }
+    body.dark .sidebar             { background: #080b13; }
+    body.dark .topbar,
+    body.dark .card,
+    body.dark .modal               { background: #1a1d27; }
+    body.dark .topbar__icon-btn    { background: #0f1117; }
+
+    /* ── Custom scrollbars ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    body.dark ::-webkit-scrollbar-thumb { background: #2a2d3a; }
+    body.dark ::-webkit-scrollbar-thumb:hover { background: #3a3e52; }
+    * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+    /* Dark toggle */
+    .dark-toggle {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--bg); border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    .dark-toggle:hover { border-color: var(--blue); }
+    .dark-toggle svg { width: 16px; height: 16px; fill: none; stroke: var(--text); stroke-width: 2; }
+
+    /* ============================================================
+       NOTIFICATIONS-SPECIFIC
+    ============================================================ */
+    .notif-item { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--blue-lt); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .notif-icon svg { width: 18px; height: 18px; fill: none; stroke: var(--blue); stroke-width: 2; }
+    .notif-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+    .notif-msg   { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .notif-time  { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <img src="/images/logo.png" alt="Xantex" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="sidebar__logo-text" style="display:none;">Xantex</span>
+    </div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Main</div>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" onclick="window.location.href='trade.html'">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Trade
+      </button>
+      <button class="nav-item" onclick="window.location.href='markets.html'">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Markets
+      </button>
+      <div class="sidebar__section-label">Finance</div>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Deposit
+      </button>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
+        Withdraw
+      </button>
+      <button class="nav-item" onclick="window.location.href='history.html'">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Transaction History
+      </button>
+      <button class="nav-item active" onclick="window.location.href='notifications.html'">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+      </button>
+      <div class="sidebar__section-label">Account</div>
+      <button class="nav-item" onclick="window.location.href='settings.html'">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+      <a class="nav-item" href="index.html">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Main Site
+      </a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="sidebar__avatar"></div>
+      <div>
+        <div class="sidebar__user-name"></div>
+        <div class="sidebar__user-role">Live account</div>
+      </div>
+      <button class="sidebar__logout" onclick="signOut()" title="Sign out">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="topbar__hamburger" id="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar__title" id="topbar-title">Notifications</div>
+      <div class="topbar__right">
+        <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">
+          <svg id="dark-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div class="topbar__avatar" title="Profile"></div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <div class="page-header">
+        <div>
+          <div class="page-header__title">Notifications</div>
+          <div class="page-header__sub">Messages and alerts from Xantex</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card__body" id="notif-list-body">
+          <div style="text-align:center;padding:32px;color:var(--muted);">Loading notifications…</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+  // Apply dark mode immediately before render
+  if (localStorage.getItem('xantex-theme') === 'dark') {
+    document.body.classList.add('dark');
+  }
+
+  async function signOut() {
+    await window.XANTEX_DB.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  function toggleDark() {
+    const isDark = document.body.classList.toggle('dark');
+    const sunIcon = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+    const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+    document.getElementById('dark-icon').innerHTML = isDark ? sunIcon : moonIcon;
+    localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
+  }
+
+  // Update dark-icon on load if dark
+  if (document.body.classList.contains('dark')) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('dark-icon');
+      if (el) el.innerHTML = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+    });
+  }
+
+  (async () => {
+    const db = window.XANTEX_DB;
+    if (!db) return;
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    const userId = session.user.id;
+
+    const { data: profile } = await db.from('profiles').select('first_name,last_name,email,kyc_status,avatar_url,phone,country,city,date_of_birth,nationality').eq('id', userId).single();
+    if (profile) {
+      const init = ((profile.first_name||'')[0]||(profile.last_name||'')[0]||'?').toUpperCase() + ((profile.last_name||'')[0]||'').toUpperCase();
+      const name = `${profile.first_name||''} ${profile.last_name||''}`.trim() || session.user.email;
+      document.querySelectorAll('.sidebar__avatar,.topbar__avatar').forEach(el => el.textContent = init);
+      document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
+      if (profile.avatar_url) {
+        document.querySelectorAll('.sidebar__avatar,.topbar__avatar').forEach(el => {
+          el.innerHTML = `<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        });
+      }
+    }
+
+    // Load notifications
+    const body = document.getElementById('notif-list-body');
+    const { data: notifs } = await db.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+    if (!notifs || !notifs.length) {
+      body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">No notifications yet</div>';
+    } else {
+      body.innerHTML = notifs.map(n => `
+        <div class="notif-item">
+          <div class="notif-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div style="flex:1;">
+            <div class="notif-title">${String(n.title||'Notice').replace(/</g,'&lt;')}</div>
+            <div class="notif-msg">${String(n.message||'').replace(/</g,'&lt;')}</div>
+            <div class="notif-time">${n.created_at ? new Date(n.created_at).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'}) : ''}</div>
+          </div>
+        </div>`).join('');
+    }
+  })();
+</script>
+</body>
+</html>

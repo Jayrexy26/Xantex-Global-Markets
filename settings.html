@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings — Xantex Global Markets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:      #e60023;
+      --blue:     #1a5cff;
+      --blue-dk:  #1244cc;
+      --blue-lt:  #e8eeff;
+      --green:    #22a06b;
+      --green-lt: #e6f7ef;
+      --orange:   #f5a623;
+      --bg:       #f4f6f9;
+      --white:    #ffffff;
+      --text:     #111111;
+      --muted:    #666666;
+      --border:   #e0e3e8;
+      --sidebar-w: 240px;
+      --topbar-h:  64px;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.6; }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+    ul { list-style: none; }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: #0d1120; color: #fff;
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 200;
+      transition: transform 0.25s ease;
+    }
+    .sidebar__logo { height: var(--topbar-h); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }
+    .sidebar__logo img { height: 130px; width: auto; }
+    .sidebar__logo-text { font-size: 22px; font-weight: 700; color: var(--red); }
+    .sidebar__nav { flex: 1; overflow-y: auto; padding: 12px 0; }
+    .sidebar__section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 16px 20px 6px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.6); border-radius: 0; transition: background 0.15s, color 0.15s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+    .nav-item:hover  { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-item.active { background: rgba(26,92,255,0.18); color: #fff; border-left: 3px solid var(--blue); }
+    .nav-item svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; flex-shrink: 0; }
+    .sidebar__footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 10px; }
+    .sidebar__avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .sidebar__user-name { font-size: 13px; font-weight: 600; color: #fff; }
+    .sidebar__user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .sidebar__logout { margin-left: auto; background: none; border: none; color: rgba(255,255,255,0.4); padding: 4px; }
+    .sidebar__logout:hover { color: var(--red); }
+    .sidebar__logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* TOPBAR */
+    .topbar { height: var(--topbar-h); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; position: sticky; top: 0; z-index: 100; }
+    .topbar__hamburger { display: none; background: none; border: none; flex-direction: column; gap: 4px; padding: 4px; }
+    .topbar__hamburger span { display: block; width: 20px; height: 2px; background: var(--text); border-radius: 2px; }
+    .topbar__title { font-size: 16px; font-weight: 600; }
+    .topbar__right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+    .topbar__avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; cursor: pointer; }
+
+    /* CONTENT */
+    .content { padding: 28px; flex: 1; }
+
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .page-header__title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    .page-header__sub   { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 7px; border-radius: 8px; font-size: 13px; font-weight: 500; padding: 9px 18px; border: none; cursor: pointer; transition: background 0.15s, opacity 0.15s; }
+    .btn--primary { background: var(--blue); color: #fff; }
+    .btn--primary:hover { background: var(--blue-dk); }
+    .btn--outline { background: #fff; color: var(--text); border: 1.5px solid var(--border); }
+    .btn--outline:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; top: 0; right: 0; bottom: 0; left: var(--sidebar-w); background: rgba(0,0,0,0.55); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 14px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.2s ease; }
+    @media (max-width: 768px) { .modal-overlay { left: 0; } }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal__head { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+    .modal__title { font-size: 16px; font-weight: 700; }
+    .modal__close { background: none; border: none; color: var(--muted); padding: 4px; }
+    .modal__close:hover { color: var(--text); }
+    .modal__close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .modal__body { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+    .modal__foot { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .field input, .field select { height: 40px; border: 1.5px solid var(--border); border-radius: 8px; padding: 0 12px; font-size: 13px; font-family: inherit; background: #fff; color: var(--text); }
+    .field input:focus, .field select:focus { border-color: var(--blue); outline: none; }
+
+    /* DARK MODE */
+    body.dark { --bg: #0f1117; --white: #1a1d27; --text: #e8eaf0; --muted: #8b90a0; --border: #2a2d3a; --blue-lt: #1a2444; --green-lt: #0d2b1e; }
+    body.dark .sidebar { background: #080b13; }
+    body.dark .topbar, body.dark .modal { background: #1a1d27; }
+    body.dark .topbar__icon-btn { background: #0f1117; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+    .dark-toggle { width: 34px; height: 34px; border-radius: 50%; background: var(--bg); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .dark-toggle:hover { border-color: var(--blue); }
+    .dark-toggle svg { width: 16px; height: 16px; fill: none; stroke: var(--text); stroke-width: 2; }
+
+    /* MOBILE */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .topbar__hamburger { display: flex; }
+      .content { padding: 16px; }
+    }
+
+    /* ── Settings layout ── */
+    .sett-layout { display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start; }
+    .sett-layout > * { min-width: 0; }
+
+    .sett-nav { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 8px; position: sticky; top: calc(var(--topbar-h) + 20px); display: flex; flex-direction: column; gap: 2px; }
+    .sett-nav__item { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--muted); border: none; background: none; cursor: pointer; width: 100%; text-align: left; border-left: 3px solid transparent; transition: background 0.15s, color 0.15s; }
+    .sett-nav__item:hover { background: var(--bg); color: var(--text); }
+    .sett-nav__item.active { color: var(--blue); border-left-color: var(--blue); background: var(--blue-lt); }
+    .sett-nav__item svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; flex-shrink: 0; }
+    .sett-nav__divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+    .sett-panel { display: flex; flex-direction: column; gap: 20px; }
+    .sett-panel.hidden { display: none; }
+
+    .sett-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .sett-card__head { padding: 18px 22px 0; }
+    .sett-card__title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .sett-card__sub   { font-size: 12px; color: var(--muted); padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .sett-card__body  { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+    .sett-card__foot  { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+
+    .sett-field { display: flex; flex-direction: column; gap: 5px; }
+    .sett-field label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .sett-field input, .sett-field select, .sett-field textarea { height: 40px; border: 1.5px solid var(--border); border-radius: 8px; padding: 0 12px; font-size: 13px; font-family: inherit; background: #fff; color: var(--text); width: 100%; }
+    .sett-field input:focus, .sett-field select:focus { border-color: var(--blue); outline: none; background: #fff; }
+    .sett-field input[readonly] { background: var(--bg); cursor: default; }
+    .sett-field textarea { height: auto; min-height: 80px; padding: 10px 14px; resize: vertical; }
+    .sett-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .sett-avatar-wrap { display: flex; align-items: center; gap: 18px; padding: 20px 22px; }
+    .sett-avatar-circle { position: relative; width: 72px; height: 72px; border-radius: 50%; background: var(--blue-lt); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: var(--blue); flex-shrink: 0; cursor: pointer; overflow: hidden; }
+    .sett-avatar-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .sett-avatar-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+    .sett-avatar-circle:hover .sett-avatar-overlay { opacity: 1; }
+    .sett-avatar-overlay svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2; }
+    .sett-avatar-info { flex: 1; }
+    .sett-avatar-name  { font-size: 17px; font-weight: 700; }
+    .sett-avatar-email { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .sett-avatar-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+    .sett-completion { display: flex; align-items: center; gap: 10px; padding: 12px 22px; background: var(--bg); border-top: 1px solid var(--border); }
+    .sett-completion__label { font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+    .sett-completion__bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .sett-completion__fill { height: 100%; background: var(--blue); border-radius: 3px; transition: width 0.4s; }
+    .sett-completion__pct { font-size: 12px; font-weight: 700; color: var(--blue); white-space: nowrap; }
+
+    .sett-security-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .sett-security-row:last-child { border-bottom: none; }
+    .sett-security-row__icon { width: 40px; height: 40px; border-radius: 10px; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sett-security-row__icon svg { width: 20px; height: 20px; fill: none; stroke-width: 1.8; }
+    .sett-security-row__info { flex: 1; }
+    .sett-security-row__label { font-size: 13px; font-weight: 600; }
+    .sett-security-row__sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .sett-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .sett-badge--on   { background: var(--green-lt); color: var(--green); }
+    .sett-badge--off  { background: #fff0f0; color: var(--red); }
+    .sett-badge--warn { background: #fff8e0; color: #b45309; }
+
+    .sett-doc-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .sett-doc-row:last-child { border-bottom: none; }
+    .sett-doc-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--blue-lt); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sett-doc-icon svg { width: 20px; height: 20px; fill: none; stroke: var(--blue); stroke-width: 1.8; }
+    .sett-doc-info { flex: 1; }
+    .sett-doc-label { font-size: 13px; font-weight: 600; }
+    .sett-doc-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* Toggle rows */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); gap: 16px; }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-row__info { flex: 1; }
+    .toggle-row__label { font-size: 13px; font-weight: 600; }
+    .toggle-row__sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .toggle-sw { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-sw__track { position: absolute; inset: 0; background: var(--border); border-radius: 24px; cursor: pointer; transition: background 0.25s; }
+    .toggle-sw__track::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .toggle-sw input:checked + .toggle-sw__track { background: var(--blue); }
+    .toggle-sw input:checked + .toggle-sw__track::before { transform: translateX(20px); }
+
+    /* Dark mode — settings */
+    body.dark .sett-nav, body.dark .sett-card { background: #1a1d27; }
+    body.dark .sett-nav__item.active { background: rgba(26,92,255,0.15); }
+    body.dark .sett-field input, body.dark .sett-field select { background: #0f1117; color: var(--text); border-color: var(--border); }
+    body.dark .sett-field input[readonly] { background: #0f1117; }
+    body.dark .sett-completion { background: #0f1117; }
+    body.dark .sett-doc-icon { background: #0f1117; }
+    body.dark .sett-security-row__icon { background: #0f1117; }
+    body.dark .sett-badge--off { background: rgba(230,0,35,0.12); }
+    body.dark .sett-badge--warn { background: rgba(245,166,35,0.12); }
+
+    @media (max-width: 900px) {
+      .sett-layout { grid-template-columns: 1fr; }
+      .sett-nav { flex-direction: row; overflow-x: auto; position: static; border-radius: 10px; }
+      .sett-nav__item { flex-direction: column; gap: 4px; padding: 10px 14px; font-size: 11px; white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; }
+      .sett-nav__item.active { border-left-color: transparent; border-bottom-color: var(--blue); }
+      .sett-nav__divider { display: none; }
+      .sett-grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__logo">
+      <img src="/images/logo.png" alt="Xantex" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="sidebar__logo-text" style="display:none;">Xantex</span>
+    </div>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section-label">Main</div>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" onclick="window.location.href='trade.html'">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Trade
+      </button>
+      <button class="nav-item" onclick="window.location.href='markets.html'">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Markets
+      </button>
+      <div class="sidebar__section-label">Finance</div>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Deposit
+      </button>
+      <button class="nav-item" onclick="window.location.href='dashboard.html'">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
+        Withdraw
+      </button>
+      <button class="nav-item" onclick="window.location.href='history.html'">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Transaction History
+      </button>
+      <button class="nav-item" onclick="window.location.href='notifications.html'">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+      </button>
+      <div class="sidebar__section-label">Account</div>
+      <button class="nav-item active" onclick="window.location.href='settings.html'">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l-.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+      <a class="nav-item" href="index.html">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Main Site
+      </a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="sidebar__avatar"></div>
+      <div>
+        <div class="sidebar__user-name"></div>
+        <div class="sidebar__user-role">Live account</div>
+      </div>
+      <button class="sidebar__logout" onclick="signOut()" title="Sign out">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="topbar__hamburger" id="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar__title">Account Settings</div>
+      <div class="topbar__right">
+        <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">
+          <svg id="dark-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div class="topbar__avatar" title="Profile"></div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+      <div class="page-header">
+        <div>
+          <div class="page-header__title">Account Settings</div>
+          <div class="page-header__sub">Manage your profile, security and preferences</div>
+        </div>
+      </div>
+
+      <div class="sett-layout">
+
+        <!-- Tab nav -->
+        <nav class="sett-nav">
+          <button class="sett-nav__item active" onclick="settTab('profile',this)">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Profile
+          </button>
+          <button class="sett-nav__item" onclick="settTab('security',this)">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Security
+          </button>
+          <button class="sett-nav__item" onclick="settTab('notifications',this)">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Notifications
+          </button>
+          <div class="sett-nav__divider"></div>
+          <button class="sett-nav__item" onclick="settTab('preferences',this)">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l-.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Preferences
+          </button>
+          <button class="sett-nav__item" onclick="settTab('documents',this)">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Documents
+          </button>
+        </nav>
+
+        <!-- Panels -->
+        <div id="sett-panels">
+
+          <!-- PROFILE -->
+          <div id="sett-profile" class="sett-panel">
+            <div class="sett-card">
+              <div class="sett-avatar-wrap">
+                <div class="sett-avatar-circle" id="sett-big-avatar" onclick="document.getElementById('avatar-upload').click()">
+                  <span id="settings-avatar-init"></span>
+                  <img id="settings-avatar-img" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  <div class="sett-avatar-overlay">
+                    <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  </div>
+                </div>
+                <input type="file" id="avatar-upload" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
+                <div class="sett-avatar-info">
+                  <div class="sett-avatar-name" id="sett-avatar-name">—</div>
+                  <div class="sett-avatar-email" id="sett-avatar-email">—</div>
+                  <div class="sett-avatar-actions">
+                    <button class="btn btn--outline" style="font-size:12px;padding:6px 14px;height:32px;" onclick="document.getElementById('avatar-upload').click()">Change Photo</button>
+                    <div id="avatar-upload-status" style="font-size:12px;color:var(--green);display:flex;align-items:center;"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="sett-completion">
+                <span class="sett-completion__label">Profile completion</span>
+                <div class="sett-completion__bar"><div class="sett-completion__fill" id="sett-completion-fill" style="width:0%"></div></div>
+                <span class="sett-completion__pct" id="sett-completion-pct">0%</span>
+              </div>
+              <div class="sett-card__head">
+                <div class="sett-card__title">Personal Information</div>
+                <div class="sett-card__sub">Your name and personal details</div>
+              </div>
+              <div class="sett-card__body">
+                <div class="sett-grid-2">
+                  <div class="sett-field"><label>First Name</label><input type="text" id="prof-fname" placeholder="Enter first name"></div>
+                  <div class="sett-field"><label>Last Name</label><input type="text" id="prof-lname" placeholder="Enter last name"></div>
+                </div>
+                <div class="sett-grid-2">
+                  <div class="sett-field"><label>Date of Birth</label><input type="date" id="prof-dob"></div>
+                  <div class="sett-field"><label>Nationality</label>
+                    <select id="prof-nationality">
+                      <option value="">— Select nationality —</option>
+                      <option>American</option><option>British</option><option>Canadian</option>
+                      <option>Australian</option><option>German</option><option>French</option>
+                      <option>Nigerian</option><option>Ghanaian</option><option>South African</option>
+                      <option>Kenyan</option><option>Indian</option><option>Chinese</option>
+                      <option>Brazilian</option><option>Other</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="sett-card__head" style="padding-top:0;">
+                <div style="border-top:1px solid var(--border);padding-top:18px;">
+                  <div class="sett-card__title">Contact Information</div>
+                  <div class="sett-card__sub">Email and phone cannot be changed here — contact support</div>
+                </div>
+              </div>
+              <div class="sett-card__body">
+                <div class="sett-grid-2">
+                  <div class="sett-field"><label>Email Address</label><input type="email" id="prof-email" readonly></div>
+                  <div class="sett-field"><label>Phone Number</label><input type="tel" id="prof-phone" placeholder="+1 234 567 8900"></div>
+                </div>
+                <div class="sett-grid-2">
+                  <div class="sett-field"><label>Country of Residence</label>
+                    <select id="prof-country">
+                      <option value="">— Select country —</option>
+                      <option>United States</option><option>United Kingdom</option><option>Canada</option>
+                      <option>Australia</option><option>Germany</option><option>France</option>
+                      <option>Nigeria</option><option>Ghana</option><option>South Africa</option>
+                      <option>Kenya</option><option>India</option><option>China</option>
+                      <option>Brazil</option><option>Other</option>
+                    </select>
+                  </div>
+                  <div class="sett-field"><label>City</label><input type="text" id="prof-city" placeholder="Your city"></div>
+                </div>
+                <div class="sett-field"><label>Account ID (for support)</label><input type="text" id="prof-uid" readonly style="font-family:monospace;font-size:11px;"></div>
+              </div>
+              <div class="sett-card__foot">
+                <button class="btn btn--primary" onclick="saveProfile()" id="save-profile-btn">Save Changes</button>
+                <span id="save-profile-msg" style="font-size:12px;color:var(--green);"></span>
+              </div>
+            </div>
+          </div><!-- /sett-profile -->
+
+          <!-- SECURITY -->
+          <div id="sett-security" class="sett-panel hidden">
+            <div class="sett-card">
+              <div class="sett-card__head">
+                <div class="sett-card__title">Change Password</div>
+                <div class="sett-card__sub">Use a strong password with at least 8 characters</div>
+              </div>
+              <div class="sett-card__body">
+                <div class="sett-field">
+                  <label>Current Password</label>
+                  <div style="position:relative;">
+                    <input type="password" id="pw-current" placeholder="Enter current password" style="padding-right:42px;">
+                    <button type="button" onclick="togglePw('pw-current')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:0;">
+                      <svg id="pw-current-eye" viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="sett-field">
+                  <label>New Password</label>
+                  <div style="position:relative;">
+                    <input type="password" id="pw-new" placeholder="Min. 8 characters" style="padding-right:42px;" oninput="checkPwStrength(this.value)">
+                    <button type="button" onclick="togglePw('pw-new')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:0;">
+                      <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+                    <div style="flex:1;height:4px;background:var(--border);border-radius:2px;">
+                      <div id="pw-strength-bar" style="height:100%;border-radius:2px;transition:width .3s,background .3s;width:0%;background:var(--red);"></div>
+                    </div>
+                    <span id="pw-strength-label" style="font-size:11px;color:var(--muted);width:48px;text-align:right;"></span>
+                  </div>
+                </div>
+                <div class="sett-field">
+                  <label>Confirm New Password</label>
+                  <input type="password" id="pw-confirm" placeholder="Repeat new password">
+                </div>
+              </div>
+              <div class="sett-card__foot">
+                <button class="btn btn--primary" onclick="changePassword()" id="change-pw-btn">Update Password</button>
+                <span id="change-pw-msg" style="font-size:12px;"></span>
+              </div>
+            </div>
+
+            <div class="sett-card">
+              <div class="sett-card__head">
+                <div class="sett-card__title">Security Overview</div>
+                <div class="sett-card__sub">Your account security status</div>
+              </div>
+              <div class="sett-card__body">
+                <div class="sett-security-row">
+                  <div class="sett-security-row__icon" style="background:var(--green-lt);">
+                    <svg viewBox="0 0 24 24" style="stroke:var(--green);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  </div>
+                  <div class="sett-security-row__info">
+                    <div class="sett-security-row__label">Email Verified</div>
+                    <div class="sett-security-row__sub">Your email address is confirmed</div>
+                  </div>
+                  <span class="sett-badge sett-badge--on" id="badge-email-verified">Verified</span>
+                </div>
+                <div class="sett-security-row">
+                  <div class="sett-security-row__icon" style="background:var(--blue-lt);">
+                    <svg viewBox="0 0 24 24" style="stroke:var(--blue);"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                  </div>
+                  <div class="sett-security-row__info">
+                    <div class="sett-security-row__label">Two-Factor Authentication</div>
+                    <div class="sett-security-row__sub">Add an extra layer of security to your account</div>
+                  </div>
+                  <span class="sett-badge sett-badge--warn">Coming soon</span>
+                </div>
+                <div class="sett-security-row">
+                  <div class="sett-security-row__icon" style="background:#fff3e0;">
+                    <svg viewBox="0 0 24 24" style="stroke:#e65c00;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  </div>
+                  <div class="sett-security-row__info">
+                    <div class="sett-security-row__label">KYC Verification</div>
+                    <div class="sett-security-row__sub" id="kyc-security-sub">Upload your documents to verify your identity</div>
+                  </div>
+                  <span class="sett-badge" id="badge-kyc">Pending</span>
+                </div>
+              </div>
+            </div>
+          </div><!-- /sett-security -->
+
+          <!-- NOTIFICATIONS -->
+          <div id="sett-notifications" class="sett-panel hidden">
+            <div class="sett-card">
+              <div class="sett-card__head">
+                <div class="sett-card__title">Email Notifications</div>
+                <div class="sett-card__sub">Control which emails you receive from us</div>
+              </div>
+              <div class="sett-card__body">
+                <div class="toggle-row">
+                  <div class="toggle-row__info"><div class="toggle-row__label">Deposit Confirmed</div><div class="toggle-row__sub">When your deposit is verified and credited</div></div>
+                  <label class="toggle-sw"><input type="checkbox" id="notif-deposit" checked><span class="toggle-sw__track"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-row__info"><div class="toggle-row__label">Withdrawal Processed</div><div class="toggle-row__sub">When your withdrawal is approved and sent</div></div>
+                  <label class="toggle-sw"><input type="checkbox" id="notif-withdrawal" checked><span class="toggle-sw__track"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-row__info"><div class="toggle-row__label">Account Balance Update</div><div class="toggle-row__sub">When your balance is adjusted by our team</div></div>
+                  <label class="toggle-sw"><input type="checkbox" id="notif-balance" checked><span class="toggle-sw__track"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-row__info"><div class="toggle-row__label">KYC Status Update</div><div class="toggle-row__sub">When your verification documents are reviewed</div></div>
+                  <label class="toggle-sw"><input type="checkbox" id="notif-kyc" checked><span class="toggle-sw__track"></span></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="sett-card">
+              <div class="sett-card__head">
+                <div class="sett-card__title">Platform Alerts</div>
+                <div class="sett-card__sub">In-platform notifications and announcements</div>
+              </div>
+              <div class="sett-card__body">
+                <div class="toggle-row">
+                  <div class="toggle-row__info"><div class="toggle-row__label">Market News & Analysis</div><div class="toggle-row__sub">Daily market updates and trading signals</div></div>
+                  <label class="toggle-sw"><input type="checkbox" id="notif-news" checked><span class="toggle-sw__track"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-row__info"><div class="toggle-row__label">Promotions & Offers</div><div class="toggle-row__sub">Bonus offers, contests, and special events</div></div>
+                  <label class="toggle-sw"><input type="checkbox" id="notif-promos"><span class="toggle-sw__track"></span></label>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-row__info"><div class="toggle-row__label">Platform Announcements</div><div class="toggle-row__sub">Maintenance windows and new features</div></div>
+                  <label class="toggle-sw"><input type="checkbox" id="notif-platform" checked><span class="toggle-sw__track"></span></label>
+                </div>
+              </div>
+              <div class="sett-card__foot">
+                <button class="btn btn--primary" onclick="saveNotifications()">Save Preferences</button>
+                <span id="notif-save-msg" style="font-size:12px;color:var(--green);"></span>
+              </div>
+            </div>
+          </div><!-- /sett-notifications -->
+
+          <!-- PREFERENCES -->
+          <div id="sett-preferences" class="sett-panel hidden">
+            <div class="sett-card">
+              <div class="sett-card__head">
+                <div class="sett-card__title">Appearance</div>
+                <div class="sett-card__sub">Customise how the platform looks</div>
+              </div>
+              <div class="sett-card__body">
+                <div class="toggle-row">
+                  <div class="toggle-row__info"><div class="toggle-row__label">Dark Mode</div><div class="toggle-row__sub">Switch between light and dark interface</div></div>
+                  <label class="toggle-sw">
+                    <input type="checkbox" id="pref-dark" onchange="toggleDarkFromPref(this.checked)">
+                    <span class="toggle-sw__track"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="sett-card">
+              <div class="sett-card__head">
+                <div class="sett-card__title">Regional Settings</div>
+                <div class="sett-card__sub">Language, timezone and display preferences</div>
+              </div>
+              <div class="sett-card__body">
+                <div class="sett-grid-2">
+                  <div class="sett-field">
+                    <label>Language</label>
+                    <select id="pref-lang">
+                      <option value="en" selected>English</option>
+                      <option value="fr">Français</option>
+                      <option value="de">Deutsch</option>
+                      <option value="es">Español</option>
+                      <option value="pt">Português</option>
+                      <option value="ar">العربية</option>
+                      <option value="zh">中文</option>
+                    </select>
+                  </div>
+                  <div class="sett-field">
+                    <label>Timezone</label>
+                    <select id="pref-tz">
+                      <option value="UTC">UTC / GMT+0</option>
+                      <option value="America/New_York">Eastern Time (ET)</option>
+                      <option value="America/Chicago">Central Time (CT)</option>
+                      <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                      <option value="Europe/London">London (BST)</option>
+                      <option value="Europe/Berlin">Central European (CET)</option>
+                      <option value="Africa/Lagos">Lagos (WAT)</option>
+                      <option value="Africa/Nairobi">Nairobi (EAT)</option>
+                      <option value="Asia/Dubai">Dubai (GST)</option>
+                      <option value="Asia/Tokyo">Tokyo (JST)</option>
+                      <option value="Australia/Sydney">Sydney (AEST)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="sett-grid-2">
+                  <div class="sett-field">
+                    <label>Display Currency</label>
+                    <select id="pref-currency">
+                      <option value="USD" selected>USD — US Dollar</option>
+                      <option value="EUR">EUR — Euro</option>
+                      <option value="GBP">GBP — British Pound</option>
+                      <option value="NGN">NGN — Nigerian Naira</option>
+                      <option value="GHS">GHS — Ghanaian Cedi</option>
+                      <option value="KES">KES — Kenyan Shilling</option>
+                      <option value="ZAR">ZAR — South African Rand</option>
+                    </select>
+                  </div>
+                  <div class="sett-field">
+                    <label>Date Format</label>
+                    <select id="pref-datefmt">
+                      <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                      <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                      <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="sett-card__foot">
+                <button class="btn btn--primary" onclick="savePreferences()">Save Preferences</button>
+                <span id="pref-save-msg" style="font-size:12px;color:var(--green);"></span>
+              </div>
+            </div>
+          </div><!-- /sett-preferences -->
+
+          <!-- DOCUMENTS -->
+          <div id="sett-documents" class="sett-panel hidden">
+            <div class="sett-card">
+              <div id="kyc-banner" style="padding:18px 22px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);">
+                <div id="kyc-banner-icon" style="width:46px;height:46px;border-radius:12px;background:var(--blue-lt);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:var(--blue);stroke-width:1.8;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div style="flex:1;">
+                  <div id="kyc-banner-title" style="font-size:14px;font-weight:700;"></div>
+                  <div id="kyc-banner-sub"   style="font-size:12px;color:var(--muted);margin-top:2px;"></div>
+                </div>
+                <span class="sett-badge" id="kyc-banner-badge"></span>
+              </div>
+              <div class="sett-card__body">
+                <div class="sett-doc-row">
+                  <div class="sett-doc-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+                  <div class="sett-doc-info"><div class="sett-doc-label">Government-Issued ID</div><div class="sett-doc-sub">Passport, national ID or driver's licence</div></div>
+                  <span class="sett-badge" id="doc-id-badge">Not uploaded</span>
+                </div>
+                <div class="sett-doc-row">
+                  <div class="sett-doc-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+                  <div class="sett-doc-info"><div class="sett-doc-label">Proof of Address</div><div class="sett-doc-sub">Utility bill or bank statement (within 3 months)</div></div>
+                  <span class="sett-badge" id="doc-address-badge">Not uploaded</span>
+                </div>
+                <div class="sett-doc-row">
+                  <div class="sett-doc-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                  <div class="sett-doc-info"><div class="sett-doc-label">Selfie / Liveness Check</div><div class="sett-doc-sub">Clear photo of your face holding your ID</div></div>
+                  <span class="sett-badge" id="doc-selfie-badge">Not uploaded</span>
+                </div>
+              </div>
+              <div class="sett-card__foot" id="kyc-upload-foot">
+                <button class="btn btn--primary" onclick="document.getElementById('modal-kyc-submit').classList.add('open')">
+                  <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Upload Documents
+                </button>
+                <span style="font-size:12px;color:var(--muted);">Upload your ID and selfie to verify your identity</span>
+              </div>
+            </div>
+
+            <div class="sett-card" style="background:linear-gradient(135deg,var(--blue) 0%,var(--blue-dk) 100%);border-color:var(--blue);color:#fff;">
+              <div class="sett-card__body" style="flex-direction:row;align-items:center;gap:16px;">
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Need help with verification?</div>
+                  <div style="font-size:12px;opacity:.8;">Our support team is available 24/7 to assist you with your account verification process.</div>
+                </div>
+                <button class="btn" style="background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.3);white-space:nowrap;flex-shrink:0;">Contact Support</button>
+              </div>
+            </div>
+          </div><!-- /sett-documents -->
+
+        </div><!-- /sett-panels -->
+      </div><!-- /sett-layout -->
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- KYC Submit Modal -->
+<div class="modal-overlay" id="modal-kyc-submit">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal__head">
+      <div class="modal__title">Identity Verification</div>
+      <button class="modal__close" onclick="document.getElementById('modal-kyc-submit').classList.remove('open')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <div class="field">
+        <label>Document Type <span style="color:var(--red)">*</span></label>
+        <select id="kyc-doc-type">
+          <option value="" disabled selected>Select document type…</option>
+          <option value="Passport">Passport</option>
+          <option value="National ID">National ID card</option>
+          <option value="Driver's licence">Driver's licence</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>ID Front Photo <span style="color:var(--red)">*</span></label>
+        <input type="file" id="kyc-id-front" accept=".jpg,.jpeg,.png,.pdf" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;width:100%;background:var(--bg);">
+      </div>
+      <div class="field">
+        <label>Selfie with Document <span style="color:var(--red)">*</span></label>
+        <input type="file" id="kyc-selfie" accept=".jpg,.jpeg,.png" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;width:100%;background:var(--bg);">
+        <span style="font-size:11px;color:var(--muted);">Hold your ID next to your face, clearly visible.</span>
+      </div>
+      <div class="field">
+        <label>Proof of Address <span style="color:var(--red)">*</span></label>
+        <input type="file" id="kyc-proof" accept=".jpg,.jpeg,.png,.pdf" style="padding:8px;border:1.5px solid var(--border);border-radius:8px;width:100%;background:var(--bg);">
+        <span style="font-size:11px;color:var(--muted);">Utility bill, bank statement (within 3 months).</span>
+      </div>
+      <div id="kyc-submit-msg" style="font-size:13px;min-height:18px;"></div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="document.getElementById('modal-kyc-submit').classList.remove('open')">Cancel</button>
+      <button class="btn btn--primary" id="kyc-submit-btn" onclick="submitKYC()">Submit for Review</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+  if (localStorage.getItem('xantex-theme') === 'dark') document.body.classList.add('dark');
+
+  async function signOut() {
+    await window.XANTEX_DB.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  function toggleDark() {
+    const isDark = document.body.classList.toggle('dark');
+    const sunIcon = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+    const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+    document.getElementById('dark-icon').innerHTML = isDark ? sunIcon : moonIcon;
+    localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
+    const prefDark = document.getElementById('pref-dark');
+    if (prefDark) prefDark.checked = isDark;
+  }
+
+  if (document.body.classList.contains('dark')) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('dark-icon');
+      if (el) el.innerHTML = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+    });
+  }
+
+  function settTab(id, btn) {
+    document.querySelectorAll('.sett-nav__item').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.sett-panel').forEach(p => p.classList.add('hidden'));
+    const panel = document.getElementById('sett-' + id);
+    if (panel) panel.classList.remove('hidden');
+  }
+
+  function togglePw(id) {
+    const el = document.getElementById(id);
+    if (el) el.type = el.type === 'password' ? 'text' : 'password';
+  }
+
+  function checkPwStrength(pw) {
+    const bar   = document.getElementById('pw-strength-bar');
+    const label = document.getElementById('pw-strength-label');
+    if (!bar || !label) return;
+    let score = 0;
+    if (pw.length >= 8)       score++;
+    if (/[A-Z]/.test(pw))     score++;
+    if (/[0-9]/.test(pw))     score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    const levels = [{w:'15%',c:'#e60023',t:'Weak'},{w:'40%',c:'#f5a623',t:'Fair'},{w:'65%',c:'#f5a623',t:'Good'},{w:'90%',c:'#22a06b',t:'Strong'},{w:'100%',c:'#22a06b',t:'Very strong'}];
+    const lvl = levels[Math.min(score, levels.length - 1)];
+    bar.style.width = pw ? lvl.w : '0%';
+    bar.style.background = lvl.c;
+    label.textContent = pw ? lvl.t : '';
+  }
+
+  async function changePassword() {
+    const pw   = document.getElementById('pw-new')?.value;
+    const conf = document.getElementById('pw-confirm')?.value;
+    const msg  = document.getElementById('change-pw-msg');
+    const btn  = document.getElementById('change-pw-btn');
+    if (!pw || pw.length < 8) { if(msg){msg.style.color='var(--red)';msg.textContent='Password must be at least 8 characters';} return; }
+    if (pw !== conf) { if(msg){msg.style.color='var(--red)';msg.textContent='Passwords do not match';} return; }
+    btn.disabled = true; btn.textContent = 'Updating…';
+    const { error } = await window.XANTEX_DB.auth.updateUser({ password: pw });
+    btn.disabled = false; btn.textContent = 'Update Password';
+    if (error) { if(msg){msg.style.color='var(--red)';msg.textContent=error.message;} return; }
+    if (msg) { msg.style.color='var(--green)'; msg.textContent='Password updated successfully ✓'; }
+    ['pw-current','pw-new','pw-confirm'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+    setTimeout(() => { if(msg) msg.textContent=''; }, 4000);
+  }
+
+  function toggleDarkFromPref(on) {
+    document.body.classList.toggle('dark', on);
+    localStorage.setItem('xantex-theme', on ? 'dark' : 'light');
+    const icon = document.getElementById('dark-icon');
+    if (icon) icon.innerHTML = on
+      ? `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`
+      : `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+  }
+
+  function saveNotifications() {
+    ['notif-deposit','notif-withdrawal','notif-balance','notif-kyc','notif-news','notif-promos','notif-platform'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) localStorage.setItem('xantex-' + id, el.checked);
+    });
+    const msg = document.getElementById('notif-save-msg');
+    if (msg) { msg.textContent = 'Preferences saved ✓'; setTimeout(() => { msg.textContent=''; }, 3000); }
+  }
+
+  function savePreferences() {
+    const vals = { 'xantex-lang': 'pref-lang', 'xantex-tz': 'pref-tz', 'xantex-currency': 'pref-currency', 'xantex-datefmt': 'pref-datefmt' };
+    Object.entries(vals).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (el) localStorage.setItem(key, el.value);
+    });
+    const msg = document.getElementById('pref-save-msg');
+    if (msg) { msg.textContent = 'Preferences saved ✓'; setTimeout(() => { msg.textContent=''; }, 3000); }
+  }
+
+  (async () => {
+    const db = window.XANTEX_DB;
+    if (!db) return;
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    const userId = session.user.id;
+
+    const { data: profile } = await db.from('profiles').select('first_name,last_name,email,kyc_status,avatar_url,phone,country,city,date_of_birth,nationality').eq('id', userId).single();
+    const _profile = profile || {};
+
+    // Sidebar / topbar avatar
+    const fn   = _profile.first_name || '';
+    const ln   = _profile.last_name  || '';
+    const init = ((fn[0]||'')+(ln[0]||'')).toUpperCase() || (session.user.email[0]||'?').toUpperCase();
+    const name = (fn+' '+ln).trim() || session.user.email;
+    document.querySelectorAll('.sidebar__avatar,.topbar__avatar').forEach(el => el.textContent = init);
+    document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
+    if (_profile.avatar_url) {
+      document.querySelectorAll('.sidebar__avatar,.topbar__avatar').forEach(el => {
+        el.innerHTML = `<img src="${_profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+      });
+    }
+
+    // Populate profile tab
+    const set = (id, v) => { const el = document.getElementById(id); if(el) el.value = v||''; };
+    set('prof-fname',       _profile.first_name);
+    set('prof-lname',       _profile.last_name);
+    set('prof-email',       _profile.email || session.user.email);
+    set('prof-phone',       _profile.phone);
+    set('prof-country',     _profile.country);
+    set('prof-city',        _profile.city);
+    set('prof-dob',         _profile.date_of_birth);
+    set('prof-nationality', _profile.nationality);
+    set('prof-uid',         userId);
+
+    // Avatar in settings
+    const sInit = document.getElementById('settings-avatar-init');
+    const sImg  = document.getElementById('settings-avatar-img');
+    if (sInit) sInit.textContent = init;
+    if (_profile.avatar_url && sImg) { sImg.src = _profile.avatar_url; sImg.style.display = 'block'; if(sInit) sInit.style.display='none'; }
+    const nameEl  = document.getElementById('sett-avatar-name');
+    const emailEl = document.getElementById('sett-avatar-email');
+    if (nameEl)  nameEl.textContent  = name;
+    if (emailEl) emailEl.textContent = _profile.email || session.user.email;
+
+    // Profile completion bar
+    const fields = [_profile.first_name, _profile.last_name, _profile.phone, _profile.country, _profile.date_of_birth, _profile.avatar_url];
+    const filled = fields.filter(Boolean).length;
+    const pct    = Math.round((filled / fields.length) * 100);
+    const fill   = document.getElementById('sett-completion-fill');
+    const pctEl  = document.getElementById('sett-completion-pct');
+    if (fill)  fill.style.width = pct + '%';
+    if (pctEl) pctEl.textContent = pct + '%';
+
+    // KYC status
+    const kycStatus = _profile.kyc_status || 'not_submitted';
+    const kycBadge  = { approved:'sett-badge--on', pending:'sett-badge--warn', rejected:'sett-badge--off', not_submitted:'sett-badge--off', submitted:'sett-badge--warn' };
+    const kycLabel  = { approved:'Verified', pending:'Pending Review', rejected:'Rejected', not_submitted:'Not Verified', submitted:'Under Review' };
+    const badgeEl   = document.getElementById('badge-kyc');
+    if (badgeEl) { badgeEl.textContent = kycLabel[kycStatus]||kycStatus; badgeEl.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
+    const kycsub = document.getElementById('kyc-security-sub');
+    if (kycsub) kycsub.textContent = kycStatus === 'approved' ? 'Your identity is verified' : 'Upload your documents to verify your identity';
+
+    // KYC banner
+    const bannerTitles = { approved:'Identity Verified', pending:'Verification Pending', rejected:'Verification Rejected', not_submitted:'Verification Required', submitted:'Documents Under Review' };
+    const bannerSubs   = { approved:'Your account is fully verified. All features are unlocked.', pending:'We are reviewing your documents. This may take up to 24 hours.', rejected:'Your documents were rejected. Please re-upload with correct documents.', not_submitted:'Please upload your identity documents to unlock full trading access.', submitted:'Your documents are under review by our compliance team.' };
+    const bannerColors = { approved:'var(--green)', pending:'var(--orange)', rejected:'var(--red)', not_submitted:'var(--blue)', submitted:'var(--orange)' };
+    const bannerTitle  = document.getElementById('kyc-banner-title');
+    const bannerSub    = document.getElementById('kyc-banner-sub');
+    const bannerBadge  = document.getElementById('kyc-banner-badge');
+    const bannerIcon   = document.getElementById('kyc-banner-icon');
+    if (bannerTitle) bannerTitle.textContent = bannerTitles[kycStatus] || 'Verification Required';
+    if (bannerSub)   bannerSub.textContent   = bannerSubs[kycStatus]   || '';
+    if (bannerBadge) { bannerBadge.textContent = kycLabel[kycStatus]||kycStatus; bannerBadge.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
+    if (bannerIcon)  bannerIcon.style.background = (bannerColors[kycStatus]||'var(--blue)') + '22';
+    const docBadgeCls = kycStatus === 'approved' ? 'sett-badge--on' : kycStatus === 'rejected' ? 'sett-badge--off' : 'sett-badge--warn';
+    const docBadgeTxt = kycStatus === 'approved' ? 'Approved' : kycStatus === 'not_submitted' ? 'Not uploaded' : 'Under review';
+    ['doc-id-badge','doc-address-badge','doc-selfie-badge'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.textContent = docBadgeTxt; el.className = 'sett-badge ' + docBadgeCls; }
+    });
+    const foot = document.getElementById('kyc-upload-foot');
+    if (foot) foot.style.display = kycStatus === 'approved' ? 'none' : '';
+
+    // Preferences — restore saved values
+    const prefDark = document.getElementById('pref-dark');
+    if (prefDark) prefDark.checked = document.body.classList.contains('dark');
+    const langEl = document.getElementById('pref-lang');
+    const tzEl   = document.getElementById('pref-tz');
+    const curEl  = document.getElementById('pref-currency');
+    const fmtEl  = document.getElementById('pref-datefmt');
+    if (langEl) langEl.value = localStorage.getItem('xantex-lang') || 'en';
+    if (tzEl)   tzEl.value   = localStorage.getItem('xantex-tz')   || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    if (curEl)  curEl.value  = localStorage.getItem('xantex-currency') || 'USD';
+    if (fmtEl)  fmtEl.value  = localStorage.getItem('xantex-datefmt')  || 'MM/DD/YYYY';
+
+    // Notification toggles — restore saved states
+    ['notif-deposit','notif-withdrawal','notif-balance','notif-kyc','notif-news','notif-promos','notif-platform'].forEach(id => {
+      const el  = document.getElementById(id);
+      const val = localStorage.getItem('xantex-' + id);
+      if (el && val !== null) el.checked = val === 'true';
+    });
+
+    // Save profile
+    window.saveProfile = async function() {
+      const btn = document.getElementById('save-profile-btn');
+      const msg = document.getElementById('save-profile-msg');
+      const g = id => document.getElementById(id)?.value?.trim() || null;
+      const updates = {
+        first_name:    g('prof-fname'),
+        last_name:     g('prof-lname'),
+        phone:         g('prof-phone'),
+        country:       g('prof-country'),
+        city:          g('prof-city'),
+        date_of_birth: g('prof-dob'),
+        nationality:   g('prof-nationality'),
+      };
+      if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+      const { error } = await db.from('profiles').update(updates).eq('id', userId);
+      if (btn) { btn.disabled = false; btn.textContent = 'Save Changes'; }
+      if (error) {
+        if (msg) { msg.style.color = 'var(--red)'; msg.textContent = error.message; }
+      } else {
+        Object.assign(_profile, updates);
+        const fn2   = _profile.first_name || '';
+        const ln2   = _profile.last_name  || '';
+        const name2 = (fn2+' '+ln2).trim() || session.user.email;
+        const init2 = ((fn2[0]||'')+(ln2[0]||'')).toUpperCase() || '?';
+        document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name2);
+        if (!_profile.avatar_url) { document.querySelectorAll('.sidebar__avatar,.topbar__avatar').forEach(el => el.textContent = init2); }
+        if (nameEl) nameEl.textContent = name2;
+        const fields2 = [_profile.first_name, _profile.last_name, _profile.phone, _profile.country, _profile.date_of_birth, _profile.avatar_url];
+        const pct2 = Math.round(fields2.filter(Boolean).length / fields2.length * 100);
+        if (fill)  fill.style.width = pct2 + '%';
+        if (pctEl) pctEl.textContent = pct2 + '%';
+        if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Changes saved ✓'; setTimeout(() => { msg.textContent=''; }, 4000); }
+      }
+    };
+
+    // Avatar upload
+    window.uploadAvatar = async function(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB'); return; }
+      const statusEl = document.getElementById('avatar-upload-status');
+      if (statusEl) statusEl.textContent = 'Uploading…';
+      const ext  = file.name.split('.').pop();
+      const path = `${userId}/avatar.${ext}`;
+      const { error: upErr } = await db.storage.from('avatars').upload(path, file, { upsert: true });
+      if (upErr) { if(statusEl) statusEl.textContent = 'Upload failed: '+upErr.message; return; }
+      const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(path);
+      await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId);
+      _profile.avatar_url = publicUrl;
+      document.querySelectorAll('.sidebar__avatar,.topbar__avatar').forEach(el => {
+        el.innerHTML = `<img src="${publicUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+      });
+      if (sImg)  { sImg.src = publicUrl; sImg.style.display = 'block'; }
+      if (sInit) sInit.style.display = 'none';
+      if (statusEl) statusEl.textContent = 'Photo updated ✓';
+      const fields3 = [_profile.first_name, _profile.last_name, _profile.phone, _profile.country, _profile.date_of_birth, _profile.avatar_url];
+      const pct3 = Math.round(fields3.filter(Boolean).length / fields3.length * 100);
+      if (fill)  fill.style.width = pct3 + '%';
+      if (pctEl) pctEl.textContent = pct3 + '%';
+    };
+
+    // KYC submit
+    window.submitKYC = async function() {
+      const docType   = document.getElementById('kyc-doc-type')?.value;
+      const frontFile = document.getElementById('kyc-id-front')?.files?.[0];
+      const selfieFile= document.getElementById('kyc-selfie')?.files?.[0];
+      const proofFile = document.getElementById('kyc-proof')?.files?.[0];
+      const btn       = document.getElementById('kyc-submit-btn');
+      const msg       = document.getElementById('kyc-submit-msg');
+      if (!docType)    { if(msg){msg.style.color='var(--red)';msg.textContent='Please select a document type.';} return; }
+      if (!frontFile)  { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload the front of your ID.';} return; }
+      if (!selfieFile) { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload your selfie with document.';} return; }
+      if (!proofFile)  { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload proof of address.';} return; }
+      if (btn) { btn.disabled = true; btn.textContent = 'Uploading…'; }
+      if (msg) { msg.style.color = 'var(--muted)'; msg.textContent = 'Uploading documents…'; }
+      async function up(bucket, file, path) {
+        const ext = file.name.split('.').pop();
+        await db.storage.from(bucket).upload(`${path}.${ext}`, file, { upsert: true });
+        return db.storage.from(bucket).getPublicUrl(`${path}.${ext}`).data.publicUrl;
+      }
+      try {
+        const [frontUrl, selfieUrl, proofUrl] = await Promise.all([
+          up('kyc-docs', frontFile,  `${userId}/id_front`),
+          up('avatars',  selfieFile, `${userId}`),
+          up('kyc-docs', proofFile,  `${userId}/proof_address`),
+        ]);
+        await db.from('profiles').update({ kyc_status: 'pending', avatar_url: selfieUrl }).eq('id', userId);
+        const { error } = await db.from('kyc_submissions').upsert({
+          user_id: userId, document_type: docType,
+          front_url: frontUrl, selfie_url: selfieUrl, proof_address_url: proofUrl,
+          submitted_at: new Date().toISOString(), status: 'pending',
+        }, { onConflict: 'user_id' });
+        if (error) throw error;
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit for Review'; }
+        if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Documents submitted! We\'ll review within 24 hours.'; }
+        setTimeout(() => document.getElementById('modal-kyc-submit').classList.remove('open'), 2500);
+        _profile.kyc_status  = 'pending';
+        _profile.avatar_url  = selfieUrl;
+        location.reload();
+      } catch(e) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit for Review'; }
+        if (msg) { msg.style.color = 'var(--red)'; msg.textContent = 'Upload failed: ' + e.message; }
+      }
+    };
+
+    // Close modal on overlay click / Escape
+    document.getElementById('modal-kyc-submit').addEventListener('click', e => {
+      if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.getElementById('modal-kyc-submit').classList.remove('open');
+    });
+
+    // Open the tab named in hash (e.g. settings.html#security)
+    const hash = location.hash.replace('#','');
+    if (hash) {
+      const btn = document.querySelector(`.sett-nav__item[onclick*="'${hash}'"]`);
+      if (btn) settTab(hash, btn);
+    }
+  })();
+</script>
+</body>
+</html>

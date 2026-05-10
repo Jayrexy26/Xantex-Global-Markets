@@ -362,6 +362,7 @@
       .stat-card__value { font-size: 14px; }
       .filter-btn { padding: 4px 8px; font-size: 11px; }
     }
+    body { visibility: hidden; }
   </style>
 </head>
 <body>
@@ -1195,6 +1196,7 @@
   // Load real user name & initials
   const { data: { session } } = await db.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
+  document.body.style.visibility = 'visible';
   initNotifPopup(db, session.user.id);
   const { data: profile } = await db.from('profiles').select('first_name,last_name,avatar_url').eq('id', session.user.id).single();
   if (profile) {

@@ -269,6 +269,7 @@
     .data-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
     .data-table tbody tr:last-child td { border-bottom: none; }
     .data-table tbody tr:hover { background: var(--bg); }
+    body { visibility: hidden; }
   </style>
 </head>
 <body>
@@ -431,6 +432,7 @@
     if (!db) return;
     const { data: { session } } = await db.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
+    document.body.style.visibility = 'visible';
     const userId = session.user.id;
     initNotifPopup(db, userId);
 

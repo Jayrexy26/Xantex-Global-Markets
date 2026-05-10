@@ -578,6 +578,7 @@
     @media (min-width: 769px) {
       .fab-order, .sheet-overlay, .order-sheet { display: none !important; }
     }
+    body { visibility: hidden; }
   </style>
 </head>
 <body>
@@ -1382,6 +1383,7 @@
   if (!db) return;
   const { data: { session } } = await db.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
+  document.body.style.visibility = 'visible';
   initNotifPopup(db, session.user.id);
   const { data: profile } = await db.from('profiles').select('first_name,last_name,avatar_url').eq('id', session.user.id).single();
   if (profile) {

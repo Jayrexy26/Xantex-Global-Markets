@@ -181,6 +181,7 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
     body.dark ::-webkit-scrollbar-thumb { background: #2a2d3a; }
     * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    body { visibility: hidden; }
   </style>
 </head>
 <body>
@@ -409,6 +410,7 @@
     if (!db) return;
     const { data: { session } } = await db.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
+    document.body.style.visibility = 'visible';
     const userId = session.user.id;
     initNotifPopup(db, userId);
 

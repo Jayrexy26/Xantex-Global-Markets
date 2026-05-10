@@ -275,6 +275,7 @@
     .notif-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
     .notif-msg   { font-size: 13px; color: var(--muted); line-height: 1.5; }
     .notif-time  { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    body { visibility: hidden; }
   </style>
 </head>
 <body>
@@ -413,6 +414,7 @@
     if (!db) return;
     const { data: { session } } = await db.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
+    document.body.style.visibility = 'visible';
     const userId = session.user.id;
     initNotifPopup(db, userId);
 

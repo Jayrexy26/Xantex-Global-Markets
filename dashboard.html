@@ -924,6 +924,7 @@
       .sett-nav__divider { display: none; }
       .sett-grid-2 { grid-template-columns: 1fr; }
     }
+    body { visibility: hidden; }
   </style>
 </head>
 <body>
@@ -2536,6 +2537,7 @@ function savePreferences() {
     window.location.href = 'session.html';
     return;
   }
+  document.body.style.visibility = 'visible';
 
   function fmt(n) { return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function timeSince(ts) {

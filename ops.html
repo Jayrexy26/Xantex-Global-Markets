@@ -1574,6 +1574,14 @@ window.deleteUser = async function(userId) {
 };
 
 // ── KYC ───────────────────────────────────────────────────────
+function _kycDocUrl(url, bucket) {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  // Legacy records stored a bare path — reconstruct the full Supabase public URL
+  const base = `https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/${bucket}/`;
+  return base + url;
+}
+
 async function renderKYCLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db.from('kyc_submissions')
@@ -1582,9 +1590,12 @@ async function renderKYCLive() {
   if (!data?.length) { document.getElementById('kyc-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">No KYC submissions</td></tr>'; return; }
   document.getElementById('kyc-tbody').innerHTML = data.map(k => {
     const name = k.profiles ? `${k.profiles.first_name||''} ${k.profiles.last_name||''}`.trim() || k.profiles.email : '—';
-    const docs = [k.front_url&&`<a href="${k.front_url}" target="_blank" class="btn btn--sm btn--outline">Front</a>`,
-                  k.back_url&&`<a href="${k.back_url}" target="_blank" class="btn btn--sm btn--outline">Back</a>`,
-                  k.selfie_url&&`<a href="${k.selfie_url}" target="_blank" class="btn btn--sm btn--outline">Selfie</a>`].filter(Boolean).join('');
+    const frontUrl   = _kycDocUrl(k.front_url,   'kyc-docs');
+    const backUrl    = _kycDocUrl(k.back_url,    'kyc-docs');
+    const selfieUrl  = _kycDocUrl(k.selfie_url,  'avatars');
+    const docs = [frontUrl  && `<a href="${frontUrl}"  target="_blank" class="btn btn--sm btn--outline">Front</a>`,
+                  backUrl   && `<a href="${backUrl}"   target="_blank" class="btn btn--sm btn--outline">Back</a>`,
+                  selfieUrl && `<a href="${selfieUrl}" target="_blank" class="btn btn--sm btn--outline">Selfie</a>`].filter(Boolean).join('');
     return `<tr>
       <td><div class="user-cell"><div><div class="user-name">${name}</div><div class="user-email">${k.profiles?.email||''}</div></div></div></td>
       <td>${k.document_type||'—'}</td>

@@ -1091,15 +1091,15 @@
     </div>
     <div class="modal__body">
       <div class="form-grid">
-        <div class="field--full field"><label>User Account</label><input type="text" placeholder="Account ID or user email…"></div>
-        <div class="field"><label>Amount (USD)</label><input type="number" placeholder="0.00"></div>
-        <div class="field"><label>Payment Method</label><select><option>Bank Transfer</option><option>Card</option><option>Crypto</option><option>Internal</option></select></div>
-        <div class="field--full field"><label>Reference / Notes</label><input type="text" placeholder="Transaction reference…"></div>
+        <div class="field--full field"><label>Account ID or Account Number</label><input id="manual-dep-account" type="text" placeholder="UUID or account number…"></div>
+        <div class="field"><label>Amount (USD)</label><input id="manual-dep-amount" type="number" placeholder="0.00" min="0" step="0.01"></div>
+        <div class="field"><label>Payment Method</label><select id="manual-dep-method"><option>Bank Transfer</option><option>Card</option><option>Crypto</option><option>Internal</option></select></div>
+        <div class="field--full field"><label>Reference / Notes</label><input id="manual-dep-notes" type="text" placeholder="Transaction reference…"></div>
       </div>
     </div>
     <div class="modal__foot">
       <button class="btn btn--outline" onclick="closeModal('modal-manual-deposit')">Cancel</button>
-      <button class="btn btn--green" onclick="showToast('Deposit applied successfully','success');closeModal('modal-manual-deposit')">Apply Deposit</button>
+      <button class="btn btn--green" onclick="opsManualDeposit()">Apply Deposit</button>
     </div>
   </div>
 </div>
@@ -1548,39 +1548,108 @@
 <script src="./supabase.js"></script>
 <script>
 /* ============================================================
-   OPS PANEL — SUPABASE DATA LAYER
-   All render functions below override their static-data
-   counterparts. Static data is rendered first as a fallback,
-   then replaced with live Supabase rows when available.
+   OPS PANEL — FULL SUPABASE DATA LAYER
 ============================================================ */
+
+let _adminUser = null;
+let _allUsers  = [];   // cached for search/filter
 
 // ── Helpers ──────────────────────────────────────────────────
 function fmtDate(ts) {
   if (!ts) return '—';
-  return new Date(ts).toLocaleString('en-GB', {
-    day:'2-digit', month:'short', year:'numeric',
-    hour:'2-digit', minute:'2-digit',
-  });
+  return new Date(ts).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+function fmtMoney(n) { return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2 }); }
+
+async function logAudit(action, target, details) {
+  const db = window.XANTEX_DB; if (!db || !_adminUser?.id) return;
+  await db.from('audit_log').insert({ admin_id: _adminUser.id, admin_email: _adminUser.email, action, target: String(target || '').slice(0,100), details: String(details || '').slice(0,255) });
 }
 
-// ── Upgrade adminLogin to use Supabase Auth ──────────────────
-const _origAdminLogin = adminLogin;
+// ── Login ─────────────────────────────────────────────────────
 window.adminLogin = async function() {
   const emailOrUser = document.getElementById('admin-user').value.trim();
   const pass        = document.getElementById('admin-pass').value;
-  const db = window.XANTEX_DB;
+  const db          = window.XANTEX_DB;
 
   if (db && emailOrUser.includes('@')) {
-    const { error } = await db.auth.signInWithPassword({ email: emailOrUser, password: pass });
-    if (!error) {
-      document.getElementById('login-gate').style.display = 'none';
-      document.getElementById('main-app').style.display   = 'flex';
-      renderAll();
+    const { data, error } = await db.auth.signInWithPassword({ email: emailOrUser, password: pass });
+    if (!error && data?.user) {
+      const { data: adminRow } = await db.from('admin_users').select('id, email, role').eq('id', data.user.id).single();
+      if (adminRow) {
+        _adminUser = { id: data.user.id, email: data.user.email, role: adminRow.role || 'admin' };
+        const initials = data.user.email.slice(0,2).toUpperCase();
+        document.querySelector('.sidebar__user-name').textContent = data.user.email.split('@')[0];
+        document.querySelector('.sidebar__user-role').textContent = (_adminUser.role) + ' · OPS';
+        document.querySelector('.sidebar__avatar').textContent    = initials;
+        document.querySelector('.topbar__avatar').textContent     = initials;
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('main-app').style.display   = 'flex';
+        renderAll();
+        return;
+      }
+      document.getElementById('login-err').style.display = 'block';
+      document.getElementById('login-err').textContent   = 'Not an authorised admin account.';
       return;
     }
   }
-  _origAdminLogin(); // fallback to hardcoded admin/admin123
+
+  // Fallback hardcoded
+  if ((emailOrUser === 'admin' || emailOrUser === 'admin@xantex.com') && pass === 'admin123') {
+    _adminUser = { id: null, email: 'admin@xantex.com', role: 'superadmin' };
+    document.getElementById('login-gate').style.display = 'none';
+    document.getElementById('main-app').style.display   = 'flex';
+    renderAll();
+    return;
+  }
+  document.getElementById('login-err').style.display = 'block';
+  document.getElementById('login-err').textContent   = 'Incorrect credentials. Try again.';
 };
+
+// ── Dashboard Stats ───────────────────────────────────────────
+async function loadDashStats() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const [
+    { count: userCount },
+    { count: liveCount },
+    { count: pendingDep },
+    { count: pendingWd },
+    { count: pendingKyc },
+    { data: balData },
+    { count: openPos },
+  ] = await Promise.all([
+    db.from('profiles').select('*', { count:'exact', head:true }),
+    db.from('trading_accounts').select('*', { count:'exact', head:true }).eq('type','live'),
+    db.from('deposit_requests').select('*', { count:'exact', head:true }).eq('status','pending'),
+    db.from('withdrawal_requests').select('*', { count:'exact', head:true }).eq('status','pending'),
+    db.from('kyc_submissions').select('*', { count:'exact', head:true }).eq('status','pending'),
+    db.from('trading_accounts').select('balance'),
+    db.from('positions').select('*', { count:'exact', head:true }).eq('status','open'),
+  ]);
+  const totalAUM = (balData || []).reduce((s, a) => s + parseFloat(a.balance || 0), 0);
+  const fmt = n => n == null ? '—' : n.toLocaleString();
+  const cards = document.querySelectorAll('#page-dashboard .stat-card__value');
+  if (cards[0]) cards[0].textContent = fmt(userCount);
+  if (cards[1]) cards[1].textContent = fmt(liveCount);
+  if (cards[2]) cards[2].textContent = fmtMoney(totalAUM);
+  if (cards[3]) cards[3].textContent = fmt(openPos);
+  if (cards[4]) cards[4].textContent = fmt(pendingDep);
+  if (cards[5]) cards[5].textContent = fmt(pendingWd);
+  if (cards[6]) cards[6].textContent = fmt(pendingKyc);
+  const sel = s => document.querySelector(s);
+  const depBadge = sel('[onclick*="deposits"] .nav-item__badge');
+  const wdBadge  = sel('[onclick*="withdrawals"] .nav-item__badge');
+  const kycBadge = sel('[onclick*="verification"] .nav-item__badge');
+  const usrBadge = sel('[onclick*="users"] .nav-item__badge');
+  if (depBadge) depBadge.textContent = pendingDep || 0;
+  if (wdBadge)  wdBadge.textContent  = pendingWd  || 0;
+  if (kycBadge) kycBadge.textContent = pendingKyc || 0;
+  if (usrBadge) usrBadge.textContent = fmt(userCount);
+  const uSub = sel('#page-users .page-header__sub');
+  if (uSub && userCount != null) uSub.textContent = `${userCount.toLocaleString()} registered users`;
+  const kSub = sel('#page-verification .page-header__sub');
+  if (kSub && pendingKyc != null) kSub.textContent = `${pendingKyc} pending reviews`;
+}
 
 // ── Users ─────────────────────────────────────────────────────
 async function _loadUsers() {
@@ -1595,7 +1664,7 @@ async function _loadUsers() {
   return profiles.map((p, i) => {
     const accs  = accounts?.filter(a => a.user_id === p.id) || [];
     const total = accs.reduce((s, a) => s + (parseFloat(a.balance) || 0), 0);
-    const live  = accs.some(a => a.type?.toLowerCase().includes('live'));
+    const live  = accs.some(a => a.type === 'live');
     return {
       id:      p.id,
       name:    `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.email,
@@ -1611,94 +1680,180 @@ async function _loadUsers() {
   });
 }
 
+function _renderUsersTable(users) {
+  document.getElementById('users-tbody').innerHTML = users.length ? users.map(u => `
+    <tr>
+      <td><input type="checkbox"></td>
+      <td><div class="user-cell"><div class="user-avatar" style="background:${u.color};">${u.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div><div><div class="user-name">${u.name}</div><div class="user-email">${u.email}</div></div></div></td>
+      <td>${u.country}</td>
+      <td><span class="badge-pill ${u.type==='Live'?'pill-green':'pill-blue'}">${u.type}</span></td>
+      <td style="font-weight:600;">${u.balance}</td>
+      <td>${u.joined}</td>
+      <td><span class="badge-pill ${u.status==='active'?'pill-green':u.status==='suspended'?'pill-orange':'pill-red'}">${u.status}</span></td>
+      <td><span class="badge-pill ${u.kyc==='verified'?'pill-blue':u.kyc==='pending'?'pill-orange':'pill-red'}">${u.kyc}</span></td>
+      <td><div class="row-actions">
+        <button class="btn btn--sm btn--${u.status==='active'?'orange':'green'}" onclick="toggleUserStatus('${u.id}','${u.status}')">${u.status==='active'?'Suspend':'Activate'}</button>
+        <button class="btn btn--sm btn--red" onclick="deleteUser('${u.id}')">Delete</button>
+      </div></td>
+    </tr>`).join('')
+    : '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">No users found</td></tr>';
+}
+
 async function renderUsersLive() {
-  renderRecentUsers(); renderUsers(); // static first
+  renderRecentUsers(); renderUsers();
   const users = await _loadUsers();
   if (!users) return;
+  _allUsers = users;
   USERS.splice(0, USERS.length, ...users);
-  renderRecentUsers(); renderUsers();
+  renderRecentUsers();
+  _renderUsersTable(users);
 }
 window.renderUsersLive = renderUsersLive;
+
+window.filterUsers = function(type, btn) {
+  document.querySelectorAll('#page-users .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const q = document.querySelector('#page-users input[type=text]')?.value.toLowerCase() || '';
+  _renderUsersTable(_allUsers.filter(u => {
+    const mt = type==='all' || (type==='live'&&u.type==='Live') || (type==='demo'&&u.type==='Demo') || (type==='suspended'&&u.status==='suspended');
+    return mt && (!q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  }));
+};
+
+window.searchUsers = function(q) {
+  q = q.toLowerCase();
+  const active = document.querySelector('#page-users .tab-btn.active')?.textContent.trim().toLowerCase() || 'all';
+  _renderUsersTable(_allUsers.filter(u => {
+    const mt = active==='all' || (active==='live'&&u.type==='Live') || (active==='demo'&&u.type==='Demo') || (active==='suspended'&&u.status==='suspended');
+    return mt && (!q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  }));
+};
+
+window.toggleUserStatus = async function(userId, currentStatus) {
+  const db = window.XANTEX_DB; if (!db) return;
+  const next = currentStatus === 'active' ? 'suspended' : 'active';
+  const { error } = await db.from('profiles').update({ status: next }).eq('id', userId);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  await logAudit(next==='suspended'?'User Suspended':'User Activated', userId, `Status → ${next}`);
+  showToast(`User ${next}`, next==='suspended'?'error':'success');
+  renderUsersLive(); loadDashStats();
+};
+
+window.deleteUser = async function(userId) {
+  if (!confirm('Permanently delete this user and all their data? This cannot be undone.')) return;
+  const db = window.XANTEX_DB; if (!db) return;
+  const { error } = await db.from('profiles').delete().eq('id', userId);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  await logAudit('User Deleted', userId, 'Profile removed by admin');
+  showToast('User deleted', 'error');
+  renderUsersLive(); loadDashStats();
+};
 
 // ── KYC ───────────────────────────────────────────────────────
 async function renderKYCLive() {
   renderKYC();
   const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
-    .from('kyc_submissions')
-    .select('id, document_type, submitted_at, status, profiles(first_name, last_name)')
+  const { data } = await db.from('kyc_submissions')
+    .select('id, document_type, submitted_at, status, user_id, selfie_url, front_url, back_url, profiles(first_name, last_name, email)')
     .order('submitted_at', { ascending: false });
-  if (!data?.length) return;
+  if (!data?.length) { document.getElementById('kyc-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">No KYC submissions</td></tr>'; return; }
   document.getElementById('kyc-tbody').innerHTML = data.map(k => {
-    const name = k.profiles ? `${k.profiles.first_name} ${k.profiles.last_name}` : '—';
+    const name = k.profiles ? `${k.profiles.first_name||''} ${k.profiles.last_name||''}`.trim() || k.profiles.email : '—';
+    const docs = [k.front_url&&`<a href="${k.front_url}" target="_blank" class="btn btn--sm btn--outline">Front</a>`,
+                  k.back_url&&`<a href="${k.back_url}" target="_blank" class="btn btn--sm btn--outline">Back</a>`,
+                  k.selfie_url&&`<a href="${k.selfie_url}" target="_blank" class="btn btn--sm btn--outline">Selfie</a>`].filter(Boolean).join('');
     return `<tr>
-      <td><div class="user-name">${name}</div></td>
-      <td>${k.document_type || '—'}</td>
+      <td><div class="user-cell"><div><div class="user-name">${name}</div><div class="user-email">${k.profiles?.email||''}</div></div></div></td>
+      <td>${k.document_type||'—'}</td>
       <td>${fmtDate(k.submitted_at)}</td>
       <td><span class="badge-pill ${k.status==='pending'?'pill-orange':k.status==='verified'?'pill-green':'pill-red'}">${k.status}</span></td>
       <td><div class="row-actions">
-        <button class="btn btn--sm btn--green" onclick="opsApproveKYC('${k.id}')">Approve</button>
-        <button class="btn btn--sm btn--red"   onclick="opsRejectKYC('${k.id}')">Reject</button>
-        <button class="btn btn--sm btn--outline">View Docs</button>
+        ${k.status==='pending'?`
+        <button class="btn btn--sm btn--green" onclick="opsApproveKYC('${k.id}','${k.user_id}')">Approve</button>
+        <button class="btn btn--sm btn--red"   onclick="opsRejectKYC('${k.id}','${k.user_id}')">Reject</button>`
+        :`<span class="badge-pill ${k.status==='verified'?'pill-green':'pill-red'}">${k.status}</span>`}
+        ${docs}
       </div></td>
     </tr>`;
   }).join('');
 }
 window.renderKYCLive = renderKYCLive;
-window.opsApproveKYC = async id => {
-  await window.XANTEX_DB.from('kyc_submissions').update({ status:'verified' }).eq('id', id);
-  showToast('KYC approved','success'); renderKYCLive();
+
+window.opsApproveKYC = async (kycId, userId) => {
+  const db = window.XANTEX_DB;
+  await Promise.all([
+    db.from('kyc_submissions').update({ status:'verified', reviewed_at: new Date().toISOString() }).eq('id', kycId),
+    db.from('profiles').update({ kyc_status:'verified' }).eq('id', userId),
+  ]);
+  await logAudit('KYC Approved', userId, `Submission ${kycId}`);
+  showToast('KYC approved','success'); renderKYCLive(); loadDashStats();
 };
-window.opsRejectKYC = async id => {
-  await window.XANTEX_DB.from('kyc_submissions').update({ status:'rejected' }).eq('id', id);
-  showToast('KYC rejected','error'); renderKYCLive();
+window.opsRejectKYC = async (kycId, userId) => {
+  const db = window.XANTEX_DB;
+  await Promise.all([
+    db.from('kyc_submissions').update({ status:'rejected', reviewed_at: new Date().toISOString() }).eq('id', kycId),
+    db.from('profiles').update({ kyc_status:'rejected' }).eq('id', userId),
+  ]);
+  await logAudit('KYC Rejected', userId, `Submission ${kycId}`);
+  showToast('KYC rejected','error'); renderKYCLive(); loadDashStats();
 };
 
 // ── Trading Accounts ──────────────────────────────────────────
 async function renderAccountsLive() {
-  renderAccounts();
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
     .from('trading_accounts')
     .select('*, profiles(first_name, last_name)')
     .order('created_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('accounts-tbody').innerHTML = data.map(a => {
-    const name = a.profiles ? `${a.profiles.first_name} ${a.profiles.last_name}` : '—';
-    const bal  = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    const live = a.type?.toLowerCase().includes('live');
+  const tbody = document.getElementById('accounts-tbody');
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">No accounts found</td></tr>'; return; }
+  tbody.innerHTML = data.map(a => {
+    const name    = a.profiles ? `${a.profiles.first_name} ${a.profiles.last_name}` : '—';
+    const bal     = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    const live    = a.type?.toLowerCase().includes('live');
+    const active  = (a.status || 'active') === 'active';
+    const accDisp = a.account_number || a.id.slice(0,8);
     return `<tr>
-      <td style="font-weight:600;">#${a.account_number || a.id.slice(0,8)}</td>
+      <td style="font-weight:600;">#${accDisp}</td>
       <td>${name}</td>
       <td><span class="badge-pill pill-blue">${a.platform || '—'}</span></td>
       <td><span class="badge-pill ${live?'pill-green':'pill-blue'}">${live?'Live':'Demo'}</span></td>
       <td style="font-weight:600;">$${bal}</td>
       <td>$${bal}</td>
       <td>${a.leverage || '1:200'}</td>
-      <td><span class="badge-pill pill-green">active</span></td>
+      <td><span class="badge-pill ${active?'pill-green':'pill-red'}">${a.status || 'active'}</span></td>
       <td><div class="row-actions">
-        <button class="btn btn--sm btn--outline" onclick="showPage('balances',null)">Adjust</button>
-        <button class="btn btn--sm btn--red" onclick="opsSuspendAccount('${a.id}')">Suspend</button>
+        <button class="btn btn--sm btn--outline" onclick="prefillAdj('${a.id}','${accDisp}')">Adjust</button>
+        <button class="btn btn--sm ${active?'btn--red':'btn--green'}" onclick="opsToggleAccount('${a.id}','${a.status||'active'}')">${active?'Suspend':'Activate'}</button>
       </div></td>
     </tr>`;
   }).join('');
 }
 window.renderAccountsLive = renderAccountsLive;
-window.opsSuspendAccount = async id => {
-  await window.XANTEX_DB.from('trading_accounts').update({ status:'suspended' }).eq('id', id);
-  showToast('Account suspended','error'); renderAccountsLive();
+window.prefillAdj = function(id, label) {
+  document.getElementById('adj-account').value = id;
+  showPage('balances', null);
+};
+window.opsToggleAccount = async function(id, currentStatus) {
+  const db = window.XANTEX_DB; if (!db) return;
+  const newStatus = (currentStatus === 'active') ? 'suspended' : 'active';
+  const { error } = await db.from('trading_accounts').update({ status: newStatus }).eq('id', id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  await logAudit(newStatus === 'suspended' ? 'SUSPEND_ACCOUNT' : 'ACTIVATE_ACCOUNT', id, `Status changed to ${newStatus}`);
+  showToast(`Account ${newStatus}`, newStatus === 'suspended' ? 'error' : 'success');
+  renderAccountsLive();
 };
 
 // ── Positions ─────────────────────────────────────────────────
 async function renderPositionsLive() {
-  renderPositions();
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
     .from('positions')
     .select('*, profiles(first_name, last_name)')
     .eq('status','open').order('opened_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('positions-tbody').innerHTML = data.map(p => {
+  const tbody = document.getElementById('positions-tbody');
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:24px;">No open positions</td></tr>'; return; }
+  tbody.innerHTML = data.map(p => {
     const pnl  = parseFloat(p.floating_pnl || 0);
     const up   = pnl >= 0;
     const name = p.profiles ? `${p.profiles.first_name} ${p.profiles.last_name}` : '—';
@@ -1714,27 +1869,37 @@ async function renderPositionsLive() {
       <td style="color:var(--red);">${p.stop_loss || '—'}</td>
       <td style="color:var(--green);">${p.take_profit || '—'}</td>
       <td style="font-weight:700;color:${up?'var(--green)':'var(--red)'};">${up?'+':''}$${Math.abs(pnl).toFixed(2)}</td>
-      <td><button class="btn btn--sm btn--red" onclick="opsForceClose('${p.id}')">Force Close</button></td>
+      <td><button class="btn btn--sm btn--red" onclick="opsForceClose('${p.id}','${p.account_id}','${p.user_id}','${pnl.toFixed(2)}')">Force Close</button></td>
     </tr>`;
   }).join('');
 }
 window.renderPositionsLive = renderPositionsLive;
-window.opsForceClose = async id => {
+window.opsForceClose = async function(id, accountId, userId, pnlStr) {
   if (!confirm('Force close this position?')) return;
-  await window.XANTEX_DB.from('positions').update({ status:'closed' }).eq('id', id);
-  showToast('Position closed','success'); renderPositionsLive();
+  const db = window.XANTEX_DB; if (!db) return;
+  const pnl = parseFloat(pnlStr || 0);
+  await db.from('positions').update({ status:'closed', closed_at: new Date().toISOString() }).eq('id', id);
+  if (accountId && accountId !== 'undefined') {
+    const { data: acc } = await db.from('trading_accounts').select('balance').eq('id', accountId).single();
+    if (acc) {
+      await db.from('trading_accounts').update({ balance: parseFloat(acc.balance||0) + pnl }).eq('id', accountId);
+    }
+  }
+  await logAudit('FORCE_CLOSE_POSITION', id, `PnL: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}`);
+  showToast('Position force-closed','success');
+  renderPositionsLive();
 };
 
 // ── Deposits ──────────────────────────────────────────────────
 async function renderDepositsLive() {
-  renderDeposits();
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
-    .from('transactions')
+    .from('deposit_requests')
     .select('*, profiles(first_name, last_name)')
-    .eq('type','deposit').order('created_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('deposits-tbody').innerHTML = data.map(d => {
+    .order('created_at', { ascending: false });
+  const tbody = document.getElementById('deposits-tbody');
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">No deposit requests</td></tr>'; return; }
+  tbody.innerHTML = data.map(d => {
     const name = d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name}` : '—';
     const amt  = parseFloat(d.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
     return `<tr>
@@ -1746,59 +1911,93 @@ async function renderDepositsLive() {
       <td><span class="badge-pill ${d.status==='approved'?'pill-green':d.status==='pending'?'pill-orange':'pill-red'}">${d.status}</span></td>
       <td><div class="row-actions">
         ${d.status==='pending'
-          ? `<button class="btn btn--sm btn--green" onclick="opsApproveDeposit('${d.id}')">Approve</button>
-             <button class="btn btn--sm btn--red" onclick="opsRejectDeposit('${d.id}')">Reject</button>`
-          : `<button class="btn btn--sm btn--outline">View</button>`}
+          ? `<button class="btn btn--sm btn--green" onclick="opsApproveDeposit('${d.id}','${d.account_id}','${d.user_id}',${d.amount})">Approve</button>
+             <button class="btn btn--sm btn--red" onclick="opsRejectDeposit('${d.id}','${d.user_id}')">Reject</button>`
+          : `${d.proof_url ? `<a class="btn btn--sm btn--outline" href="${d.proof_url}" target="_blank">Proof</a>` : '<button class="btn btn--sm btn--outline" disabled>No Proof</button>'}`}
       </div></td>
     </tr>`;
   }).join('');
 }
 window.renderDepositsLive = renderDepositsLive;
-window.opsApproveDeposit = async id => {
-  await window.XANTEX_DB.from('transactions').update({ status:'approved' }).eq('id', id);
-  showToast('Deposit approved','success'); renderDepositsLive();
+window.opsApproveDeposit = async function(id, accountId, userId, amount) {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { error } = await db.from('deposit_requests').update({ status:'approved', reviewed_by: _adminUser?.id, reviewed_at: new Date().toISOString() }).eq('id', id);
+  if (error) { showToast('Error: ' + error.message,'error'); return; }
+  if (accountId && accountId !== 'undefined') {
+    const { data: acc } = await db.from('trading_accounts').select('balance').eq('id', accountId).single();
+    if (acc) await db.from('trading_accounts').update({ balance: parseFloat(acc.balance||0) + parseFloat(amount) }).eq('id', accountId);
+  }
+  await db.from('transactions').insert({ user_id: userId, account_id: accountId || null, type:'deposit', amount: parseFloat(amount), status:'approved', payment_method:'Deposit', description:'Deposit approved by admin' });
+  await logAudit('APPROVE_DEPOSIT', id, `Amount: $${parseFloat(amount).toFixed(2)}`);
+  showToast('Deposit approved','success');
+  renderDepositsLive();
+  loadDashStats();
 };
-window.opsRejectDeposit = async id => {
-  await window.XANTEX_DB.from('transactions').update({ status:'rejected' }).eq('id', id);
-  showToast('Deposit rejected','error'); renderDepositsLive();
+window.opsRejectDeposit = async function(id, userId) {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { error } = await db.from('deposit_requests').update({ status:'rejected', reviewed_by: _adminUser?.id, reviewed_at: new Date().toISOString() }).eq('id', id);
+  if (error) { showToast('Error: ' + error.message,'error'); return; }
+  await logAudit('REJECT_DEPOSIT', id, 'Rejected by admin');
+  showToast('Deposit rejected','error');
+  renderDepositsLive();
+  loadDashStats();
 };
 
 // ── Withdrawals ───────────────────────────────────────────────
 async function renderWithdrawalsLive() {
-  renderWithdrawals();
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
-    .from('transactions')
+    .from('withdrawal_requests')
     .select('*, profiles(first_name, last_name)')
-    .eq('type','withdrawal').order('created_at', { ascending: false });
-  if (!data?.length) return;
-  document.getElementById('withdrawals-tbody').innerHTML = data.map(w => {
+    .order('created_at', { ascending: false });
+  const tbody = document.getElementById('withdrawals-tbody');
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">No withdrawal requests</td></tr>'; return; }
+  tbody.innerHTML = data.map(w => {
     const name = w.profiles ? `${w.profiles.first_name} ${w.profiles.last_name}` : '—';
     const amt  = parseFloat(w.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    const dest = [w.destination_name, w.destination_ref].filter(Boolean).join(' · ') || '—';
     return `<tr>
       <td style="font-weight:600;">${w.id.slice(0,8).toUpperCase()}</td>
       <td>${name}</td>
       <td style="font-weight:700;">$${amt}</td>
-      <td style="font-size:12px;">${w.destination || '—'}</td>
+      <td style="font-size:12px;">${dest}</td>
       <td style="font-size:12px;">${fmtDate(w.created_at)}</td>
       <td><span class="badge-pill ${w.status==='approved'?'pill-green':w.status==='pending'?'pill-orange':'pill-red'}">${w.status}</span></td>
       <td><div class="row-actions">
         ${w.status==='pending'
-          ? `<button class="btn btn--sm btn--green" onclick="opsApproveWithdrawal('${w.id}')">Approve</button>
-             <button class="btn btn--sm btn--red" onclick="opsRejectWithdrawal('${w.id}')">Reject</button>`
-          : `<button class="btn btn--sm btn--outline">View</button>`}
+          ? `<button class="btn btn--sm btn--green" onclick="opsApproveWithdrawal('${w.id}','${w.account_id}','${w.user_id}',${w.amount})">Approve</button>
+             <button class="btn btn--sm btn--red" onclick="opsRejectWithdrawal('${w.id}','${w.user_id}')">Reject</button>`
+          : `<button class="btn btn--sm btn--outline" disabled>Processed</button>`}
       </div></td>
     </tr>`;
   }).join('');
 }
 window.renderWithdrawalsLive = renderWithdrawalsLive;
-window.opsApproveWithdrawal = async id => {
-  await window.XANTEX_DB.from('transactions').update({ status:'approved' }).eq('id', id);
-  showToast('Withdrawal approved','success'); renderWithdrawalsLive();
+window.opsApproveWithdrawal = async function(id, accountId, userId, amount) {
+  const db = window.XANTEX_DB; if (!db) return;
+  if (accountId && accountId !== 'undefined') {
+    const { data: acc } = await db.from('trading_accounts').select('balance').eq('id', accountId).single();
+    if (acc) {
+      const newBal = Math.max(0, parseFloat(acc.balance||0) - parseFloat(amount));
+      await db.from('trading_accounts').update({ balance: newBal }).eq('id', accountId);
+    }
+  }
+  const { error } = await db.from('withdrawal_requests').update({ status:'approved', reviewed_by: _adminUser?.id, reviewed_at: new Date().toISOString(), processed_at: new Date().toISOString() }).eq('id', id);
+  if (error) { showToast('Error: ' + error.message,'error'); return; }
+  await db.from('transactions').insert({ user_id: userId, account_id: accountId || null, type:'withdrawal', amount: parseFloat(amount), status:'approved', description:'Withdrawal approved by admin' });
+  await logAudit('APPROVE_WITHDRAWAL', id, `Amount: $${parseFloat(amount).toFixed(2)}`);
+  showToast('Withdrawal approved','success');
+  renderWithdrawalsLive();
+  loadDashStats();
 };
-window.opsRejectWithdrawal = async id => {
-  await window.XANTEX_DB.from('transactions').update({ status:'rejected' }).eq('id', id);
-  showToast('Withdrawal rejected','error'); renderWithdrawalsLive();
+window.opsRejectWithdrawal = async function(id, userId) {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { error } = await db.from('withdrawal_requests').update({ status:'rejected', reviewed_by: _adminUser?.id, reviewed_at: new Date().toISOString() }).eq('id', id);
+  if (error) { showToast('Error: ' + error.message,'error'); return; }
+  await logAudit('REJECT_WITHDRAWAL', id, 'Rejected by admin');
+  showToast('Withdrawal rejected','error');
+  renderWithdrawalsLive();
+  loadDashStats();
 };
 
 // ── All Transactions ──────────────────────────────────────────
@@ -1874,13 +2073,16 @@ async function renderAnnouncementsLive() {
     </div>`).join('');
 }
 window.renderAnnouncementsLive = renderAnnouncementsLive;
-window.opsDeleteAnnouncement = async id => {
-  await window.XANTEX_DB.from('announcements').delete().eq('id', id);
-  showToast('Deleted','error'); renderAnnouncementsLive();
+window.opsDeleteAnnouncement = async function(id) {
+  if (!confirm('Delete this announcement?')) return;
+  const db = window.XANTEX_DB; if (!db) return;
+  await db.from('announcements').delete().eq('id', id);
+  await logAudit('DELETE_ANNOUNCEMENT', id, 'Deleted by admin');
+  showToast('Announcement deleted','error');
+  renderAnnouncementsLive();
 };
 
 // ── Patch publishAnnouncement ─────────────────────────────────
-const _origPublishAnnouncement = publishAnnouncement;
 window.publishAnnouncement = async function() {
   const title    = document.getElementById('ann-title').value.trim();
   const body     = document.getElementById('ann-body').value.trim();
@@ -1889,30 +2091,38 @@ window.publishAnnouncement = async function() {
   const schedule = document.getElementById('ann-schedule').value;
   if (!title) { showToast('Please enter a title','error'); return; }
   const db = window.XANTEX_DB;
-  if (db) {
-    await db.from('announcements').insert({
-      title, body, type, audience,
-      scheduled_at: schedule || null,
-      published: !schedule,
-    });
-  }
+  if (!db) { showToast('No database connection','error'); return; }
+  const { error } = await db.from('announcements').insert({
+    title, body, type, audience,
+    scheduled_at: schedule || null,
+    published: !schedule,
+  });
+  if (error) { showToast('Error: ' + error.message,'error'); return; }
+  await logAudit('PUBLISH_ANNOUNCEMENT', title, `Type: ${type}, Audience: ${audience}`);
   showToast('Announcement published','success');
+  document.getElementById('ann-title').value    = '';
+  document.getElementById('ann-body').value     = '';
+  document.getElementById('ann-schedule').value = '';
   renderAnnouncementsLive();
 };
 
 // ── Patch applyAdjustment ─────────────────────────────────────
-const _origApplyAdjustment = applyAdjustment;
 window.applyAdjustment = async function() {
-  const accId   = document.getElementById('adj-account').value;
-  const adjType = document.getElementById('adj-type').value;
-  const amount  = parseFloat(document.getElementById('adj-amount').value);
-  const reason  = document.getElementById('adj-reason').value.trim();
-  if (!accId || !amount || !reason) { showToast('Please fill all required fields','error'); return; }
+  const accInput = document.getElementById('adj-account').value.trim();
+  const adjType  = document.getElementById('adj-type').value;
+  const amount   = parseFloat(document.getElementById('adj-amount').value);
+  const reason   = document.getElementById('adj-reason').value.trim();
+  if (!accInput || !amount || !reason) { showToast('Please fill all required fields','error'); return; }
   const db = window.XANTEX_DB;
-  if (!db) { showToast('Balance adjusted (offline)','success'); return; }
+  if (!db) { showToast('No database connection','error'); return; }
 
-  const { data: acc } = await db.from('trading_accounts').select('balance, user_id').eq('id', accId).single();
-  if (!acc) { showToast('Account not found','error'); return; }
+  // Accept both UUID and account_number
+  const isUUID = /^[0-9a-f-]{36}$/i.test(accInput);
+  let accQuery = isUUID
+    ? db.from('trading_accounts').select('id, balance, user_id, account_number').eq('id', accInput)
+    : db.from('trading_accounts').select('id, balance, user_id, account_number').eq('account_number', accInput);
+  const { data: acc, error: accErr } = await accQuery.single();
+  if (accErr || !acc) { showToast('Account not found','error'); return; }
 
   const before = parseFloat(acc.balance || 0);
   let after = before;
@@ -1920,12 +2130,12 @@ window.applyAdjustment = async function() {
   else if (adjType.startsWith('Debit'))  after = Math.max(0, before - amount);
   else if (adjType.startsWith('Set'))    after = amount;
 
-  const { error } = await db.from('trading_accounts').update({ balance: after }).eq('id', accId);
+  const { error } = await db.from('trading_accounts').update({ balance: after }).eq('id', acc.id);
   if (error) { showToast('Error: ' + error.message,'error'); return; }
 
   await db.from('transactions').insert({
     user_id: acc.user_id,
-    account_id: accId,
+    account_id: acc.id,
     type: adjType.startsWith('Debit') ? 'withdrawal' : 'deposit',
     amount,
     status: 'approved',
@@ -1933,49 +2143,119 @@ window.applyAdjustment = async function() {
     payment_method: 'Admin Adjustment',
   });
 
+  await logAudit(adjType.toUpperCase().replace(/\s/g,'_'), acc.id,
+    `#${acc.account_number || acc.id.slice(0,8)}: ${adjType} $${amount.toFixed(2)} | Before: $${before.toFixed(2)} → After: $${after.toFixed(2)} | Reason: ${reason}`);
+
   showToast('Balance adjusted successfully','success');
+  document.getElementById('adj-account').value = '';
+  document.getElementById('adj-amount').value  = '';
+  document.getElementById('adj-reason').value  = '';
   renderAccountsLive();
   renderTransactionsLive();
+  renderAdjLogLive();
 };
 
-// ── Patch saveUser ────────────────────────────────────────────
-const _origSaveUser = saveUser;
-window.saveUser = async function() {
-  const modal   = document.getElementById('modal-add-user');
-  const inputs  = modal.querySelectorAll('input, select');
-  const [firstName, lastName, email, phone] = [0,1,2,3].map(i => inputs[i].value.trim());
-  const country = inputs[4].value;
-  const accType = inputs[5].value;
-  const platform = inputs[6].value;
-  const initBal = parseFloat(inputs[7]?.value) || 0;
+// ── saveUser — users must register via the registration page ──
+window.saveUser = function() {
+  showToast('To create a user, have them register at /register.html. Supabase Auth manages user accounts.', 'error');
+};
 
-  if (!email || !firstName) { showToast('First name and email are required','error'); return; }
+// ── Adjustment Log ────────────────────────────────────────────
+async function renderAdjLogLive() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('transactions')
+    .select('*, profiles(first_name, last_name)')
+    .eq('payment_method','Admin Adjustment')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  const el = document.getElementById('adj-log-list');
+  if (!el) return;
+  if (!data?.length) { el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;">No adjustments yet</div>'; return; }
+  el.innerHTML = data.map(t => {
+    const name = t.profiles ? `${t.profiles.first_name} ${t.profiles.last_name}` : '—';
+    const amt  = parseFloat(t.amount||0).toLocaleString('en-US',{minimumFractionDigits:2});
+    const dep  = t.type === 'deposit';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-weight:600;font-size:13px;">${name}</div>
+        <div style="font-size:12px;color:var(--muted);">${t.description || '—'}</div>
+        <div style="font-size:11px;color:var(--muted);">${fmtDate(t.created_at)}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-weight:700;color:${dep?'var(--green)':'var(--red)'};">${dep?'+':'-'}$${amt}</div>
+        <div style="font-size:11px;color:var(--muted);">${t.type}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+window.renderAdjLogLive = renderAdjLogLive;
 
-  const db = window.XANTEX_DB;
-  if (!db) { showToast('User created (offline mode)','success'); closeModal('modal-add-user'); return; }
+// ── Activity Feed ─────────────────────────────────────────────
+async function renderActivityLive() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('audit_log')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(20);
+  const el = document.getElementById('activity-feed');
+  if (!el) return;
+  if (!data?.length) { el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;">No recent activity</div>'; return; }
+  el.innerHTML = data.map(a => `
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">
+        ${(a.admin_email||'A')[0].toUpperCase()}
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;">${a.action}</div>
+        <div style="font-size:12px;color:var(--muted);">${a.details || a.target || '—'}</div>
+        <div style="font-size:11px;color:var(--muted);">${fmtDate(a.created_at)} · ${a.admin_email || 'Admin'}</div>
+      </div>
+    </div>`).join('');
+}
+window.renderActivityLive = renderActivityLive;
 
-  const userId = crypto.randomUUID();
-  await db.from('profiles').upsert({
-    id: userId, first_name: firstName, last_name: lastName,
-    email, phone, country, kyc_status: 'pending', status: 'active',
+// ── Manual Deposit (modal handler) ───────────────────────────
+window.opsManualDeposit = async function() {
+  const accInput = document.getElementById('manual-dep-account')?.value?.trim();
+  const amount   = parseFloat(document.getElementById('manual-dep-amount')?.value);
+  const method   = document.getElementById('manual-dep-method')?.value?.trim() || 'Manual';
+  const notes    = document.getElementById('manual-dep-notes')?.value?.trim() || '';
+  if (!accInput || !amount) { showToast('Account and amount are required','error'); return; }
+  const db = window.XANTEX_DB; if (!db) return;
+
+  const isUUID = /^[0-9a-f-]{36}$/i.test(accInput);
+  let q = isUUID
+    ? db.from('trading_accounts').select('id, balance, user_id, account_number').eq('id', accInput)
+    : db.from('trading_accounts').select('id, balance, user_id, account_number').eq('account_number', accInput);
+  const { data: acc, error: accErr } = await q.single();
+  if (accErr || !acc) { showToast('Account not found','error'); return; }
+
+  const newBal = parseFloat(acc.balance||0) + amount;
+  await db.from('trading_accounts').update({ balance: newBal }).eq('id', acc.id);
+  await db.from('deposit_requests').insert({
+    user_id: acc.user_id, account_id: acc.id,
+    amount, currency:'USD', payment_method: method,
+    notes, status:'approved',
+    reviewed_by: _adminUser?.id, reviewed_at: new Date().toISOString(),
   });
-
-  if (initBal > 0) {
-    await db.from('trading_accounts').insert({
-      user_id: userId, platform,
-      type: accType.toLowerCase().includes('live') ? 'live' : 'demo',
-      account_type: 'Standard', currency: 'USD',
-      balance: initBal, leverage: '1:200',
-    });
-  }
-
-  showToast('User created successfully','success');
-  closeModal('modal-add-user');
-  renderUsersLive();
+  await db.from('transactions').insert({
+    user_id: acc.user_id, account_id: acc.id,
+    type:'deposit', amount, status:'approved',
+    description: notes || 'Manual deposit by admin', payment_method: method,
+  });
+  await logAudit('MANUAL_DEPOSIT', acc.id, `#${acc.account_number||acc.id.slice(0,8)}: +$${amount.toFixed(2)} via ${method}`);
+  showToast('Manual deposit applied','success');
+  closeModal('modal-manual-deposit');
+  renderDepositsLive();
+  renderAccountsLive();
+  loadDashStats();
 };
 
 // ── Override renderAll to use live versions ───────────────────
 window.renderAll = function() {
+  loadDashStats();
   renderUsersLive();
   renderKYCLive();
   renderAccountsLive();
@@ -1985,8 +2265,8 @@ window.renderAll = function() {
   renderTransactionsLive();
   renderAuditLive();
   renderAnnouncementsLive();
-  renderAdjLog();
-  renderActivity();
+  renderAdjLogLive();
+  renderActivityLive();
   renderMarketsControl();
 };
 </script>

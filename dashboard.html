@@ -1898,43 +1898,6 @@
   </div>
 </div>
 
-<!-- ============================================================
-     PIN MODALS
-============================================================ -->
-<div class="modal-overlay" id="modal-pin-create" style="z-index:600;">
-  <div class="modal" style="max-width:360px;text-align:center;">
-    <div class="modal__head" style="justify-content:center;border-bottom:none;padding-bottom:0;">
-      <div>
-        <div style="font-size:32px;margin-bottom:8px;">🔐</div>
-        <div class="modal__title" id="create-pin-title">Create Your PIN</div>
-        <div id="create-pin-subtitle" style="font-size:13px;color:var(--muted);margin-top:4px;">Set a 4-digit PIN for account security</div>
-      </div>
-    </div>
-    <div style="padding:20px 24px 24px;">
-      <div class="pin-dots" id="create-pin-dots"><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span></div>
-      <div id="create-pin-error" style="color:var(--red);font-size:12px;min-height:16px;margin-bottom:10px;"></div>
-      <div class="pin-pad" id="create-pin-pad"></div>
-      <div style="font-size:12px;color:var(--muted);margin-top:16px;">This PIN is required every time you log in and for withdrawals.</div>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-pin-enter" style="z-index:600;">
-  <div class="modal" style="max-width:360px;text-align:center;">
-    <div class="modal__head" style="justify-content:center;border-bottom:none;padding-bottom:0;">
-      <div>
-        <div style="font-size:32px;margin-bottom:8px;">🔑</div>
-        <div class="modal__title">Enter Your PIN</div>
-        <div style="font-size:13px;color:var(--muted);margin-top:4px;">Enter your 4-digit security PIN to continue</div>
-      </div>
-    </div>
-    <div style="padding:20px 24px 24px;">
-      <div class="pin-dots" id="enter-pin-dots"><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span></div>
-      <div id="enter-pin-error" style="color:var(--red);font-size:12px;min-height:16px;margin-bottom:10px;"></div>
-      <div class="pin-pad" id="enter-pin-pad"></div>
-    </div>
-  </div>
-</div>
 
 <!-- ============================================================
      NEW TRADE MODAL
@@ -2360,6 +2323,7 @@
 async function signOut() {
   const db = window.XANTEX_DB;
   if (db) await db.auth.signOut();
+  sessionStorage.removeItem('xantex_pin_ok');
   window.location.href = 'login.html?signout';
 }
 
@@ -2497,70 +2461,11 @@ function savePreferences() {
     }
   } catch(e) { console.warn('[dashboard] ban check:', e.message); }
 
-  // ── PIN gate — must unlock before dashboard is usable ─────
-  const _storedPin = session.user.user_metadata?.trading_pin;
-  let _pinUnlocked = !_storedPin; // if no PIN set yet, unlocked after creation
-
-  function _showPinCreate() {
-    const overlay = document.getElementById('modal-pin-create');
-    if (!overlay) { _pinUnlocked = true; return; }
-    overlay.classList.add('open', 'pin-persistent');
-    let phase = 1, firstPin = '';
-    const titleEl    = document.getElementById('create-pin-title');
-    const subtitleEl = document.getElementById('create-pin-subtitle');
-    const errEl      = document.getElementById('create-pin-error');
-    _buildPinPad('create-pin-pad', 'create-pin-dots', 'create-pin-error', async pin => {
-      if (phase === 1) {
-        firstPin = pin; phase = 2;
-        if (titleEl)    titleEl.textContent    = 'Confirm PIN';
-        if (subtitleEl) subtitleEl.textContent = 'Re-enter your PIN to confirm';
-      } else {
-        if (pin === firstPin) {
-          const hash = await _sha256(pin);
-          await db.auth.updateUser({ data: { trading_pin: hash } });
-          overlay.classList.remove('open', 'pin-persistent');
-          _pinUnlocked = true;
-        } else {
-          if (errEl) errEl.textContent = 'PINs do not match. Try again.';
-          phase = 1; firstPin = '';
-          if (titleEl)    titleEl.textContent    = 'Create Your PIN';
-          if (subtitleEl) subtitleEl.textContent = 'Set a 4-digit PIN for account security';
-        }
-      }
-    });
+  // ── Session PIN check — handled by session.html ──────────
+  if (!sessionStorage.getItem('xantex_pin_ok')) {
+    window.location.href = 'session.html';
+    return;
   }
-
-  function _showPinEnter(persistent, cb) {
-    const overlay = document.getElementById('modal-pin-enter');
-    if (!overlay) { if (persistent) _pinUnlocked = true; if (cb) cb(); return; }
-    if (persistent) overlay.classList.add('pin-persistent');
-    overlay.classList.add('open');
-    let attempts = 0;
-    const errEl = document.getElementById('enter-pin-error');
-    if (errEl) errEl.textContent = '';
-    _buildPinPad('enter-pin-pad', 'enter-pin-dots', 'enter-pin-error', async pin => {
-      const hash = await _sha256(pin);
-      const currentPin = (await db.auth.getSession()).data.session?.user?.user_metadata?.trading_pin || _storedPin;
-      if (hash === currentPin) {
-        overlay.classList.remove('open', 'pin-persistent');
-        if (persistent) _pinUnlocked = true;
-        if (cb) cb();
-      } else {
-        attempts++;
-        if (errEl) errEl.textContent = attempts >= 3 ? 'Incorrect PIN.' : 'Wrong PIN. Try again.';
-        if (attempts >= 5) { await db.auth.signOut(); window.location.href = 'login.html'; }
-      }
-    });
-  }
-
-  window._requirePin = cb => _showPinEnter(false, cb);
-
-  if (!_storedPin) {
-    _showPinCreate();
-  } else {
-    _showPinEnter(true, null);
-  }
-  // ── End PIN gate ─────────────────────────────────────────
 
   function fmt(n) { return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function timeSince(ts) {
@@ -2939,7 +2844,7 @@ function savePreferences() {
 
   // ── Sign out ──────────────────────────────────────────────
   document.querySelectorAll('.sidebar__logout').forEach(btn => {
-    btn.onclick = async () => { await db.auth.signOut(); window.location.href = 'login.html'; };
+    btn.onclick = async () => { await db.auth.signOut(); sessionStorage.removeItem('xantex_pin_ok'); window.location.href = 'login.html'; };
   });
 
   // ── Close position ────────────────────────────────────────
@@ -3136,13 +3041,6 @@ function savePreferences() {
   // Reset deposit modal state when opened
   const _origOpenModal = window.openModal;
   window.openModal = function(id) {
-    if (id === 'withdraw') {
-      window._requirePin(() => {
-        if (typeof _origOpenModal === 'function') _origOpenModal.call(window, 'withdraw');
-        else document.getElementById('modal-withdraw')?.classList.add('open');
-      });
-      return;
-    }
     if (id === 'deposit') {
       _depCoin = null; _depNetwork = 'ERC20';
       ['BTC','ETH','USDT'].forEach(c => document.getElementById('dep-coin-'+c)?.classList.remove('active'));

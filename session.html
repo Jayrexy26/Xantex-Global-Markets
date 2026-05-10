@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Access — Xantex Global Markets</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:    #1a5cff;
+      --blue-lt: rgba(26,92,255,0.10);
+      --green:   #22a06b;
+      --red:     #e60023;
+      --bg:      #0f1117;
+      --surface: #181c27;
+      --border:  rgba(255,255,255,0.08);
+      --text:    #e8eaf0;
+      --muted:   rgba(232,234,240,0.45);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .session-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 36px 36px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+    }
+
+    .session-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .session-logo img {
+      height: 32px;
+      object-fit: contain;
+    }
+    .session-logo__text {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .session-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 auto 16px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .session-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .session-email {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .pin-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .pin-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .pin-dots {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .pin-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      transition: background .15s, border-color .15s, transform .12s;
+    }
+    .pin-dot.filled {
+      background: var(--blue);
+      border-color: var(--blue);
+      transform: scale(1.1);
+    }
+
+    .pin-error {
+      color: var(--red);
+      font-size: 12px;
+      min-height: 18px;
+      margin-bottom: 16px;
+    }
+
+    .pin-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .pin-key {
+      height: 58px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .12s, border-color .12s, transform .08s;
+      user-select: none;
+    }
+    .pin-key:hover  { background: var(--blue-lt); border-color: var(--blue); }
+    .pin-key:active { transform: scale(0.94); }
+
+    .session-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .session-footer button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color .15s;
+    }
+    .session-footer button:hover { color: var(--red); }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+</div>
+
+<div class="session-card hidden" id="session-card">
+  <div class="session-logo">
+    <img src="/images/logo.png" alt="Xantex" onerror="this.style.display='none'">
+    <span class="session-logo__text">Xantex</span>
+  </div>
+
+  <div class="session-avatar" id="session-avatar"></div>
+  <div class="session-name"  id="session-name"></div>
+  <div class="session-email" id="session-email"></div>
+
+  <div class="pin-title"    id="pin-title">Enter Your PIN</div>
+  <div class="pin-subtitle" id="pin-subtitle">Enter your 4-digit security PIN to access your account</div>
+
+  <div class="pin-dots" id="pin-dots">
+    <span class="pin-dot"></span>
+    <span class="pin-dot"></span>
+    <span class="pin-dot"></span>
+    <span class="pin-dot"></span>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+  <div class="pin-pad"   id="pin-pad"></div>
+
+  <div class="session-footer">
+    <button id="signout-btn">Sign out</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+(async () => {
+  const db = window.XANTEX_DB;
+  if (!db) { window.location.href = 'login.html'; return; }
+
+  // ── Auth check ────────────────────────────────────────────
+  let session;
+  try {
+    const { data } = await db.auth.getSession();
+    session = data?.session;
+  } catch(e) {}
+  if (!session) { window.location.href = 'login.html'; return; }
+
+  const userId = session.user.id;
+
+  // ── Ban check ─────────────────────────────────────────────
+  try {
+    const { data: ban } = await db.from('banned_users').select('user_id').eq('user_id', userId).maybeSingle();
+    if (ban) { await db.auth.signOut(); window.location.href = 'login.html?account=deleted'; return; }
+  } catch(e) {}
+
+  // ── Load profile for display ──────────────────────────────
+  let firstName = '', lastName = '', email = session.user.email || '', avatarUrl = '';
+  try {
+    const { data: prof } = await db.from('profiles').select('first_name,last_name,avatar_url').eq('id', userId).maybeSingle();
+    if (prof) {
+      firstName  = prof.first_name || '';
+      lastName   = prof.last_name  || '';
+      avatarUrl  = prof.avatar_url || '';
+    }
+  } catch(e) {}
+  if (!firstName) { const m = session.user.user_metadata || {}; firstName = m.first_name || m.full_name?.split(' ')[0] || ''; }
+
+  // ── Populate header ───────────────────────────────────────
+  const fullName  = (firstName + ' ' + lastName).trim() || email;
+  const initials  = ((firstName[0]||'') + (lastName[0]||'')).toUpperCase() || '?';
+  const avatarEl  = document.getElementById('session-avatar');
+  const nameEl    = document.getElementById('session-name');
+  const emailEl   = document.getElementById('session-email');
+  if (nameEl)  nameEl.textContent  = fullName;
+  if (emailEl) emailEl.textContent = email;
+  if (avatarEl) {
+    if (avatarUrl) {
+      avatarEl.style.backgroundImage = `url(${avatarUrl})`;
+      avatarEl.style.backgroundSize  = 'cover';
+      avatarEl.style.backgroundPosition = 'center';
+      avatarEl.textContent = '';
+    } else {
+      avatarEl.textContent = initials;
+    }
+  }
+
+  // ── PIN helpers ───────────────────────────────────────────
+  function sha256(str) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))
+      .then(h => Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join(''));
+  }
+
+  function buildPad(onComplete) {
+    let buf = '';
+    const pad    = document.getElementById('pin-pad');
+    const dots   = document.getElementById('pin-dots');
+    const errEl  = document.getElementById('pin-error');
+    const sync   = () => dots.querySelectorAll('.pin-dot').forEach((d,i) => d.classList.toggle('filled', i < buf.length));
+    const press  = v => {
+      if (errEl) errEl.textContent = '';
+      if (v === '⌫') { buf = buf.slice(0,-1); sync(); return; }
+      if (buf.length >= 4) return;
+      buf += v; sync();
+      if (buf.length === 4) { const pin = buf; buf = ''; setTimeout(sync, 180); onComplete(pin); }
+    };
+    pad.innerHTML = ['1','2','3','4','5','6','7','8','9','','0','⌫']
+      .map(k => k === '' ? '<div></div>' : `<button class="pin-key" data-k="${k}">${k}</button>`).join('');
+    pad.onclick = e => { const b = e.target.closest('[data-k]'); if (b) press(b.dataset.k); };
+  }
+
+  function resetDots() {
+    document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('filled'));
+  }
+
+  // ── Determine mode: create or enter ──────────────────────
+  const storedPin = session.user.user_metadata?.trading_pin;
+
+  function showCreate() {
+    document.getElementById('pin-title').textContent    = 'Create Your PIN';
+    document.getElementById('pin-subtitle').textContent = 'Set a 4-digit PIN to secure your account';
+    let phase = 1, firstPin = '';
+    buildPad(async pin => {
+      const errEl = document.getElementById('pin-error');
+      if (phase === 1) {
+        firstPin = pin; phase = 2;
+        resetDots();
+        document.getElementById('pin-title').textContent    = 'Confirm PIN';
+        document.getElementById('pin-subtitle').textContent = 'Re-enter your PIN to confirm';
+      } else {
+        if (pin === firstPin) {
+          try {
+            const hash = await sha256(pin);
+            await db.auth.updateUser({ data: { trading_pin: hash } });
+            sessionStorage.setItem('xantex_pin_ok', '1');
+            window.location.href = 'dashboard.html';
+          } catch(e) {
+            if (errEl) errEl.textContent = 'Could not save PIN. Try again.';
+            phase = 1; firstPin = ''; resetDots();
+            document.getElementById('pin-title').textContent    = 'Create Your PIN';
+            document.getElementById('pin-subtitle').textContent = 'Set a 4-digit PIN to secure your account';
+          }
+        } else {
+          if (errEl) errEl.textContent = 'PINs do not match. Try again.';
+          phase = 1; firstPin = ''; resetDots();
+          document.getElementById('pin-title').textContent    = 'Create Your PIN';
+          document.getElementById('pin-subtitle').textContent = 'Set a 4-digit PIN to secure your account';
+        }
+      }
+    });
+  }
+
+  function showEnter() {
+    document.getElementById('pin-title').textContent    = 'Enter Your PIN';
+    document.getElementById('pin-subtitle').textContent = 'Enter your 4-digit PIN to access your account';
+    let attempts = 0;
+    buildPad(async pin => {
+      const errEl = document.getElementById('pin-error');
+      const hash  = await sha256(pin);
+      const current = (await db.auth.getSession()).data?.session?.user?.user_metadata?.trading_pin || storedPin;
+      if (hash === current) {
+        sessionStorage.setItem('xantex_pin_ok', '1');
+        window.location.href = 'dashboard.html';
+      } else {
+        attempts++;
+        resetDots();
+        if (attempts >= 5) {
+          await db.auth.signOut();
+          window.location.href = 'login.html?reason=too_many_attempts';
+          return;
+        }
+        const left = 5 - attempts;
+        if (errEl) errEl.textContent = attempts >= 3
+          ? `Incorrect PIN. ${left} attempt${left !== 1 ? 's' : ''} left.`
+          : 'Incorrect PIN. Try again.';
+      }
+    });
+  }
+
+  // ── Sign out ──────────────────────────────────────────────
+  document.getElementById('signout-btn').onclick = async () => {
+    await db.auth.signOut();
+    sessionStorage.removeItem('xantex_pin_ok');
+    window.location.href = 'login.html';
+  };
+
+  // ── Show UI ───────────────────────────────────────────────
+  document.getElementById('loading-overlay').classList.add('hidden');
+  document.getElementById('session-card').classList.remove('hidden');
+
+  if (storedPin) {
+    showEnter();
+  } else {
+    showCreate();
+  }
+
+})();
+</script>
+</body>
+</html>

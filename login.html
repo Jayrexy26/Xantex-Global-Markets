@@ -416,7 +416,7 @@
         error.message || 'Invalid email or password. Please try again.';
       pwEl.classList.add('error');
     } else {
-      window.location.href = 'dashboard.html';
+      window.location.href = 'session.html';
     }
   }
 
@@ -425,7 +425,7 @@
     const db = window.XANTEX_DB;
     if (!db) return;
     const { data: { session } } = await db.auth.getSession();
-    if (session) window.location.href = 'dashboard.html';
+    if (session) window.location.href = 'session.html';
   })();
 
   // ── Clear errors on input ─────────────────────────────────

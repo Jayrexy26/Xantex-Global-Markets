@@ -1090,7 +1090,7 @@
           <div class="summary-card summary-card--pnl">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              Open P&L
+              Realised P&amp;L
             </div>
             <div class="summary-card__value card-loading" id="card-pnl" style="color:var(--muted);">—</div>
             <div class="summary-card__change card-loading" id="card-pnl-sub" style="color:var(--muted);">Loading…</div>
@@ -2617,15 +2617,16 @@ function savePreferences() {
     return null;
   }
 
-  let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns] = await Promise.all([
+  let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns, closedTrades] = await Promise.all([
     loadProfile(),
-    loadRows('accounts',  'get_my_accounts',    'trading_accounts',    q => q.order('created_at',{ascending:false})),
-    loadRows('positions', 'get_my_positions',   'positions',           q => q.eq('status','open').order('opened_at',{ascending:false})),
-    loadRows('txns',      'get_my_transactions','transactions',        q => q.order('created_at',{ascending:false})),
-    loadRows('depReqs',   'get_my_deposits',    'deposit_requests',    q => q.order('created_at',{ascending:false})),
-    loadRows('wdReqs',    'get_my_withdrawals', 'withdrawal_requests', q => q.order('created_at',{ascending:false})),
+    loadRows('accounts',      'get_my_accounts',    'trading_accounts',    q => q.order('created_at',{ascending:false})),
+    loadRows('positions',     'get_my_positions',   'positions',           q => q.eq('status','open').order('opened_at',{ascending:false})),
+    loadRows('txns',          'get_my_transactions','transactions',        q => q.order('created_at',{ascending:false})),
+    loadRows('depReqs',       'get_my_deposits',    'deposit_requests',    q => q.order('created_at',{ascending:false})),
+    loadRows('wdReqs',        'get_my_withdrawals', 'withdrawal_requests', q => q.order('created_at',{ascending:false})),
     rpcCfg(),
-    loadRows('adjTxns',   'get_my_adj_txns',    'transactions',        q => q.eq('type','adjustment')),
+    loadRows('adjTxns',       'get_my_adj_txns',    'transactions',        q => q.eq('type','adjustment')),
+    loadRows('closedTrades',  'get_my_closed_trades','positions',          q => q.eq('status','closed').select('realised_pnl')),
   ]);
 
   // ── Suspended account check ───────────────────────────────
@@ -2858,40 +2859,27 @@ function savePreferences() {
     ['card-balance-sub','card-margin-sub'].forEach(id => { const el=document.getElementById(id); if(el){ el.textContent='No accounts'; el.classList.remove('card-loading'); } });
   }
 
-  // ── Positions & Open P&L ─────────────────────────────────
+  // ── Positions table & Realised P&L card ──────────────────
   const tbody = document.getElementById('positions-tbody');
 
-  // Net admin adjustment (signed: +credit, -debit)
-  const netAdj      = (adjTxns||[]).reduce((s,t) => s + parseFloat(t.amount||0), 0);
-  const posPnl      = (positions||[]).reduce((s,p) => s + (parseFloat(p.floating_pnl)||0), 0);
-  const totalPnl    = posPnl + netAdj;
-  const currentBal  = parseFloat(accounts?.[0]?.balance ?? 0);
-  const baseBal     = currentBal - totalPnl;
-  const pct         = baseBal !== 0 ? (totalPnl / Math.abs(baseBal)) * 100 : 0;
+  // Realised P&L = sum of realised_pnl on all closed trades
+  const realisedPnl  = (closedTrades||[]).reduce((s,t) => s + parseFloat(t.realised_pnl||0), 0);
+  const tradeCount   = (closedTrades||[]).length;
 
   const $pnl    = document.getElementById('card-pnl');
   const $pnlSub = document.getElementById('card-pnl-sub');
 
-  if (totalPnl !== 0) {
-    if ($pnl) {
-      $pnl.textContent = (totalPnl >= 0 ? '+' : '') + fmt(totalPnl);
-      $pnl.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
-      $pnl.classList.remove('card-loading');
-    }
-    if ($pnlSub) {
-      $pnlSub.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
-      $pnlSub.style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
-      $pnlSub.classList.remove('card-loading');
-    }
-  } else {
-    if ($pnl) { $pnl.textContent = '$0.00'; $pnl.style.color = 'var(--muted)'; $pnl.classList.remove('card-loading'); }
-    if ($pnlSub) {
-      $pnlSub.textContent = (positions&&positions.length)
-        ? `${positions.length} open position${positions.length!==1?'s':''}`
-        : 'No open positions';
-      $pnlSub.style.color = 'var(--muted)';
-      $pnlSub.classList.remove('card-loading');
-    }
+  if ($pnl) {
+    $pnl.textContent = (realisedPnl >= 0 ? '+' : '') + fmt(realisedPnl);
+    $pnl.style.color = realisedPnl > 0 ? 'var(--green)' : realisedPnl < 0 ? 'var(--red)' : 'var(--muted)';
+    $pnl.classList.remove('card-loading');
+  }
+  if ($pnlSub) {
+    $pnlSub.textContent = tradeCount
+      ? `${tradeCount} closed trade${tradeCount !== 1 ? 's' : ''}`
+      : 'No closed trades yet';
+    $pnlSub.style.color = 'var(--muted)';
+    $pnlSub.classList.remove('card-loading');
   }
 
   // Render positions table rows

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Transaction History â€” Xantex Global Markets</title>
+  <title>Transaction History — Xantex Global Markets</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -242,7 +242,7 @@
     body.dark .topbar__icon-btn    { background: #0f1117; }
     body.dark .data-table tbody tr:hover { background: #0f1117; }
 
-    /* â”€â”€ Custom scrollbars â”€â”€ */
+    /* ── Custom scrollbars ── */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -367,7 +367,7 @@
               </tr>
             </thead>
             <tbody id="history-tbody">
-              <tr><td colspan="4" style="text-align:center;padding:28px;color:var(--muted);">Loadingâ€¦</td></tr>
+              <tr><td colspan="4" style="text-align:center;padding:28px;color:var(--muted);">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -452,8 +452,8 @@
       rejected:   { bg:'rgba(230,0,35,0.12)',    color:'#e60023', label:'Rejected'   },
       cancelled:  { bg:'rgba(156,163,175,0.12)', color:'#9ca3af', label:'Cancelled'  },
     };
-    function _fmtDate(d) { return d ? new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'â€”'; }
-    function _fmtDateLong(d) { return d ? new Date(d).toLocaleString('en-US',{dateStyle:'long',timeStyle:'short'}) : 'â€”'; }
+    function _fmtDate(d) { return d ? new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
+    function _fmtDateLong(d) { return d ? new Date(d).toLocaleString('en-US',{dateStyle:'long',timeStyle:'short'}) : '—'; }
 
     const [txnsRes, depRes, wdRes] = await Promise.allSettled([
       db.from('transactions').select('*').eq('user_id', userId).in('type',['deposit','withdrawal']).order('created_at',{ascending:false}),
@@ -468,18 +468,18 @@
       ...txns.filter(t => t.type==='deposit'||t.type==='withdrawal').map(t => ({
         id:t.id, date:t.created_at, label: t.type==='deposit'?'Deposit':'Withdrawal',
         amount: parseFloat(t.amount||0), status: t.status||'completed', canCancel: false,
-        detail: { 'Description': (t.description||'â€”').replace('Deposit approved by admin','Xantex approved your deposit').replace('Withdrawal approved by admin','Xantex approved your withdrawal'), 'Reference': t.reference?t.reference.slice(0,8).toUpperCase():'â€”', 'Date': _fmtDateLong(t.created_at) },
+        detail: { 'Description': (t.description||'—').replace('Deposit approved by admin','Xantex approved your deposit').replace('Withdrawal approved by admin','Xantex approved your withdrawal'), 'Reference': t.reference?t.reference.slice(0,8).toUpperCase():'—', 'Date': _fmtDateLong(t.created_at) },
       })),
       ...depReqs.filter(d=>d.status!=='approved').map(d => ({
         id:d.id, date:d.created_at, label:'Deposit Request',
         amount: parseFloat(d.amount||0), status: d.status||'pending', canCancel: d.status==='pending',
-        detail: { 'Amount':'$'+parseFloat(d.amount||0).toFixed(2), 'Method':d.payment_method||d.method||'â€”', 'Reference':d.id.slice(0,8).toUpperCase(), 'Submitted':_fmtDateLong(d.created_at) },
+        detail: { 'Amount':'$'+parseFloat(d.amount||0).toFixed(2), 'Method':d.payment_method||d.method||'—', 'Reference':d.id.slice(0,8).toUpperCase(), 'Submitted':_fmtDateLong(d.created_at) },
       })),
       ...wdReqs.filter(w=>w.status!=='approved').map(w => {
         const isCrypto=(w.destination_type||'').toLowerCase().includes('crypto');
         const detail = isCrypto
-          ? { 'Amount':'$'+Math.abs(parseFloat(w.amount||0)).toFixed(2),'Method':'Cryptocurrency','Coin':w.destination_name||'â€”','Wallet Address':w.destination_ref||'â€”','Reference':w.id.slice(0,8).toUpperCase(),'Submitted':_fmtDateLong(w.created_at) }
-          : { 'Amount':'$'+Math.abs(parseFloat(w.amount||0)).toFixed(2),'Method':'Bank Transfer','Bank Name':(w.destination_ref||'').split(' | ')[0]||'â€”','Account Name':w.destination_name||'â€”','Account Number / IBAN':(w.destination_ref||'').split(' | ')[1]||'â€”','Reference':w.id.slice(0,8).toUpperCase(),'Submitted':_fmtDateLong(w.created_at) };
+          ? { 'Amount':'$'+Math.abs(parseFloat(w.amount||0)).toFixed(2),'Method':'Cryptocurrency','Coin':w.destination_name||'—','Wallet Address':w.destination_ref||'—','Reference':w.id.slice(0,8).toUpperCase(),'Submitted':_fmtDateLong(w.created_at) }
+          : { 'Amount':'$'+Math.abs(parseFloat(w.amount||0)).toFixed(2),'Method':'Bank Transfer','Bank Name':(w.destination_ref||'').split(' | ')[0]||'—','Account Name':w.destination_name||'—','Account Number / IBAN':(w.destination_ref||'').split(' | ')[1]||'—','Reference':w.id.slice(0,8).toUpperCase(),'Submitted':_fmtDateLong(w.created_at) };
         return { id:w.id, date:w.created_at, label:'Withdrawal Request', amount:-Math.abs(parseFloat(w.amount||0)), status:w.status||'pending', canCancel:w.status==='pending', detail };
       }),
     ].sort((a,b) => new Date(b.date)-new Date(a.date));
@@ -496,7 +496,7 @@
         const cancelBtn=r.canCancel?`<button onclick="_cancelTxn(${i})" style="margin-left:6px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(230,0,35,0.08);color:var(--red);border:1px solid rgba(230,0,35,0.18);cursor:pointer;">Cancel</button>`:'';
         return `<tr>
           <td><div style="font-size:10px;color:var(--muted);margin-bottom:3px;">${_fmtDate(r.date)}</div><div style="font-weight:700;font-size:13px;">${r.label}</div></td>
-          <td style="font-weight:700;color:${pos?'var(--green)':'var(--red)'};">${pos?'+':'âˆ’'}$${absA}</td>
+          <td style="font-weight:700;color:${pos?'var(--green)':'var(--red)'};">${pos?'+':'-'}$${absA}</td>
           <td><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${ss.bg};color:${ss.color};">${ss.label}</span></td>
           <td><button onclick="_openTxnDetail(${i})" style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(26,92,255,0.08);color:var(--blue);border:1px solid rgba(26,92,255,0.18);cursor:pointer;">View Details</button>${cancelBtn}</td>
         </tr>`;
@@ -510,10 +510,10 @@
       document.getElementById('txn-detail-title').textContent=r.label+' Details';
       document.getElementById('txn-detail-body').innerHTML=`
         <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px 16px;border-bottom:1px solid var(--border);">
-          <span style="font-size:30px;font-weight:800;color:${pos?'var(--green)':'var(--red)'};">${pos?'+':'âˆ’'}$${absA}</span>
+          <span style="font-size:30px;font-weight:800;color:${pos?'var(--green)':'var(--red)'};">${pos?'+':'-'}$${absA}</span>
           <span style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;background:${ss.bg};color:${ss.color};">${ss.label}</span>
         </div>
-        <div style="padding:0 24px 20px;">${Object.entries(r.detail).filter(([,v])=>v&&v!=='â€”').map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border);"><span style="font-size:12px;color:var(--muted);flex-shrink:0;margin-right:16px;">${k}</span><span style="font-size:13px;font-weight:600;text-align:right;word-break:break-all;">${String(v).replace(/</g,'&lt;')}</span></div>`).join('')}</div>`;
+        <div style="padding:0 24px 20px;">${Object.entries(r.detail).filter(([,v])=>v&&v!=='—').map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border);"><span style="font-size:12px;color:var(--muted);flex-shrink:0;margin-right:16px;">${k}</span><span style="font-size:13px;font-weight:600;text-align:right;word-break:break-all;">${String(v).replace(/</g,'&lt;')}</span></div>`).join('')}</div>`;
       document.getElementById('modal-txn-detail').classList.add('open');
     };
 

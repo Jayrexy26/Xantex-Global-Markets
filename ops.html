@@ -914,7 +914,7 @@
 
         <!-- Compose form -->
         <div class="card" style="margin-bottom:20px;">
-          <div class="card__head"><div class="card__title">New Announcement</div></div>
+          <div class="card__head"><div class="card__title" id="ann-card-title">New Announcement</div></div>
           <div class="card__body">
             <div class="form-grid">
               <div class="field field--full">
@@ -953,11 +953,12 @@
               </div>
             </div>
             <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
-              <button class="btn btn--primary" onclick="publishAnnouncement()">
+              <button class="btn btn--primary" id="ann-submit-btn" onclick="publishAnnouncement()">
                 <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 Publish Now
               </button>
               <button class="btn btn--outline" onclick="resetAnnForm()">Clear</button>
+              <button class="btn btn--outline btn--red" id="ann-cancel-btn" style="display:none;" onclick="resetAnnForm()">Cancel Edit</button>
             </div>
           </div>
         </div>
@@ -972,7 +973,7 @@
             <table class="data-table">
               <thead><tr>
                 <th>Sent</th><th>Title</th><th>Message</th><th>Type</th>
-                <th>Audience</th><th>Recipients</th><th>By</th><th>Popup Active</th>
+                <th>Audience</th><th>Recipients</th><th>By</th><th>Popup Active</th><th>Actions</th>
               </tr></thead>
               <tbody id="ann-tbody"></tbody>
             </table>
@@ -1927,6 +1928,8 @@ async function renderAuditLive() {
 window.renderAuditLive = renderAuditLive;
 
 // ── Announcements ─────────────────────────────────────────────
+let _editingAnnId = null;
+
 const _annAudienceLabels = {
   all:'All Users', live:'Live Account Users', demo:'Demo Account Users',
   unverified:'Unverified Users', specific:'Specific User',
@@ -1953,9 +1956,15 @@ async function populateAnnUserDropdown() {
 }
 
 window.resetAnnForm = function() {
+  _editingAnnId = null;
   ['ann-title','ann-body'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
   const aud = document.getElementById('ann-audience'); if(aud) aud.value = 'all';
+  const type = document.getElementById('ann-type'); if(type) type.value = 'info';
   const wrap = document.getElementById('ann-specific-wrap'); if(wrap) wrap.style.display='none';
+  const cardTitle = document.getElementById('ann-card-title'); if(cardTitle) cardTitle.textContent = 'New Announcement';
+  const submitBtn = document.getElementById('ann-submit-btn');
+  if(submitBtn) { submitBtn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Publish Now'; }
+  const cancelBtn = document.getElementById('ann-cancel-btn'); if(cancelBtn) cancelBtn.style.display = 'none';
 };
 
 async function _resolveAnnRecipients(db, audience, specificUserId) {
@@ -1989,8 +1998,8 @@ async function renderAnnouncementsLive() {
     .order('created_at', { ascending: false })
     .limit(50);
 
-  if (error) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--red);">Error: ${error.message}</td></tr>`; return; }
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">No announcements yet</td></tr>'; return; }
+  if (error) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:16px;color:var(--red);">Error: ${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);">No announcements yet</td></tr>'; return; }
 
   const typePill = { info:'pill-blue', warning:'pill-orange', success:'pill-green', urgent:'pill-red' };
   tbody.innerHTML = data.map(a => `
@@ -2004,11 +2013,14 @@ async function renderAnnouncementsLive() {
       <td style="font-weight:700;text-align:center;">${a.sent_count||0}</td>
       <td style="font-size:11px;color:var(--muted);">${_adminUser?.email?.split('@')[0]||'Admin'}</td>
       <td>
+        <label class="toggle-switch" title="${a.is_active!==false?'Popup active — click to disable':'Popup disabled — click to enable'}">
+          <input type="checkbox" ${a.is_active!==false?'checked':''} onchange="opsToggleAnnouncement('${a.id}',this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td>
         <div class="row-actions">
-          <label class="toggle-switch" title="${a.is_active!==false?'Popup active — click to disable':'Popup disabled — click to enable'}">
-            <input type="checkbox" ${a.is_active!==false?'checked':''} onchange="opsToggleAnnouncement('${a.id}',this.checked)">
-            <span class="toggle-slider"></span>
-          </label>
+          <button class="btn btn--sm btn--outline" onclick="opsEditAnnouncement('${a.id}')">Edit</button>
           <button class="btn btn--sm btn--red" onclick="opsDeleteAnnouncement('${a.id}')">Delete</button>
         </div>
       </td>
@@ -2034,6 +2046,39 @@ window.opsDeleteAnnouncement = async function(id) {
   renderAnnouncementsLive();
 };
 
+window.opsEditAnnouncement = async function(id) {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data, error } = await db.from('announcements').select('*').eq('id', id).single();
+  if (error || !data) { showToast('Could not load announcement','error'); return; }
+
+  // Fill the form
+  const titleEl = document.getElementById('ann-title'); if(titleEl) titleEl.value = data.title || '';
+  const bodyEl  = document.getElementById('ann-body');  if(bodyEl)  bodyEl.value  = data.body  || '';
+  const typeEl  = document.getElementById('ann-type');  if(typeEl)  typeEl.value  = data.type  || 'info';
+  const audEl   = document.getElementById('ann-audience');
+  if (audEl) {
+    audEl.value = data.audience || 'all';
+    onAnnAudienceChange(audEl.value);
+    if (data.audience === 'specific' && data.target_user_id) {
+      await populateAnnUserDropdown();
+      const sel = document.getElementById('ann-specific-user');
+      if (sel) sel.value = data.target_user_id;
+    }
+  }
+
+  // Switch UI to edit mode
+  _editingAnnId = id;
+  const cardTitle = document.getElementById('ann-card-title');
+  if (cardTitle) cardTitle.textContent = 'Edit Announcement';
+  const submitBtn = document.getElementById('ann-submit-btn');
+  if (submitBtn) submitBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Changes';
+  const cancelBtn = document.getElementById('ann-cancel-btn');
+  if (cancelBtn) cancelBtn.style.display = '';
+
+  // Scroll the form into view
+  document.getElementById('ann-title')?.scrollIntoView({ behavior:'smooth', block:'center' });
+};
+
 window.publishAnnouncement = async function() {
   const title    = document.getElementById('ann-title').value.trim();
   const body     = document.getElementById('ann-body').value.trim();
@@ -2048,48 +2093,60 @@ window.publishAnnouncement = async function() {
   const db = window.XANTEX_DB;
   if (!db) { showToast('No database connection','error'); return; }
 
-  const btn = document.querySelector('[onclick="publishAnnouncement()"]');
-  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  const btn = document.getElementById('ann-submit-btn');
+  const origBtnHtml = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.textContent = _editingAnnId ? 'Saving…' : 'Sending…'; }
 
   try {
-    // Resolve recipients
-    const recipientIds = await _resolveAnnRecipients(db, audience, specificId);
-    if (!recipientIds.length) { showToast('No users matched that audience','error'); return; }
+    if (_editingAnnId) {
+      // ── EDIT MODE: update announcement + linked notifications ──
+      const { error: upErr } = await db.from('announcements')
+        .update({ title, body, type, audience, target_user_id: audience === 'specific' ? specificId : null })
+        .eq('id', _editingAnnId);
+      if (upErr) throw upErr;
 
-    // Create the announcement record first to get its ID
-    const { data: annRow, error: annErr } = await db.from('announcements').insert({
-      title, body, type, audience,
-      target_user_id: audience === 'specific' ? specificId : null,
-      published: true,
-      is_active: true,
-      sent_count: recipientIds.length,
-      created_by: _adminUser?.id || null,
-    }).select('id').single();
-    if (annErr) throw annErr;
-    const annId = annRow.id;
+      const { error: nUpErr } = await db.from('notifications')
+        .update({ title, message: body })
+        .eq('announcement_id', _editingAnnId);
+      if (nUpErr) throw nUpErr;
 
-    // Insert notification for every recipient, linked to this announcement
-    const notifRows = recipientIds.map(uid => ({
-      user_id: uid,
-      title,
-      message: body,
-      enabled: true,
-      announcement_id: annId,
-    }));
-    // Insert in batches of 100 to stay within Supabase limits
-    for (let i = 0; i < notifRows.length; i += 100) {
-      const { error: nErr } = await db.from('notifications').insert(notifRows.slice(i, i + 100));
-      if (nErr) throw nErr;
+      await logAudit('EDIT_ANNOUNCEMENT', title, `Updated by admin`);
+      showToast('Announcement updated and saved to all recipients', 'success');
+      resetAnnForm();
+      renderAnnouncementsLive();
+    } else {
+      // ── NEW MODE: create announcement + bulk-insert notifications ──
+      const recipientIds = await _resolveAnnRecipients(db, audience, specificId);
+      if (!recipientIds.length) { showToast('No users matched that audience','error'); return; }
+
+      const { data: annRow, error: annErr } = await db.from('announcements').insert({
+        title, body, type, audience,
+        target_user_id: audience === 'specific' ? specificId : null,
+        published: true,
+        is_active: true,
+        sent_count: recipientIds.length,
+        created_by: _adminUser?.id || null,
+      }).select('id').single();
+      if (annErr) throw annErr;
+      const annId = annRow.id;
+
+      const notifRows = recipientIds.map(uid => ({
+        user_id: uid, title, message: body, enabled: true, announcement_id: annId,
+      }));
+      for (let i = 0; i < notifRows.length; i += 100) {
+        const { error: nErr } = await db.from('notifications').insert(notifRows.slice(i, i + 100));
+        if (nErr) throw nErr;
+      }
+
+      await logAudit('PUBLISH_ANNOUNCEMENT', title, `Type: ${type} | Audience: ${audience} | Recipients: ${recipientIds.length}`);
+      showToast(`Sent to ${recipientIds.length} user${recipientIds.length !== 1 ? 's' : ''}`, 'success');
+      resetAnnForm();
+      renderAnnouncementsLive();
     }
-
-    await logAudit('PUBLISH_ANNOUNCEMENT', title, `Type: ${type} | Audience: ${audience} | Recipients: ${recipientIds.length}`);
-    showToast(`Sent to ${recipientIds.length} user${recipientIds.length !== 1 ? 's' : ''}`, 'success');
-    resetAnnForm();
-    renderAnnouncementsLive();
   } catch(e) {
     showToast('Error: ' + e.message, 'error');
   } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Publish Now'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = origBtnHtml; }
   }
 };
 

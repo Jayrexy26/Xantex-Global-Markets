@@ -731,26 +731,21 @@
         <!-- Open Positions strip -->
         <div class="positions-panel">
           <div class="positions-panel__head">
-            <button class="pos-tab active">Open Positions (6)</button>
-            <button class="pos-tab">Orders (2)</button>
-            <button class="pos-tab">History</button>
-            <span class="positions-count">Total P&L: <strong style="color:var(--green);">+$458.10</strong></span>
+            <button class="pos-tab active" id="pos-tab-open"    onclick="switchPosTab('open')">Open Positions</button>
+            <button class="pos-tab"        id="pos-tab-pending" onclick="switchPosTab('pending')">Orders</button>
+            <button class="pos-tab"        id="pos-tab-closed"  onclick="switchPosTab('closed')">History</button>
+            <span class="positions-count"  id="pos-total-pnl"></span>
           </div>
           <table>
-            <thead>
+            <thead id="positions-thead">
               <tr>
                 <th>Symbol</th><th>Type</th><th>Lots</th>
                 <th>Open</th><th>Current</th><th>SL</th><th>TP</th>
                 <th>P&L</th><th>Swap</th><th></th>
               </tr>
             </thead>
-            <tbody>
-              <tr><td class="pos-sym">EUR/USD</td><td><span class="pos-type buy">Buy</span></td><td>0.50</td><td>1.08210</td><td>1.08432</td><td>1.07800</td><td>1.09000</td><td class="pos-pnl up">+$111.00</td><td>-$0.20</td><td><button class="pos-close-btn" onclick="openCloseModal('EUR/USD','Buy','+$111.00')">Close</button></td></tr>
-              <tr><td class="pos-sym">XAU/USD</td><td><span class="pos-type buy">Buy</span></td><td>0.10</td><td>2,310.00</td><td>2,341.50</td><td>2,280.00</td><td>2,400.00</td><td class="pos-pnl up">+$315.00</td><td>-$0.80</td><td><button class="pos-close-btn" onclick="openCloseModal('XAU/USD','Buy','+$315.00')">Close</button></td></tr>
-              <tr><td class="pos-sym">GBP/USD</td><td><span class="pos-type sell">Sell</span></td><td>0.30</td><td>1.26900</td><td>1.26718</td><td>1.27500</td><td>1.25500</td><td class="pos-pnl up">+$54.60</td><td>-$0.10</td><td><button class="pos-close-btn" onclick="openCloseModal('GBP/USD','Sell','+$54.60')">Close</button></td></tr>
-              <tr><td class="pos-sym">BTC/USD</td><td><span class="pos-type sell">Sell</span></td><td>0.05</td><td>76,200</td><td>78,450</td><td>80,000</td><td>72,000</td><td class="pos-pnl down">-$112.50</td><td>-$1.20</td><td><button class="pos-close-btn" onclick="openCloseModal('BTC/USD','Sell','-$112.50')">Close</button></td></tr>
-              <tr><td class="pos-sym">US30</td><td><span class="pos-type buy">Buy</span></td><td>1.00</td><td>38,900</td><td>39,142</td><td>38,400</td><td>40,000</td><td class="pos-pnl up">+$242.00</td><td>-$0.50</td><td><button class="pos-close-btn" onclick="openCloseModal('US30','Buy','+$242.00')">Close</button></td></tr>
-              <tr><td class="pos-sym">WTI/USD</td><td><span class="pos-type buy">Buy</span></td><td>2.00</td><td>83.100</td><td>82.340</td><td>81.000</td><td>86.000</td><td class="pos-pnl down">-$152.00</td><td>-$0.30</td><td><button class="pos-close-btn" onclick="openCloseModal('WTI/USD','Buy','-$152.00')">Close</button></td></tr>
+            <tbody id="positions-body">
+              <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:24px;font-size:13px">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -1309,13 +1304,7 @@
     if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
   });
 
-  // ── Chart tab pos panel ───────────────────────────────────
-  document.querySelectorAll('.pos-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.pos-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-    });
-  });
+  // pos-tab active state is managed by switchPosTab() in the auth script
 
   // ── Bottom sheet (mobile) ─────────────────────────────────
   function openSheet() {
@@ -1412,6 +1401,128 @@
   document.querySelectorAll('.sidebar__logout').forEach(btn => {
     btn.onclick = async () => { await db.auth.signOut(); window.location.href = 'login.html'; };
   });
+
+  // ── Positions / Orders / History ──────────────────────────
+  function fmtPx(val) {
+    const n = parseFloat(val);
+    if (isNaN(n)) return '—';
+    return n >= 100
+      ? n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : n.toFixed(5);
+  }
+
+  async function loadPositions(status) {
+    status = status || 'open';
+    const thead  = document.getElementById('positions-thead');
+    const body   = document.getElementById('positions-body');
+    const pnlEl  = document.getElementById('pos-total-pnl');
+    const colMap = { open: 10, pending: 8, closed: 7 };
+    const ncols  = colMap[status] || 10;
+
+    document.querySelectorAll('.pos-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById({ open:'pos-tab-open', pending:'pos-tab-pending', closed:'pos-tab-closed' }[status])?.classList.add('active');
+
+    if (status === 'open') {
+      thead.innerHTML = '<tr><th>Symbol</th><th>Type</th><th>Lots</th><th>Open</th><th>Current</th><th>SL</th><th>TP</th><th>P&amp;L</th><th>Swap</th><th></th></tr>';
+    } else if (status === 'pending') {
+      thead.innerHTML = '<tr><th>Symbol</th><th>Type</th><th>Lots</th><th>Price</th><th>SL</th><th>TP</th><th>Placed</th><th></th></tr>';
+    } else {
+      thead.innerHTML = '<tr><th>Symbol</th><th>Type</th><th>Lots</th><th>Open</th><th>Close</th><th>Realised P&amp;L</th><th>Date</th></tr>';
+    }
+
+    body.innerHTML = `<tr><td colspan="${ncols}" style="text-align:center;color:var(--muted);padding:24px;font-size:13px">Loading…</td></tr>`;
+    if (pnlEl) pnlEl.innerHTML = '';
+
+    const { data: rows, error } = await db.from('positions')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .eq('status', status)
+      .order('opened_at', { ascending: false });
+
+    if (error || !rows || rows.length === 0) {
+      const label = { open: 'open positions', pending: 'pending orders', closed: 'trade history' }[status];
+      body.innerHTML = `<tr><td colspan="${ncols}" style="text-align:center;color:var(--muted);padding:24px;font-size:13px">No ${label}</td></tr>`;
+      refreshTabCounts();
+      return;
+    }
+
+    if (status === 'open') {
+      let totalPnl = 0;
+      body.innerHTML = rows.map(p => {
+        const pnl     = parseFloat(p.floating_pnl || 0);
+        totalPnl     += pnl;
+        const pnlStr  = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
+        const swap    = parseFloat(p.swap || 0);
+        const swapStr = (swap >= 0 ? '' : '-') + '$' + Math.abs(swap).toFixed(2);
+        const dir     = (p.direction || 'buy').toLowerCase();
+        return `<tr>
+          <td class="pos-sym">${p.symbol}</td>
+          <td><span class="pos-type ${dir}">${p.direction}</span></td>
+          <td>${parseFloat(p.lots).toFixed(2)}</td>
+          <td>${fmtPx(p.open_price)}</td>
+          <td>${fmtPx(p.current_price)}</td>
+          <td>${p.stop_loss   ? fmtPx(p.stop_loss)   : '—'}</td>
+          <td>${p.take_profit ? fmtPx(p.take_profit)  : '—'}</td>
+          <td class="pos-pnl ${pnl >= 0 ? 'up' : 'down'}">${pnlStr}</td>
+          <td>${swapStr}</td>
+          <td><button class="pos-close-btn" onclick="openCloseModal('${p.symbol}','${p.direction}','${pnlStr}')">Close</button></td>
+        </tr>`;
+      }).join('');
+      const totalStr = (totalPnl >= 0 ? '+' : '') + '$' + Math.abs(totalPnl).toFixed(2);
+      if (pnlEl) pnlEl.innerHTML = `Total P&L: <strong style="color:${totalPnl >= 0 ? 'var(--green)' : 'var(--red)'};">${totalStr}</strong>`;
+
+    } else if (status === 'pending') {
+      body.innerHTML = rows.map(p => {
+        const dir  = (p.direction || 'buy').toLowerCase();
+        const date = new Date(p.opened_at).toLocaleDateString();
+        return `<tr>
+          <td class="pos-sym">${p.symbol}</td>
+          <td><span class="pos-type ${dir}">${p.direction}</span></td>
+          <td>${parseFloat(p.lots).toFixed(2)}</td>
+          <td>${fmtPx(p.open_price)}</td>
+          <td>${p.stop_loss   ? fmtPx(p.stop_loss)  : '—'}</td>
+          <td>${p.take_profit ? fmtPx(p.take_profit) : '—'}</td>
+          <td>${date}</td>
+          <td><button class="pos-close-btn">Cancel</button></td>
+        </tr>`;
+      }).join('');
+
+    } else {
+      body.innerHTML = rows.map(p => {
+        const pnl    = parseFloat(p.realised_pnl || 0);
+        const pnlStr = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
+        const dir    = (p.direction || 'buy').toLowerCase();
+        const closed = p.closed_at ? new Date(p.closed_at).toLocaleDateString() : '—';
+        return `<tr>
+          <td class="pos-sym">${p.symbol}</td>
+          <td><span class="pos-type ${dir}">${p.direction}</span></td>
+          <td>${parseFloat(p.lots).toFixed(2)}</td>
+          <td>${fmtPx(p.open_price)}</td>
+          <td>${p.close_price ? fmtPx(p.close_price) : '—'}</td>
+          <td class="pos-pnl ${pnl >= 0 ? 'up' : 'down'}">${pnlStr}</td>
+          <td>${closed}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    refreshTabCounts();
+  }
+
+  async function refreshTabCounts() {
+    const [o, p] = await Promise.all([
+      db.from('positions').select('id').eq('user_id', session.user.id).eq('status', 'open'),
+      db.from('positions').select('id').eq('user_id', session.user.id).eq('status', 'pending'),
+    ]);
+    const oc = o.data?.length || 0, pc = p.data?.length || 0;
+    const openEl    = document.getElementById('pos-tab-open');
+    const pendingEl = document.getElementById('pos-tab-pending');
+    if (openEl)    openEl.textContent    = oc > 0 ? `Open Positions (${oc})` : 'Open Positions';
+    if (pendingEl) pendingEl.textContent = pc > 0 ? `Orders (${pc})`         : 'Orders';
+  }
+
+  window.switchPosTab = status => loadPositions(status);
+
+  loadPositions('open');
 })();
 </script>
 </body>

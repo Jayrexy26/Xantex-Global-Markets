@@ -208,6 +208,55 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .hidden { display: none !important; }
+
+    /* ── Reset PIN panel ─────────────────────── */
+    .reset-panel { padding: 4px 0 8px; }
+    .reset-lbl { font-size: 12px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; text-align: left; }
+    .reset-input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      margin-bottom: 10px;
+      display: block;
+      transition: border-color .15s;
+    }
+    .reset-input:focus { border-color: var(--blue); }
+    .reset-btn {
+      width: 100%;
+      background: var(--blue);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px;
+      cursor: pointer;
+      transition: opacity .15s;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .reset-btn:hover { opacity: 0.85; }
+    .reset-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .reset-back {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color .15s;
+    }
+    .reset-back:hover { color: var(--text); }
+    .reset-msg { font-size: 12px; min-height: 16px; margin-bottom: 8px; text-align: center; }
+    .reset-msg.ok  { color: var(--green); }
+    .reset-msg.err { color: var(--red); }
   </style>
 </head>
 <body>
@@ -249,7 +298,17 @@
     <div class="lockout-sub">You can retry once the timer reaches 0:00</div>
   </div>
 
+  <!-- Reset PIN panel -->
+  <div class="reset-panel hidden" id="reset-panel">
+    <p class="reset-lbl">Enter your account email and we'll send a new PIN to your inbox.</p>
+    <input class="reset-input" id="reset-email-input" type="email" placeholder="your@email.com" autocomplete="email">
+    <div class="reset-msg" id="reset-msg"></div>
+    <button class="reset-btn" id="reset-send-btn">Send New PIN</button>
+    <button class="reset-back" id="reset-back-btn">← Back to PIN entry</button>
+  </div>
+
   <div class="session-footer">
+    <button id="reset-pin-footer-btn" class="hidden">Reset PIN</button>
     <button id="signout-btn">Sign out</button>
   </div>
 </div>
@@ -339,9 +398,91 @@
   // ── Determine mode: create or enter ──────────────────────
   const storedPin = session.user.user_metadata?.trading_pin;
 
+  // ── Reset PIN ─────────────────────────────────────────────
+  function showReset() {
+    document.getElementById('pin-normal').classList.add('hidden');
+    document.getElementById('lockout-box').classList.add('hidden');
+    document.getElementById('reset-panel').classList.remove('hidden');
+    document.getElementById('reset-pin-footer-btn').classList.add('hidden');
+    document.getElementById('pin-title').textContent    = 'Reset PIN';
+    document.getElementById('pin-subtitle').textContent = 'Confirm your email to receive a new PIN';
+
+    const inputEl = document.getElementById('reset-email-input');
+    const sendBtn = document.getElementById('reset-send-btn');
+    const backBtn = document.getElementById('reset-back-btn');
+    const msgEl   = document.getElementById('reset-msg');
+
+    inputEl.value = email;
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send New PIN';
+    msgEl.className = 'reset-msg';
+    msgEl.textContent = '';
+
+    backBtn.onclick = () => {
+      document.getElementById('reset-panel').classList.add('hidden');
+      document.getElementById('pin-normal').classList.remove('hidden');
+      document.getElementById('reset-pin-footer-btn').classList.remove('hidden');
+      showEnter();
+    };
+
+    sendBtn.onclick = async () => {
+      const entered = inputEl.value.trim().toLowerCase();
+      msgEl.className = 'reset-msg';
+      msgEl.textContent = '';
+
+      if (!entered) {
+        msgEl.className = 'reset-msg err';
+        msgEl.textContent = 'Please enter your email address.';
+        return;
+      }
+      if (entered !== email.toLowerCase()) {
+        msgEl.className = 'reset-msg err';
+        msgEl.textContent = 'Email does not match your account.';
+        return;
+      }
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending…';
+
+      try {
+        const { data: { session: s } } = await db.auth.getSession();
+        const token = s?.access_token;
+        if (!token) throw new Error('Session expired. Please sign in again.');
+
+        const res    = await fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/reset-trading-pin', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Request failed.');
+
+        // Refresh local session so new PIN hash is available immediately
+        await db.auth.refreshSession();
+
+        msgEl.className = 'reset-msg ok';
+        msgEl.textContent = `New PIN sent to ${email}. Check your inbox.`;
+        sendBtn.textContent = 'Sent ✓';
+
+        // Return to PIN entry after 3 s
+        setTimeout(() => {
+          document.getElementById('reset-panel').classList.add('hidden');
+          document.getElementById('pin-normal').classList.remove('hidden');
+          document.getElementById('reset-pin-footer-btn').classList.remove('hidden');
+          showEnter();
+        }, 3000);
+      } catch (err) {
+        msgEl.className = 'reset-msg err';
+        msgEl.textContent = err.message || 'Failed to reset PIN. Try again.';
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send New PIN';
+      }
+    };
+  }
+
   function showCreate() {
     document.getElementById('pin-title').textContent    = 'Create Your PIN';
     document.getElementById('pin-subtitle').textContent = 'Set a 4-digit PIN to secure your account';
+    document.getElementById('reset-pin-footer-btn').classList.add('hidden');
     let phase = 1, firstPin = '';
     buildPad(async pin => {
       const errEl = document.getElementById('pin-error');
@@ -394,6 +535,7 @@
 
     normalEl.classList.add('hidden');
     lockEl.classList.remove('hidden');
+    document.getElementById('reset-pin-footer-btn').classList.add('hidden');
     titleEl.textContent = 'Account Locked';
     subEl.textContent   = '';
 
@@ -422,6 +564,7 @@
   function showEnter() {
     document.getElementById('pin-title').textContent    = 'Enter Your PIN';
     document.getElementById('pin-subtitle').textContent = 'Enter your 4-digit PIN to access your account';
+    document.getElementById('reset-pin-footer-btn').classList.remove('hidden');
 
     // Check lockout on entry
     if (isLocked()) { startCountdown(); return; }
@@ -458,6 +601,9 @@
       }
     });
   }
+
+  // ── Footer buttons ────────────────────────────────────────
+  document.getElementById('reset-pin-footer-btn').onclick = showReset;
 
   // ── Sign out ──────────────────────────────────────────────
   document.getElementById('signout-btn').onclick = async () => {

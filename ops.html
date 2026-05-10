@@ -2501,7 +2501,7 @@ window.opsManualDeposit = async function() {
   const { error: txErr } = await db.from('transactions').insert({
     user_id: acc.user_id, account_id: acc.id,
     type: 'deposit', amount, status: 'completed',
-    description: notes || 'Manual deposit by admin',
+    description: notes || 'Xantex approved your deposit',
     created_at: now,
   });
   if (txErr) console.error('[opsManualDeposit] tx insert failed:', txErr.message);

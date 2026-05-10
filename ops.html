@@ -329,20 +329,87 @@
     .activity-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
 
     /* ============================================================
-       MOBILE
+       RESPONSIVE GRID HELPERS
     ============================================================ */
+    .dash-grid     { display: grid; grid-template-columns: 1fr 340px; gap: 18px; }
+    .two-col-grid  { display: grid; grid-template-columns: 1fr 1fr;   gap: 18px; }
+    .filter-bar    { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .filter-bar .filter-bar__search  { height:34px; border:1.5px solid var(--border); border-radius:7px; padding:0 12px; font-size:13px; outline:none; width:220px; color:var(--text); background:var(--white); }
+    .filter-bar .filter-bar__country { height:34px; border:1.5px solid var(--border); border-radius:7px; padding:0 12px; font-size:13px; outline:none; appearance:none; min-width:140px; color:var(--text); background:var(--white); }
+
+    /* ============================================================
+       SIDEBAR OVERLAY (mobile)
+    ============================================================ */
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 199;
+    }
+    .sidebar-overlay.open { display: block; }
+
+    /* ============================================================
+       RESPONSIVE — TABLET / MOBILE
+    ============================================================ */
+    @media (max-width: 900px) {
+      .dash-grid { grid-template-columns: 1fr; }
+    }
+
     @media (max-width: 768px) {
       html, body { overflow-x: hidden; }
+
+      /* Sidebar slides off-screen */
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
+
+      /* Main takes full width */
       .main { margin-left: 0; }
-      .topbar { padding: 0 14px; }
+
+      /* Topbar */
+      .topbar { padding: 0 14px; gap: 8px; }
       .topbar__hamburger { display: flex; }
       .topbar__search { display: none; }
+      .topbar__env { display: none; }
+      .topbar__title { font-size: 14px; }
+
+      /* Content */
       .content { padding: 14px; }
+
+      /* Stat cards: 2 columns on tablet */
       .stat-cards { grid-template-columns: 1fr 1fr; }
-      .form-grid { grid-template-columns: 1fr; }
+
+      /* Forms */
+      .form-grid    { grid-template-columns: 1fr; }
       .form-grid--3 { grid-template-columns: 1fr; }
+
+      /* Page grids collapse to single column */
+      .two-col-grid { grid-template-columns: 1fr; }
+      .dash-grid    { grid-template-columns: 1fr; }
+
+      /* Page header */
+      .page-header { flex-direction: column; align-items: flex-start; }
+
+      /* Card header wraps */
+      .card__head { flex-wrap: wrap; }
+
+      /* Filter bar */
+      .filter-bar { gap: 8px; }
+      .filter-bar .filter-bar__search  { width: 100%; max-width: 100%; }
+      .filter-bar .filter-bar__country { width: 100%; min-width: unset; }
+
+      /* Toast stays inside viewport */
+      .toast { right: 14px; left: 14px; max-width: calc(100vw - 28px); bottom: 14px; }
+
+      /* Modal full-width on small screens */
+      .modal { max-width: calc(100vw - 32px); }
+    }
+
+    @media (max-width: 480px) {
+      .stat-cards { grid-template-columns: 1fr 1fr; }
+      .tabs { flex-wrap: wrap; }
+      .topbar__icon-btn { display: none; }
+    }
+
+    @media (max-width: 360px) {
+      .stat-cards { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -369,6 +436,7 @@
   </div>
 </div>
 
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="layout" id="main-app" style="display:none;">
 
   <!-- ============================================================
@@ -557,7 +625,7 @@
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 340px;gap:18px;flex-wrap:wrap;">
+        <div class="dash-grid">
           <!-- Recent users -->
           <div class="card">
             <div class="card__head">
@@ -602,15 +670,15 @@
         <!-- Filters -->
         <div class="card" style="margin-bottom:16px;">
           <div class="card__body" style="padding:14px 20px;">
-            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div class="filter-bar">
               <div class="tabs">
                 <button class="tab-btn active" onclick="filterUsers('all',this)">All</button>
                 <button class="tab-btn" onclick="filterUsers('live',this)">Live</button>
                 <button class="tab-btn" onclick="filterUsers('demo',this)">Demo</button>
                 <button class="tab-btn" onclick="filterUsers('suspended',this)">Suspended</button>
               </div>
-              <input type="text" placeholder="Search name or email…" style="height:34px;border:1.5px solid var(--border);border-radius:7px;padding:0 12px;font-size:13px;outline:none;width:220px;" oninput="searchUsers(this.value)">
-              <select id="country-filter" style="height:34px;border:1.5px solid var(--border);border-radius:7px;padding:0 12px;font-size:13px;outline:none;appearance:none;min-width:140px;" onchange="filterUsersByCountry(this.value)">
+              <input type="text" placeholder="Search name or email…" class="filter-bar__search" oninput="searchUsers(this.value)">
+              <select id="country-filter" class="filter-bar__country" onchange="filterUsersByCountry(this.value)">
                 <option value="">All Countries</option>
               </select>
             </div>
@@ -833,7 +901,7 @@
             <div class="page-header__sub">Push messages to user dashboards</div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;flex-wrap:wrap;">
+        <div class="two-col-grid">
           <div class="card">
             <div class="card__head"><div class="card__title">New Announcement</div></div>
             <div class="card__body">
@@ -892,7 +960,7 @@
             <div class="page-header__sub">Enable/disable tradeable instruments and set spreads</div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+        <div class="two-col-grid">
           <div class="card">
             <div class="card__head"><div class="card__title">Market Availability</div></div>
             <div class="card__body" id="mkt-toggles"></div>
@@ -943,7 +1011,7 @@
             Save All
           </button>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+        <div class="two-col-grid">
           <div class="card">
             <div class="card__head"><div class="card__title">Platform Info</div></div>
             <div class="card__body">
@@ -1167,13 +1235,17 @@
   }
 
   /* ── Sidebar (mobile) ─────────────────────────────────────── */
-  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-  document.addEventListener('click', e => {
-    const sb = document.getElementById('sidebar');
-    const hb = document.getElementById('hamburger');
-    if (sb && sb.classList.contains('open') && !sb.contains(e.target) && hb && !hb.contains(e.target)) {
-      sb.classList.remove('open');
-    }
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+  }
+  /* Close sidebar when a nav item is tapped on mobile */
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); });
   });
 
   /* ── Utilities ────────────────────────────────────────────── */

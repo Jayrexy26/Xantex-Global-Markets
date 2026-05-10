@@ -189,9 +189,51 @@
     .field select.error ~ .field__error { display: block; }
 
     /* Phone field */
-    .phone-wrap { display: flex; gap: 8px; }
-    .phone-wrap select { width: 110px; flex-shrink: 0; }
-    .phone-wrap input  { flex: 1; }
+    .phone-wrap { display: flex; gap: 8px; align-items: flex-start; }
+    .phone-wrap .cs-wrap { width: 134px; flex-shrink: 0; }
+    .phone-wrap input[type="tel"] { flex: 1; }
+
+    /* Locked field */
+    .locked-field {
+      background: var(--bg) !important; color: var(--muted) !important;
+      cursor: not-allowed !important; border: 1.5px solid var(--border) !important;
+      font-style: italic; pointer-events: none;
+    }
+
+    /* Custom searchable select */
+    .cs-wrap { position: relative; }
+    .cs-trigger {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      border: 1.5px solid var(--border); border-radius: 8px; padding: 11px 14px;
+      cursor: pointer; background: #fff; font-size: 14px; min-height: 44px;
+      transition: border-color .15s;
+    }
+    .cs-trigger:hover, .cs-wrap.open .cs-trigger { border-color: var(--blue); }
+    .cs-trigger.error { border-color: var(--error) !important; }
+    .cs-trigger.error ~ .field__error { display: block; }
+    .cs-trigger svg { flex-shrink: 0; transition: transform .15s; }
+    .cs-wrap.open .cs-trigger svg { transform: rotate(180deg); }
+    .cs-val { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+    .cs-val.sel { color: var(--text); }
+    .cs-drop {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 300;
+      background: #fff; border: 1.5px solid var(--border); border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.13); display: none; flex-direction: column;
+    }
+    .cs-wrap.open .cs-drop { display: flex; }
+    .cs-search {
+      padding: 10px 14px; border: none; border-bottom: 1px solid var(--border);
+      outline: none; font-family: inherit; font-size: 13px;
+      border-radius: 10px 10px 0 0; background: #f8f9fb;
+    }
+    .cs-list { overflow-y: auto; max-height: 230px; }
+    .cs-opt {
+      padding: 9px 14px; cursor: pointer; font-size: 13px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cs-opt:hover { background: var(--bg); }
+    .cs-opt.sel { background: var(--blue-lt); color: var(--blue); font-weight: 500; }
+    .cs-hidden { display: none !important; }
 
     /* Password strength */
     .strength-bar { display: flex; gap: 4px; margin-top: 6px; }
@@ -418,46 +460,35 @@
         <div class="field">
           <label for="phone">Phone number</label>
           <div class="phone-wrap">
-            <select id="phone-code" aria-label="Country code">
-              <option value="+1">🇺🇸 +1</option>
-              <option value="+44">🇬🇧 +44</option>
-              <option value="+234">🇳🇬 +234</option>
-              <option value="+27">🇿🇦 +27</option>
-              <option value="+971">🇦🇪 +971</option>
-              <option value="+91">🇮🇳 +91</option>
-              <option value="+49">🇩🇪 +49</option>
-              <option value="+33">🇫🇷 +33</option>
-              <option value="+61">🇦🇺 +61</option>
-              <option value="+55">🇧🇷 +55</option>
-              <option value="+7">🇷🇺 +7</option>
-              <option value="+86">🇨🇳 +86</option>
-              <option value="+81">🇯🇵 +81</option>
-            </select>
+            <div class="cs-wrap" id="wrap-phone-code">
+              <input type="hidden" id="phone-code" value="+1">
+              <div class="cs-trigger" id="trigger-phone-code" onclick="toggleCS('phone-code')">
+                <span class="cs-val sel" id="val-phone-code">🇺🇸 +1</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div class="cs-drop" id="drop-phone-code">
+                <input class="cs-search" id="search-phone-code" placeholder="Search country…" autocomplete="off" oninput="filterCS('phone-code')">
+                <div class="cs-list" id="list-phone-code"></div>
+              </div>
+            </div>
             <input type="tel" id="phone" placeholder="800 000 0000" autocomplete="tel">
           </div>
           <span class="field__error">Please enter a valid phone number</span>
         </div>
 
         <div class="field">
-          <label for="country">Country of residence</label>
-          <select id="country" autocomplete="country">
-            <option value="" disabled selected>Select your country…</option>
-            <option>United Kingdom</option>
-            <option>United States</option>
-            <option>Nigeria</option>
-            <option>South Africa</option>
-            <option>United Arab Emirates</option>
-            <option>India</option>
-            <option>Germany</option>
-            <option>France</option>
-            <option>Australia</option>
-            <option>Canada</option>
-            <option>Brazil</option>
-            <option>Singapore</option>
-            <option>Kenya</option>
-            <option>Ghana</option>
-            <option>Other</option>
-          </select>
+          <label>Country of residence</label>
+          <div class="cs-wrap" id="wrap-country">
+            <input type="hidden" id="country" value="">
+            <div class="cs-trigger" id="trigger-country" onclick="toggleCS('country')">
+              <span class="cs-val" id="val-country">Select your country…</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="cs-drop" id="drop-country">
+              <input class="cs-search" id="search-country" placeholder="Search country…" autocomplete="off" oninput="filterCS('country')">
+              <div class="cs-list" id="list-country"></div>
+            </div>
+          </div>
           <span class="field__error">Please select your country</span>
         </div>
 
@@ -535,25 +566,13 @@
 
       <div class="form">
         <div class="field">
-          <label for="account-type">Account type</label>
-          <select id="account-type">
-            <option value="" disabled selected>Select account type…</option>
-            <option>Instant — Spreads from 0.6 pips, no commission</option>
-            <option>Raw+ — Spreads from 0.0 pips, $3.5/lot commission</option>
-            <option>Elite — Spreads from 0.0 pips, $2/lot commission</option>
-          </select>
+          <label>Account type</label>
+          <input type="text" class="locked-field" value="Instant — Spreads from 0.6 pips, no commission" readonly tabindex="-1">
         </div>
 
         <div class="field">
-          <label for="platform">Preferred platform</label>
-          <select id="platform">
-            <option value="" disabled selected>Select platform…</option>
-            <option>MetaTrader 4</option>
-            <option>MetaTrader 5</option>
-            <option>cTrader</option>
-            <option>TradingView</option>
-            <option>Xantex Platform</option>
-          </select>
+          <label>Preferred platform</label>
+          <input type="text" class="locked-field" value="Xantex Platform" readonly tabindex="-1">
         </div>
 
         <div class="field">
@@ -568,13 +587,8 @@
         </div>
 
         <div class="field">
-          <label for="leverage">Preferred leverage</label>
-          <select id="leverage">
-            <option>1:30</option>
-            <option>1:50</option>
-            <option>1:100</option>
-            <option selected>1:200</option>
-          </select>
+          <label>Preferred leverage</label>
+          <input type="text" class="locked-field" value="1:50" readonly tabindex="-1">
         </div>
 
         <div class="field">
@@ -637,20 +651,27 @@
         </div>
 
         <!-- Upload boxes -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="upload-box" onclick="document.getElementById('upload-id').click()" style="border:2px dashed var(--border);border-radius:10px;padding:24px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 8px;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <div style="font-size:12px;font-weight:600;margin-bottom:3px;">ID Front</div>
-            <div style="font-size:11px;color:var(--muted);">JPG, PNG or PDF</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <div onclick="document.getElementById('upload-id').click()" style="border:2px dashed var(--border);border-radius:10px;padding:20px 10px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-size:12px;font-weight:600;margin-bottom:2px;">ID Front</div>
+            <div style="font-size:11px;color:var(--muted);">Passport / ID card</div>
             <input type="file" id="upload-id" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="fileChosen(this,'id-label')">
-            <div id="id-label" style="font-size:11px;color:var(--blue);margin-top:6px;"></div>
+            <div id="id-label" style="font-size:11px;color:var(--blue);margin-top:5px;word-break:break-all;"></div>
           </div>
-          <div class="upload-box" onclick="document.getElementById('upload-selfie').click()" style="border:2px dashed var(--border);border-radius:10px;padding:24px 12px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 8px;display:block;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-            <div style="font-size:12px;font-weight:600;margin-bottom:3px;">Proof of Address</div>
-            <div style="font-size:11px;color:var(--muted);">Utility bill or bank statement</div>
-            <input type="file" id="upload-selfie" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="fileChosen(this,'selfie-label')">
-            <div id="selfie-label" style="font-size:11px;color:var(--blue);margin-top:6px;"></div>
+          <div onclick="document.getElementById('upload-id-back').click()" style="border:2px dashed var(--border);border-radius:10px;padding:20px 10px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <div style="font-size:12px;font-weight:600;margin-bottom:2px;">ID Back</div>
+            <div style="font-size:11px;color:var(--muted);">Reverse side</div>
+            <input type="file" id="upload-id-back" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="fileChosen(this,'id-back-label')">
+            <div id="id-back-label" style="font-size:11px;color:var(--blue);margin-top:5px;word-break:break-all;"></div>
+          </div>
+          <div onclick="document.getElementById('upload-selfie').click()" style="border:2px dashed var(--border);border-radius:10px;padding:20px 10px;text-align:center;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 6px;display:block;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <div style="font-size:12px;font-weight:600;margin-bottom:2px;">Selfie</div>
+            <div style="font-size:11px;color:var(--muted);">Face clearly visible</div>
+            <input type="file" id="upload-selfie" accept=".jpg,.jpeg,.png" style="display:none;" onchange="fileChosen(this,'selfie-label')">
+            <div id="selfie-label" style="font-size:11px;color:var(--blue);margin-top:5px;word-break:break-all;"></div>
           </div>
         </div>
 
@@ -731,15 +752,22 @@
 
   function goStep1() { setStep(1); }
   function goStep2() {
-    // Validate step 1
     let valid = true;
-    const required = ['first-name','last-name','email','country','password'];
-    required.forEach(id => {
+    ['first-name','last-name','email','password'].forEach(id => {
       const el = document.getElementById(id);
       const empty = !el.value.trim();
       el.classList.toggle('error', empty);
       if (empty) valid = false;
     });
+    // Validate country (custom select — hidden input)
+    const countryVal     = document.getElementById('country').value;
+    const countryTrigger = document.getElementById('trigger-country');
+    if (!countryVal) {
+      countryTrigger.classList.add('error');
+      valid = false;
+    } else {
+      countryTrigger.classList.remove('error');
+    }
     if (!document.getElementById('terms').checked) {
       valid = false;
       document.getElementById('terms').style.outline = '2px solid var(--error)';
@@ -757,10 +785,9 @@
     const country   = document.getElementById('country').value;
     const phone     = document.getElementById('phone').value.trim();
     const phoneCode = document.getElementById('phone-code').value;
-    const dob       = document.getElementById('dob').value || null;
-    const idType    = document.getElementById('id-type').value || null;
-    const idFile    = document.getElementById('upload-id').files[0];
-    const poaFile   = document.getElementById('upload-selfie').files[0];
+    const dob    = document.getElementById('dob').value || null;
+    const idType = document.getElementById('id-type').value || null;
+    const idFile = document.getElementById('upload-id').files[0];
 
     const submitBtn = document.querySelector('#step-3 button.btn-submit:last-of-type');
     submitBtn.classList.add('loading');
@@ -797,29 +824,42 @@
 
       // Upload KYC documents and record submission
       try {
-        let frontUrl = null, poaUrl = null;
+        let frontUrl = null, backUrl = null, selfieUrl = null;
 
         if (idFile) {
-          const ext  = idFile.name.split('.').pop().toLowerCase();
-          const path = `${userId}/id-front.${ext}`;
-          const { error: upErr } = await db.storage.from('kyc-docs').upload(path, idFile, { upsert: true });
-          if (!upErr) frontUrl = path;
+          const ext = idFile.name.split('.').pop().toLowerCase();
+          const { error: e } = await db.storage.from('kyc-docs').upload(`${userId}/id-front.${ext}`, idFile, { upsert: true });
+          if (!e) frontUrl = `${userId}/id-front.${ext}`;
         }
 
-        if (poaFile) {
-          const ext  = poaFile.name.split('.').pop().toLowerCase();
-          const path = `${userId}/proof-address.${ext}`;
-          const { error: upErr } = await db.storage.from('kyc-docs').upload(path, poaFile, { upsert: true });
-          if (!upErr) poaUrl = path;
+        const idBackFile = document.getElementById('upload-id-back').files[0];
+        if (idBackFile) {
+          const ext = idBackFile.name.split('.').pop().toLowerCase();
+          const { error: e } = await db.storage.from('kyc-docs').upload(`${userId}/id-back.${ext}`, idBackFile, { upsert: true });
+          if (!e) backUrl = `${userId}/id-back.${ext}`;
         }
 
-        if (frontUrl || poaUrl) {
+        const selfieFile = document.getElementById('upload-selfie').files[0];
+        if (selfieFile) {
+          const ext      = selfieFile.name.split('.').pop().toLowerCase();
+          const avatarPath = `${userId}/avatar.${ext}`;
+          const { error: e } = await db.storage.from('avatars').upload(avatarPath, selfieFile, { upsert: true });
+          if (!e) {
+            const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(avatarPath);
+            selfieUrl = publicUrl;
+            // Save avatar to profile
+            await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId);
+          }
+        }
+
+        if (frontUrl || backUrl || selfieUrl) {
           await db.from('kyc_submissions').insert({
-            user_id:           userId,
-            front_url:         frontUrl,
-            proof_address_url: poaUrl,
-            status:            'pending',
-            submitted_at:      new Date().toISOString(),
+            user_id:     userId,
+            front_url:   frontUrl,
+            back_url:    backUrl,
+            selfie_url:  selfieUrl,
+            status:      'pending',
+            submitted_at: new Date().toISOString(),
           });
         }
       } catch (kycErr) {
@@ -852,6 +892,78 @@
   // ── Clear error on input ──────────────────────────────────
   document.querySelectorAll('.field input, .field select').forEach(el => {
     el.addEventListener('input', () => el.classList.remove('error'));
+  });
+
+  // ── Custom searchable select ──────────────────────────────
+  const COUNTRIES = ["Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi","Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo (DRC)","Congo (Republic)","Costa Rica","Croatia","Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France","Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","São Tomé and Príncipe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe"];
+
+  const PHONE_CODES = [
+    {f:"🇦🇫",c:"+93",n:"Afghanistan"},{f:"🇦🇱",c:"+355",n:"Albania"},{f:"🇩🇿",c:"+213",n:"Algeria"},{f:"🇦🇩",c:"+376",n:"Andorra"},{f:"🇦🇴",c:"+244",n:"Angola"},{f:"🇦🇬",c:"+1",n:"Antigua"},{f:"🇦🇷",c:"+54",n:"Argentina"},{f:"🇦🇲",c:"+374",n:"Armenia"},{f:"🇦🇺",c:"+61",n:"Australia"},{f:"🇦🇹",c:"+43",n:"Austria"},{f:"🇦🇿",c:"+994",n:"Azerbaijan"},{f:"🇧🇸",c:"+1",n:"Bahamas"},{f:"🇧🇭",c:"+973",n:"Bahrain"},{f:"🇧🇩",c:"+880",n:"Bangladesh"},{f:"🇧🇧",c:"+1",n:"Barbados"},{f:"🇧🇾",c:"+375",n:"Belarus"},{f:"🇧🇪",c:"+32",n:"Belgium"},{f:"🇧🇿",c:"+501",n:"Belize"},{f:"🇧🇯",c:"+229",n:"Benin"},{f:"🇧🇹",c:"+975",n:"Bhutan"},{f:"🇧🇴",c:"+591",n:"Bolivia"},{f:"🇧🇦",c:"+387",n:"Bosnia"},{f:"🇧🇼",c:"+267",n:"Botswana"},{f:"🇧🇷",c:"+55",n:"Brazil"},{f:"🇧🇳",c:"+673",n:"Brunei"},{f:"🇧🇬",c:"+359",n:"Bulgaria"},{f:"🇧🇫",c:"+226",n:"Burkina Faso"},{f:"🇧🇮",c:"+257",n:"Burundi"},{f:"🇨🇻",c:"+238",n:"Cabo Verde"},{f:"🇰🇭",c:"+855",n:"Cambodia"},{f:"🇨🇲",c:"+237",n:"Cameroon"},{f:"🇨🇦",c:"+1",n:"Canada"},{f:"🇨🇫",c:"+236",n:"CAR"},{f:"🇹🇩",c:"+235",n:"Chad"},{f:"🇨🇱",c:"+56",n:"Chile"},{f:"🇨🇳",c:"+86",n:"China"},{f:"🇨🇴",c:"+57",n:"Colombia"},{f:"🇰🇲",c:"+269",n:"Comoros"},{f:"🇨🇩",c:"+243",n:"Congo DRC"},{f:"🇨🇬",c:"+242",n:"Congo Rep"},{f:"🇨🇷",c:"+506",n:"Costa Rica"},{f:"🇭🇷",c:"+385",n:"Croatia"},{f:"🇨🇺",c:"+53",n:"Cuba"},{f:"🇨🇾",c:"+357",n:"Cyprus"},{f:"🇨🇿",c:"+420",n:"Czech Rep"},{f:"🇩🇰",c:"+45",n:"Denmark"},{f:"🇩🇯",c:"+253",n:"Djibouti"},{f:"🇩🇲",c:"+1",n:"Dominica"},{f:"🇩🇴",c:"+1",n:"Dominican Rep"},{f:"🇪🇨",c:"+593",n:"Ecuador"},{f:"🇪🇬",c:"+20",n:"Egypt"},{f:"🇸🇻",c:"+503",n:"El Salvador"},{f:"🇬🇶",c:"+240",n:"Eq. Guinea"},{f:"🇪🇷",c:"+291",n:"Eritrea"},{f:"🇪🇪",c:"+372",n:"Estonia"},{f:"🇸🇿",c:"+268",n:"Eswatini"},{f:"🇪🇹",c:"+251",n:"Ethiopia"},{f:"🇫🇯",c:"+679",n:"Fiji"},{f:"🇫🇮",c:"+358",n:"Finland"},{f:"🇫🇷",c:"+33",n:"France"},{f:"🇬🇦",c:"+241",n:"Gabon"},{f:"🇬🇲",c:"+220",n:"Gambia"},{f:"🇬🇪",c:"+995",n:"Georgia"},{f:"🇩🇪",c:"+49",n:"Germany"},{f:"🇬🇭",c:"+233",n:"Ghana"},{f:"🇬🇷",c:"+30",n:"Greece"},{f:"🇬🇩",c:"+1",n:"Grenada"},{f:"🇬🇹",c:"+502",n:"Guatemala"},{f:"🇬🇳",c:"+224",n:"Guinea"},{f:"🇬🇼",c:"+245",n:"Guinea-Bissau"},{f:"🇬🇾",c:"+592",n:"Guyana"},{f:"🇭🇹",c:"+509",n:"Haiti"},{f:"🇭🇳",c:"+504",n:"Honduras"},{f:"🇭🇺",c:"+36",n:"Hungary"},{f:"🇮🇸",c:"+354",n:"Iceland"},{f:"🇮🇳",c:"+91",n:"India"},{f:"🇮🇩",c:"+62",n:"Indonesia"},{f:"🇮🇷",c:"+98",n:"Iran"},{f:"🇮🇶",c:"+964",n:"Iraq"},{f:"🇮🇪",c:"+353",n:"Ireland"},{f:"🇮🇱",c:"+972",n:"Israel"},{f:"🇮🇹",c:"+39",n:"Italy"},{f:"🇯🇲",c:"+1",n:"Jamaica"},{f:"🇯🇵",c:"+81",n:"Japan"},{f:"🇯🇴",c:"+962",n:"Jordan"},{f:"🇰🇿",c:"+7",n:"Kazakhstan"},{f:"🇰🇪",c:"+254",n:"Kenya"},{f:"🇰🇮",c:"+686",n:"Kiribati"},{f:"🇽🇰",c:"+383",n:"Kosovo"},{f:"🇰🇼",c:"+965",n:"Kuwait"},{f:"🇰🇬",c:"+996",n:"Kyrgyzstan"},{f:"🇱🇦",c:"+856",n:"Laos"},{f:"🇱🇻",c:"+371",n:"Latvia"},{f:"🇱🇧",c:"+961",n:"Lebanon"},{f:"🇱🇸",c:"+266",n:"Lesotho"},{f:"🇱🇷",c:"+231",n:"Liberia"},{f:"🇱🇾",c:"+218",n:"Libya"},{f:"🇱🇮",c:"+423",n:"Liechtenstein"},{f:"🇱🇹",c:"+370",n:"Lithuania"},{f:"🇱🇺",c:"+352",n:"Luxembourg"},{f:"🇲🇬",c:"+261",n:"Madagascar"},{f:"🇲🇼",c:"+265",n:"Malawi"},{f:"🇲🇾",c:"+60",n:"Malaysia"},{f:"🇲🇻",c:"+960",n:"Maldives"},{f:"🇲🇱",c:"+223",n:"Mali"},{f:"🇲🇹",c:"+356",n:"Malta"},{f:"🇲🇭",c:"+692",n:"Marshall Is."},{f:"🇲🇷",c:"+222",n:"Mauritania"},{f:"🇲🇺",c:"+230",n:"Mauritius"},{f:"🇲🇽",c:"+52",n:"Mexico"},{f:"🇫🇲",c:"+691",n:"Micronesia"},{f:"🇲🇩",c:"+373",n:"Moldova"},{f:"🇲🇨",c:"+377",n:"Monaco"},{f:"🇲🇳",c:"+976",n:"Mongolia"},{f:"🇲🇪",c:"+382",n:"Montenegro"},{f:"🇲🇦",c:"+212",n:"Morocco"},{f:"🇲🇿",c:"+258",n:"Mozambique"},{f:"🇲🇲",c:"+95",n:"Myanmar"},{f:"🇳🇦",c:"+264",n:"Namibia"},{f:"🇳🇷",c:"+674",n:"Nauru"},{f:"🇳🇵",c:"+977",n:"Nepal"},{f:"🇳🇱",c:"+31",n:"Netherlands"},{f:"🇳🇿",c:"+64",n:"New Zealand"},{f:"🇳🇮",c:"+505",n:"Nicaragua"},{f:"🇳🇪",c:"+227",n:"Niger"},{f:"🇳🇬",c:"+234",n:"Nigeria"},{f:"🇰🇵",c:"+850",n:"North Korea"},{f:"🇲🇰",c:"+389",n:"N. Macedonia"},{f:"🇳🇴",c:"+47",n:"Norway"},{f:"🇴🇲",c:"+968",n:"Oman"},{f:"🇵🇰",c:"+92",n:"Pakistan"},{f:"🇵🇼",c:"+680",n:"Palau"},{f:"🇵🇸",c:"+970",n:"Palestine"},{f:"🇵🇦",c:"+507",n:"Panama"},{f:"🇵🇬",c:"+675",n:"Papua NG"},{f:"🇵🇾",c:"+595",n:"Paraguay"},{f:"🇵🇪",c:"+51",n:"Peru"},{f:"🇵🇭",c:"+63",n:"Philippines"},{f:"🇵🇱",c:"+48",n:"Poland"},{f:"🇵🇹",c:"+351",n:"Portugal"},{f:"🇶🇦",c:"+974",n:"Qatar"},{f:"🇷🇴",c:"+40",n:"Romania"},{f:"🇷🇺",c:"+7",n:"Russia"},{f:"🇷🇼",c:"+250",n:"Rwanda"},{f:"🇰🇳",c:"+1",n:"Saint Kitts"},{f:"🇱🇨",c:"+1",n:"Saint Lucia"},{f:"🇻🇨",c:"+1",n:"St Vincent"},{f:"🇼🇸",c:"+685",n:"Samoa"},{f:"🇸🇲",c:"+378",n:"San Marino"},{f:"🇸🇹",c:"+239",n:"São Tomé"},{f:"🇸🇦",c:"+966",n:"Saudi Arabia"},{f:"🇸🇳",c:"+221",n:"Senegal"},{f:"🇷🇸",c:"+381",n:"Serbia"},{f:"🇸🇨",c:"+248",n:"Seychelles"},{f:"🇸🇱",c:"+232",n:"Sierra Leone"},{f:"🇸🇬",c:"+65",n:"Singapore"},{f:"🇸🇰",c:"+421",n:"Slovakia"},{f:"🇸🇮",c:"+386",n:"Slovenia"},{f:"🇸🇧",c:"+677",n:"Solomon Is."},{f:"🇸🇴",c:"+252",n:"Somalia"},{f:"🇿🇦",c:"+27",n:"South Africa"},{f:"🇰🇷",c:"+82",n:"South Korea"},{f:"🇸🇸",c:"+211",n:"South Sudan"},{f:"🇪🇸",c:"+34",n:"Spain"},{f:"🇱🇰",c:"+94",n:"Sri Lanka"},{f:"🇸🇩",c:"+249",n:"Sudan"},{f:"🇸🇷",c:"+597",n:"Suriname"},{f:"🇸🇪",c:"+46",n:"Sweden"},{f:"🇨🇭",c:"+41",n:"Switzerland"},{f:"🇸🇾",c:"+963",n:"Syria"},{f:"🇹🇼",c:"+886",n:"Taiwan"},{f:"🇹🇯",c:"+992",n:"Tajikistan"},{f:"🇹🇿",c:"+255",n:"Tanzania"},{f:"🇹🇭",c:"+66",n:"Thailand"},{f:"🇹🇱",c:"+670",n:"Timor-Leste"},{f:"🇹🇬",c:"+228",n:"Togo"},{f:"🇹🇴",c:"+676",n:"Tonga"},{f:"🇹🇹",c:"+1",n:"Trinidad"},{f:"🇹🇳",c:"+216",n:"Tunisia"},{f:"🇹🇷",c:"+90",n:"Turkey"},{f:"🇹🇲",c:"+993",n:"Turkmenistan"},{f:"🇹🇻",c:"+688",n:"Tuvalu"},{f:"🇺🇬",c:"+256",n:"Uganda"},{f:"🇺🇦",c:"+380",n:"Ukraine"},{f:"🇦🇪",c:"+971",n:"UAE"},{f:"🇬🇧",c:"+44",n:"UK"},{f:"🇺🇸",c:"+1",n:"USA"},{f:"🇺🇾",c:"+598",n:"Uruguay"},{f:"🇺🇿",c:"+998",n:"Uzbekistan"},{f:"🇻🇺",c:"+678",n:"Vanuatu"},{f:"🇻🇦",c:"+379",n:"Vatican"},{f:"🇻🇪",c:"+58",n:"Venezuela"},{f:"🇻🇳",c:"+84",n:"Vietnam"},{f:"🇾🇪",c:"+967",n:"Yemen"},{f:"🇿🇲",c:"+260",n:"Zambia"},{f:"🇿🇼",c:"+263",n:"Zimbabwe"}
+  ];
+
+  function buildCS(id, opts) {
+    const list = document.getElementById('list-' + id);
+    list.innerHTML = opts.map((o, i) =>
+      `<div class="cs-opt" data-search="${o.search}" data-val="${o.val}" data-label="${o.label}" onclick="selectCS('${id}',${i})">${o.label}</div>`
+    ).join('');
+  }
+
+  function toggleCS(id) {
+    const wrap = document.getElementById('wrap-' + id);
+    const isOpen = wrap.classList.contains('open');
+    document.querySelectorAll('.cs-wrap.open').forEach(w => w.classList.remove('open'));
+    if (!isOpen) {
+      wrap.classList.add('open');
+      const s = document.getElementById('search-' + id);
+      if (s) { s.value = ''; filterCS(id); s.focus(); }
+    }
+  }
+
+  function filterCS(id) {
+    const q = document.getElementById('search-' + id).value.toLowerCase();
+    document.querySelectorAll('#list-' + id + ' .cs-opt').forEach(o => {
+      o.classList.toggle('cs-hidden', q && !o.dataset.search.includes(q));
+    });
+  }
+
+  function selectCS(id, idx) {
+    const opts = document.querySelectorAll('#list-' + id + ' .cs-opt');
+    const opt  = opts[idx];
+    document.getElementById(id).value = opt.dataset.val;
+    const valEl = document.getElementById('val-' + id);
+    valEl.textContent = opt.dataset.label;
+    valEl.classList.add('sel');
+    opts.forEach(o => o.classList.remove('sel'));
+    opt.classList.add('sel');
+    document.getElementById('wrap-' + id).classList.remove('open');
+    // Clear country error if set
+    if (id === 'country') document.getElementById('trigger-country').classList.remove('error');
+  }
+
+  // Build country list
+  buildCS('country', COUNTRIES.map(c => ({ val: c, label: c, search: c.toLowerCase() })));
+
+  // Build phone code list
+  buildCS('phone-code', PHONE_CODES.map(p => ({
+    val:    p.c,
+    label:  `${p.f} ${p.n} ${p.c}`,
+    search: (p.n + ' ' + p.c).toLowerCase()
+  })));
+
+  // Default phone code = USA +1 (index of USA in list)
+  (() => {
+    const usaIdx = PHONE_CODES.findIndex(p => p.n === 'USA');
+    if (usaIdx >= 0) {
+      const opt = document.querySelectorAll('#list-phone-code .cs-opt')[usaIdx];
+      if (opt) opt.classList.add('sel');
+    }
+  })();
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.cs-wrap')) {
+      document.querySelectorAll('.cs-wrap.open').forEach(w => w.classList.remove('open'));
+    }
   });
 </script>
 </body>

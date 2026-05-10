@@ -2647,6 +2647,16 @@ function savePreferences() {
     window.location.href = 'session.html';
     return;
   }
+
+  // ── KYC gate — unverified users must wait on kyc-pending ──
+  try {
+    const { data: kp } = await db.from('profiles').select('kyc_status').eq('id', userId).maybeSingle();
+    if (kp?.kyc_status !== 'verified') {
+      window.location.href = 'kyc-pending.html';
+      return;
+    }
+  } catch(e) { console.warn('[dashboard] kyc check:', e?.message); }
+
   document.body.style.visibility = 'visible';
 
   function fmt(n) { return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }

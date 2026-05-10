@@ -381,15 +381,17 @@
     if (ban) { clearTimeout(_loadTimer); await db.auth.signOut(); window.location.href = 'login.html?account=deleted'; return; }
   } catch(e) {}
 
-  // ── Suspend check ─────────────────────────────────────────
+  // ── Suspend + KYC check ───────────────────────────────────
+  let _kycStatus = 'pending';
   try {
-    const { data: prof } = await db.from('profiles').select('status').eq('id', userId).maybeSingle();
+    const { data: prof } = await db.from('profiles').select('status,kyc_status').eq('id', userId).maybeSingle();
     if (prof?.status === 'suspended') {
       clearTimeout(_loadTimer);
       await db.auth.signOut();
       window.location.href = 'login.html?suspended=1';
       return;
     }
+    _kycStatus = prof?.kyc_status || 'pending';
   } catch(e) {}
 
   // ── Load profile for display ──────────────────────────────
@@ -565,7 +567,7 @@
             const hash = await sha256(pin);
             await db.auth.updateUser({ data: { trading_pin: hash } });
             sessionStorage.setItem('xantex_pin_ok', '1');
-            window.location.href = 'dashboard.html';
+            window.location.href = _kycStatus === 'verified' ? 'dashboard.html' : 'kyc-pending.html';
           } catch(e) {
             if (errEl) errEl.textContent = 'Could not save PIN. Try again.';
             phase = 1; firstPin = ''; resetDots();
@@ -649,7 +651,7 @@
         localStorage.removeItem(LOCKOUT_KEY);
         localStorage.removeItem(ATTEMPTS_KEY);
         sessionStorage.setItem('xantex_pin_ok', '1');
-        window.location.href = 'dashboard.html';
+        window.location.href = _kycStatus === 'verified' ? 'dashboard.html' : 'kyc-pending.html';
       } else {
         resetDots();
         const attempts = getAttempts() + 1;

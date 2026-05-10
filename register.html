@@ -699,10 +699,10 @@
       </div>
       <h2 style="font-size:22px;font-weight:700;margin-bottom:8px;">Account created!</h2>
       <p style="font-size:14px;color:var(--muted);max-width:300px;margin:0 auto 28px;line-height:1.6;">
-        Welcome to Xantex. We've sent a confirmation email. Your account is being reviewed and will be ready shortly.
+        Welcome to Xantex. We've sent a confirmation email. Once confirmed, log in and your documents will be reviewed by our compliance team.
       </p>
       <a href="/login.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;padding:13px 32px;border-radius:28px;font-size:15px;font-weight:600;">
-        Go to dashboard
+        Go to Login
       </a>
     </div>
 
@@ -885,17 +885,27 @@
     submitBtn.classList.remove('loading');
     submitBtn.disabled = false;
 
-    [1,2,3].forEach(i => document.getElementById('step-' + i).style.display = 'none');
-    ['step-ind-1','step-ind-2','step-ind-3'].forEach(id => {
-      const el = document.getElementById(id);
-      el.classList.remove('active');
-      el.classList.add('done');
-      el.querySelector('.step__dot').textContent = '✓';
-    });
-    document.getElementById('line-1').classList.add('done');
-    document.getElementById('line-2').classList.add('done');
-    document.getElementById('step-success').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (session?.access_token && session?.refresh_token) {
+      // Live session — store tokens and go through PIN setup then KYC pending
+      try {
+        sessionStorage.setItem('xantex_tmp_at', session.access_token);
+        sessionStorage.setItem('xantex_tmp_rt', session.refresh_token);
+      } catch(e) {}
+      window.location.href = 'session.html';
+    } else {
+      // Email confirmation required — show static success screen
+      [1,2,3].forEach(i => document.getElementById('step-' + i).style.display = 'none');
+      ['step-ind-1','step-ind-2','step-ind-3'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('active');
+        el.classList.add('done');
+        el.querySelector('.step__dot').textContent = '✓';
+      });
+      document.getElementById('line-1').classList.add('done');
+      document.getElementById('line-2').classList.add('done');
+      document.getElementById('step-success').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   // ── File upload label ─────────────────────────────────────

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verification Pending — Xantex Global Markets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:    #e60023;
+      --blue:   #1a5cff;
+      --green:  #22a06b;
+      --orange: #f5a623;
+      --bg:     #f4f6f9;
+      --white:  #ffffff;
+      --text:   #111111;
+      --muted:  #666666;
+      --border: #e0e3e8;
+      --navy:   #0d1120;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { min-height: 100vh; font-family: 'Inter', sans-serif; color: var(--text); font-size: 14px; line-height: 1.6; }
+    body { background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 16px 60px; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ── Topbar ── */
+    .topbar {
+      width: 100%; max-width: 640px; display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 40px;
+    }
+    .topbar__logo { display: flex; align-items: center; gap: 10px; }
+    .topbar__logo img { height: 34px; width: auto; }
+    .topbar__logo-text { font-size: 20px; font-weight: 700; color: var(--red); }
+    .topbar__signout {
+      display: flex; align-items: center; gap: 6px; font-size: 13px;
+      color: var(--muted); background: none; border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 6px 14px; transition: border-color 0.15s, color 0.15s;
+    }
+    .topbar__signout:hover { border-color: var(--red); color: var(--red); }
+    .topbar__signout svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    /* ── Card ── */
+    .card {
+      width: 100%; max-width: 560px; background: var(--white);
+      border-radius: 16px; border: 1px solid var(--border);
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    /* ── Status header ── */
+    .status-header {
+      padding: 36px 36px 28px; text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .status-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; font-size: 28px;
+    }
+    .status-icon--pending  { background: rgba(245,166,35,0.12); }
+    .status-icon--rejected { background: rgba(230,0,35,0.10); }
+    .status-icon--verified { background: rgba(34,160,107,0.12); }
+    .status-icon svg { width: 34px; height: 34px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .status-icon--pending  svg { stroke: var(--orange); }
+    .status-icon--rejected svg { stroke: var(--red); }
+    .status-icon--verified svg { stroke: var(--green); }
+
+    .status-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .status-sub   { font-size: 14px; color: var(--muted); max-width: 360px; margin: 0 auto; line-height: 1.65; }
+
+    /* ── User info strip ── */
+    .user-strip {
+      display: flex; align-items: center; gap: 14px;
+      padding: 20px 28px; border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .user-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--navy); display: flex; align-items: center;
+      justify-content: center; font-size: 16px; font-weight: 700;
+      color: #fff; flex-shrink: 0;
+    }
+    .user-name  { font-size: 14px; font-weight: 600; }
+    .user-email { font-size: 12px; color: var(--muted); }
+    .kyc-badge  {
+      margin-left: auto; padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .kyc-badge--pending  { background: rgba(245,166,35,0.12); color: #b45309; }
+    .kyc-badge--rejected { background: rgba(230,0,35,0.10);   color: var(--red); }
+    .kyc-badge--verified { background: rgba(34,160,107,0.12); color: #15803d; }
+
+    /* ── Body ── */
+    .card-body { padding: 28px; }
+
+    /* ── Steps ── */
+    .step-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+    .step-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .step-item__dot {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+    }
+    .step-item__dot--done    { background: rgba(34,160,107,0.15); color: var(--green); }
+    .step-item__dot--active  { background: rgba(245,166,35,0.15); color: var(--orange); }
+    .step-item__dot--waiting { background: rgba(0,0,0,0.05); color: var(--muted); }
+    .step-item__dot svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.5; }
+    .step-item__label { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .step-item__sub   { font-size: 12px; color: var(--muted); }
+
+    /* ── Info box ── */
+    .info-box {
+      background: rgba(26,92,255,0.05); border: 1px solid rgba(26,92,255,0.15);
+      border-radius: 10px; padding: 14px 16px;
+      font-size: 13px; color: #1e3a8a; line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .info-box--red {
+      background: rgba(230,0,35,0.05); border-color: rgba(230,0,35,0.15);
+      color: #7f1d1d;
+    }
+    .info-box strong { font-weight: 600; }
+
+    /* ── Poll status ── */
+    .poll-row {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 12px; color: var(--muted); margin-bottom: 20px;
+    }
+    .poll-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+    /* ── Re-upload section ── */
+    .reupload-section { display: none; }
+    .reupload-section.visible { display: block; }
+    .section-title {
+      font-size: 14px; font-weight: 600; margin-bottom: 14px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .upload-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .upload-box {
+      border: 2px dashed var(--border); border-radius: 10px; padding: 18px 10px;
+      text-align: center; cursor: pointer; transition: border-color 0.15s;
+    }
+    .upload-box:hover { border-color: var(--blue); }
+    .upload-box svg { width: 24px; height: 24px; fill: none; stroke: var(--muted); stroke-width: 1.5; display: block; margin: 0 auto 6px; }
+    .upload-box__label  { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+    .upload-box__sub    { font-size: 10px; color: var(--muted); }
+    .upload-box__chosen { font-size: 10px; color: var(--blue); margin-top: 5px; word-break: break-all; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .field label { font-size: 12px; font-weight: 500; }
+    .field select {
+      height: 42px; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 0 12px; font-size: 13px; font-family: inherit; color: var(--text);
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 12px center;
+      padding-right: 32px; outline: none; appearance: none;
+    }
+    .field select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,92,255,0.1); }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%; height: 48px; background: var(--blue); color: #fff;
+      border: none; border-radius: 28px; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary:hover { background: #1244cc; }
+    .btn-primary.loading { opacity: 0.7; pointer-events: none; }
+    .btn-primary svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2; }
+
+    /* ── Footer ── */
+    .card-footer {
+      padding: 18px 28px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      font-size: 12px; color: var(--muted);
+    }
+    .card-footer a { color: var(--blue); }
+    .card-footer a:hover { text-decoration: underline; }
+
+    /* ── Redirect overlay ── */
+    .redirect-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(13,17,32,0.85); backdrop-filter: blur(4px);
+      z-index: 999; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; color: #fff; text-align: center;
+    }
+    .redirect-overlay.visible { display: flex; }
+    .redirect-overlay__icon {
+      width: 64px; height: 64px; background: rgba(34,160,107,0.2);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .redirect-overlay__icon svg { width: 30px; height: 30px; fill: none; stroke: var(--green); stroke-width: 2.5; }
+    .redirect-overlay__title { font-size: 20px; font-weight: 700; }
+    .redirect-overlay__sub   { font-size: 14px; color: rgba(255,255,255,0.65); }
+
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      body { padding: 24px 12px 48px; }
+      .status-header { padding: 28px 20px 22px; }
+      .card-body { padding: 20px; }
+      .upload-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar__logo">
+      <img src="/images/logo.png" alt="Xantex" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="topbar__logo-text" style="display:none;">Xantex</span>
+    </div>
+    <button class="topbar__signout" id="signout-btn">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign out
+    </button>
+  </div>
+
+  <!-- Card -->
+  <div class="card" id="main-card">
+
+    <!-- Status header -->
+    <div class="status-header" id="status-header">
+      <div class="status-icon status-icon--pending" id="status-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="status-title" id="status-title">Verification in Progress</div>
+      <div class="status-sub" id="status-sub">Your identity documents are being reviewed by our compliance team. This usually takes 1–2 business days.</div>
+    </div>
+
+    <!-- User strip -->
+    <div class="user-strip">
+      <div class="user-avatar" id="user-avatar">—</div>
+      <div>
+        <div class="user-name"  id="user-name">Loading…</div>
+        <div class="user-email" id="user-email"></div>
+      </div>
+      <span class="kyc-badge kyc-badge--pending" id="kyc-badge">Pending</span>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body">
+
+      <!-- Progress steps -->
+      <div class="step-list" id="step-list">
+        <div class="step-item">
+          <div class="step-item__dot step-item__dot--done">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="step-item__label">Account Created</div>
+            <div class="step-item__sub">Your Xantex account has been set up successfully</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-item__dot step-item__dot--done">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="step-item__label">Documents Submitted</div>
+            <div class="step-item__sub">Your identity documents have been uploaded</div>
+          </div>
+        </div>
+        <div class="step-item" id="step-review">
+          <div class="step-item__dot step-item__dot--active" id="step-review-dot">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="step-item__label" id="step-review-label">Compliance Review</div>
+            <div class="step-item__sub"  id="step-review-sub">Our team is verifying your identity</div>
+          </div>
+        </div>
+        <div class="step-item" id="step-access">
+          <div class="step-item__dot step-item__dot--waiting">4</div>
+          <div>
+            <div class="step-item__label">Full Dashboard Access</div>
+            <div class="step-item__sub">Deposit, trade, and access all features</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info box -->
+      <div class="info-box" id="info-box">
+        <strong>What happens next?</strong><br>
+        Our compliance team reviews documents Monday–Friday, 9am–6pm GMT. You will receive an email notification once your account is approved. You can close this page and come back later — your progress is saved.
+      </div>
+
+      <!-- Polling indicator -->
+      <div class="poll-row" id="poll-row">
+        <div class="poll-dot"></div>
+        <span id="poll-label">Checking status automatically…</span>
+      </div>
+
+      <!-- Re-upload section (shown on rejection) -->
+      <div class="reupload-section" id="reupload-section">
+        <div class="section-title">Re-submit Your Documents</div>
+
+        <div class="field">
+          <label>Identity Document Type</label>
+          <select id="id-type-reup">
+            <option value="" disabled selected>Select document type…</option>
+            <option>Passport</option>
+            <option>National ID card</option>
+            <option>Driver's licence</option>
+          </select>
+        </div>
+
+        <div class="upload-grid">
+          <div class="upload-box" onclick="document.getElementById('reup-front').click()">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div class="upload-box__label">ID Front</div>
+            <div class="upload-box__sub">Passport / ID card</div>
+            <input type="file" id="reup-front" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="markFile(this,'reup-front-lbl')">
+            <div class="upload-box__chosen" id="reup-front-lbl"></div>
+          </div>
+          <div class="upload-box" onclick="document.getElementById('reup-back').click()">
+            <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <div class="upload-box__label">ID Back</div>
+            <div class="upload-box__sub">Reverse side</div>
+            <input type="file" id="reup-back" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="markFile(this,'reup-back-lbl')">
+            <div class="upload-box__chosen" id="reup-back-lbl"></div>
+          </div>
+          <div class="upload-box" onclick="document.getElementById('reup-selfie').click()">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <div class="upload-box__label">Selfie</div>
+            <div class="upload-box__sub">Face clearly visible</div>
+            <input type="file" id="reup-selfie" accept=".jpg,.jpeg,.png" style="display:none;" onchange="markFile(this,'reup-selfie-lbl')">
+            <div class="upload-box__chosen" id="reup-selfie-lbl"></div>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="reup-btn" onclick="submitReupload()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Re-submit Documents
+        </button>
+        <div id="reup-msg" style="text-align:center;font-size:13px;margin-top:12px;color:var(--muted);"></div>
+      </div>
+
+    </div><!-- /card-body -->
+
+    <div class="card-footer">
+      <span>Need help? <a href="mailto:support@xantex.com">Contact support</a></span>
+    </div>
+
+  </div><!-- /card -->
+
+  <!-- Redirect overlay -->
+  <div class="redirect-overlay" id="redirect-overlay">
+    <div class="redirect-overlay__icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="redirect-overlay__title">Verification Approved!</div>
+    <div class="redirect-overlay__sub">Taking you to your dashboard…</div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+(async () => {
+  const db = window.XANTEX_DB;
+  if (!db) { window.location.href = 'login.html'; return; }
+
+  // ── Auth: try session, then sessionStorage token handoff ──
+  let session;
+  try {
+    const { data } = await db.auth.getSession();
+    session = data?.session;
+  } catch(e) {}
+
+  if (!session) {
+    try {
+      const at = sessionStorage.getItem('xantex_tmp_at');
+      const rt = sessionStorage.getItem('xantex_tmp_rt');
+      if (at && rt) {
+        const { data } = await db.auth.setSession({ access_token: at, refresh_token: rt });
+        session = data?.session;
+      }
+    } catch(e) {}
+  }
+  try { sessionStorage.removeItem('xantex_tmp_at'); sessionStorage.removeItem('xantex_tmp_rt'); } catch(e) {}
+
+  if (!session) { window.location.href = 'login.html'; return; }
+
+  const userId = session.user.id;
+
+  // ── Load profile ───────────────────────────────────────────
+  let _kycStatus = 'pending', _userId = userId;
+  try {
+    const { data: prof } = await db.from('profiles')
+      .select('first_name,last_name,email,kyc_status,status')
+      .eq('id', userId).maybeSingle();
+
+    if (prof?.status === 'suspended') {
+      await db.auth.signOut();
+      window.location.href = 'login.html?suspended=1';
+      return;
+    }
+
+    _kycStatus = prof?.kyc_status || 'pending';
+
+    // Populate user strip
+    const fn   = prof?.first_name || '';
+    const ln   = prof?.last_name  || '';
+    const name = [fn, ln].filter(Boolean).join(' ') || session.user.email;
+    const initials = ((fn[0]||'') + (ln[0]||'')).toUpperCase() || (session.user.email[0]||'?').toUpperCase();
+    document.getElementById('user-avatar').textContent = initials;
+    document.getElementById('user-name').textContent   = name;
+    document.getElementById('user-email').textContent  = prof?.email || session.user.email || '';
+  } catch(e) {}
+
+  // If already verified, redirect straight to dashboard
+  if (_kycStatus === 'verified') {
+    showApproved();
+    return;
+  }
+
+  applyStatus(_kycStatus);
+
+  // ── Poll every 30 s ────────────────────────────────────────
+  let _pollCount = 0;
+  const _pollInterval = setInterval(async () => {
+    _pollCount++;
+    try {
+      const { data } = await db.from('profiles').select('kyc_status').eq('id', _userId).maybeSingle();
+      const newStatus = data?.kyc_status;
+      if (newStatus === 'verified') {
+        clearInterval(_pollInterval);
+        showApproved();
+      } else if (newStatus && newStatus !== _kycStatus) {
+        _kycStatus = newStatus;
+        applyStatus(newStatus);
+      }
+    } catch(e) {}
+    const label = document.getElementById('poll-label');
+    if (label) label.textContent = `Checking status… (last checked ${new Date().toLocaleTimeString('en-US',{timeStyle:'short'})})`;
+  }, 30000);
+
+  // ── Sign out ───────────────────────────────────────────────
+  document.getElementById('signout-btn').onclick = async () => {
+    clearInterval(_pollInterval);
+    await db.auth.signOut();
+    window.location.href = 'login.html';
+  };
+
+  // ── Re-submit documents ────────────────────────────────────
+  window.submitReupload = async () => {
+    const btn  = document.getElementById('reup-btn');
+    const msg  = document.getElementById('reup-msg');
+    const idType   = document.getElementById('id-type-reup').value;
+    const frontFile  = document.getElementById('reup-front').files[0];
+    const backFile   = document.getElementById('reup-back').files[0];
+    const selfieFile = document.getElementById('reup-selfie').files[0];
+
+    if (!idType) { msg.style.color='var(--red)'; msg.textContent='Please select a document type.'; return; }
+    if (!frontFile) { msg.style.color='var(--red)'; msg.textContent='Please upload your ID front image.'; return; }
+
+    btn.classList.add('loading'); btn.disabled = true;
+    msg.style.color = 'var(--muted)'; msg.textContent = 'Uploading…';
+
+    try {
+      let frontUrl = null, backUrl = null, selfieUrl = null;
+
+      const upload = async (bucket, file, path) => {
+        const ext = file.name.split('.').pop().toLowerCase();
+        const fullPath = `${path}.${ext}`;
+        const { error } = await db.storage.from(bucket).upload(fullPath, file, { upsert: true });
+        return error ? null : fullPath;
+      };
+
+      if (frontFile)  frontUrl  = await upload('kyc-docs', frontFile,  `${_userId}/id-front`);
+      if (backFile)   backUrl   = await upload('kyc-docs', backFile,   `${_userId}/id-back`);
+      if (selfieFile) {
+        const ext = selfieFile.name.split('.').pop().toLowerCase();
+        const p = `${_userId}/avatar.${ext}`;
+        const { error } = await db.storage.from('avatars').upload(p, selfieFile, { upsert: true });
+        if (!error) {
+          const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(p);
+          selfieUrl = publicUrl;
+          await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', _userId);
+        }
+      }
+
+      // Insert new KYC submission and reset status to pending
+      await Promise.all([
+        db.from('kyc_submissions').insert({
+          user_id:       _userId,
+          document_type: idType,
+          front_url:     frontUrl,
+          back_url:      backUrl,
+          selfie_url:    selfieUrl,
+          status:        'pending',
+        }),
+        db.from('profiles').update({ kyc_status: 'pending' }).eq('id', _userId),
+      ]);
+
+      _kycStatus = 'pending';
+      applyStatus('pending');
+      msg.style.color = 'var(--green)';
+      msg.textContent = 'Documents re-submitted! Our team will review them shortly.';
+    } catch(err) {
+      msg.style.color = 'var(--red)';
+      msg.textContent = 'Upload failed. Please try again.';
+    }
+
+    btn.classList.remove('loading'); btn.disabled = false;
+  };
+
+  window.markFile = (input, lblId) => {
+    const el = document.getElementById(lblId);
+    if (el) el.textContent = input.files[0] ? '✓ ' + input.files[0].name : '';
+  };
+
+  // ── Helpers ────────────────────────────────────────────────
+  function applyStatus(status) {
+    const icon  = document.getElementById('status-icon');
+    const title = document.getElementById('status-title');
+    const sub   = document.getElementById('status-sub');
+    const badge = document.getElementById('kyc-badge');
+    const infoBox = document.getElementById('info-box');
+    const reviewDot = document.getElementById('step-review-dot');
+    const reviewLabel = document.getElementById('step-review-label');
+    const reviewSub   = document.getElementById('step-review-sub');
+    const reupSection = document.getElementById('reupload-section');
+    const pollRow     = document.getElementById('poll-row');
+
+    if (status === 'rejected') {
+      icon.className = 'status-icon status-icon--rejected';
+      icon.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+      title.textContent = 'Documents Not Accepted';
+      sub.textContent   = 'Unfortunately we could not verify your identity with the documents provided. Please re-submit clearer copies below.';
+      badge.className   = 'kyc-badge kyc-badge--rejected'; badge.textContent = 'Rejected';
+      infoBox.className = 'info-box info-box--red';
+      infoBox.innerHTML = '<strong>Why was my KYC rejected?</strong><br>Common reasons include blurry images, expired documents, or documents that don\'t clearly show your full name and date of birth. Please ensure photos are well-lit and all text is legible.';
+      reviewDot.className = 'step-item__dot step-item__dot--waiting';
+      reviewDot.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+      reviewDot.querySelector('svg').style.stroke = 'var(--red)';
+      reviewLabel.textContent = 'Documents Rejected';
+      reviewSub.textContent   = 'Please re-submit your documents using the form below';
+      reupSection.classList.add('visible');
+      pollRow.style.display = 'none';
+    } else {
+      // pending (default)
+      icon.className = 'status-icon status-icon--pending';
+      icon.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+      title.textContent = 'Verification in Progress';
+      sub.textContent   = 'Your identity documents are being reviewed by our compliance team. This usually takes 1–2 business days.';
+      badge.className   = 'kyc-badge kyc-badge--pending'; badge.textContent = 'Pending';
+      infoBox.className = 'info-box';
+      infoBox.innerHTML = '<strong>What happens next?</strong><br>Our compliance team reviews documents Monday–Friday, 9am–6pm GMT. You will receive an email once your account is approved. You can close this page and come back later — your progress is saved.';
+      reviewDot.className = 'step-item__dot step-item__dot--active';
+      reviewDot.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+      reviewLabel.textContent = 'Compliance Review';
+      reviewSub.textContent   = 'Our team is verifying your identity';
+      reupSection.classList.remove('visible');
+      pollRow.style.display = '';
+    }
+  }
+
+  function showApproved() {
+    clearInterval(window._kycPollInterval);
+    document.getElementById('redirect-overlay').classList.add('visible');
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 2500);
+  }
+  window._kycPollInterval = _pollInterval;
+
+})();
+</script>
+</body>
+</html>

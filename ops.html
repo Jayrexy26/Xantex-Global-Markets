@@ -833,6 +833,131 @@
             </table>
           </div>
         </div>
+
+        <!-- Direct Trade Input -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card__head">
+            <div>
+              <div class="card__title">Direct Trade Input</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Insert a closed trade directly into a user's trade history with a specified P&amp;L</div>
+            </div>
+          </div>
+          <div class="card__body">
+            <div class="form-grid">
+
+              <!-- Account -->
+              <div class="field field--full">
+                <label>Account</label>
+                <select id="dt-account" onchange="dtAccountSelected()">
+                  <option value="">— Select an account —</option>
+                </select>
+              </div>
+
+              <!-- Market -->
+              <div class="field">
+                <label>Market</label>
+                <select id="dt-market" onchange="dtMarketChanged(this.value)">
+                  <option value="">— Select market —</option>
+                  <option value="forex">Forex</option>
+                  <option value="crypto">Crypto</option>
+                  <option value="stock">Stock</option>
+                  <option value="indices">Indices</option>
+                  <option value="energy">Energy</option>
+                </select>
+              </div>
+
+              <!-- Pair -->
+              <div class="field">
+                <label>Pair / Instrument</label>
+                <select id="dt-pair">
+                  <option value="">— Select market first —</option>
+                </select>
+              </div>
+
+              <!-- Direction -->
+              <div class="field">
+                <label>Direction</label>
+                <div style="display:flex;gap:10px;margin-top:4px;">
+                  <button id="dt-dir-buy" onclick="dtSetDir('BUY')"
+                    style="flex:1;height:40px;border-radius:8px;border:2px solid var(--green);background:var(--green);color:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:.15s;">
+                    ▲ BUY
+                  </button>
+                  <button id="dt-dir-sell" onclick="dtSetDir('SELL')"
+                    style="flex:1;height:40px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:700;font-size:13px;cursor:pointer;transition:.15s;">
+                    ▼ SELL
+                  </button>
+                </div>
+              </div>
+
+              <!-- Lots -->
+              <div class="field">
+                <label>Lot Size — <span id="dt-lots-val" style="font-weight:700;color:var(--blue);">1.00</span> lots</label>
+                <input type="range" id="dt-lots" min="0.01" max="100" step="0.01" value="1"
+                  oninput="document.getElementById('dt-lots-val').textContent=parseFloat(this.value).toFixed(2)"
+                  style="width:100%;margin-top:8px;accent-color:var(--blue);">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px;"><span>0.01</span><span>100</span></div>
+              </div>
+
+              <!-- P&L -->
+              <div class="field">
+                <label>Profit / Loss (USD)</label>
+                <div style="position:relative;">
+                  <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted);font-size:14px;">$</span>
+                  <input type="number" id="dt-pnl" placeholder="e.g. 250 or -120" step="0.01"
+                    style="padding-left:28px;"
+                    oninput="dtPnlColor(this)">
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Positive = profit credited · Negative = loss debited</div>
+              </div>
+
+              <!-- Open/Close time (optional) -->
+              <div class="field">
+                <label>Trade Date &amp; Time <span style="font-weight:400;color:var(--muted);">(optional — defaults to now)</span></label>
+                <input type="datetime-local" id="dt-opened-at">
+              </div>
+
+              <!-- Current balance display -->
+              <div class="field">
+                <label>Current Balance</label>
+                <div id="dt-balance-display" style="height:40px;display:flex;align-items:center;padding:0 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-weight:600;color:var(--muted);">
+                  Select an account
+                </div>
+              </div>
+
+            </div>
+            <div style="margin-top:20px;display:flex;gap:10px;align-items:center;">
+              <button class="btn btn--primary" onclick="opsSubmitDirectTrade()" style="gap:8px;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Submit Trade
+              </button>
+              <button class="btn btn--outline" onclick="dtResetForm()">Reset</button>
+              <span id="dt-status-msg" style="font-size:13px;color:var(--green);font-weight:600;display:none;"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Trade History -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card__head">
+            <div>
+              <div class="card__title">User Trade History</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">View and delete closed trades for any account</div>
+            </div>
+          </div>
+          <div class="card__body">
+            <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:18px;">
+              <div class="field" style="flex:1;margin:0;">
+                <label>Account</label>
+                <select id="th-account" onchange="opsTHLoad(this.value)">
+                  <option value="">— Select an account —</option>
+                </select>
+              </div>
+            </div>
+            <div id="th-table-wrap">
+              <p style="color:var(--muted);font-size:13px;">Select an account to view trade history.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ════════════════════ DEPOSITS ════════════════════ -->
@@ -1030,129 +1155,6 @@
           </div>
         </div>
 
-        <!-- Direct Trade Input -->
-        <div class="card" style="margin-top:20px;">
-          <div class="card__head">
-            <div>
-              <div class="card__title">Direct Trade Input</div>
-              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Insert a closed trade directly into a user's trade history with a specified P&amp;L</div>
-            </div>
-          </div>
-          <div class="card__body">
-            <div class="form-grid">
-
-              <!-- Account -->
-              <div class="field field--full">
-                <label>Account</label>
-                <select id="dt-account" onchange="dtAccountSelected()">
-                  <option value="">— Select an account —</option>
-                </select>
-              </div>
-
-              <!-- Market -->
-              <div class="field">
-                <label>Market</label>
-                <select id="dt-market" onchange="dtMarketChanged(this.value)">
-                  <option value="">— Select market —</option>
-                  <option value="forex">Forex</option>
-                  <option value="crypto">Crypto</option>
-                  <option value="stock">Stock</option>
-                  <option value="indices">Indices</option>
-                  <option value="energy">Energy</option>
-                </select>
-              </div>
-
-              <!-- Pair -->
-              <div class="field">
-                <label>Pair / Instrument</label>
-                <select id="dt-pair">
-                  <option value="">— Select market first —</option>
-                </select>
-              </div>
-
-              <!-- Direction -->
-              <div class="field">
-                <label>Direction</label>
-                <div style="display:flex;gap:10px;margin-top:4px;">
-                  <button id="dt-dir-buy" onclick="dtSetDir('BUY')"
-                    style="flex:1;height:40px;border-radius:8px;border:2px solid var(--green);background:var(--green);color:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:.15s;">
-                    ▲ BUY
-                  </button>
-                  <button id="dt-dir-sell" onclick="dtSetDir('SELL')"
-                    style="flex:1;height:40px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:700;font-size:13px;cursor:pointer;transition:.15s;">
-                    ▼ SELL
-                  </button>
-                </div>
-              </div>
-
-              <!-- Lots -->
-              <div class="field">
-                <label>Lot Size — <span id="dt-lots-val" style="font-weight:700;color:var(--blue);">1.00</span> lots</label>
-                <input type="range" id="dt-lots" min="0.01" max="100" step="0.01" value="1"
-                  oninput="document.getElementById('dt-lots-val').textContent=parseFloat(this.value).toFixed(2)"
-                  style="width:100%;margin-top:8px;accent-color:var(--blue);">
-                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px;"><span>0.01</span><span>100</span></div>
-              </div>
-
-              <!-- P&L -->
-              <div class="field">
-                <label>Profit / Loss (USD)</label>
-                <div style="position:relative;">
-                  <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted);font-size:14px;">$</span>
-                  <input type="number" id="dt-pnl" placeholder="e.g. 250 or -120" step="0.01"
-                    style="padding-left:28px;"
-                    oninput="dtPnlColor(this)">
-                </div>
-                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Positive = profit credited · Negative = loss debited</div>
-              </div>
-
-              <!-- Open/Close time (optional) -->
-              <div class="field">
-                <label>Trade Date &amp; Time <span style="font-weight:400;color:var(--muted);">(optional — defaults to now)</span></label>
-                <input type="datetime-local" id="dt-opened-at">
-              </div>
-
-              <!-- Current balance display -->
-              <div class="field">
-                <label>Current Balance</label>
-                <div id="dt-balance-display" style="height:40px;display:flex;align-items:center;padding:0 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-weight:600;color:var(--muted);">
-                  Select an account
-                </div>
-              </div>
-
-            </div>
-            <div style="margin-top:20px;display:flex;gap:10px;align-items:center;">
-              <button class="btn btn--primary" onclick="opsSubmitDirectTrade()" style="gap:8px;">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Submit Trade
-              </button>
-              <button class="btn btn--outline" onclick="dtResetForm()">Reset</button>
-              <span id="dt-status-msg" style="font-size:13px;color:var(--green);font-weight:600;display:none;"></span>
-            </div>
-          </div>
-        </div>
-        <!-- User Trade History -->
-        <div class="card" style="margin-top:20px;">
-          <div class="card__head">
-            <div>
-              <div class="card__title">User Trade History</div>
-              <div style="font-size:12px;color:var(--muted);margin-top:2px;">View and delete closed trades for any account</div>
-            </div>
-          </div>
-          <div class="card__body">
-            <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:18px;">
-              <div class="field" style="flex:1;margin:0;">
-                <label>Account</label>
-                <select id="th-account" onchange="opsTHLoad(this.value)">
-                  <option value="">— Select an account —</option>
-                </select>
-              </div>
-            </div>
-            <div id="th-table-wrap">
-              <p style="color:var(--muted);font-size:13px;">Select an account to view trade history.</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- ════════════════════ SETTINGS ════════════════════ -->

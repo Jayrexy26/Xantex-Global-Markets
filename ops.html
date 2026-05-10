@@ -761,37 +761,43 @@
           <div class="card__body">
             <div class="form-grid">
               <div class="field">
-                <label>Account ID</label>
-                <input type="text" placeholder="Account ID or account number" id="adj-account">
+                <label>Select Account</label>
+                <select id="adj-account" onchange="adjAccountSelected(this)">
+                  <option value="">— Loading accounts… —</option>
+                </select>
               </div>
               <div class="field">
                 <label>User</label>
-                <input type="text" placeholder="Auto-filled" id="adj-user" readonly>
+                <input type="text" placeholder="Auto-filled on account select" id="adj-user" readonly style="background:var(--bg);">
+              </div>
+              <div class="field">
+                <label>Current Balance</label>
+                <input type="text" placeholder="Auto-filled" id="adj-current-balance" readonly style="background:var(--bg);font-weight:700;">
               </div>
               <div class="field">
                 <label>Adjustment Type</label>
                 <select id="adj-type">
-                  <option>Credit (add funds)</option>
-                  <option>Debit (remove funds)</option>
-                  <option>Set balance to amount</option>
-                  <option>Bonus credit</option>
+                  <option value="credit">Credit (add funds)</option>
+                  <option value="debit">Debit (remove funds)</option>
+                  <option value="set">Set balance to amount</option>
+                  <option value="bonus">Bonus credit</option>
                 </select>
               </div>
               <div class="field">
                 <label>Amount (USD)</label>
-                <input type="number" placeholder="0.00" id="adj-amount">
+                <input type="number" placeholder="0.00" id="adj-amount" min="0" step="0.01">
               </div>
               <div class="field--full field">
                 <label>Reason / Notes</label>
                 <textarea placeholder="Internal reason for this adjustment (required)…" id="adj-reason"></textarea>
               </div>
             </div>
-            <div style="margin-top:16px;display:flex;gap:10px;">
+            <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
               <button class="btn btn--green" onclick="applyAdjustment()">
                 <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                 Apply Adjustment
               </button>
-              <button class="btn btn--outline">Cancel</button>
+              <button class="btn btn--outline" onclick="resetAdjForm()">Clear</button>
             </div>
           </div>
         </div>
@@ -1680,9 +1686,12 @@ async function renderAccountsLive() {
   }).join('');
 }
 window.renderAccountsLive = renderAccountsLive;
-window.prefillAdj = function(id, label) {
-  document.getElementById('adj-account').value = id;
-  showPage('balances', null);
+window.prefillAdj = async function(id, label) {
+  showPage('balances', document.querySelector('[onclick*="balances"]'));
+  // Wait for dropdown to be populated, then select the account
+  if (!_adjAccountsCache.length) await populateAdjDropdown();
+  const sel = document.getElementById('adj-account');
+  if (sel) { sel.value = id; adjAccountSelected(sel); }
 };
 window.opsToggleAccount = async function(id, currentStatus) {
   const db = window.XANTEX_DB; if (!db) return;
@@ -1956,50 +1965,96 @@ window.publishAnnouncement = async function() {
   renderAnnouncementsLive();
 };
 
-// ── Patch applyAdjustment ─────────────────────────────────────
+// ── Balances & Adjustments ────────────────────────────────────
+let _adjAccountsCache = []; // { id, account_number, balance, user_id, userName }
+
+async function populateAdjDropdown() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db
+    .from('trading_accounts')
+    .select('id, account_number, balance, type, status, user_id, profiles(first_name, last_name, email)')
+    .order('created_at', { ascending: false });
+  _adjAccountsCache = (data || []).map(a => ({
+    id: a.id,
+    account_number: a.account_number || a.id.slice(0,8),
+    balance: parseFloat(a.balance || 0),
+    user_id: a.user_id,
+    type: a.type,
+    status: a.status,
+    userName: a.profiles ? `${a.profiles.first_name||''} ${a.profiles.last_name||''}`.trim() || a.profiles.email : '—',
+    email: a.profiles?.email || '',
+  }));
+  const sel = document.getElementById('adj-account');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Select an account —</option>' +
+    _adjAccountsCache.map(a =>
+      `<option value="${a.id}">[${a.type?.toUpperCase()||'ACC'}] ${a.account_number} — ${a.userName} ($${a.balance.toLocaleString('en-US',{minimumFractionDigits:2})})</option>`
+    ).join('');
+}
+
+window.adjAccountSelected = function(sel) {
+  const acc = _adjAccountsCache.find(a => a.id === sel.value);
+  document.getElementById('adj-user').value            = acc ? `${acc.userName} (${acc.email})` : '';
+  document.getElementById('adj-current-balance').value = acc ? '$' + acc.balance.toLocaleString('en-US',{minimumFractionDigits:2}) : '';
+};
+
+window.resetAdjForm = function() {
+  document.getElementById('adj-account').selectedIndex = 0;
+  document.getElementById('adj-user').value            = '';
+  document.getElementById('adj-current-balance').value = '';
+  document.getElementById('adj-amount').value          = '';
+  document.getElementById('adj-reason').value          = '';
+};
+
 window.applyAdjustment = async function() {
-  const accInput = document.getElementById('adj-account').value.trim();
-  const adjType  = document.getElementById('adj-type').value;
-  const amount   = parseFloat(document.getElementById('adj-amount').value);
-  const reason   = document.getElementById('adj-reason').value.trim();
-  if (!accInput || !amount || !reason) { showToast('Please fill all required fields','error'); return; }
+  const accId  = document.getElementById('adj-account').value;
+  const adjType = document.getElementById('adj-type').value;
+  const amount  = parseFloat(document.getElementById('adj-amount').value);
+  const reason  = document.getElementById('adj-reason').value.trim();
+
+  if (!accId)              { showToast('Please select an account','error'); return; }
+  if (!amount || amount<=0){ showToast('Enter a valid amount greater than 0','error'); return; }
+  if (!reason)             { showToast('Reason / Notes is required','error'); return; }
+
   const db = window.XANTEX_DB;
   if (!db) { showToast('No database connection','error'); return; }
 
-  // Accept both UUID and account_number
-  const isUUID = /^[0-9a-f-]{36}$/i.test(accInput);
-  let accQuery = isUUID
-    ? db.from('trading_accounts').select('id, balance, user_id, account_number').eq('id', accInput)
-    : db.from('trading_accounts').select('id, balance, user_id, account_number').eq('account_number', accInput);
-  const { data: acc, error: accErr } = await accQuery.single();
+  // Fetch fresh balance to avoid stale cache
+  const { data: acc, error: accErr } = await db
+    .from('trading_accounts')
+    .select('id, balance, user_id, account_number')
+    .eq('id', accId).single();
   if (accErr || !acc) { showToast('Account not found','error'); return; }
 
   const before = parseFloat(acc.balance || 0);
   let after = before;
-  if (adjType.startsWith('Credit') || adjType.startsWith('Bonus')) after = before + amount;
-  else if (adjType.startsWith('Debit'))  after = Math.max(0, before - amount);
-  else if (adjType.startsWith('Set'))    after = amount;
+  if      (adjType === 'credit' || adjType === 'bonus') after = before + amount;
+  else if (adjType === 'debit')  after = Math.max(0, before - amount);
+  else if (adjType === 'set')    after = amount;
 
   const { error } = await db.from('trading_accounts').update({ balance: after }).eq('id', acc.id);
-  if (error) { showToast('Error: ' + error.message,'error'); return; }
+  if (error) { showToast('Error updating balance: ' + error.message,'error'); return; }
+
+  const typeLabel = { credit:'Credit', debit:'Debit', set:'Set Balance', bonus:'Bonus Credit' }[adjType] || adjType;
 
   await db.from('transactions').insert({
-    user_id: acc.user_id,
-    account_id: acc.id,
-    type: adjType.startsWith('Debit') ? 'withdrawal' : 'deposit',
+    user_id:        acc.user_id,
+    account_id:     acc.id,
+    type:           adjType === 'debit' ? 'withdrawal' : 'deposit',
     amount,
-    status: 'approved',
-    description: reason,
+    status:         'approved',
+    description:    reason,
     payment_method: 'Admin Adjustment',
+    balance_before: before,
+    balance_after:  after,
   });
 
-  await logAudit(adjType.toUpperCase().replace(/\s/g,'_'), acc.id,
-    `#${acc.account_number || acc.id.slice(0,8)}: ${adjType} $${amount.toFixed(2)} | Before: $${before.toFixed(2)} → After: $${after.toFixed(2)} | Reason: ${reason}`);
+  await logAudit('BALANCE_ADJUSTMENT', acc.id,
+    `${typeLabel} $${amount.toFixed(2)} | Before: $${before.toFixed(2)} → After: $${after.toFixed(2)} | ${reason}`);
 
-  showToast('Balance adjusted successfully','success');
-  document.getElementById('adj-account').value = '';
-  document.getElementById('adj-amount').value  = '';
-  document.getElementById('adj-reason').value  = '';
+  showToast(`Balance ${typeLabel.toLowerCase()}ed successfully`, 'success');
+  resetAdjForm();
+  populateAdjDropdown();
   renderAccountsLive();
   renderTransactionsLive();
   renderAdjLogLive();
@@ -2015,7 +2070,7 @@ async function renderAdjLogLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
     .from('transactions')
-    .select('*, profiles(first_name, last_name)')
+    .select('*, profiles(first_name, last_name), trading_accounts(account_number)')
     .eq('payment_method','Admin Adjustment')
     .order('created_at', { ascending: false })
     .limit(50);
@@ -2023,19 +2078,23 @@ async function renderAdjLogLive() {
   if (!tbody) return;
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">No adjustments yet</td></tr>'; return; }
   tbody.innerHTML = data.map(t => {
-    const name = t.profiles ? `${t.profiles.first_name||''} ${t.profiles.last_name||''}`.trim() : '—';
-    const amt  = parseFloat(t.amount||0).toLocaleString('en-US',{minimumFractionDigits:2});
-    const dep  = t.type === 'deposit';
+    const name    = t.profiles ? `${t.profiles.first_name||''} ${t.profiles.last_name||''}`.trim() || '—' : '—';
+    const accNum  = t.trading_accounts?.account_number || t.account_id?.slice(0,8) || '—';
+    const amt     = parseFloat(t.amount||0).toLocaleString('en-US',{minimumFractionDigits:2});
+    const dep     = t.type === 'deposit';
+    const before  = t.balance_before != null ? '$'+parseFloat(t.balance_before).toLocaleString('en-US',{minimumFractionDigits:2}) : '—';
+    const after   = t.balance_after  != null ? '$'+parseFloat(t.balance_after).toLocaleString('en-US',{minimumFractionDigits:2})  : '—';
+    const typeLabel = dep ? 'Credit' : 'Debit';
     return `<tr>
-      <td style="font-size:12px;">${fmtDate(t.created_at)}</td>
-      <td style="font-weight:600;">${t.account_id?.slice(0,8) || '—'}</td>
+      <td style="font-size:12px;white-space:nowrap;">${fmtDate(t.created_at)}</td>
+      <td style="font-weight:600;font-size:12px;">${accNum}</td>
       <td>${name}</td>
-      <td><span class="badge-pill ${dep?'pill-green':'pill-orange'}">${t.type}</span></td>
+      <td><span class="badge-pill ${dep?'pill-green':'pill-orange'}">${typeLabel}</span></td>
       <td style="font-weight:700;color:${dep?'var(--green)':'var(--red)'};">${dep?'+':'-'}$${amt}</td>
-      <td style="color:var(--muted);">—</td>
-      <td style="color:var(--muted);">—</td>
-      <td style="font-size:11px;">${_adminUser?.email || 'Admin'}</td>
-      <td style="font-size:12px;color:var(--muted);">${t.description || '—'}</td>
+      <td style="color:var(--muted);font-size:12px;">${before}</td>
+      <td style="font-size:12px;font-weight:600;">${after}</td>
+      <td style="font-size:11px;color:var(--muted);">${_adminUser?.email?.split('@')[0] || 'Admin'}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(t.description||'').replace(/"/g,'&quot;')}">${t.description || '—'}</td>
     </tr>`;
   }).join('');
 }
@@ -2122,6 +2181,7 @@ window.renderAll = function() {
   renderAdjLogLive();
   renderActivityLive();
   renderMarketsControl();
+  populateAdjDropdown();
 };
 </script>
 </body>

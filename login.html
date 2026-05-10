@@ -416,18 +416,23 @@
         error.message || 'Invalid email or password. Please try again.';
       pwEl.classList.add('error');
     } else {
-      // Check if the account has been suspended by admin
-      const uid = signInData?.session?.user?.id;
-      if (uid) {
-        const { data: prof } = await db.from('profiles').select('status').eq('id', uid).maybeSingle();
-        if (prof?.status === 'suspended') {
-          await db.auth.signOut();
-          alertEl.className = 'alert error';
-          document.getElementById('alert-msg').textContent =
-            'Account Suspended. Contact Support For Reactivation.';
-          return;
+      // Best-effort suspended check — 4 s timeout, session.html re-checks too
+      try {
+        const uid = signInData?.session?.user?.id;
+        if (uid) {
+          const timeout  = new Promise(res => setTimeout(() => res(null), 4000));
+          const profReq  = db.from('profiles').select('status').eq('id', uid).maybeSingle()
+                             .then(r => r.data);
+          const prof = await Promise.race([profReq, timeout]);
+          if (prof?.status === 'suspended') {
+            await db.auth.signOut();
+            alertEl.className = 'alert error';
+            document.getElementById('alert-msg').textContent =
+              'Account Suspended. Contact Support For Reactivation.';
+            return;
+          }
         }
-      }
+      } catch(e) { /* profiles check failed — session.html will handle it */ }
       window.location.href = 'session.html';
     }
   }

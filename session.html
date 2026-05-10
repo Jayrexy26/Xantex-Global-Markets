@@ -157,6 +157,38 @@
     }
     .session-footer button:hover { color: var(--red); }
 
+    .lockout-box {
+      padding: 8px 0 4px;
+    }
+    .lockout-icon {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+    .lockout-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--red);
+      margin-bottom: 6px;
+    }
+    .lockout-msg {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .lockout-timer {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 16px;
+    }
+    .lockout-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
     .loading-overlay {
       position: fixed;
       inset: 0;
@@ -196,14 +228,26 @@
   <div class="pin-title"    id="pin-title">Enter Your PIN</div>
   <div class="pin-subtitle" id="pin-subtitle">Enter your 4-digit security PIN to access your account</div>
 
-  <div class="pin-dots" id="pin-dots">
-    <span class="pin-dot"></span>
-    <span class="pin-dot"></span>
-    <span class="pin-dot"></span>
-    <span class="pin-dot"></span>
+  <!-- Normal PIN entry -->
+  <div id="pin-normal">
+    <div class="pin-dots" id="pin-dots">
+      <span class="pin-dot"></span>
+      <span class="pin-dot"></span>
+      <span class="pin-dot"></span>
+      <span class="pin-dot"></span>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-pad"   id="pin-pad"></div>
   </div>
-  <div class="pin-error" id="pin-error"></div>
-  <div class="pin-pad"   id="pin-pad"></div>
+
+  <!-- Lockout state -->
+  <div class="lockout-box hidden" id="lockout-box">
+    <div class="lockout-icon">🔒</div>
+    <div class="lockout-title">Account Locked</div>
+    <div class="lockout-msg">Too many incorrect attempts.<br>Please wait before trying again.</div>
+    <div class="lockout-timer" id="lockout-timer">5:00</div>
+    <div class="lockout-sub">You can retry once the timer reaches 0:00</div>
+  </div>
 
   <div class="session-footer">
     <button id="signout-btn">Sign out</button>
@@ -329,28 +373,87 @@
     });
   }
 
+  // ── Lockout helpers ───────────────────────────────────────
+  const LOCKOUT_KEY  = 'xantex_lockout_'  + userId;
+  const ATTEMPTS_KEY = 'xantex_attempts_' + userId;
+  const MAX_TRIES    = 5;
+  const LOCKOUT_MS   = 5 * 60 * 1000;
+
+  function getExpiry()   { return parseInt(localStorage.getItem(LOCKOUT_KEY)  || '0'); }
+  function getAttempts() { return parseInt(localStorage.getItem(ATTEMPTS_KEY) || '0'); }
+  function isLocked()    { return Date.now() < getExpiry(); }
+
+  let _countdownInterval = null;
+
+  function startCountdown() {
+    const timerEl  = document.getElementById('lockout-timer');
+    const normalEl = document.getElementById('pin-normal');
+    const lockEl   = document.getElementById('lockout-box');
+    const titleEl  = document.getElementById('pin-title');
+    const subEl    = document.getElementById('pin-subtitle');
+
+    normalEl.classList.add('hidden');
+    lockEl.classList.remove('hidden');
+    titleEl.textContent = 'Account Locked';
+    subEl.textContent   = '';
+
+    clearInterval(_countdownInterval);
+    _countdownInterval = setInterval(() => {
+      const remaining = getExpiry() - Date.now();
+      if (remaining <= 0) {
+        clearInterval(_countdownInterval);
+        localStorage.removeItem(LOCKOUT_KEY);
+        localStorage.removeItem(ATTEMPTS_KEY);
+        lockEl.classList.add('hidden');
+        normalEl.classList.remove('hidden');
+        titleEl.textContent = 'Enter Your PIN';
+        subEl.textContent   = 'Enter your 4-digit PIN to access your account';
+        resetDots();
+        document.getElementById('pin-error').textContent = '';
+        showEnter();
+        return;
+      }
+      const m = Math.floor(remaining / 60000);
+      const s = Math.floor((remaining % 60000) / 1000);
+      timerEl.textContent = `${m}:${String(s).padStart(2, '0')}`;
+    }, 500);
+  }
+
   function showEnter() {
     document.getElementById('pin-title').textContent    = 'Enter Your PIN';
     document.getElementById('pin-subtitle').textContent = 'Enter your 4-digit PIN to access your account';
-    let attempts = 0;
+
+    // Check lockout on entry
+    if (isLocked()) { startCountdown(); return; }
+
     buildPad(async pin => {
-      const errEl = document.getElementById('pin-error');
-      const hash  = await sha256(pin);
+      // Re-check in case lockout kicked in between presses
+      if (isLocked()) { startCountdown(); return; }
+
+      const errEl   = document.getElementById('pin-error');
+      const hash    = await sha256(pin);
       const current = (await db.auth.getSession()).data?.session?.user?.user_metadata?.trading_pin || storedPin;
+
       if (hash === current) {
+        localStorage.removeItem(LOCKOUT_KEY);
+        localStorage.removeItem(ATTEMPTS_KEY);
         sessionStorage.setItem('xantex_pin_ok', '1');
         window.location.href = 'dashboard.html';
       } else {
-        attempts++;
         resetDots();
-        if (attempts >= 5) {
-          await db.auth.signOut();
-          window.location.href = 'login.html?reason=too_many_attempts';
+        const attempts = getAttempts() + 1;
+        localStorage.setItem(ATTEMPTS_KEY, String(attempts));
+
+        if (attempts >= MAX_TRIES) {
+          localStorage.setItem(LOCKOUT_KEY, String(Date.now() + LOCKOUT_MS));
+          localStorage.removeItem(ATTEMPTS_KEY);
+          startCountdown();
           return;
         }
-        const left = 5 - attempts;
+
+        const left = MAX_TRIES - attempts;
         if (errEl) errEl.textContent = attempts >= 3
-          ? `Incorrect PIN. ${left} attempt${left !== 1 ? 's' : ''} left.`
+          ? `Wrong PIN — ${left} attempt${left !== 1 ? 's' : ''} left`
           : 'Incorrect PIN. Try again.';
       }
     });

@@ -402,7 +402,7 @@
     btn.disabled = true;
 
     const db = window.XANTEX_DB;
-    const { error } = await db.auth.signInWithPassword({
+    const { data: signInData, error } = await db.auth.signInWithPassword({
       email:    emailEl.value.trim(),
       password: pwEl.value,
     });
@@ -416,6 +416,18 @@
         error.message || 'Invalid email or password. Please try again.';
       pwEl.classList.add('error');
     } else {
+      // Check if the account has been suspended by admin
+      const uid = signInData?.session?.user?.id;
+      if (uid) {
+        const { data: prof } = await db.from('profiles').select('status').eq('id', uid).maybeSingle();
+        if (prof?.status === 'suspended') {
+          await db.auth.signOut();
+          alertEl.className = 'alert error';
+          document.getElementById('alert-msg').textContent =
+            'Account Suspended. Contact Admin For Reactivation.';
+          return;
+        }
+      }
       window.location.href = 'session.html';
     }
   }
@@ -426,6 +438,17 @@
     if (!db) return;
     const { data: { session } } = await db.auth.getSession();
     if (session) window.location.href = 'session.html';
+  })();
+
+  // ── Show suspended message from URL param ─────────────────
+  (function() {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('suspended') === '1') {
+      const alertEl = document.getElementById('login-alert');
+      alertEl.className = 'alert error';
+      document.getElementById('alert-msg').textContent =
+        'Account Suspended. Contact Admin For Reactivation.';
+    }
   })();
 
   // ── Clear errors on input ─────────────────────────────────

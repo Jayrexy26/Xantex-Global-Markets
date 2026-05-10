@@ -1839,9 +1839,21 @@ window.toggleUserStatus = async function(userId, currentStatus) {
 window.deleteUser = async function(userId) {
   if (!confirm('Permanently delete this user and all their data? This cannot be undone.')) return;
   const db = window.XANTEX_DB; if (!db) return;
-  const { error } = await db.from('profiles').delete().eq('id', userId);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  await logAudit('User Deleted', userId, 'Profile removed by admin');
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { showToast('Session expired — please log in again', 'error'); return; }
+  try {
+    const res = await fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/delete-user', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId }),
+    });
+    const result = await res.json();
+    if (!res.ok) { showToast('Error: ' + (result.error || 'Delete failed'), 'error'); return; }
+  } catch(e) { showToast('Error: ' + e.message, 'error'); return; }
+  await logAudit('User Deleted', userId, 'User permanently deleted by admin');
   showToast('User deleted', 'error');
   renderUsersLive(); loadDashStats();
 };

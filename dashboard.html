@@ -2597,6 +2597,14 @@ function savePreferences() {
     loadRows('adjTxns',   'get_my_adj_txns',    'transactions',        q => q.eq('type','adjustment')),
   ]);
 
+  // ── Suspended account check ───────────────────────────────
+  if (profile?.status === 'suspended') {
+    await db.auth.signOut();
+    sessionStorage.removeItem('xantex_pin_ok');
+    window.location.href = 'login.html?suspended=1';
+    return;
+  }
+
   // ── Expose data for history page renderer ─────────────────
   window._dashData = { txns, wdReqs, depReqs };
 

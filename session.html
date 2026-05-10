@@ -360,6 +360,16 @@
     if (ban) { await db.auth.signOut(); window.location.href = 'login.html?account=deleted'; return; }
   } catch(e) {}
 
+  // ── Suspend check ─────────────────────────────────────────
+  try {
+    const { data: prof } = await db.from('profiles').select('status').eq('id', userId).maybeSingle();
+    if (prof?.status === 'suspended') {
+      await db.auth.signOut();
+      window.location.href = 'login.html?suspended=1';
+      return;
+    }
+  } catch(e) {}
+
   // ── Load profile for display ──────────────────────────────
   let firstName = '', lastName = '', email = session.user.email || '', avatarUrl = '';
   try {

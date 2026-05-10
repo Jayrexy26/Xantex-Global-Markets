@@ -181,7 +181,18 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
     body.dark ::-webkit-scrollbar-thumb { background: #2a2d3a; }
     * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-    body { visibility: hidden; }
+    body { visibility: hidden; overflow-x: hidden; }
+
+    @media (max-width: 768px) {
+      .content { padding: 16px 14px 40px; }
+      .page-header { margin-bottom: 16px; }
+      .page-header__title { font-size: 18px; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+      .stat-card { padding: 14px 16px; }
+      .stat-card__value { font-size: 20px; }
+      .filter-bar { padding: 10px 12px; gap: 8px; }
+      .data-table th, .data-table td { padding: 10px 12px; }
+    }
   </style>
 </head>
 <body>
@@ -311,7 +322,7 @@
           <button class="filter-btn" onclick="filterTrades('profit',this)">Profit</button>
           <button class="filter-btn" onclick="filterTrades('loss',this)">Loss</button>
         </div>
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto;max-width:100%;">
           <table class="data-table">
             <thead>
               <tr>

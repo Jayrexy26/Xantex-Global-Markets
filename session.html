@@ -350,10 +350,19 @@
   try {
 
   // ── Auth check ────────────────────────────────────────────
+  // Use onAuthStateChange instead of getSession() so mobile browsers that
+  // haven't fully written the session to localStorage yet still resolve.
   let session;
   try {
-    const { data } = await db.auth.getSession();
-    session = data?.session;
+    session = await Promise.race([
+      new Promise(resolve => {
+        const { data: { subscription } } = db.auth.onAuthStateChange((_event, s) => {
+          subscription.unsubscribe();
+          resolve(s);
+        });
+      }),
+      new Promise(resolve => setTimeout(() => resolve(null), 8000))
+    ]);
   } catch(e) {}
   if (!session) { clearTimeout(_loadTimer); window.location.href = 'login.html'; return; }
 

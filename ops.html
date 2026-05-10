@@ -2068,18 +2068,31 @@ window.saveUser = function() {
 // ── Adjustment Log ────────────────────────────────────────────
 async function renderAdjLogLive() {
   const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
-    .from('transactions')
-    .select('*, profiles(first_name, last_name), trading_accounts(account_number)')
-    .eq('payment_method','Admin Adjustment')
-    .order('created_at', { ascending: false })
-    .limit(50);
   const tbody = document.getElementById('adj-log-tbody');
   if (!tbody) return;
-  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">No adjustments yet</td></tr>'; return; }
+
+  // No profiles FK exists on transactions — use trading_accounts join (FK exists) only
+  const { data, error } = await db
+    .from('transactions')
+    .select('id, created_at, account_id, user_id, type, amount, description, balance_before, balance_after, trading_accounts(account_number)')
+    .eq('payment_method', 'Admin Adjustment')
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--red);padding:24px;">Query error: ${error.message}</td></tr>`;
+    return;
+  }
+  if (!data?.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">No adjustments yet</td></tr>';
+    return;
+  }
+
   tbody.innerHTML = data.map(t => {
-    const name    = t.profiles ? `${t.profiles.first_name||''} ${t.profiles.last_name||''}`.trim() || '—' : '—';
-    const accNum  = t.trading_accounts?.account_number || t.account_id?.slice(0,8) || '—';
+    // Look up user name via the account cache (populated when Balances page loads)
+    const cached  = _adjAccountsCache.find(a => a.id === t.account_id);
+    const accNum  = t.trading_accounts?.account_number || cached?.account_number || t.account_id?.slice(0,8) || '—';
+    const name    = cached?.userName || '—';
     const amt     = parseFloat(t.amount||0).toLocaleString('en-US',{minimumFractionDigits:2});
     const dep     = t.type === 'deposit';
     const before  = t.balance_before != null ? '$'+parseFloat(t.balance_before).toLocaleString('en-US',{minimumFractionDigits:2}) : '—';
@@ -2094,7 +2107,8 @@ async function renderAdjLogLive() {
       <td style="color:var(--muted);font-size:12px;">${before}</td>
       <td style="font-size:12px;font-weight:600;">${after}</td>
       <td style="font-size:11px;color:var(--muted);">${_adminUser?.email?.split('@')[0] || 'Admin'}</td>
-      <td style="font-size:12px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(t.description||'').replace(/"/g,'&quot;')}">${t.description || '—'}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+          title="${(t.description||'').replace(/"/g,'&quot;')}">${t.description || '—'}</td>
     </tr>`;
   }).join('');
 }
@@ -2167,7 +2181,7 @@ window.opsManualDeposit = async function() {
 };
 
 // ── Override renderAll to use live versions ───────────────────
-window.renderAll = function() {
+window.renderAll = async function() {
   loadDashStats();
   renderUsersLive();
   renderKYCLive();
@@ -2178,10 +2192,10 @@ window.renderAll = function() {
   renderTransactionsLive();
   renderAuditLive();
   renderAnnouncementsLive();
+  await populateAdjDropdown(); // must finish before renderAdjLogLive so cache is ready
   renderAdjLogLive();
   renderActivityLive();
   renderMarketsControl();
-  populateAdjDropdown();
 };
 </script>
 </body>

@@ -818,7 +818,14 @@
 
     if (data.user) {
       const userId  = data.user.id;
-      const session = data.session;
+
+      // If signUp didn't return a session (email confirmation enabled), try signing in
+      // immediately — if confirmation is off, signIn will succeed and give us a session
+      let session = data.session;
+      if (!session) {
+        const { data: si } = await db.auth.signInWithPassword({ email, password });
+        session = si?.session || null;
+      }
 
       // If we have a live session, update profile with all fields and upload files
       if (session) {

@@ -1395,11 +1395,20 @@
   if (!db) return;
   const { data: { session } } = await db.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
-  const { data: profile } = await db.from('profiles').select('first_name,last_name').eq('id', session.user.id).single();
+  const { data: profile } = await db.from('profiles').select('first_name,last_name,avatar_url').eq('id', session.user.id).single();
   if (profile) {
-    const init = (profile.first_name[0] + profile.last_name[0]).toUpperCase();
+    const init = ((profile.first_name?.[0] || '') + (profile.last_name?.[0] || '')).toUpperCase() || '?';
     const name = `${profile.first_name} ${profile.last_name}`;
-    document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => el.textContent = init);
+    document.querySelectorAll('.sidebar__avatar, .topbar__avatar').forEach(el => {
+      if (profile.avatar_url) {
+        el.textContent = '';
+        el.style.backgroundImage = `url(${profile.avatar_url})`;
+        el.style.backgroundSize = 'cover';
+        el.style.backgroundPosition = 'center';
+      } else {
+        el.textContent = init;
+      }
+    });
     document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
   }
   document.querySelectorAll('.sidebar__logout').forEach(btn => {

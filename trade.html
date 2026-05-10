@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Trade â€” Xantex Global Markets</title>
+  <title>Trade — Xantex Global Markets</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -133,7 +133,7 @@
       flex: 1; display: flex; overflow: hidden;
     }
 
-    /* â”€â”€ LEFT: instrument list â”€â”€ */
+    /* ── LEFT: instrument list ── */
     .instrument-panel {
       width: var(--panel-w); background: #fff;
       border-right: 1px solid var(--border);
@@ -168,7 +168,7 @@
     .instrument-price__chg.up   { color: var(--green); }
     .instrument-price__chg.down { color: var(--red); }
 
-    /* â”€â”€ CENTRE: chart â”€â”€ */
+    /* ── CENTRE: chart ── */
     .chart-panel {
       flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #fff;
     }
@@ -197,7 +197,7 @@
     .chart-container .tradingview-widget-container,
     .chart-container #tradingview_chart { width: 100%; height: 100%; position: absolute; inset: 0; }
 
-    /* â”€â”€ RIGHT: order panel â”€â”€ */
+    /* ── RIGHT: order panel ── */
     .order-panel {
       width: var(--panel-w); background: #fff;
       border-left: 1px solid var(--border);
@@ -420,7 +420,7 @@
       .instrument-panel { display: none; }
     }
     @media (max-width: 768px) {
-      /* Clamp everything to viewport â€” no horizontal scroll */
+      /* Clamp everything to viewport — no horizontal scroll */
       html, body {
         height: auto;
         overflow-x: hidden;
@@ -494,7 +494,7 @@
         height: 100%;
       }
 
-      /* Positions panel â€” full auto height, scroll within */
+      /* Positions panel — full auto height, scroll within */
       .positions-panel {
         max-height: none !important;
         height: auto !important;
@@ -513,7 +513,7 @@
       .cat-tab  { padding: 6px 10px; font-size: 12px; }
       .cat-tab span { display: none; }
 
-      /* FAB â€” Place Order button */
+      /* FAB — Place Order button */
       .fab-order {
         display: flex;
         position: fixed;
@@ -660,13 +660,13 @@
 
       <!-- Market category tabs -->
       <div class="cat-tabs" id="cat-tabs">
-        <button class="cat-tab active" data-cat="forex"   onclick="switchCat(this,'forex')">  <span>ðŸ’±</span> Forex</button>
-        <button class="cat-tab"        data-cat="crypto"  onclick="switchCat(this,'crypto')"> <span>â‚¿</span>  Crypto</button>
-        <button class="cat-tab"        data-cat="stocks"  onclick="switchCat(this,'stocks')"> <span>ðŸ¢</span> Stocks</button>
-        <button class="cat-tab"        data-cat="indices" onclick="switchCat(this,'indices')"><span>ðŸ“ˆ</span> Indices</button>
-        <button class="cat-tab"        data-cat="metals"  onclick="switchCat(this,'metals')"> <span>ðŸ¥‡</span> Metals</button>
-        <button class="cat-tab"        data-cat="energy"  onclick="switchCat(this,'energy')"> <span>ðŸ›¢ï¸</span> Energy</button>
-        <button class="cat-tab"        data-cat="etfs"    onclick="switchCat(this,'etfs')">   <span>ðŸ“¦</span> ETFs</button>
+        <button class="cat-tab active" data-cat="forex"   onclick="switchCat(this,'forex')">  <span>💱</span> Forex</button>
+        <button class="cat-tab"        data-cat="crypto"  onclick="switchCat(this,'crypto')"> <span>₿</span>  Crypto</button>
+        <button class="cat-tab"        data-cat="stocks"  onclick="switchCat(this,'stocks')"> <span>🏢</span> Stocks</button>
+        <button class="cat-tab"        data-cat="indices" onclick="switchCat(this,'indices')"><span>📈</span> Indices</button>
+        <button class="cat-tab"        data-cat="metals"  onclick="switchCat(this,'metals')"> <span>🥇</span> Metals</button>
+        <button class="cat-tab"        data-cat="energy"  onclick="switchCat(this,'energy')"> <span>🛢️</span> Energy</button>
+        <button class="cat-tab"        data-cat="etfs"    onclick="switchCat(this,'etfs')">   <span>📦</span> ETFs</button>
       </div>
 
       <div class="topbar__right">
@@ -684,16 +684,16 @@
     <!-- TRADE BODY -->
     <div class="trade-body">
 
-      <!-- â”€â”€ LEFT: Instrument List â”€â”€ -->
+      <!-- ── LEFT: Instrument List ── -->
       <div class="instrument-panel">
         <div class="instrument-panel__search">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" placeholder="Search symbolâ€¦" id="sym-search" oninput="filterInstruments()">
+          <input type="text" placeholder="Search symbol…" id="sym-search" oninput="filterInstruments()">
         </div>
         <div class="instrument-list" id="instrument-list"></div>
       </div>
 
-      <!-- â”€â”€ CENTRE: Chart â”€â”€ -->
+      <!-- ── CENTRE: Chart ── -->
       <div class="chart-panel" style="display:flex;flex-direction:column;">
         <div class="chart-panel__head" id="chart-head">
           <div>
@@ -741,13 +741,13 @@
               </tr>
             </thead>
             <tbody id="positions-body">
-              <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:24px;font-size:13px">Loadingâ€¦</td></tr>
+              <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:24px;font-size:13px">Loading…</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- â”€â”€ RIGHT: Order Panel â”€â”€ -->
+      <!-- ── RIGHT: Order Panel ── -->
       <div class="order-panel">
         <div class="order-panel__head">Place Order</div>
 
@@ -790,8 +790,8 @@
               <input type="number" id="vol-input" value="0.10" step="0.01" min="0.01" max="100" oninput="calcMargin()">
               <div class="order-field__unit">Lots</div>
               <div class="order-field__stepper">
-                <button onclick="stepVol(0.01)">â–²</button>
-                <button onclick="stepVol(-0.01)">â–¼</button>
+                <button onclick="stepVol(0.01)">▲</button>
+                <button onclick="stepVol(-0.01)">▼</button>
               </div>
             </div>
             <input type="range" class="order-slider" min="0.01" max="10" step="0.01" value="0.10" id="vol-slider" oninput="document.getElementById('vol-input').value=parseFloat(this.value).toFixed(2);calcMargin()">
@@ -862,11 +862,11 @@
 <!-- Sheet overlay -->
 <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
 
-<!-- Bottom sheet â€” mirrors the desktop order panel -->
+<!-- Bottom sheet — mirrors the desktop order panel -->
 <div class="order-sheet" id="order-sheet">
   <div class="order-sheet__handle"></div>
   <div class="order-sheet__head">
-    <span id="sheet-title">Place Order â€” EUR/USD</span>
+    <span id="sheet-title">Place Order — EUR/USD</span>
     <button class="order-sheet__close" onclick="closeSheet()">
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
@@ -910,8 +910,8 @@
         <input type="number" id="sheet-vol" value="0.10" step="0.01" min="0.01">
         <div class="order-field__unit">Lots</div>
         <div class="order-field__stepper">
-          <button onclick="stepSheetVol(0.01)">â–²</button>
-          <button onclick="stepSheetVol(-0.01)">â–¼</button>
+          <button onclick="stepSheetVol(0.01)">▲</button>
+          <button onclick="stepSheetVol(-0.01)">▼</button>
         </div>
       </div>
       <input type="range" class="order-slider" min="0.01" max="10" step="0.01" value="0.10"
@@ -993,7 +993,7 @@
 <div class="modal-overlay" id="modal-confirm">
   <div class="modal">
     <div class="modal__head">
-      <div class="modal__title">Order Placed âœ“</div>
+      <div class="modal__title">Order Placed ✓</div>
       <button class="modal__close" onclick="document.getElementById('modal-confirm').classList.remove('open')">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -1017,74 +1017,74 @@
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
 <script>
-  // â”€â”€ Instrument data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Instrument data ───────────────────────────────────────
   const MARKETS = {
     forex: [
-      { sym:'EURUSD',  tv:'FX:EURUSD',  icon:'ðŸ’±', name:'Euro / US Dollar',        price:'1.08432',  chg:'+0.42%', up:true  },
-      { sym:'GBPUSD',  tv:'FX:GBPUSD',  icon:'ðŸ’·', name:'Pound / US Dollar',       price:'1.26718',  chg:'-0.18%', up:false },
-      { sym:'USDJPY',  tv:'FX:USDJPY',  icon:'ðŸ’´', name:'US Dollar / Yen',         price:'151.842',  chg:'+0.31%', up:true  },
-      { sym:'AUDUSD',  tv:'FX:AUDUSD',  icon:'ðŸ¦˜', name:'Australian / US Dollar',  price:'0.65214',  chg:'-0.09%', up:false },
-      { sym:'USDCAD',  tv:'FX:USDCAD',  icon:'ðŸ', name:'US Dollar / Canadian',    price:'1.36421',  chg:'+0.12%', up:true  },
-      { sym:'USDCHF',  tv:'FX:USDCHF',  icon:'ðŸ‡¨ðŸ‡­', name:'US Dollar / Swiss Franc', price:'0.90142',  chg:'+0.05%', up:true  },
-      { sym:'NZDUSD',  tv:'FX:NZDUSD',  icon:'ðŸ¥', name:'New Zealand / US Dollar', price:'0.60321',  chg:'-0.21%', up:false },
-      { sym:'EURGBP',  tv:'FX:EURGBP',  icon:'ðŸ’¶', name:'Euro / Pound Sterling',   price:'0.85612',  chg:'+0.14%', up:true  },
-      { sym:'EURJPY',  tv:'FX:EURJPY',  icon:'ðŸ’¹', name:'Euro / Japanese Yen',     price:'164.521',  chg:'+0.58%', up:true  },
-      { sym:'GBPJPY',  tv:'FX:GBPJPY',  icon:'ðŸ’¸', name:'Pound / Japanese Yen',    price:'192.340',  chg:'+0.44%', up:true  },
+      { sym:'EURUSD',  tv:'FX:EURUSD',  icon:'💱', name:'Euro / US Dollar',        price:'1.08432',  chg:'+0.42%', up:true  },
+      { sym:'GBPUSD',  tv:'FX:GBPUSD',  icon:'💷', name:'Pound / US Dollar',       price:'1.26718',  chg:'-0.18%', up:false },
+      { sym:'USDJPY',  tv:'FX:USDJPY',  icon:'💴', name:'US Dollar / Yen',         price:'151.842',  chg:'+0.31%', up:true  },
+      { sym:'AUDUSD',  tv:'FX:AUDUSD',  icon:'🦘', name:'Australian / US Dollar',  price:'0.65214',  chg:'-0.09%', up:false },
+      { sym:'USDCAD',  tv:'FX:USDCAD',  icon:'🍁', name:'US Dollar / Canadian',    price:'1.36421',  chg:'+0.12%', up:true  },
+      { sym:'USDCHF',  tv:'FX:USDCHF',  icon:'🇨🇭', name:'US Dollar / Swiss Franc', price:'0.90142',  chg:'+0.05%', up:true  },
+      { sym:'NZDUSD',  tv:'FX:NZDUSD',  icon:'🥝', name:'New Zealand / US Dollar', price:'0.60321',  chg:'-0.21%', up:false },
+      { sym:'EURGBP',  tv:'FX:EURGBP',  icon:'💶', name:'Euro / Pound Sterling',   price:'0.85612',  chg:'+0.14%', up:true  },
+      { sym:'EURJPY',  tv:'FX:EURJPY',  icon:'💹', name:'Euro / Japanese Yen',     price:'164.521',  chg:'+0.58%', up:true  },
+      { sym:'GBPJPY',  tv:'FX:GBPJPY',  icon:'💸', name:'Pound / Japanese Yen',    price:'192.340',  chg:'+0.44%', up:true  },
     ],
     crypto: [
-      { sym:'BTCUSD',  tv:'BITSTAMP:BTCUSD',  icon:'â‚¿',  name:'Bitcoin / US Dollar',  price:'78,450',  chg:'+2.14%', up:true  },
-      { sym:'ETHUSD',  tv:'BITSTAMP:ETHUSD',  icon:'Îž',  name:'Ethereum / US Dollar', price:'2,301',   chg:'+1.88%', up:true  },
-      { sym:'SOLUSD',  tv:'BINANCE:SOLUSDT',  icon:'â—Ž',  name:'Solana / US Dollar',   price:'142.80',  chg:'+3.21%', up:true  },
-      { sym:'XRPUSD',  tv:'BITSTAMP:XRPUSD',  icon:'âœ•',  name:'Ripple / US Dollar',   price:'0.5124',  chg:'-0.84%', up:false },
-      { sym:'BNBUSD',  tv:'BINANCE:BNBUSDT',  icon:'ðŸ”¶', name:'BNB / US Dollar',      price:'412.30',  chg:'+0.72%', up:true  },
-      { sym:'ADAUSD',  tv:'BINANCE:ADAUSDT',  icon:'ðŸ”µ', name:'Cardano / US Dollar',  price:'0.4821',  chg:'-1.12%', up:false },
-      { sym:'DOTUSD',  tv:'BINANCE:DOTUSDT',  icon:'âš«', name:'Polkadot / US Dollar', price:'7.2340',  chg:'+0.95%', up:true  },
-      { sym:'DOGEUSD', tv:'BINANCE:DOGEUSDT', icon:'ðŸ•', name:'Dogecoin / US Dollar', price:'0.1482',  chg:'+4.21%', up:true  },
+      { sym:'BTCUSD',  tv:'BITSTAMP:BTCUSD',  icon:'₿',  name:'Bitcoin / US Dollar',  price:'78,450',  chg:'+2.14%', up:true  },
+      { sym:'ETHUSD',  tv:'BITSTAMP:ETHUSD',  icon:'Ξ',  name:'Ethereum / US Dollar', price:'2,301',   chg:'+1.88%', up:true  },
+      { sym:'SOLUSD',  tv:'BINANCE:SOLUSDT',  icon:'◎',  name:'Solana / US Dollar',   price:'142.80',  chg:'+3.21%', up:true  },
+      { sym:'XRPUSD',  tv:'BITSTAMP:XRPUSD',  icon:'✕',  name:'Ripple / US Dollar',   price:'0.5124',  chg:'-0.84%', up:false },
+      { sym:'BNBUSD',  tv:'BINANCE:BNBUSDT',  icon:'🔶', name:'BNB / US Dollar',      price:'412.30',  chg:'+0.72%', up:true  },
+      { sym:'ADAUSD',  tv:'BINANCE:ADAUSDT',  icon:'🔵', name:'Cardano / US Dollar',  price:'0.4821',  chg:'-1.12%', up:false },
+      { sym:'DOTUSD',  tv:'BINANCE:DOTUSDT',  icon:'⚫', name:'Polkadot / US Dollar', price:'7.2340',  chg:'+0.95%', up:true  },
+      { sym:'DOGEUSD', tv:'BINANCE:DOGEUSDT', icon:'🐕', name:'Dogecoin / US Dollar', price:'0.1482',  chg:'+4.21%', up:true  },
     ],
     stocks: [
-      { sym:'AAPL',   tv:'NASDAQ:AAPL',   icon:'ðŸŽ', name:'Apple Inc.',          price:'182.52',  chg:'+0.84%', up:true  },
-      { sym:'MSFT',   tv:'NASDAQ:MSFT',   icon:'ðŸªŸ', name:'Microsoft Corp.',     price:'415.30',  chg:'+1.12%', up:true  },
-      { sym:'GOOGL',  tv:'NASDAQ:GOOGL',  icon:'ðŸ”', name:'Alphabet Inc.',       price:'176.40',  chg:'-0.32%', up:false },
-      { sym:'AMZN',   tv:'NASDAQ:AMZN',   icon:'ðŸ“¦', name:'Amazon.com Inc.',     price:'192.80',  chg:'+1.54%', up:true  },
-      { sym:'TSLA',   tv:'NASDAQ:TSLA',   icon:'âš¡', name:'Tesla Inc.',          price:'172.60',  chg:'-2.14%', up:false },
-      { sym:'NVDA',   tv:'NASDAQ:NVDA',   icon:'ðŸŽ®', name:'NVIDIA Corp.',        price:'875.40',  chg:'+3.21%', up:true  },
-      { sym:'META',   tv:'NASDAQ:META',   icon:'ðŸ‘“', name:'Meta Platforms',      price:'510.20',  chg:'+0.91%', up:true  },
-      { sym:'JPM',    tv:'NYSE:JPM',      icon:'ðŸ¦', name:'JPMorgan Chase',      price:'198.30',  chg:'+0.54%', up:true  },
-      { sym:'BAC',    tv:'NYSE:BAC',      icon:'ðŸ’µ', name:'Bank of America',     price:'38.42',   chg:'-0.18%', up:false },
-      { sym:'V',      tv:'NYSE:V',        icon:'ðŸ’³', name:'Visa Inc.',           price:'278.90',  chg:'+0.42%', up:true  },
+      { sym:'AAPL',   tv:'NASDAQ:AAPL',   icon:'🍎', name:'Apple Inc.',          price:'182.52',  chg:'+0.84%', up:true  },
+      { sym:'MSFT',   tv:'NASDAQ:MSFT',   icon:'🪟', name:'Microsoft Corp.',     price:'415.30',  chg:'+1.12%', up:true  },
+      { sym:'GOOGL',  tv:'NASDAQ:GOOGL',  icon:'🔍', name:'Alphabet Inc.',       price:'176.40',  chg:'-0.32%', up:false },
+      { sym:'AMZN',   tv:'NASDAQ:AMZN',   icon:'📦', name:'Amazon.com Inc.',     price:'192.80',  chg:'+1.54%', up:true  },
+      { sym:'TSLA',   tv:'NASDAQ:TSLA',   icon:'⚡', name:'Tesla Inc.',          price:'172.60',  chg:'-2.14%', up:false },
+      { sym:'NVDA',   tv:'NASDAQ:NVDA',   icon:'🎮', name:'NVIDIA Corp.',        price:'875.40',  chg:'+3.21%', up:true  },
+      { sym:'META',   tv:'NASDAQ:META',   icon:'👓', name:'Meta Platforms',      price:'510.20',  chg:'+0.91%', up:true  },
+      { sym:'JPM',    tv:'NYSE:JPM',      icon:'🏦', name:'JPMorgan Chase',      price:'198.30',  chg:'+0.54%', up:true  },
+      { sym:'BAC',    tv:'NYSE:BAC',      icon:'💵', name:'Bank of America',     price:'38.42',   chg:'-0.18%', up:false },
+      { sym:'V',      tv:'NYSE:V',        icon:'💳', name:'Visa Inc.',           price:'278.90',  chg:'+0.42%', up:true  },
     ],
     indices: [
-      { sym:'US30',   tv:'FOREXCOM:DJI',   icon:'ðŸ—½', name:'Dow Jones Industrial', price:'39,142', chg:'+0.31%', up:true  },
-      { sym:'SPX500', tv:'FOREXCOM:SPXUSD',icon:'ðŸ¦…', name:'S&P 500',             price:'5,254',  chg:'+0.48%', up:true  },
-      { sym:'NAS100', tv:'FOREXCOM:NSXUSD',icon:'ðŸ’»', name:'NASDAQ 100',          price:'18,241', chg:'+0.72%', up:true  },
-      { sym:'UK100',  tv:'SPREADEX:UK100', icon:'ðŸŽ¡', name:'FTSE 100',            price:'8,312',  chg:'-0.14%', up:false },
-      { sym:'GER40',  tv:'FOREXCOM:GER40', icon:'ðŸ°', name:'DAX 40',             price:'18,074', chg:'+0.22%', up:true  },
-      { sym:'FRA40',  tv:'FOREXCOM:FRA40', icon:'ðŸ—¼', name:'CAC 40',             price:'8,142',  chg:'-0.08%', up:false },
-      { sym:'JPN225', tv:'FOREXCOM:JPN225',icon:'ðŸ—¾', name:'Nikkei 225',         price:'40,120', chg:'+0.81%', up:true  },
-      { sym:'AUS200', tv:'FOREXCOM:AUS200',icon:'ðŸ¦˜', name:'ASX 200',            price:'7,814',  chg:'+0.34%', up:true  },
+      { sym:'US30',   tv:'FOREXCOM:DJI',   icon:'🗽', name:'Dow Jones Industrial', price:'39,142', chg:'+0.31%', up:true  },
+      { sym:'SPX500', tv:'FOREXCOM:SPXUSD',icon:'🦅', name:'S&P 500',             price:'5,254',  chg:'+0.48%', up:true  },
+      { sym:'NAS100', tv:'FOREXCOM:NSXUSD',icon:'💻', name:'NASDAQ 100',          price:'18,241', chg:'+0.72%', up:true  },
+      { sym:'UK100',  tv:'SPREADEX:UK100', icon:'🎡', name:'FTSE 100',            price:'8,312',  chg:'-0.14%', up:false },
+      { sym:'GER40',  tv:'FOREXCOM:GER40', icon:'🏰', name:'DAX 40',             price:'18,074', chg:'+0.22%', up:true  },
+      { sym:'FRA40',  tv:'FOREXCOM:FRA40', icon:'🗼', name:'CAC 40',             price:'8,142',  chg:'-0.08%', up:false },
+      { sym:'JPN225', tv:'FOREXCOM:JPN225',icon:'🗾', name:'Nikkei 225',         price:'40,120', chg:'+0.81%', up:true  },
+      { sym:'AUS200', tv:'FOREXCOM:AUS200',icon:'🦘', name:'ASX 200',            price:'7,814',  chg:'+0.34%', up:true  },
     ],
     metals: [
-      { sym:'XAUUSD', tv:'FOREXCOM:XAUUSD', icon:'ðŸ¥‡', name:'Gold / US Dollar',    price:'2,341.5', chg:'+0.87%', up:true  },
-      { sym:'XAGUSD', tv:'FOREXCOM:XAGUSD', icon:'ðŸ¥ˆ', name:'Silver / US Dollar',  price:'27.842',  chg:'+1.24%', up:true  },
-      { sym:'XPTUSD', tv:'FOREXCOM:XPTUSD', icon:'â¬œ', name:'Platinum / USD',      price:'982.40',  chg:'-0.31%', up:false },
-      { sym:'XPDUSD', tv:'FOREXCOM:XPDUSD', icon:'ðŸ”©', name:'Palladium / USD',     price:'1,042.0', chg:'-0.54%', up:false },
-      { sym:'XBRUSD', tv:'TVC:COPPER',       icon:'ðŸ”¶', name:'Copper / US Dollar',  price:'4.1240',  chg:'+0.62%', up:true  },
+      { sym:'XAUUSD', tv:'FOREXCOM:XAUUSD', icon:'🥇', name:'Gold / US Dollar',    price:'2,341.5', chg:'+0.87%', up:true  },
+      { sym:'XAGUSD', tv:'FOREXCOM:XAGUSD', icon:'🥈', name:'Silver / US Dollar',  price:'27.842',  chg:'+1.24%', up:true  },
+      { sym:'XPTUSD', tv:'FOREXCOM:XPTUSD', icon:'⬜', name:'Platinum / USD',      price:'982.40',  chg:'-0.31%', up:false },
+      { sym:'XPDUSD', tv:'FOREXCOM:XPDUSD', icon:'🔩', name:'Palladium / USD',     price:'1,042.0', chg:'-0.54%', up:false },
+      { sym:'XBRUSD', tv:'TVC:COPPER',       icon:'🔶', name:'Copper / US Dollar',  price:'4.1240',  chg:'+0.62%', up:true  },
     ],
     energy: [
-      { sym:'WTIUSD', tv:'NYMEX:CL1!',      icon:'ðŸ›¢ï¸', name:'Crude Oil WTI',      price:'82.340', chg:'-0.55%', up:false },
-      { sym:'BRTUSD', tv:'NYMEX:BB1!',       icon:'âš«', name:'Brent Crude Oil',    price:'86.720', chg:'-0.42%', up:false },
-      { sym:'NGAS',   tv:'NYMEX:NG1!',       icon:'ðŸ”¥', name:'Natural Gas',        price:'1.8420', chg:'+1.12%', up:true  },
-      { sym:'GASOLINE',tv:'NYMEX:RB1!',      icon:'â›½', name:'Gasoline RBOB',      price:'2.6840', chg:'-0.28%', up:false },
-      { sym:'HEATING', tv:'NYMEX:HO1!',      icon:'ðŸŒ¡ï¸', name:'Heating Oil',        price:'2.8120', chg:'+0.18%', up:true  },
+      { sym:'WTIUSD', tv:'NYMEX:CL1!',      icon:'🛢️', name:'Crude Oil WTI',      price:'82.340', chg:'-0.55%', up:false },
+      { sym:'BRTUSD', tv:'NYMEX:BB1!',       icon:'⚫', name:'Brent Crude Oil',    price:'86.720', chg:'-0.42%', up:false },
+      { sym:'NGAS',   tv:'NYMEX:NG1!',       icon:'🔥', name:'Natural Gas',        price:'1.8420', chg:'+1.12%', up:true  },
+      { sym:'GASOLINE',tv:'NYMEX:RB1!',      icon:'⛽', name:'Gasoline RBOB',      price:'2.6840', chg:'-0.28%', up:false },
+      { sym:'HEATING', tv:'NYMEX:HO1!',      icon:'🌡️', name:'Heating Oil',        price:'2.8120', chg:'+0.18%', up:true  },
     ],
     etfs: [
-      { sym:'SPY',  tv:'AMEX:SPY',  icon:'ðŸ“Š', name:'SPDR S&P 500 ETF',     price:'524.80', chg:'+0.48%', up:true  },
-      { sym:'QQQ',  tv:'NASDAQ:QQQ',icon:'ðŸ’¡', name:'Invesco QQQ Trust',    price:'448.20', chg:'+0.71%', up:true  },
-      { sym:'GLD',  tv:'AMEX:GLD',  icon:'ðŸŸ¡', name:'SPDR Gold Shares',     price:'215.40', chg:'+0.84%', up:true  },
-      { sym:'SLV',  tv:'AMEX:SLV',  icon:'âšª', name:'iShares Silver Trust', price:'25.820', chg:'+1.21%', up:true  },
-      { sym:'VTI',  tv:'AMEX:VTI',  icon:'ðŸŒ', name:'Vanguard Total Market',price:'241.30', chg:'+0.36%', up:true  },
-      { sym:'XLE',  tv:'AMEX:XLE',  icon:'âš¡', name:'Energy Select SPDR',   price:'91.420', chg:'-0.42%', up:false },
-      { sym:'ARKK', tv:'AMEX:ARKK', icon:'ðŸš€', name:'ARK Innovation ETF',   price:'48.120', chg:'+2.14%', up:true  },
+      { sym:'SPY',  tv:'AMEX:SPY',  icon:'📊', name:'SPDR S&P 500 ETF',     price:'524.80', chg:'+0.48%', up:true  },
+      { sym:'QQQ',  tv:'NASDAQ:QQQ',icon:'💡', name:'Invesco QQQ Trust',    price:'448.20', chg:'+0.71%', up:true  },
+      { sym:'GLD',  tv:'AMEX:GLD',  icon:'🟡', name:'SPDR Gold Shares',     price:'215.40', chg:'+0.84%', up:true  },
+      { sym:'SLV',  tv:'AMEX:SLV',  icon:'⚪', name:'iShares Silver Trust', price:'25.820', chg:'+1.21%', up:true  },
+      { sym:'VTI',  tv:'AMEX:VTI',  icon:'🌐', name:'Vanguard Total Market',price:'241.30', chg:'+0.36%', up:true  },
+      { sym:'XLE',  tv:'AMEX:XLE',  icon:'⚡', name:'Energy Select SPDR',   price:'91.420', chg:'-0.42%', up:false },
+      { sym:'ARKK', tv:'AMEX:ARKK', icon:'🚀', name:'ARK Innovation ETF',   price:'48.120', chg:'+2.14%', up:true  },
     ],
   };
 
@@ -1094,7 +1094,7 @@
   let tvWidget = null;
   let currentTF = '60';
 
-  // â”€â”€ Build instrument list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Build instrument list ─────────────────────────────────
   function buildList(cat) {
     const list = document.getElementById('instrument-list');
     list.innerHTML = '';
@@ -1116,7 +1116,7 @@
     });
   }
 
-  // â”€â”€ Select instrument â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Select instrument ─────────────────────────────────────
   function selectInstrument(inst, rowEl) {
     document.querySelectorAll('.instrument-row').forEach(r => r.classList.remove('active'));
     if (rowEl) rowEl.classList.add('active');
@@ -1147,7 +1147,7 @@
     return val.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   }
 
-  // â”€â”€ Load TradingView chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Load TradingView chart ────────────────────────────────
   function loadChart(symbol) {
     if (tvWidget) {
       try { tvWidget.remove(); } catch(e) {}
@@ -1177,7 +1177,7 @@
     });
   }
 
-  // â”€â”€ Switch category â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Switch category ───────────────────────────────────────
   function switchCat(btn, cat) {
     document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -1186,7 +1186,7 @@
     selectInstrument(MARKETS[cat][0], document.querySelector('.instrument-row'));
   }
 
-  // â”€â”€ Timeframe â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Timeframe ─────────────────────────────────────────────
   function setTF(btn, tf) {
     document.querySelectorAll('.chart-tf button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -1194,7 +1194,7 @@
     loadChart(currentSym.tv);
   }
 
-  // â”€â”€ Order side â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Order side ────────────────────────────────────────────
   function setOrderSide(side) {
     currentSide = side;
     const buyTab  = document.getElementById('tab-buy');
@@ -1215,7 +1215,7 @@
     document.getElementById('submit-label').textContent = `${side} ${currentSym?.sym || 'EUR/USD'}`;
   }
 
-  // â”€â”€ Volume stepper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Volume stepper ────────────────────────────────────────
   function stepVol(delta) {
     const inp = document.getElementById('vol-input');
     const val = Math.max(0.01, Math.round((parseFloat(inp.value) + delta) * 100) / 100);
@@ -1224,7 +1224,7 @@
     calcMargin();
   }
 
-  // â”€â”€ Calc margin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Calc margin ───────────────────────────────────────────
   function calcMargin() {
     const lots = parseFloat(document.getElementById('vol-input').value) || 0.1;
     const price = parseFloat((currentSym?.price || '1').replace(/,/g,'')) || 1;
@@ -1238,14 +1238,14 @@
     document.getElementById('m-comm').textContent     = '$' + comm;
   }
 
-  // â”€â”€ TP/SL toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── TP/SL toggle ─────────────────────────────────────────
   function toggleTPSL() {
     const fields = document.getElementById('tpsl-fields');
     fields.style.display = document.getElementById('tpsl-toggle').checked ? 'flex' : 'none';
   }
   document.getElementById('tpsl-fields').style.display = 'none';
 
-  // â”€â”€ Submit order â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Submit order ──────────────────────────────────────────
   function submitOrder() {
     const side  = currentSide.toUpperCase();
     const sym   = currentSym?.sym || 'EUR/USD';
@@ -1258,7 +1258,7 @@
     document.getElementById('modal-confirm').classList.add('open');
   }
 
-  // â”€â”€ Close position modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Close position modal ──────────────────────────────────
   function openCloseModal(sym, dir, pnl) {
     document.getElementById('mc-sym').textContent = sym;
     document.getElementById('mc-dir').textContent = dir;
@@ -1271,7 +1271,7 @@
     document.getElementById('modal-close').classList.remove('open');
   }
 
-  // â”€â”€ Filter instruments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Filter instruments ────────────────────────────────────
   function filterInstruments() {
     const q = document.getElementById('sym-search').value.toLowerCase();
     document.querySelectorAll('.instrument-row').forEach(row => {
@@ -1280,7 +1280,7 @@
     });
   }
 
-  // â”€â”€ Sidebar toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Sidebar toggle ────────────────────────────────────────
   function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
   }
@@ -1292,7 +1292,7 @@
     }
   });
 
-  // â”€â”€ Close modals on overlay click â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Close modals on overlay click ─────────────────────────
   document.querySelectorAll('.modal-overlay').forEach(el => {
     el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
   });
@@ -1302,13 +1302,13 @@
 
   // pos-tab active state is managed by switchPosTab() in the auth script
 
-  // â”€â”€ Bottom sheet (mobile) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Bottom sheet (mobile) ─────────────────────────────────
   function openSheet() {
     document.getElementById('sheet-overlay').classList.add('open');
     document.getElementById('order-sheet').classList.add('open');
     document.body.style.overflow = 'hidden';
     // Sync symbol title and prices from desktop panel
-    document.getElementById('sheet-title').textContent = 'Place Order â€” ' + (currentSym?.sym || 'EUR/USD');
+    document.getElementById('sheet-title').textContent = 'Place Order — ' + (currentSym?.sym || 'EUR/USD');
     document.getElementById('sheet-bid').textContent   = document.getElementById('bid-price').textContent;
     document.getElementById('sheet-ask').textContent   = document.getElementById('ask-price').textContent;
     document.getElementById('sheet-submit-label').textContent = currentSide.toUpperCase() + ' ' + (currentSym?.sym || 'EUR/USD');
@@ -1352,7 +1352,7 @@
     document.getElementById('conf-sub').textContent   = `${lots} lots at market price ${price}`;
     document.getElementById('modal-confirm').classList.add('open');
   }
-  // â”€â”€ Dark mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Dark mode ─────────────────────────────────────────────
   const sunIcon  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
   const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
   function toggleDark() {
@@ -1399,10 +1399,10 @@
     btn.onclick = async () => { await db.auth.signOut(); window.location.href = 'login.html'; };
   });
 
-  // â”€â”€ Positions / Orders / History â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Positions / Orders / History ──────────────────────────
   function fmtPx(val) {
     const n = parseFloat(val);
-    if (isNaN(n)) return 'â€”';
+    if (isNaN(n)) return '—';
     return n >= 100
       ? n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
       : n.toFixed(5);
@@ -1427,7 +1427,7 @@
       thead.innerHTML = '<tr><th>Symbol</th><th>Type</th><th>Lots</th><th>Open</th><th>Close</th><th>Realised P&amp;L</th><th>Date</th></tr>';
     }
 
-    body.innerHTML = `<tr><td colspan="${ncols}" style="text-align:center;color:var(--muted);padding:24px;font-size:13px">Loadingâ€¦</td></tr>`;
+    body.innerHTML = `<tr><td colspan="${ncols}" style="text-align:center;color:var(--muted);padding:24px;font-size:13px">Loading…</td></tr>`;
     if (pnlEl) pnlEl.innerHTML = '';
 
     const { data: rows, error } = await db.from('positions')
@@ -1458,8 +1458,8 @@
           <td>${parseFloat(p.lots).toFixed(2)}</td>
           <td>${fmtPx(p.open_price)}</td>
           <td>${fmtPx(p.current_price)}</td>
-          <td>${p.stop_loss   ? fmtPx(p.stop_loss)   : 'â€”'}</td>
-          <td>${p.take_profit ? fmtPx(p.take_profit)  : 'â€”'}</td>
+          <td>${p.stop_loss   ? fmtPx(p.stop_loss)   : '—'}</td>
+          <td>${p.take_profit ? fmtPx(p.take_profit)  : '—'}</td>
           <td class="pos-pnl ${pnl >= 0 ? 'up' : 'down'}">${pnlStr}</td>
           <td>${swapStr}</td>
           <td><button class="pos-close-btn" onclick="openCloseModal('${p.symbol}','${p.direction}','${pnlStr}')">Close</button></td>
@@ -1477,8 +1477,8 @@
           <td><span class="pos-type ${dir}">${p.direction}</span></td>
           <td>${parseFloat(p.lots).toFixed(2)}</td>
           <td>${fmtPx(p.open_price)}</td>
-          <td>${p.stop_loss   ? fmtPx(p.stop_loss)  : 'â€”'}</td>
-          <td>${p.take_profit ? fmtPx(p.take_profit) : 'â€”'}</td>
+          <td>${p.stop_loss   ? fmtPx(p.stop_loss)  : '—'}</td>
+          <td>${p.take_profit ? fmtPx(p.take_profit) : '—'}</td>
           <td>${date}</td>
           <td><button class="pos-close-btn">Cancel</button></td>
         </tr>`;
@@ -1489,13 +1489,13 @@
         const pnl    = parseFloat(p.realised_pnl || 0);
         const pnlStr = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
         const dir    = (p.direction || 'buy').toLowerCase();
-        const closed = p.closed_at ? new Date(p.closed_at).toLocaleDateString() : 'â€”';
+        const closed = p.closed_at ? new Date(p.closed_at).toLocaleDateString() : '—';
         return `<tr>
           <td class="pos-sym">${p.symbol}</td>
           <td><span class="pos-type ${dir}">${p.direction}</span></td>
           <td>${parseFloat(p.lots).toFixed(2)}</td>
           <td>${fmtPx(p.open_price)}</td>
-          <td>${p.close_price ? fmtPx(p.close_price) : 'â€”'}</td>
+          <td>${p.close_price ? fmtPx(p.close_price) : '—'}</td>
           <td class="pos-pnl ${pnl >= 0 ? 'up' : 'down'}">${pnlStr}</td>
           <td>${closed}</td>
         </tr>`;

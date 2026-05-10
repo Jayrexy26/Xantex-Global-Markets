@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Notifications — Xantex Global Markets</title>
+  <title>Notifications â€” Xantex Global Markets</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -246,7 +246,7 @@
     body.dark .modal               { background: #1a1d27; }
     body.dark .topbar__icon-btn    { background: #0f1117; }
 
-    /* ── Custom scrollbars ── */
+    /* â”€â”€ Custom scrollbars â”€â”€ */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -363,7 +363,7 @@
       </div>
       <div class="card">
         <div class="card__body" id="notif-list-body">
-          <div style="text-align:center;padding:32px;color:var(--muted);">Loading notifications…</div>
+          <div style="text-align:center;padding:32px;color:var(--muted);">Loading notificationsâ€¦</div>
         </div>
       </div>
     </div>
@@ -372,7 +372,7 @@
 </div><!-- /layout -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase.js"></script>
+<script src="./supabase.js"></script>`n<script src="./notif-popup.js"></script>
 <script>
   // Apply dark mode immediately before render
   if (localStorage.getItem('xantex-theme') === 'dark') {
@@ -410,6 +410,7 @@
     const { data: { session } } = await db.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
     const userId = session.user.id;
+    initNotifPopup(db, userId);
 
     const { data: profile } = await db.from('profiles').select('first_name,last_name,email,kyc_status,avatar_url,phone,country,city,date_of_birth,nationality').eq('id', userId).single();
     if (profile) {
@@ -444,3 +445,4 @@
 </script>
 </body>
 </html>
+

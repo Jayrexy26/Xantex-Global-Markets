@@ -2317,6 +2317,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase.js"></script>
+<script src="./notif-popup.js"></script>
 <script src="./notification.js"></script>
 <script src="./prices.js"></script>
 <script>
@@ -2450,6 +2451,9 @@ function savePreferences() {
   if (!session) { window.location.href = 'login.html'; return; }
   const userId = session.user.id;
   console.log('[dashboard] auth uid:', userId, '|', session.user.email);
+
+  // ── Active notification popup ──────────────────────────────
+  initNotifPopup(db, userId);
 
   // ── Ban check — force-logout deleted accounts ─────────────
   try {

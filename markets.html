@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Markets — Xantex Global Markets</title>
+  <title>Markets â€” Xantex Global Markets</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -282,7 +282,7 @@
     .btn--outline:hover { border-color: var(--blue); color: var(--blue); }
 
     /* ============================================================
-       MOBILE — everything fits within 100vw, no horizontal scroll
+       MOBILE â€” everything fits within 100vw, no horizontal scroll
     ============================================================ */
     @media (max-width: 768px) {
       /* Prevent any horizontal overflow */
@@ -444,7 +444,7 @@
       <div class="topbar__title">Markets</div>
       <div class="topbar__search">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Search instruments…" id="global-search" oninput="searchMarkets()">
+        <input type="text" placeholder="Search instrumentsâ€¦" id="global-search" oninput="searchMarkets()">
       </div>
       <div class="topbar__right">
         <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">
@@ -465,7 +465,7 @@
       <div class="page-header">
         <div>
           <div class="page-header__title">Market Overview</div>
-          <div class="page-header__sub" id="last-updated">Live prices · Updated just now</div>
+          <div class="page-header__sub" id="last-updated">Live prices Â· Updated just now</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <a href="trade.html" class="btn btn--primary">
@@ -510,11 +510,11 @@
       <!-- Market Stats -->
       <div class="overview-stats" id="overview-stats"></div>
 
-      <!-- ── FOREX ───────────────────────────────────────── -->
+      <!-- â”€â”€ FOREX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <div class="mkt-section" id="section-forex">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">💱</span>
+            <span class="section-head__icon">ðŸ’±</span>
             <div>
               <div class="section-head__title">Forex</div>
             </div>
@@ -524,7 +524,7 @@
             <button class="filter-btn active" onclick="filterSection('forex','all',this)">All</button>
             <button class="filter-btn" onclick="filterSection('forex','major',this)">Major</button>
             <button class="filter-btn" onclick="filterSection('forex','minor',this)">Minor</button>
-            <a class="trade-link" href="trade.html">Trade Forex →</a>
+            <a class="trade-link" href="trade.html">Trade Forex â†’</a>
           </div>
         </div>
         <div class="mkt-table-wrap">
@@ -539,11 +539,11 @@
         </div>
       </div>
 
-      <!-- ── CRYPTO ─────────────────────────────────────── -->
+      <!-- â”€â”€ CRYPTO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <div class="mkt-section" id="section-crypto">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">₿</span>
+            <span class="section-head__icon">â‚¿</span>
             <div><div class="section-head__title">Cryptocurrency</div></div>
             <span class="section-head__count">Top digital assets</span>
           </div>
@@ -551,7 +551,7 @@
             <button class="filter-btn active" onclick="filterSection('crypto','all',this)">All</button>
             <button class="filter-btn" onclick="filterSection('crypto','top5',this)">Top 5</button>
             <button class="filter-btn" onclick="filterSection('crypto','defi',this)">DeFi</button>
-            <a class="trade-link" href="trade.html">Trade Crypto →</a>
+            <a class="trade-link" href="trade.html">Trade Crypto â†’</a>
           </div>
         </div>
 
@@ -570,11 +570,11 @@
         </div>
       </div>
 
-      <!-- ── STOCKS ─────────────────────────────────────── -->
+      <!-- â”€â”€ STOCKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <div class="mkt-section" id="section-stocks">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">🏢</span>
+            <span class="section-head__icon">ðŸ¢</span>
             <div><div class="section-head__title">Stocks & Shares</div></div>
             <span class="section-head__count">Global equities</span>
           </div>
@@ -582,7 +582,7 @@
             <button class="filter-btn active" onclick="filterSection('stocks','all',this)">All</button>
             <button class="filter-btn" onclick="filterSection('stocks','us',this)">US</button>
             <button class="filter-btn" onclick="filterSection('stocks','uk',this)">UK</button>
-            <a class="trade-link" href="trade.html">Trade Stocks →</a>
+            <a class="trade-link" href="trade.html">Trade Stocks â†’</a>
           </div>
         </div>
         <div class="mkt-table-wrap">
@@ -597,11 +597,11 @@
         </div>
       </div>
 
-      <!-- ── INDICES ────────────────────────────────────── -->
+      <!-- â”€â”€ INDICES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <div class="mkt-section" id="section-indices">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">📈</span>
+            <span class="section-head__icon">ðŸ“ˆ</span>
             <div><div class="section-head__title">Indices</div></div>
             <span class="section-head__count">Global stock indices</span>
           </div>
@@ -610,7 +610,7 @@
             <button class="filter-btn" onclick="filterSection('indices','us',this)">Americas</button>
             <button class="filter-btn" onclick="filterSection('indices','eu',this)">Europe</button>
             <button class="filter-btn" onclick="filterSection('indices','asia',this)">Asia</button>
-            <a class="trade-link" href="trade.html">Trade Indices →</a>
+            <a class="trade-link" href="trade.html">Trade Indices â†’</a>
           </div>
         </div>
         <div class="mkt-table-wrap">
@@ -625,16 +625,16 @@
         </div>
       </div>
 
-      <!-- ── METALS ─────────────────────────────────────── -->
+      <!-- â”€â”€ METALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <div class="mkt-section" id="section-metals">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">🥇</span>
+            <span class="section-head__icon">ðŸ¥‡</span>
             <div><div class="section-head__title">Metals & Commodities</div></div>
             <span class="section-head__count">Precious & industrial metals</span>
           </div>
           <div class="section-head__right">
-            <a class="trade-link" href="trade.html">Trade Metals →</a>
+            <a class="trade-link" href="trade.html">Trade Metals â†’</a>
           </div>
         </div>
         <div class="mkt-table-wrap">
@@ -649,16 +649,16 @@
         </div>
       </div>
 
-      <!-- ── ENERGY ─────────────────────────────────────── -->
+      <!-- â”€â”€ ENERGY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <div class="mkt-section" id="section-energy">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">🛢️</span>
+            <span class="section-head__icon">ðŸ›¢ï¸</span>
             <div><div class="section-head__title">Energy</div></div>
             <span class="section-head__count">Oil, gas & more</span>
           </div>
           <div class="section-head__right">
-            <a class="trade-link" href="trade.html">Trade Energy →</a>
+            <a class="trade-link" href="trade.html">Trade Energy â†’</a>
           </div>
         </div>
         <div class="mkt-table-wrap">
@@ -673,16 +673,16 @@
         </div>
       </div>
 
-      <!-- ── ETFs ───────────────────────────────────────── -->
+      <!-- â”€â”€ ETFs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <div class="mkt-section" id="section-etfs">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">📦</span>
+            <span class="section-head__icon">ðŸ“¦</span>
             <div><div class="section-head__title">ETFs</div></div>
             <span class="section-head__count">Exchange-traded funds</span>
           </div>
           <div class="section-head__right">
-            <a class="trade-link" href="trade.html">Trade ETFs →</a>
+            <a class="trade-link" href="trade.html">Trade ETFs â†’</a>
           </div>
         </div>
         <div class="mkt-table-wrap">
@@ -697,7 +697,7 @@
         </div>
       </div>
 
-      <!-- ── TradingView Mini Charts ────────────────────── -->
+      <!-- â”€â”€ TradingView Mini Charts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <div style="margin-bottom:12px;">
         <div style="font-size:15px;font-weight:700;margin-bottom:14px;">Key Instrument Charts</div>
         <div class="mini-charts" id="mini-charts"></div>
@@ -713,78 +713,78 @@
   ============================================================ */
   const DATA = {
     forex: [
-      { icon:'💱', sym:'EUR/USD', name:'Euro / US Dollar',         bid:'1.08418', ask:'1.08432', chg:'+0.00222', chgp:'+0.21%', high:'1.08654', low:'1.08102', spread:'1.4', tag:'major', sent:'bull' },
-      { icon:'💷', sym:'GBP/USD', name:'British Pound / US Dollar',bid:'1.26704', ask:'1.26718', chg:'-0.00228', chgp:'-0.18%', high:'1.26980', low:'1.26412', spread:'1.4', tag:'major', sent:'bear' },
-      { icon:'💴', sym:'USD/JPY', name:'US Dollar / Japanese Yen', bid:'151.828', ask:'151.842', chg:'+0.472',   chgp:'+0.31%', high:'152.140', low:'151.420', spread:'1.4', tag:'major', sent:'bull' },
-      { icon:'🍁', sym:'USD/CAD', name:'US Dollar / Canadian',     bid:'1.36407', ask:'1.36421', chg:'+0.00162', chgp:'+0.12%', high:'1.36580', low:'1.36120', spread:'1.4', tag:'major', sent:'bull' },
-      { icon:'🇨🇭', sym:'USD/CHF', name:'US Dollar / Swiss Franc', bid:'0.90128', ask:'0.90142', chg:'+0.00045', chgp:'+0.05%', high:'0.90280', low:'0.89940', spread:'1.4', tag:'major', sent:'neut' },
-      { icon:'🦘', sym:'AUD/USD', name:'Australian / US Dollar',   bid:'0.65200', ask:'0.65214', chg:'-0.00059', chgp:'-0.09%', high:'0.65380', low:'0.64980', spread:'1.4', tag:'major', sent:'bear' },
-      { icon:'🥝', sym:'NZD/USD', name:'New Zealand / US Dollar',  bid:'0.60307', ask:'0.60321', chg:'-0.00127', chgp:'-0.21%', high:'0.60540', low:'0.60180', spread:'1.4', tag:'minor', sent:'bear' },
-      { icon:'💶', sym:'EUR/GBP', name:'Euro / British Pound',     bid:'0.85598', ask:'0.85612', chg:'+0.00120', chgp:'+0.14%', high:'0.85720', low:'0.85380', spread:'1.4', tag:'minor', sent:'bull' },
-      { icon:'💹', sym:'EUR/JPY', name:'Euro / Japanese Yen',      bid:'164.507', ask:'164.521', chg:'+0.754',   chgp:'+0.46%', high:'164.820', low:'163.840', spread:'1.4', tag:'minor', sent:'bull' },
-      { icon:'💸', sym:'GBP/JPY', name:'British Pound / Yen',      bid:'192.326', ask:'192.340', chg:'+0.840',   chgp:'+0.44%', high:'192.680', low:'191.620', spread:'1.4', tag:'minor', sent:'bull' },
+      { icon:'ðŸ’±', sym:'EUR/USD', name:'Euro / US Dollar',         bid:'1.08418', ask:'1.08432', chg:'+0.00222', chgp:'+0.21%', high:'1.08654', low:'1.08102', spread:'1.4', tag:'major', sent:'bull' },
+      { icon:'ðŸ’·', sym:'GBP/USD', name:'British Pound / US Dollar',bid:'1.26704', ask:'1.26718', chg:'-0.00228', chgp:'-0.18%', high:'1.26980', low:'1.26412', spread:'1.4', tag:'major', sent:'bear' },
+      { icon:'ðŸ’´', sym:'USD/JPY', name:'US Dollar / Japanese Yen', bid:'151.828', ask:'151.842', chg:'+0.472',   chgp:'+0.31%', high:'152.140', low:'151.420', spread:'1.4', tag:'major', sent:'bull' },
+      { icon:'ðŸ', sym:'USD/CAD', name:'US Dollar / Canadian',     bid:'1.36407', ask:'1.36421', chg:'+0.00162', chgp:'+0.12%', high:'1.36580', low:'1.36120', spread:'1.4', tag:'major', sent:'bull' },
+      { icon:'ðŸ‡¨ðŸ‡­', sym:'USD/CHF', name:'US Dollar / Swiss Franc', bid:'0.90128', ask:'0.90142', chg:'+0.00045', chgp:'+0.05%', high:'0.90280', low:'0.89940', spread:'1.4', tag:'major', sent:'neut' },
+      { icon:'ðŸ¦˜', sym:'AUD/USD', name:'Australian / US Dollar',   bid:'0.65200', ask:'0.65214', chg:'-0.00059', chgp:'-0.09%', high:'0.65380', low:'0.64980', spread:'1.4', tag:'major', sent:'bear' },
+      { icon:'ðŸ¥', sym:'NZD/USD', name:'New Zealand / US Dollar',  bid:'0.60307', ask:'0.60321', chg:'-0.00127', chgp:'-0.21%', high:'0.60540', low:'0.60180', spread:'1.4', tag:'minor', sent:'bear' },
+      { icon:'ðŸ’¶', sym:'EUR/GBP', name:'Euro / British Pound',     bid:'0.85598', ask:'0.85612', chg:'+0.00120', chgp:'+0.14%', high:'0.85720', low:'0.85380', spread:'1.4', tag:'minor', sent:'bull' },
+      { icon:'ðŸ’¹', sym:'EUR/JPY', name:'Euro / Japanese Yen',      bid:'164.507', ask:'164.521', chg:'+0.754',   chgp:'+0.46%', high:'164.820', low:'163.840', spread:'1.4', tag:'minor', sent:'bull' },
+      { icon:'ðŸ’¸', sym:'GBP/JPY', name:'British Pound / Yen',      bid:'192.326', ask:'192.340', chg:'+0.840',   chgp:'+0.44%', high:'192.680', low:'191.620', spread:'1.4', tag:'minor', sent:'bull' },
     ],
     crypto: [
-      { icon:'₿',  sym:'BTC/USD',  name:'Bitcoin',       price:'78,450',  chg:'+1,644', chgp:'+2.14%', high:'79,120', low:'76,480', mcap:'$1.54T',  vol:'$42.8B', tag:'top5', sent:'bull' },
-      { icon:'Ξ',  sym:'ETH/USD',  name:'Ethereum',      price:'2,301',   chg:'+43',    chgp:'+1.88%', high:'2,348',  low:'2,242',  mcap:'$277B',   vol:'$18.4B', tag:'top5', sent:'bull' },
-      { icon:'◎',  sym:'SOL/USD',  name:'Solana',        price:'142.80',  chg:'+4.42',  chgp:'+3.21%', high:'144.20', low:'137.60', mcap:'$66.2B',  vol:'$4.1B',  tag:'top5', sent:'bull' },
-      { icon:'✕',  sym:'XRP/USD',  name:'Ripple',        price:'0.5124',  chg:'-0.004', chgp:'-0.84%', high:'0.524',  low:'0.508',  mcap:'$28.4B',  vol:'$1.8B',  tag:'top5', sent:'bear' },
-      { icon:'🔶', sym:'BNB/USD',  name:'BNB',           price:'412.30',  chg:'+2.96',  chgp:'+0.72%', high:'416.40', low:'408.20', mcap:'$61.2B',  vol:'$2.4B',  tag:'top5', sent:'bull' },
-      { icon:'🔵', sym:'ADA/USD',  name:'Cardano',       price:'0.4821',  chg:'-0.006', chgp:'-1.12%', high:'0.494',  low:'0.478',  mcap:'$17.1B',  vol:'$0.6B',  tag:'defi', sent:'bear' },
-      { icon:'⚫', sym:'DOT/USD',  name:'Polkadot',      price:'7.2340',  chg:'+0.068', chgp:'+0.95%', high:'7.380',  low:'7.120',  mcap:'$9.8B',   vol:'$0.4B',  tag:'defi', sent:'bull' },
-      { icon:'🐕', sym:'DOGE/USD', name:'Dogecoin',      price:'0.1482',  chg:'+0.006', chgp:'+4.21%', high:'0.152',  low:'0.142',  mcap:'$21.4B',  vol:'$1.2B',  tag:'top5', sent:'bull' },
-      { icon:'🔷', sym:'AVAX/USD', name:'Avalanche',     price:'38.420',  chg:'+0.840', chgp:'+2.24%', high:'39.120', low:'37.240', mcap:'$15.8B',  vol:'$0.9B',  tag:'defi', sent:'bull' },
-      { icon:'🌐', sym:'LINK/USD', name:'Chainlink',     price:'14.820',  chg:'-0.180', chgp:'-1.20%', high:'15.240', low:'14.620', mcap:'$9.0B',   vol:'$0.5B',  tag:'defi', sent:'bear' },
+      { icon:'â‚¿',  sym:'BTC/USD',  name:'Bitcoin',       price:'78,450',  chg:'+1,644', chgp:'+2.14%', high:'79,120', low:'76,480', mcap:'$1.54T',  vol:'$42.8B', tag:'top5', sent:'bull' },
+      { icon:'Îž',  sym:'ETH/USD',  name:'Ethereum',      price:'2,301',   chg:'+43',    chgp:'+1.88%', high:'2,348',  low:'2,242',  mcap:'$277B',   vol:'$18.4B', tag:'top5', sent:'bull' },
+      { icon:'â—Ž',  sym:'SOL/USD',  name:'Solana',        price:'142.80',  chg:'+4.42',  chgp:'+3.21%', high:'144.20', low:'137.60', mcap:'$66.2B',  vol:'$4.1B',  tag:'top5', sent:'bull' },
+      { icon:'âœ•',  sym:'XRP/USD',  name:'Ripple',        price:'0.5124',  chg:'-0.004', chgp:'-0.84%', high:'0.524',  low:'0.508',  mcap:'$28.4B',  vol:'$1.8B',  tag:'top5', sent:'bear' },
+      { icon:'ðŸ”¶', sym:'BNB/USD',  name:'BNB',           price:'412.30',  chg:'+2.96',  chgp:'+0.72%', high:'416.40', low:'408.20', mcap:'$61.2B',  vol:'$2.4B',  tag:'top5', sent:'bull' },
+      { icon:'ðŸ”µ', sym:'ADA/USD',  name:'Cardano',       price:'0.4821',  chg:'-0.006', chgp:'-1.12%', high:'0.494',  low:'0.478',  mcap:'$17.1B',  vol:'$0.6B',  tag:'defi', sent:'bear' },
+      { icon:'âš«', sym:'DOT/USD',  name:'Polkadot',      price:'7.2340',  chg:'+0.068', chgp:'+0.95%', high:'7.380',  low:'7.120',  mcap:'$9.8B',   vol:'$0.4B',  tag:'defi', sent:'bull' },
+      { icon:'ðŸ•', sym:'DOGE/USD', name:'Dogecoin',      price:'0.1482',  chg:'+0.006', chgp:'+4.21%', high:'0.152',  low:'0.142',  mcap:'$21.4B',  vol:'$1.2B',  tag:'top5', sent:'bull' },
+      { icon:'ðŸ”·', sym:'AVAX/USD', name:'Avalanche',     price:'38.420',  chg:'+0.840', chgp:'+2.24%', high:'39.120', low:'37.240', mcap:'$15.8B',  vol:'$0.9B',  tag:'defi', sent:'bull' },
+      { icon:'ðŸŒ', sym:'LINK/USD', name:'Chainlink',     price:'14.820',  chg:'-0.180', chgp:'-1.20%', high:'15.240', low:'14.620', mcap:'$9.0B',   vol:'$0.5B',  tag:'defi', sent:'bear' },
     ],
     stocks: [
-      { icon:'🍎', sym:'AAPL',  name:'Apple Inc.',        price:'182.52', chg:'+1.52',  chgp:'+0.84%', open:'181.20', high:'183.40', low:'180.80', vol:'52.4M',  tag:'us', sent:'bull' },
-      { icon:'🪟', sym:'MSFT',  name:'Microsoft Corp.',   price:'415.30', chg:'+4.58',  chgp:'+1.12%', open:'411.20', high:'416.80', low:'410.40', vol:'18.2M',  tag:'us', sent:'bull' },
-      { icon:'🔍', sym:'GOOGL', name:'Alphabet Inc.',     price:'176.40', chg:'-0.56',  chgp:'-0.32%', open:'177.20', high:'178.40', low:'175.60', vol:'22.8M',  tag:'us', sent:'bear' },
-      { icon:'📦', sym:'AMZN',  name:'Amazon.com Inc.',   price:'192.80', chg:'+2.94',  chgp:'+1.54%', open:'190.20', high:'193.60', low:'189.80', vol:'34.6M',  tag:'us', sent:'bull' },
-      { icon:'⚡', sym:'TSLA',  name:'Tesla Inc.',        price:'172.60', chg:'-3.76',  chgp:'-2.14%', open:'176.80', high:'177.20', low:'171.40', vol:'98.2M',  tag:'us', sent:'bear' },
-      { icon:'🎮', sym:'NVDA',  name:'NVIDIA Corp.',      price:'875.40', chg:'+27.14', chgp:'+3.21%', open:'849.20', high:'878.60', low:'847.40', vol:'42.8M',  tag:'us', sent:'bull' },
-      { icon:'👓', sym:'META',  name:'Meta Platforms',    price:'510.20', chg:'+4.60',  chgp:'+0.91%', open:'506.20', high:'512.40', low:'504.80', vol:'14.2M',  tag:'us', sent:'bull' },
-      { icon:'🏦', sym:'JPM',   name:'JPMorgan Chase',    price:'198.30', chg:'+1.06',  chgp:'+0.54%', open:'197.40', high:'199.20', low:'196.80', vol:'8.4M',   tag:'us', sent:'bull' },
-      { icon:'💳', sym:'V',     name:'Visa Inc.',         price:'278.90', chg:'+1.16',  chgp:'+0.42%', open:'277.80', high:'279.60', low:'277.20', vol:'6.2M',   tag:'us', sent:'bull' },
-      { icon:'🛒', sym:'WMT',   name:'Walmart Inc.',      price:'68.42',  chg:'+0.42',  chgp:'+0.62%', open:'68.00',  high:'68.80',  low:'67.80',  vol:'12.4M',  tag:'us', sent:'bull' },
+      { icon:'ðŸŽ', sym:'AAPL',  name:'Apple Inc.',        price:'182.52', chg:'+1.52',  chgp:'+0.84%', open:'181.20', high:'183.40', low:'180.80', vol:'52.4M',  tag:'us', sent:'bull' },
+      { icon:'ðŸªŸ', sym:'MSFT',  name:'Microsoft Corp.',   price:'415.30', chg:'+4.58',  chgp:'+1.12%', open:'411.20', high:'416.80', low:'410.40', vol:'18.2M',  tag:'us', sent:'bull' },
+      { icon:'ðŸ”', sym:'GOOGL', name:'Alphabet Inc.',     price:'176.40', chg:'-0.56',  chgp:'-0.32%', open:'177.20', high:'178.40', low:'175.60', vol:'22.8M',  tag:'us', sent:'bear' },
+      { icon:'ðŸ“¦', sym:'AMZN',  name:'Amazon.com Inc.',   price:'192.80', chg:'+2.94',  chgp:'+1.54%', open:'190.20', high:'193.60', low:'189.80', vol:'34.6M',  tag:'us', sent:'bull' },
+      { icon:'âš¡', sym:'TSLA',  name:'Tesla Inc.',        price:'172.60', chg:'-3.76',  chgp:'-2.14%', open:'176.80', high:'177.20', low:'171.40', vol:'98.2M',  tag:'us', sent:'bear' },
+      { icon:'ðŸŽ®', sym:'NVDA',  name:'NVIDIA Corp.',      price:'875.40', chg:'+27.14', chgp:'+3.21%', open:'849.20', high:'878.60', low:'847.40', vol:'42.8M',  tag:'us', sent:'bull' },
+      { icon:'ðŸ‘“', sym:'META',  name:'Meta Platforms',    price:'510.20', chg:'+4.60',  chgp:'+0.91%', open:'506.20', high:'512.40', low:'504.80', vol:'14.2M',  tag:'us', sent:'bull' },
+      { icon:'ðŸ¦', sym:'JPM',   name:'JPMorgan Chase',    price:'198.30', chg:'+1.06',  chgp:'+0.54%', open:'197.40', high:'199.20', low:'196.80', vol:'8.4M',   tag:'us', sent:'bull' },
+      { icon:'ðŸ’³', sym:'V',     name:'Visa Inc.',         price:'278.90', chg:'+1.16',  chgp:'+0.42%', open:'277.80', high:'279.60', low:'277.20', vol:'6.2M',   tag:'us', sent:'bull' },
+      { icon:'ðŸ›’', sym:'WMT',   name:'Walmart Inc.',      price:'68.42',  chg:'+0.42',  chgp:'+0.62%', open:'68.00',  high:'68.80',  low:'67.80',  vol:'12.4M',  tag:'us', sent:'bull' },
     ],
     indices: [
-      { icon:'🗽', sym:'US30',    name:'Dow Jones',          price:'39,142', chg:'+121', chgp:'+0.31%', high:'39,284', low:'38,942', region:'Americas', tag:'us',   sent:'bull' },
-      { icon:'🦅', sym:'SPX500',  name:'S&P 500',            price:'5,254',  chg:'+25',  chgp:'+0.48%', high:'5,274',  low:'5,221',  region:'Americas', tag:'us',   sent:'bull' },
-      { icon:'💻', sym:'NAS100',  name:'NASDAQ 100',         price:'18,241', chg:'+131', chgp:'+0.72%', high:'18,312', low:'18,082', region:'Americas', tag:'us',   sent:'bull' },
-      { icon:'🍁', sym:'CA60',    name:'TSX 60',             price:'1,342',  chg:'+8',   chgp:'+0.60%', high:'1,348',  low:'1,334',  region:'Americas', tag:'us',   sent:'bull' },
-      { icon:'🎡', sym:'UK100',   name:'FTSE 100',           price:'8,312',  chg:'-12',  chgp:'-0.14%', high:'8,348',  low:'8,282',  region:'Europe',   tag:'eu',   sent:'bear' },
-      { icon:'🏰', sym:'GER40',   name:'DAX 40',             price:'18,074', chg:'+40',  chgp:'+0.22%', high:'18,142', low:'17,982', region:'Europe',   tag:'eu',   sent:'bull' },
-      { icon:'🗼', sym:'FRA40',   name:'CAC 40',             price:'8,142',  chg:'-7',   chgp:'-0.08%', high:'8,182',  low:'8,112',  region:'Europe',   tag:'eu',   sent:'neut' },
-      { icon:'🌷', sym:'NED25',   name:'AEX 25',             price:'882',    chg:'+4',   chgp:'+0.45%', high:'886',    low:'878',    region:'Europe',   tag:'eu',   sent:'bull' },
-      { icon:'🗾', sym:'JPN225',  name:'Nikkei 225',         price:'40,120', chg:'+322', chgp:'+0.81%', high:'40,284', low:'39,842', region:'Asia',     tag:'asia', sent:'bull' },
-      { icon:'🦘', sym:'AUS200',  name:'ASX 200',            price:'7,814',  chg:'+27',  chgp:'+0.34%', high:'7,842',  low:'7,782',  region:'Asia',     tag:'asia', sent:'bull' },
-      { icon:'🐉', sym:'HK50',    name:'Hang Seng',          price:'16,842', chg:'-142', chgp:'-0.84%', high:'17,042', low:'16,782', region:'Asia',     tag:'asia', sent:'bear' },
-      { icon:'🌏', sym:'CHINA50', name:'China A50',          price:'12,420', chg:'+84',  chgp:'+0.68%', high:'12,482', low:'12,342', region:'Asia',     tag:'asia', sent:'bull' },
+      { icon:'ðŸ—½', sym:'US30',    name:'Dow Jones',          price:'39,142', chg:'+121', chgp:'+0.31%', high:'39,284', low:'38,942', region:'Americas', tag:'us',   sent:'bull' },
+      { icon:'ðŸ¦…', sym:'SPX500',  name:'S&P 500',            price:'5,254',  chg:'+25',  chgp:'+0.48%', high:'5,274',  low:'5,221',  region:'Americas', tag:'us',   sent:'bull' },
+      { icon:'ðŸ’»', sym:'NAS100',  name:'NASDAQ 100',         price:'18,241', chg:'+131', chgp:'+0.72%', high:'18,312', low:'18,082', region:'Americas', tag:'us',   sent:'bull' },
+      { icon:'ðŸ', sym:'CA60',    name:'TSX 60',             price:'1,342',  chg:'+8',   chgp:'+0.60%', high:'1,348',  low:'1,334',  region:'Americas', tag:'us',   sent:'bull' },
+      { icon:'ðŸŽ¡', sym:'UK100',   name:'FTSE 100',           price:'8,312',  chg:'-12',  chgp:'-0.14%', high:'8,348',  low:'8,282',  region:'Europe',   tag:'eu',   sent:'bear' },
+      { icon:'ðŸ°', sym:'GER40',   name:'DAX 40',             price:'18,074', chg:'+40',  chgp:'+0.22%', high:'18,142', low:'17,982', region:'Europe',   tag:'eu',   sent:'bull' },
+      { icon:'ðŸ—¼', sym:'FRA40',   name:'CAC 40',             price:'8,142',  chg:'-7',   chgp:'-0.08%', high:'8,182',  low:'8,112',  region:'Europe',   tag:'eu',   sent:'neut' },
+      { icon:'ðŸŒ·', sym:'NED25',   name:'AEX 25',             price:'882',    chg:'+4',   chgp:'+0.45%', high:'886',    low:'878',    region:'Europe',   tag:'eu',   sent:'bull' },
+      { icon:'ðŸ—¾', sym:'JPN225',  name:'Nikkei 225',         price:'40,120', chg:'+322', chgp:'+0.81%', high:'40,284', low:'39,842', region:'Asia',     tag:'asia', sent:'bull' },
+      { icon:'ðŸ¦˜', sym:'AUS200',  name:'ASX 200',            price:'7,814',  chg:'+27',  chgp:'+0.34%', high:'7,842',  low:'7,782',  region:'Asia',     tag:'asia', sent:'bull' },
+      { icon:'ðŸ‰', sym:'HK50',    name:'Hang Seng',          price:'16,842', chg:'-142', chgp:'-0.84%', high:'17,042', low:'16,782', region:'Asia',     tag:'asia', sent:'bear' },
+      { icon:'ðŸŒ', sym:'CHINA50', name:'China A50',          price:'12,420', chg:'+84',  chgp:'+0.68%', high:'12,482', low:'12,342', region:'Asia',     tag:'asia', sent:'bull' },
     ],
     metals: [
-      { icon:'🥇', sym:'XAU/USD', name:'Gold',          bid:'2,340.8', ask:'2,341.5', chg:'+20.2',  chgp:'+0.87%', high:'2,354.2', low:'2,318.4', unit:'Troy oz', sent:'bull' },
-      { icon:'🥈', sym:'XAG/USD', name:'Silver',        bid:'27.830',  ask:'27.842',  chg:'+0.340', chgp:'+1.24%', high:'28.120',  low:'27.480',  unit:'Troy oz', sent:'bull' },
-      { icon:'⬜', sym:'XPT/USD', name:'Platinum',      bid:'981.8',   ask:'982.4',   chg:'-3.04',  chgp:'-0.31%', high:'988.2',   low:'978.4',   unit:'Troy oz', sent:'bear' },
-      { icon:'🔩', sym:'XPD/USD', name:'Palladium',     bid:'1,041.2', ask:'1,042.0', chg:'-5.64',  chgp:'-0.54%', high:'1,054.2', low:'1,038.4', unit:'Troy oz', sent:'bear' },
-      { icon:'🔶', sym:'HG/USD',  name:'Copper',        bid:'4.1228',  ask:'4.1240',  chg:'+0.0254',chgp:'+0.62%', high:'4.1480',  low:'4.0920',  unit:'Lbs',     sent:'bull' },
+      { icon:'ðŸ¥‡', sym:'XAU/USD', name:'Gold',          bid:'2,340.8', ask:'2,341.5', chg:'+20.2',  chgp:'+0.87%', high:'2,354.2', low:'2,318.4', unit:'Troy oz', sent:'bull' },
+      { icon:'ðŸ¥ˆ', sym:'XAG/USD', name:'Silver',        bid:'27.830',  ask:'27.842',  chg:'+0.340', chgp:'+1.24%', high:'28.120',  low:'27.480',  unit:'Troy oz', sent:'bull' },
+      { icon:'â¬œ', sym:'XPT/USD', name:'Platinum',      bid:'981.8',   ask:'982.4',   chg:'-3.04',  chgp:'-0.31%', high:'988.2',   low:'978.4',   unit:'Troy oz', sent:'bear' },
+      { icon:'ðŸ”©', sym:'XPD/USD', name:'Palladium',     bid:'1,041.2', ask:'1,042.0', chg:'-5.64',  chgp:'-0.54%', high:'1,054.2', low:'1,038.4', unit:'Troy oz', sent:'bear' },
+      { icon:'ðŸ”¶', sym:'HG/USD',  name:'Copper',        bid:'4.1228',  ask:'4.1240',  chg:'+0.0254',chgp:'+0.62%', high:'4.1480',  low:'4.0920',  unit:'Lbs',     sent:'bull' },
     ],
     energy: [
-      { icon:'🛢️', sym:'WTI/USD', name:'Crude Oil WTI', bid:'82.28',   ask:'82.34',   chg:'-0.454', chgp:'-0.55%', high:'83.12',  low:'82.04',  unit:'Barrel', sent:'bear' },
-      { icon:'⚫', sym:'BRT/USD', name:'Brent Crude',   bid:'86.66',   ask:'86.72',   chg:'-0.366', chgp:'-0.42%', high:'87.42',  low:'86.28',  unit:'Barrel', sent:'bear' },
-      { icon:'🔥', sym:'NGAS',   name:'Natural Gas',    bid:'1.8406',  ask:'1.8420',  chg:'+0.0204',chgp:'+1.12%', high:'1.8640', low:'1.8180', unit:'MMBtu',  sent:'bull' },
-      { icon:'⛽', sym:'RBOB',   name:'Gasoline RBOB',  bid:'2.6826',  ask:'2.6840',  chg:'-0.0074',chgp:'-0.28%', high:'2.7020', low:'2.6680', unit:'Gallon', sent:'bear' },
-      { icon:'🌡️', sym:'HEAT',   name:'Heating Oil',    bid:'2.8106',  ask:'2.8120',  chg:'+0.0050',chgp:'+0.18%', high:'2.8280', low:'2.7980', unit:'Gallon', sent:'bull' },
+      { icon:'ðŸ›¢ï¸', sym:'WTI/USD', name:'Crude Oil WTI', bid:'82.28',   ask:'82.34',   chg:'-0.454', chgp:'-0.55%', high:'83.12',  low:'82.04',  unit:'Barrel', sent:'bear' },
+      { icon:'âš«', sym:'BRT/USD', name:'Brent Crude',   bid:'86.66',   ask:'86.72',   chg:'-0.366', chgp:'-0.42%', high:'87.42',  low:'86.28',  unit:'Barrel', sent:'bear' },
+      { icon:'ðŸ”¥', sym:'NGAS',   name:'Natural Gas',    bid:'1.8406',  ask:'1.8420',  chg:'+0.0204',chgp:'+1.12%', high:'1.8640', low:'1.8180', unit:'MMBtu',  sent:'bull' },
+      { icon:'â›½', sym:'RBOB',   name:'Gasoline RBOB',  bid:'2.6826',  ask:'2.6840',  chg:'-0.0074',chgp:'-0.28%', high:'2.7020', low:'2.6680', unit:'Gallon', sent:'bear' },
+      { icon:'ðŸŒ¡ï¸', sym:'HEAT',   name:'Heating Oil',    bid:'2.8106',  ask:'2.8120',  chg:'+0.0050',chgp:'+0.18%', high:'2.8280', low:'2.7980', unit:'Gallon', sent:'bull' },
     ],
     etfs: [
-      { icon:'📊', sym:'SPY',  name:'SPDR S&P 500 ETF',      price:'524.80', chg:'+2.52', chgp:'+0.48%', aum:'$544B', exp:'0.09%', vol:'72.4M', sent:'bull' },
-      { icon:'💡', sym:'QQQ',  name:'Invesco QQQ Trust',      price:'448.20', chg:'+3.18', chgp:'+0.71%', aum:'$221B', exp:'0.20%', vol:'38.2M', sent:'bull' },
-      { icon:'🟡', sym:'GLD',  name:'SPDR Gold Shares',       price:'215.40', chg:'+1.80', chgp:'+0.84%', aum:'$66B',  exp:'0.40%', vol:'8.4M',  sent:'bull' },
-      { icon:'⚪', sym:'SLV',  name:'iShares Silver Trust',   price:'25.820', chg:'+0.316',chgp:'+1.24%', aum:'$12B',  exp:'0.50%', vol:'14.8M', sent:'bull' },
-      { icon:'🌐', sym:'VTI',  name:'Vanguard Total Market',  price:'241.30', chg:'+0.868',chgp:'+0.36%', aum:'$432B', exp:'0.03%', vol:'3.2M',  sent:'bull' },
-      { icon:'⚡', sym:'XLE',  name:'Energy Select SPDR',     price:'91.420', chg:'-0.388',chgp:'-0.42%', aum:'$38B',  exp:'0.09%', vol:'12.6M', sent:'bear' },
-      { icon:'🚀', sym:'ARKK', name:'ARK Innovation ETF',     price:'48.120', chg:'+1.008',chgp:'+2.14%', aum:'$7B',   exp:'0.75%', vol:'22.4M', sent:'bull' },
-      { icon:'📱', sym:'XLK',  name:'Technology Select SPDR', price:'214.80', chg:'+3.224',chgp:'+1.52%', aum:'$64B',  exp:'0.09%', vol:'8.8M',  sent:'bull' },
+      { icon:'ðŸ“Š', sym:'SPY',  name:'SPDR S&P 500 ETF',      price:'524.80', chg:'+2.52', chgp:'+0.48%', aum:'$544B', exp:'0.09%', vol:'72.4M', sent:'bull' },
+      { icon:'ðŸ’¡', sym:'QQQ',  name:'Invesco QQQ Trust',      price:'448.20', chg:'+3.18', chgp:'+0.71%', aum:'$221B', exp:'0.20%', vol:'38.2M', sent:'bull' },
+      { icon:'ðŸŸ¡', sym:'GLD',  name:'SPDR Gold Shares',       price:'215.40', chg:'+1.80', chgp:'+0.84%', aum:'$66B',  exp:'0.40%', vol:'8.4M',  sent:'bull' },
+      { icon:'âšª', sym:'SLV',  name:'iShares Silver Trust',   price:'25.820', chg:'+0.316',chgp:'+1.24%', aum:'$12B',  exp:'0.50%', vol:'14.8M', sent:'bull' },
+      { icon:'ðŸŒ', sym:'VTI',  name:'Vanguard Total Market',  price:'241.30', chg:'+0.868',chgp:'+0.36%', aum:'$432B', exp:'0.03%', vol:'3.2M',  sent:'bull' },
+      { icon:'âš¡', sym:'XLE',  name:'Energy Select SPDR',     price:'91.420', chg:'-0.388',chgp:'-0.42%', aum:'$38B',  exp:'0.09%', vol:'12.6M', sent:'bear' },
+      { icon:'ðŸš€', sym:'ARKK', name:'ARK Innovation ETF',     price:'48.120', chg:'+1.008',chgp:'+2.14%', aum:'$7B',   exp:'0.75%', vol:'22.4M', sent:'bull' },
+      { icon:'ðŸ“±', sym:'XLK',  name:'Technology Select SPDR', price:'214.80', chg:'+3.224',chgp:'+1.52%', aum:'$64B',  exp:'0.09%', vol:'8.8M',  sent:'bull' },
     ],
   };
 
@@ -993,14 +993,14 @@
       { label:'BTC/USD',     value:'$78,450',change:'+2.14%',up:true  },
       { label:'EUR/USD',     value:'1.0843', change:'+0.21%',up:true  },
       { label:'WTI Crude',   value:'$82.34', change:'-0.55%',up:false },
-      { label:'Fear & Greed',value:'68 — Greed', change:'',  up:true  },
+      { label:'Fear & Greed',value:'68 â€” Greed', change:'',  up:true  },
       { label:'VIX',         value:'14.82', change:'-1.24%', up:false },
     ];
     document.getElementById('overview-stats').innerHTML = stats.map(s => `
       <div class="stat-card">
         <div class="stat-card__label">${s.label}</div>
         <div class="stat-card__value">${s.value}</div>
-        ${s.change ? `<div class="stat-card__change ${s.up?'up':'down'}">${s.up?'▲':'▼'} ${s.change}</div>` : ''}
+        ${s.change ? `<div class="stat-card__change ${s.up?'up':'down'}">${s.up?'â–²':'â–¼'} ${s.change}</div>` : ''}
       </div>`).join('');
   }
 
@@ -1079,13 +1079,13 @@
   ============================================================ */
   function refreshPrices() {
     const btn = document.querySelector('[onclick="refreshPrices()"]');
-    btn.textContent = 'Refreshing…';
+    btn.textContent = 'Refreshingâ€¦';
     btn.disabled = true;
     setTimeout(() => {
       renderAll();
       btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Refresh`;
       btn.disabled = false;
-      document.getElementById('last-updated').textContent = 'Live prices · Updated just now';
+      document.getElementById('last-updated').textContent = 'Live prices Â· Updated just now';
     }, 800);
   }
 
@@ -1142,12 +1142,12 @@
   setInterval(() => {
     const now = new Date();
     document.getElementById('last-updated').textContent =
-      `Live prices · ${now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' })}`;
+      `Live prices Â· ${now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' })}`;
   }, 1000);
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase.js"></script>
+<script src="./supabase.js"></script>`n<script src="./notif-popup.js"></script>
 <script>
 // Merge Supabase market_prices rows into the static DATA object,
 // then re-render. Falls back gracefully if the table is empty or missing.
@@ -1173,24 +1173,25 @@
       ...(idx >= 0 ? DATA[cat][idx] : {}),
       sym:  r.symbol,
       name: r.name || (idx >= 0 ? DATA[cat][idx].name : r.symbol),
-      bid:  r.bid   || r.price || (idx >= 0 ? DATA[cat][idx].bid  : '—'),
-      ask:  r.ask   || r.price || (idx >= 0 ? DATA[cat][idx].ask  : '—'),
-      price: r.price || (idx >= 0 ? DATA[cat][idx].price : '—'),
+      bid:  r.bid   || r.price || (idx >= 0 ? DATA[cat][idx].bid  : 'â€”'),
+      ask:  r.ask   || r.price || (idx >= 0 ? DATA[cat][idx].ask  : 'â€”'),
+      price: r.price || (idx >= 0 ? DATA[cat][idx].price : 'â€”'),
       chg:  r.change_amount != null ? (r.change_amount >= 0 ? '+' : '') + r.change_amount : (idx >= 0 ? DATA[cat][idx].chg : '0'),
       chgp: r.change_pct   != null ? (r.change_pct   >= 0 ? '+' : '') + r.change_pct + '%' : (idx >= 0 ? DATA[cat][idx].chgp : '0%'),
-      high: r.high_24h || (idx >= 0 ? DATA[cat][idx].high || DATA[cat][idx].high_24h : '—'),
-      low:  r.low_24h  || (idx >= 0 ? DATA[cat][idx].low  || DATA[cat][idx].low_24h  : '—'),
+      high: r.high_24h || (idx >= 0 ? DATA[cat][idx].high || DATA[cat][idx].high_24h : 'â€”'),
+      low:  r.low_24h  || (idx >= 0 ? DATA[cat][idx].low  || DATA[cat][idx].low_24h  : 'â€”'),
     };
     if (idx >= 0) DATA[cat][idx] = merged;
     else           DATA[cat].push(merged);
   });
 
   renderAll();
-  document.getElementById('last-updated').textContent = 'Live prices · Updated from database';
+  document.getElementById('last-updated').textContent = 'Live prices Â· Updated from database';
 
   // Load real user name & initials
   const { data: { session } } = await db.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
+  initNotifPopup(db, session.user.id);
   const { data: profile } = await db.from('profiles').select('first_name,last_name,avatar_url').eq('id', session.user.id).single();
   if (profile) {
     const init = ((profile.first_name?.[0] || '') + (profile.last_name?.[0] || '')).toUpperCase() || '?';
@@ -1214,3 +1215,4 @@
 </script>
 </body>
 </html>
+

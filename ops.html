@@ -972,7 +972,7 @@
             <table class="data-table">
               <thead><tr>
                 <th>Sent</th><th>Title</th><th>Message</th><th>Type</th>
-                <th>Audience</th><th>Recipients</th><th>By</th><th></th>
+                <th>Audience</th><th>Recipients</th><th>By</th><th>Popup Active</th>
               </tr></thead>
               <tbody id="ann-tbody"></tbody>
             </table>
@@ -2004,15 +2004,30 @@ async function renderAnnouncementsLive() {
       <td style="font-weight:700;text-align:center;">${a.sent_count||0}</td>
       <td style="font-size:11px;color:var(--muted);">${_adminUser?.email?.split('@')[0]||'Admin'}</td>
       <td>
-        <button class="btn btn--sm btn--red" onclick="opsDeleteAnnouncement('${a.id}')">Delete</button>
+        <div class="row-actions">
+          <label class="toggle-switch" title="${a.is_active!==false?'Popup active — click to disable':'Popup disabled — click to enable'}">
+            <input type="checkbox" ${a.is_active!==false?'checked':''} onchange="opsToggleAnnouncement('${a.id}',this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+          <button class="btn btn--sm btn--red" onclick="opsDeleteAnnouncement('${a.id}')">Delete</button>
+        </div>
       </td>
     </tr>`).join('');
 }
 window.renderAnnouncementsLive = renderAnnouncementsLive;
 
-window.opsDeleteAnnouncement = async function(id) {
-  if (!confirm('Delete this announcement? This does NOT remove notifications already sent to users.')) return;
+window.opsToggleAnnouncement = async function(annId, enable) {
   const db = window.XANTEX_DB; if (!db) return;
+  await db.from('announcements').update({ is_active: enable }).eq('id', annId);
+  await db.from('notifications').update({ enabled: enable }).eq('announcement_id', annId);
+  await logAudit(enable ? 'ENABLE_POPUP' : 'DISABLE_POPUP', annId, `Popup ${enable?'enabled':'disabled'} by admin`);
+  showToast(`Popup ${enable ? 'enabled — will show to users' : 'disabled — users will no longer see it'}`, enable ? 'success' : 'error');
+};
+
+window.opsDeleteAnnouncement = async function(id) {
+  if (!confirm('Delete this announcement? Notifications already sent to users will also be removed.')) return;
+  const db = window.XANTEX_DB; if (!db) return;
+  await db.from('notifications').delete().eq('announcement_id', id);
   await db.from('announcements').delete().eq('id', id);
   await logAudit('DELETE_ANNOUNCEMENT', id, 'Deleted by admin');
   showToast('Announcement deleted','error');
@@ -2041,27 +2056,31 @@ window.publishAnnouncement = async function() {
     const recipientIds = await _resolveAnnRecipients(db, audience, specificId);
     if (!recipientIds.length) { showToast('No users matched that audience','error'); return; }
 
-    // Insert notification for every recipient
+    // Create the announcement record first to get its ID
+    const { data: annRow, error: annErr } = await db.from('announcements').insert({
+      title, body, type, audience,
+      target_user_id: audience === 'specific' ? specificId : null,
+      published: true,
+      is_active: true,
+      sent_count: recipientIds.length,
+      created_by: _adminUser?.id || null,
+    }).select('id').single();
+    if (annErr) throw annErr;
+    const annId = annRow.id;
+
+    // Insert notification for every recipient, linked to this announcement
     const notifRows = recipientIds.map(uid => ({
       user_id: uid,
       title,
       message: body,
       enabled: true,
+      announcement_id: annId,
     }));
     // Insert in batches of 100 to stay within Supabase limits
     for (let i = 0; i < notifRows.length; i += 100) {
       const { error: nErr } = await db.from('notifications').insert(notifRows.slice(i, i + 100));
       if (nErr) throw nErr;
     }
-
-    // Record in announcements history
-    await db.from('announcements').insert({
-      title, body, type, audience,
-      target_user_id: audience === 'specific' ? specificId : null,
-      published: true,
-      sent_count: recipientIds.length,
-      created_by: _adminUser?.id || null,
-    });
 
     await logAudit('PUBLISH_ANNOUNCEMENT', title, `Type: ${type} | Audience: ${audience} | Recipients: ${recipientIds.length}`);
     showToast(`Sent to ${recipientIds.length} user${recipientIds.length !== 1 ? 's' : ''}`, 'success');

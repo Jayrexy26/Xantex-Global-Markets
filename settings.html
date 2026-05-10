@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Settings — Xantex Global Markets</title>
+  <title>Settings â€” Xantex Global Markets</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -123,7 +123,7 @@
       .content { padding: 16px; }
     }
 
-    /* ── Settings layout ── */
+    /* â”€â”€ Settings layout â”€â”€ */
     .sett-layout { display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start; }
     .sett-layout > * { min-width: 0; }
 
@@ -203,7 +203,7 @@
     .toggle-sw input:checked + .toggle-sw__track { background: var(--blue); }
     .toggle-sw input:checked + .toggle-sw__track::before { transform: translateX(20px); }
 
-    /* Dark mode — settings */
+    /* Dark mode â€” settings */
     body.dark .sett-nav, body.dark .sett-card { background: #1a1d27; }
     body.dark .sett-nav__item.active { background: rgba(26,92,255,0.15); }
     body.dark .sett-field input, body.dark .sett-field select { background: #0f1117; color: var(--text); border-color: var(--border); }
@@ -352,8 +352,8 @@
                 </div>
                 <input type="file" id="avatar-upload" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
                 <div class="sett-avatar-info">
-                  <div class="sett-avatar-name" id="sett-avatar-name">—</div>
-                  <div class="sett-avatar-email" id="sett-avatar-email">—</div>
+                  <div class="sett-avatar-name" id="sett-avatar-name">â€”</div>
+                  <div class="sett-avatar-email" id="sett-avatar-email">â€”</div>
                   <div class="sett-avatar-actions">
                     <button class="btn btn--outline" style="font-size:12px;padding:6px 14px;height:32px;" onclick="document.getElementById('avatar-upload').click()">Change Photo</button>
                     <div id="avatar-upload-status" style="font-size:12px;color:var(--green);display:flex;align-items:center;"></div>
@@ -378,7 +378,7 @@
                   <div class="sett-field"><label>Date of Birth</label><input type="date" id="prof-dob"></div>
                   <div class="sett-field"><label>Nationality</label>
                     <select id="prof-nationality">
-                      <option value="">— Select nationality —</option>
+                      <option value="">â€” Select nationality â€”</option>
                       <option>American</option><option>British</option><option>Canadian</option>
                       <option>Australian</option><option>German</option><option>French</option>
                       <option>Nigerian</option><option>Ghanaian</option><option>South African</option>
@@ -391,7 +391,7 @@
               <div class="sett-card__head" style="padding-top:0;">
                 <div style="border-top:1px solid var(--border);padding-top:18px;">
                   <div class="sett-card__title">Contact Information</div>
-                  <div class="sett-card__sub">Email and phone cannot be changed here — contact support</div>
+                  <div class="sett-card__sub">Email and phone cannot be changed here â€” contact support</div>
                 </div>
               </div>
               <div class="sett-card__body">
@@ -402,7 +402,7 @@
                 <div class="sett-grid-2">
                   <div class="sett-field"><label>Country of Residence</label>
                     <select id="prof-country">
-                      <option value="">— Select country —</option>
+                      <option value="">â€” Select country â€”</option>
                       <option>United States</option><option>United Kingdom</option><option>Canada</option>
                       <option>Australia</option><option>Germany</option><option>France</option>
                       <option>Nigeria</option><option>Ghana</option><option>South Africa</option>
@@ -586,12 +586,12 @@
                     <label>Language</label>
                     <select id="pref-lang">
                       <option value="en" selected>English</option>
-                      <option value="fr">Français</option>
+                      <option value="fr">FranÃ§ais</option>
                       <option value="de">Deutsch</option>
-                      <option value="es">Español</option>
-                      <option value="pt">Português</option>
-                      <option value="ar">العربية</option>
-                      <option value="zh">中文</option>
+                      <option value="es">EspaÃ±ol</option>
+                      <option value="pt">PortuguÃªs</option>
+                      <option value="ar">Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©</option>
+                      <option value="zh">ä¸­æ–‡</option>
                     </select>
                   </div>
                   <div class="sett-field">
@@ -615,13 +615,13 @@
                   <div class="sett-field">
                     <label>Display Currency</label>
                     <select id="pref-currency">
-                      <option value="USD" selected>USD — US Dollar</option>
-                      <option value="EUR">EUR — Euro</option>
-                      <option value="GBP">GBP — British Pound</option>
-                      <option value="NGN">NGN — Nigerian Naira</option>
-                      <option value="GHS">GHS — Ghanaian Cedi</option>
-                      <option value="KES">KES — Kenyan Shilling</option>
-                      <option value="ZAR">ZAR — South African Rand</option>
+                      <option value="USD" selected>USD â€” US Dollar</option>
+                      <option value="EUR">EUR â€” Euro</option>
+                      <option value="GBP">GBP â€” British Pound</option>
+                      <option value="NGN">NGN â€” Nigerian Naira</option>
+                      <option value="GHS">GHS â€” Ghanaian Cedi</option>
+                      <option value="KES">KES â€” Kenyan Shilling</option>
+                      <option value="ZAR">ZAR â€” South African Rand</option>
                     </select>
                   </div>
                   <div class="sett-field">
@@ -710,7 +710,7 @@
       <div class="field">
         <label>Document Type <span style="color:var(--red)">*</span></label>
         <select id="kyc-doc-type">
-          <option value="" disabled selected>Select document type…</option>
+          <option value="" disabled selected>Select document typeâ€¦</option>
           <option value="Passport">Passport</option>
           <option value="National ID">National ID card</option>
           <option value="Driver's licence">Driver's licence</option>
@@ -740,7 +740,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase.js"></script>
+<script src="./supabase.js"></script>`n<script src="./notif-popup.js"></script>
 <script>
   if (localStorage.getItem('xantex-theme') === 'dark') document.body.classList.add('dark');
 
@@ -806,11 +806,11 @@
     const btn  = document.getElementById('change-pw-btn');
     if (!pw || pw.length < 8) { if(msg){msg.style.color='var(--red)';msg.textContent='Password must be at least 8 characters';} return; }
     if (pw !== conf) { if(msg){msg.style.color='var(--red)';msg.textContent='Passwords do not match';} return; }
-    btn.disabled = true; btn.textContent = 'Updating…';
+    btn.disabled = true; btn.textContent = 'Updatingâ€¦';
     const { error } = await window.XANTEX_DB.auth.updateUser({ password: pw });
     btn.disabled = false; btn.textContent = 'Update Password';
     if (error) { if(msg){msg.style.color='var(--red)';msg.textContent=error.message;} return; }
-    if (msg) { msg.style.color='var(--green)'; msg.textContent='Password updated successfully ✓'; }
+    if (msg) { msg.style.color='var(--green)'; msg.textContent='Password updated successfully âœ“'; }
     ['pw-current','pw-new','pw-confirm'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     setTimeout(() => { if(msg) msg.textContent=''; }, 4000);
   }
@@ -830,7 +830,7 @@
       if (el) localStorage.setItem('xantex-' + id, el.checked);
     });
     const msg = document.getElementById('notif-save-msg');
-    if (msg) { msg.textContent = 'Preferences saved ✓'; setTimeout(() => { msg.textContent=''; }, 3000); }
+    if (msg) { msg.textContent = 'Preferences saved âœ“'; setTimeout(() => { msg.textContent=''; }, 3000); }
   }
 
   function savePreferences() {
@@ -840,7 +840,7 @@
       if (el) localStorage.setItem(key, el.value);
     });
     const msg = document.getElementById('pref-save-msg');
-    if (msg) { msg.textContent = 'Preferences saved ✓'; setTimeout(() => { msg.textContent=''; }, 3000); }
+    if (msg) { msg.textContent = 'Preferences saved âœ“'; setTimeout(() => { msg.textContent=''; }, 3000); }
   }
 
   (async () => {
@@ -849,6 +849,7 @@
     const { data: { session } } = await db.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
     const userId = session.user.id;
+    initNotifPopup(db, userId);
 
     const { data: profile } = await db.from('profiles').select('first_name,last_name,email,kyc_status,avatar_url,phone,country,city,date_of_birth,nationality').eq('id', userId).single();
     const _profile = profile || {};
@@ -927,7 +928,7 @@
     const foot = document.getElementById('kyc-upload-foot');
     if (foot) foot.style.display = kycStatus === 'approved' ? 'none' : '';
 
-    // Preferences — restore saved values
+    // Preferences â€” restore saved values
     const prefDark = document.getElementById('pref-dark');
     if (prefDark) prefDark.checked = document.body.classList.contains('dark');
     const langEl = document.getElementById('pref-lang');
@@ -939,7 +940,7 @@
     if (curEl)  curEl.value  = localStorage.getItem('xantex-currency') || 'USD';
     if (fmtEl)  fmtEl.value  = localStorage.getItem('xantex-datefmt')  || 'MM/DD/YYYY';
 
-    // Notification toggles — restore saved states
+    // Notification toggles â€” restore saved states
     ['notif-deposit','notif-withdrawal','notif-balance','notif-kyc','notif-news','notif-promos','notif-platform'].forEach(id => {
       const el  = document.getElementById(id);
       const val = localStorage.getItem('xantex-' + id);
@@ -960,7 +961,7 @@
         date_of_birth: g('prof-dob'),
         nationality:   g('prof-nationality'),
       };
-      if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+      if (btn) { btn.disabled = true; btn.textContent = 'Savingâ€¦'; }
       const { error } = await db.from('profiles').update(updates).eq('id', userId);
       if (btn) { btn.disabled = false; btn.textContent = 'Save Changes'; }
       if (error) {
@@ -978,7 +979,7 @@
         const pct2 = Math.round(fields2.filter(Boolean).length / fields2.length * 100);
         if (fill)  fill.style.width = pct2 + '%';
         if (pctEl) pctEl.textContent = pct2 + '%';
-        if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Changes saved ✓'; setTimeout(() => { msg.textContent=''; }, 4000); }
+        if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Changes saved âœ“'; setTimeout(() => { msg.textContent=''; }, 4000); }
       }
     };
 
@@ -988,7 +989,7 @@
       if (!file) return;
       if (file.size > 2 * 1024 * 1024) { alert('Image must be under 2MB'); return; }
       const statusEl = document.getElementById('avatar-upload-status');
-      if (statusEl) statusEl.textContent = 'Uploading…';
+      if (statusEl) statusEl.textContent = 'Uploadingâ€¦';
       const ext  = file.name.split('.').pop();
       const path = `${userId}/avatar.${ext}`;
       const { error: upErr } = await db.storage.from('avatars').upload(path, file, { upsert: true });
@@ -1001,7 +1002,7 @@
       });
       if (sImg)  { sImg.src = publicUrl; sImg.style.display = 'block'; }
       if (sInit) sInit.style.display = 'none';
-      if (statusEl) statusEl.textContent = 'Photo updated ✓';
+      if (statusEl) statusEl.textContent = 'Photo updated âœ“';
       const fields3 = [_profile.first_name, _profile.last_name, _profile.phone, _profile.country, _profile.date_of_birth, _profile.avatar_url];
       const pct3 = Math.round(fields3.filter(Boolean).length / fields3.length * 100);
       if (fill)  fill.style.width = pct3 + '%';
@@ -1020,8 +1021,8 @@
       if (!frontFile)  { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload the front of your ID.';} return; }
       if (!selfieFile) { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload your selfie with document.';} return; }
       if (!proofFile)  { if(msg){msg.style.color='var(--red)';msg.textContent='Please upload proof of address.';} return; }
-      if (btn) { btn.disabled = true; btn.textContent = 'Uploading…'; }
-      if (msg) { msg.style.color = 'var(--muted)'; msg.textContent = 'Uploading documents…'; }
+      if (btn) { btn.disabled = true; btn.textContent = 'Uploadingâ€¦'; }
+      if (msg) { msg.style.color = 'var(--muted)'; msg.textContent = 'Uploading documentsâ€¦'; }
       async function up(bucket, file, path) {
         const ext = file.name.split('.').pop();
         await db.storage.from(bucket).upload(`${path}.${ext}`, file, { upsert: true });
@@ -1070,3 +1071,4 @@
 </script>
 </body>
 </html>
+

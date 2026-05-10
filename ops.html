@@ -1863,13 +1863,21 @@ async function renderDepositsLive() {
 window.renderDepositsLive = renderDepositsLive;
 window.opsApproveDeposit = async function(id, accountId, userId, amount) {
   const db = window.XANTEX_DB; if (!db) return;
-  const { error } = await db.from('deposit_requests').update({ status:'approved', reviewed_by: _adminUser?.id, reviewed_at: new Date().toISOString() }).eq('id', id);
+  // Sanitise accountId — onclick passes it as a string so 'null'/'undefined' are possible
+  const safeAccId = (!accountId || accountId === 'null' || accountId === 'undefined') ? null : accountId;
+  const now = new Date().toISOString();
+  const { error } = await db.from('deposit_requests').update({ status:'approved', reviewed_by: _adminUser?.id, reviewed_at: now }).eq('id', id);
   if (error) { showToast('Error: ' + error.message,'error'); return; }
-  if (accountId && accountId !== 'undefined') {
-    const { data: acc } = await db.from('trading_accounts').select('balance').eq('id', accountId).single();
-    if (acc) await db.from('trading_accounts').update({ balance: parseFloat(acc.balance||0) + parseFloat(amount) }).eq('id', accountId);
+  if (safeAccId) {
+    const { data: acc } = await db.from('trading_accounts').select('balance').eq('id', safeAccId).single();
+    if (acc) await db.from('trading_accounts').update({ balance: parseFloat(acc.balance||0) + parseFloat(amount) }).eq('id', safeAccId);
   }
-  await db.from('transactions').insert({ user_id: userId, account_id: accountId || null, type:'deposit', amount: parseFloat(amount), status:'approved', payment_method:'Deposit', description:'Deposit approved by admin' });
+  const { error: txErr } = await db.from('transactions').insert({
+    user_id: userId, account_id: safeAccId, type: 'deposit',
+    amount: parseFloat(amount), status: 'completed',
+    description: 'Deposit approved by admin', created_at: now,
+  });
+  if (txErr) console.error('[opsApproveDeposit] transaction insert failed:', txErr.message);
   await logAudit('APPROVE_DEPOSIT', id, `Amount: $${parseFloat(amount).toFixed(2)}`);
   showToast('Deposit approved','success');
   renderDepositsLive();

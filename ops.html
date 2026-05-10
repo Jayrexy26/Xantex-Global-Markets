@@ -2099,19 +2099,30 @@ window.publishAnnouncement = async function() {
 
   try {
     if (_editingAnnId) {
-      // ── EDIT MODE: update announcement + linked notifications ──
+      // ── EDIT MODE: update announcement, delete old notifications, reinsert fresh ──
+      const recipientIds = await _resolveAnnRecipients(db, audience, specificId);
+      if (!recipientIds.length) { showToast('No users matched that audience','error'); return; }
+
       const { error: upErr } = await db.from('announcements')
-        .update({ title, body, type, audience, target_user_id: audience === 'specific' ? specificId : null })
+        .update({ title, body, type, audience,
+                  target_user_id: audience === 'specific' ? specificId : null,
+                  sent_count: recipientIds.length })
         .eq('id', _editingAnnId);
       if (upErr) throw upErr;
 
-      const { error: nUpErr } = await db.from('notifications')
-        .update({ title, message: body })
-        .eq('announcement_id', _editingAnnId);
-      if (nUpErr) throw nUpErr;
+      // Delete all old notifications for this announcement then reinsert updated ones
+      await db.from('notifications').delete().eq('announcement_id', _editingAnnId);
 
-      await logAudit('EDIT_ANNOUNCEMENT', title, `Updated by admin`);
-      showToast('Announcement updated and saved to all recipients', 'success');
+      const notifRows = recipientIds.map(uid => ({
+        user_id: uid, title, message: body, enabled: true, announcement_id: _editingAnnId,
+      }));
+      for (let i = 0; i < notifRows.length; i += 100) {
+        const { error: nErr } = await db.from('notifications').insert(notifRows.slice(i, i + 100));
+        if (nErr) throw nErr;
+      }
+
+      await logAudit('EDIT_ANNOUNCEMENT', title, `Updated by admin | Recipients: ${recipientIds.length}`);
+      showToast('Announcement updated — users will see the new message', 'success');
       resetAnnForm();
       renderAnnouncementsLive();
     } else {

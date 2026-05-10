@@ -1426,6 +1426,7 @@
     if (btn) btn.classList.add('active');
     document.getElementById('page-title').textContent = PAGE_TITLES[id] || id;
     document.getElementById('sidebar').classList.remove('open');
+    localStorage.setItem('xantex-ops-page', id);
   }
 
   /* ── Modals ───────────────────────────────────────────────── */
@@ -1623,6 +1624,9 @@ window.adminLogin = async function() {
   document.getElementById('login-gate').style.display = 'none';
   document.getElementById('main-app').style.display   = 'flex';
   renderAll();
+  const savedPage = localStorage.getItem('xantex-ops-page') || 'dashboard';
+  const savedBtn  = document.querySelector(`.nav-item[onclick*="'${savedPage}'"]`);
+  showPage(savedPage, savedBtn);
 };
 
 // ── Dashboard Stats ───────────────────────────────────────────

@@ -1945,16 +1945,25 @@ async function renderWithdrawalsLive() {
 window.renderWithdrawalsLive = renderWithdrawalsLive;
 window.opsApproveWithdrawal = async function(id, accountId, userId, amount) {
   const db = window.XANTEX_DB; if (!db) return;
-  if (accountId && accountId !== 'undefined') {
-    const { data: acc } = await db.from('trading_accounts').select('balance').eq('id', accountId).single();
+  const safeAccId = (!accountId || accountId === 'null' || accountId === 'undefined') ? null : accountId;
+  const now = new Date().toISOString();
+
+  if (safeAccId) {
+    const { data: acc } = await db.from('trading_accounts').select('balance').eq('id', safeAccId).single();
     if (acc) {
       const newBal = Math.max(0, parseFloat(acc.balance||0) - parseFloat(amount));
-      await db.from('trading_accounts').update({ balance: newBal }).eq('id', accountId);
+      await db.from('trading_accounts').update({ balance: newBal }).eq('id', safeAccId);
     }
   }
-  const { error } = await db.from('withdrawal_requests').update({ status:'approved', reviewed_by: _adminUser?.id, reviewed_at: new Date().toISOString(), processed_at: new Date().toISOString() }).eq('id', id);
+  const { error } = await db.from('withdrawal_requests').update({ status:'approved', reviewed_by: _adminUser?.id, reviewed_at: now, processed_at: now }).eq('id', id);
   if (error) { showToast('Error: ' + error.message,'error'); return; }
-  await db.from('transactions').insert({ user_id: userId, account_id: accountId || null, type:'withdrawal', amount: parseFloat(amount), status:'approved', description:'Withdrawal approved by admin' });
+  const { error: txErr } = await db.from('transactions').insert({
+    user_id: userId, account_id: safeAccId,
+    type: 'withdrawal', amount: parseFloat(amount),
+    status: 'completed', description: 'Withdrawal approved by admin',
+    created_at: now,
+  });
+  if (txErr) console.error('[opsApproveWithdrawal] tx insert failed:', txErr.message);
   await logAudit('APPROVE_WITHDRAWAL', id, `Amount: $${parseFloat(amount).toFixed(2)}`);
   showToast('Withdrawal approved','success');
   renderWithdrawalsLive();

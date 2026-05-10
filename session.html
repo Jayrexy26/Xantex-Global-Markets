@@ -350,20 +350,27 @@
   try {
 
   // ── Auth check ────────────────────────────────────────────
-  // Use onAuthStateChange instead of getSession() so mobile browsers that
-  // haven't fully written the session to localStorage yet still resolve.
   let session;
   try {
-    session = await Promise.race([
-      new Promise(resolve => {
-        const { data: { subscription } } = db.auth.onAuthStateChange((_event, s) => {
-          subscription.unsubscribe();
-          resolve(s);
-        });
-      }),
-      new Promise(resolve => setTimeout(() => resolve(null), 8000))
-    ]);
+    const { data } = await db.auth.getSession();
+    session = data?.session;
   } catch(e) {}
+
+  // Mobile fallback: localStorage may not be written yet after navigation.
+  // Restore session manually from tokens login.html stored in sessionStorage.
+  if (!session) {
+    try {
+      const at = sessionStorage.getItem('xantex_tmp_at');
+      const rt = sessionStorage.getItem('xantex_tmp_rt');
+      if (at && rt) {
+        const { data } = await db.auth.setSession({ access_token: at, refresh_token: rt });
+        session = data?.session;
+      }
+    } catch(e) {}
+  }
+  // Always clear the temp tokens regardless of outcome
+  try { sessionStorage.removeItem('xantex_tmp_at'); sessionStorage.removeItem('xantex_tmp_rt'); } catch(e) {}
+
   if (!session) { clearTimeout(_loadTimer); window.location.href = 'login.html'; return; }
 
   const userId = session.user.id;

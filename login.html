@@ -433,6 +433,15 @@
           }
         }
       } catch(e) { /* profiles check failed — session.html will handle it */ }
+      // Store tokens in sessionStorage so session.html can restore the
+      // session if localStorage hasn't been written yet (mobile timing issue)
+      try {
+        const s = signInData?.session;
+        if (s?.access_token && s?.refresh_token) {
+          sessionStorage.setItem('xantex_tmp_at', s.access_token);
+          sessionStorage.setItem('xantex_tmp_rt', s.refresh_token);
+        }
+      } catch(e) {}
       window.location.href = 'session.html';
     }
   }

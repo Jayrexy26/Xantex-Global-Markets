@@ -100,5 +100,5 @@ Deno.serve(async (req) => {
     }
   }
 
-  return json({ success: true, emailSent })
+  return json({ success: true, emailSent, pin })
 })

@@ -257,6 +257,20 @@
     .reset-msg { font-size: 12px; min-height: 16px; margin-bottom: 8px; text-align: center; }
     .reset-msg.ok  { color: var(--green); }
     .reset-msg.err { color: var(--red); }
+    .reveal-pin {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: 14px;
+      color: var(--text);
+      background: rgba(26,92,255,0.08);
+      border: 1.5px solid var(--blue);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .reveal-warning { font-size: 11px; color: var(--red); margin-bottom: 14px; text-align: center; }
   </style>
 </head>
 <body>
@@ -300,11 +314,21 @@
 
   <!-- Reset PIN panel -->
   <div class="reset-panel hidden" id="reset-panel">
-    <p class="reset-lbl">Enter your account email and we'll send a new PIN to your inbox.</p>
-    <input class="reset-input" id="reset-email-input" type="email" placeholder="your@email.com" autocomplete="email">
-    <div class="reset-msg" id="reset-msg"></div>
-    <button class="reset-btn" id="reset-send-btn">Send New PIN</button>
-    <button class="reset-back" id="reset-back-btn">← Back to PIN entry</button>
+    <!-- Step 1: email confirmation -->
+    <div id="reset-form">
+      <p class="reset-lbl">Enter your account email to generate a new PIN.</p>
+      <input class="reset-input" id="reset-email-input" type="email" placeholder="your@email.com" autocomplete="email">
+      <div class="reset-msg" id="reset-msg"></div>
+      <button class="reset-btn" id="reset-send-btn">Reset PIN</button>
+      <button class="reset-back" id="reset-back-btn">← Back to PIN entry</button>
+    </div>
+    <!-- Step 2: new PIN reveal -->
+    <div class="hidden" id="reset-reveal">
+      <p class="reset-lbl">Your new PIN — note it down before continuing:</p>
+      <div class="reveal-pin" id="reveal-pin-digits"></div>
+      <p class="reveal-warning">Do not share this PIN with anyone.</p>
+      <button class="reset-btn" id="reveal-continue-btn">Continue to Login →</button>
+    </div>
   </div>
 
   <div class="session-footer">
@@ -459,17 +483,29 @@
         // Refresh local session so new PIN hash is available immediately
         await db.auth.refreshSession();
 
-        msgEl.className = 'reset-msg ok';
-        msgEl.textContent = `New PIN sent to ${email}. Check your inbox.`;
-        sendBtn.textContent = 'Sent ✓';
+        // Show the PIN reveal step
+        document.getElementById('reset-form').classList.add('hidden');
+        document.getElementById('reveal-pin-digits').textContent = result.pin;
+        document.getElementById('reset-reveal').classList.remove('hidden');
+        document.getElementById('pin-title').textContent    = 'PIN Reset';
+        document.getElementById('pin-subtitle').textContent = result.emailSent
+          ? `Your new PIN has also been sent to ${email}`
+          : 'Use this PIN to log in, then set a new one';
 
-        // Return to PIN entry after 3 s
-        setTimeout(() => {
+        document.getElementById('reveal-continue-btn').onclick = () => {
+          // Reset panel back to form state for next use
+          document.getElementById('reset-reveal').classList.add('hidden');
+          document.getElementById('reset-form').classList.remove('hidden');
+          msgEl.className = 'reset-msg';
+          msgEl.textContent = '';
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Reset PIN';
+          // Return to PIN entry
           document.getElementById('reset-panel').classList.add('hidden');
           document.getElementById('pin-normal').classList.remove('hidden');
           document.getElementById('reset-pin-footer-btn').classList.remove('hidden');
           showEnter();
-        }, 3000);
+        };
       } catch (err) {
         msgEl.className = 'reset-msg err';
         msgEl.textContent = err.message || 'Failed to reset PIN. Try again.';

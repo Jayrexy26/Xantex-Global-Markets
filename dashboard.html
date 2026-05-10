@@ -703,6 +703,28 @@
     body.dark .dep-addr-row  { background: #1a1d27; border-color: var(--border); }
     body.dark .dep-step__num { background: #1a1d27; }
 
+    .dep-proof-zone {
+      border: 2px dashed var(--border); border-radius: 12px;
+      padding: 20px 16px; text-align: center; cursor: pointer;
+      transition: border-color .2s, background .2s;
+      background: var(--bg);
+    }
+    .dep-proof-zone:hover { border-color: var(--blue); background: var(--blue-lt); }
+    .dep-proof-zone.dragover { border-color: var(--blue); background: var(--blue-lt); }
+    .dep-proof-zone__icon { font-size: 28px; margin-bottom: 6px; }
+    .dep-proof-zone__label { font-size: 13px; font-weight: 600; color: var(--text); }
+    .dep-proof-zone__sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .dep-proof-uploaded {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      background: var(--green-lt); border: 1.5px solid var(--green);
+    }
+    .dep-proof-uploaded__name { font-size: 13px; font-weight: 600; color: var(--green); flex: 1; word-break: break-all; }
+    .dep-proof-uploaded__remove { font-size: 18px; color: var(--muted); cursor: pointer; background: none; border: none; line-height: 1; flex-shrink: 0; }
+    .dep-proof-uploaded__remove:hover { color: var(--red); }
+    body.dark .dep-proof-zone { background: #0f1117; }
+    body.dark .dep-proof-zone:hover { background: #12183a; }
+
     /* ============================================================
        SETTINGS
     ============================================================ */
@@ -1783,13 +1805,40 @@
         <div style="font-size:12px;color:var(--muted);margin-top:4px;">Please contact support to complete your deposit.</div>
       </div>
 
+      <!-- Payment proof upload -->
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px;">Upload Payment Proof</div>
+        <input type="file" id="dep-proof-input" accept="image/jpeg,image/png,image/webp,application/pdf" style="display:none;" onchange="depHandleProofFile(this.files[0])">
+
+        <!-- Drop zone (shown when no file selected) -->
+        <div class="dep-proof-zone" id="dep-proof-zone"
+             onclick="document.getElementById('dep-proof-input').click()"
+             ondragover="event.preventDefault();this.classList.add('dragover')"
+             ondragleave="this.classList.remove('dragover')"
+             ondrop="event.preventDefault();this.classList.remove('dragover');depHandleProofFile(event.dataTransfer.files[0])">
+          <div class="dep-proof-zone__icon">📎</div>
+          <div class="dep-proof-zone__label">Click or drag &amp; drop your proof here</div>
+          <div class="dep-proof-zone__sub">Screenshot or photo of your transfer receipt · JPG, PNG, PDF · Max 10 MB</div>
+        </div>
+
+        <!-- Uploaded state (shown after upload) -->
+        <div class="dep-proof-uploaded" id="dep-proof-uploaded" style="display:none;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--green)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span class="dep-proof-uploaded__name" id="dep-proof-name"></span>
+          <button class="dep-proof-uploaded__remove" onclick="depClearProof()" title="Remove">&#x2715;</button>
+        </div>
+
+        <!-- Upload progress -->
+        <div id="dep-proof-progress" style="display:none;margin-top:8px;font-size:12px;color:var(--muted);text-align:center;">Uploading…</div>
+      </div>
+
     </div>
 
     <div class="modal__foot">
-      <button class="btn btn--outline" onclick="closeModal('deposit')">Cancel</button>
+      <button class="btn btn--red" onclick="closeModal('deposit')">Cancel</button>
       <button class="btn btn--primary" id="dep-submit-btn" disabled style="gap:8px;">
         <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="20 6 9 17 4 12"/></svg>
-        I've Sent the Payment
+        I've Made Payment
       </button>
     </div>
   </div>
@@ -2951,6 +3000,7 @@ function savePreferences() {
   // ── Deposit — crypto only ─────────────────────────────────
   let _depCoin    = null;
   let _depNetwork = 'ERC20';
+  let _depProofUrl = null;
 
   window.depSelectCoin = function(coin) {
     _depCoin = coin;
@@ -3009,7 +3059,7 @@ function savePreferences() {
     if (netBadge){ netBadge.textContent = meta.label; netBadge.className = 'dep-addr-network ' + meta.cls; }
     if (addrLabel) addrLabel.textContent = `Send ${_depCoin} to this address`;
     if (addrSection) addrSection.style.display = '';
-    if (submitBtn)   submitBtn.disabled = false;
+    if (submitBtn)   submitBtn.disabled = !_depProofUrl;
     // Step 3 active
     document.getElementById('dep-step-2')?.classList.add('done');
     document.getElementById('dep-step-2')?.classList.remove('active');
@@ -3046,7 +3096,7 @@ function savePreferences() {
   const _origOpenModal = window.openModal;
   window.openModal = function(id) {
     if (id === 'deposit') {
-      _depCoin = null; _depNetwork = 'ERC20';
+      _depCoin = null; _depNetwork = 'ERC20'; _depProofUrl = null;
       ['BTC','ETH','USDT'].forEach(c => document.getElementById('dep-coin-'+c)?.classList.remove('active'));
       document.getElementById('dep-network-wrap')?.style && (document.getElementById('dep-network-wrap').style.display = 'none');
       document.getElementById('dep-addr-section')?.style && (document.getElementById('dep-addr-section').style.display = 'none');
@@ -3054,6 +3104,11 @@ function savePreferences() {
       const amtEl = document.getElementById('dep-amount'); if (amtEl) amtEl.value = '';
       const convEl = document.getElementById('dep-conversion'); if (convEl) convEl.innerHTML = '';
       const submitBtn = document.getElementById('dep-submit-btn'); if (submitBtn) submitBtn.disabled = true;
+      // Reset proof upload
+      const proofInput = document.getElementById('dep-proof-input'); if (proofInput) proofInput.value = '';
+      document.getElementById('dep-proof-zone')?.style && (document.getElementById('dep-proof-zone').style.display = '');
+      document.getElementById('dep-proof-uploaded')?.style && (document.getElementById('dep-proof-uploaded').style.display = 'none');
+      document.getElementById('dep-proof-progress')?.style && (document.getElementById('dep-proof-progress').style.display = 'none');
       // Reset steps
       ['dep-step-1','dep-step-2','dep-step-3'].forEach(id => {
         const el = document.getElementById(id);
@@ -3067,24 +3122,72 @@ function savePreferences() {
     else document.getElementById('modal-' + id)?.classList.add('open');
   };
 
+  // ── Payment proof upload ──────────────────────────────────
+  window.depHandleProofFile = async function(file) {
+    if (!file) return;
+    const maxMb = 10;
+    if (file.size > maxMb * 1024 * 1024) { alert(`File too large — max ${maxMb} MB.`); return; }
+    const allowed = ['image/jpeg','image/png','image/webp','application/pdf'];
+    if (!allowed.includes(file.type)) { alert('Unsupported file type. Please upload JPG, PNG, or PDF.'); return; }
+
+    const zone     = document.getElementById('dep-proof-zone');
+    const uploaded = document.getElementById('dep-proof-uploaded');
+    const nameEl   = document.getElementById('dep-proof-name');
+    const progress = document.getElementById('dep-proof-progress');
+    const submitBtn = document.getElementById('dep-submit-btn');
+
+    zone.style.display     = 'none';
+    progress.style.display = '';
+
+    try {
+      const ext  = file.name.split('.').pop();
+      const path = `${userId}/${Date.now()}-proof.${ext}`;
+      const { error: upErr } = await db.storage.from('payment-proofs').upload(path, file, { upsert: false });
+      if (upErr) throw upErr;
+
+      // Store the storage path — admin views via signed URL
+      _depProofUrl = path;
+
+      nameEl.textContent     = file.name;
+      progress.style.display = 'none';
+      uploaded.style.display = '';
+      if (submitBtn && _depCoin) submitBtn.disabled = false;
+    } catch(e) {
+      progress.style.display = 'none';
+      zone.style.display     = '';
+      alert('Upload failed: ' + e.message);
+    }
+  };
+
+  window.depClearProof = function() {
+    _depProofUrl = null;
+    const proofInput = document.getElementById('dep-proof-input'); if (proofInput) proofInput.value = '';
+    document.getElementById('dep-proof-zone').style.display     = '';
+    document.getElementById('dep-proof-uploaded').style.display = 'none';
+    const submitBtn = document.getElementById('dep-submit-btn');
+    if (submitBtn) submitBtn.disabled = true;
+  };
+
   // ── Deposit submit ────────────────────────────────────────
   document.getElementById('dep-submit-btn')?.addEventListener('click', async () => {
     const accountId = document.getElementById('dep-account')?.value;
     const amount    = parseFloat(document.getElementById('dep-amount')?.value);
     if (!_depCoin) { alert('Please select a cryptocurrency first.'); return; }
     if (!amount || amount < 10) { alert('Please enter the amount you are sending (minimum $10).'); return; }
+    if (!_depProofUrl) { alert('Please upload your payment proof first.'); return; }
     const networkLabel = _depCoin === 'USDT' ? `USDT (${_depNetwork})` : _depCoin;
     const btn = document.getElementById('dep-submit-btn');
     btn.disabled = true; btn.innerHTML = 'Submitting…';
     const { error } = await db.from('deposit_requests').insert({
       user_id: userId, account_id: accountId||null, amount,
       payment_method: 'Crypto — ' + networkLabel, status: 'pending',
+      proof_url: _depProofUrl,
     });
     btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="20 6 9 17 4 12"/></svg> I\'ve Sent the Payment';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="20 6 9 17 4 12"/></svg> I\'ve Made Payment';
     if (error) { alert('Error: ' + error.message); return; }
     closeModal('deposit');
-    alert('Payment confirmed! We will credit your account after blockchain verification — usually within 30 minutes.');
+    alert('Payment submitted! We will credit your account after verification — usually within 30 minutes.');
     location.reload();
   });
 

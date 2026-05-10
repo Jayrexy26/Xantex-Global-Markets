@@ -1851,10 +1851,11 @@ async function renderDepositsLive() {
       <td style="font-size:12px;">${fmtDate(d.created_at)}</td>
       <td><span class="badge-pill ${d.status==='approved'?'pill-green':d.status==='pending'?'pill-orange':'pill-red'}">${d.status}</span></td>
       <td><div class="row-actions">
+        ${d.proof_url ? `<button class="btn btn--sm btn--outline" onclick="opsViewProof('${d.proof_url.replace(/'/g,"\\'")}')">Proof</button>` : '<button class="btn btn--sm btn--outline" style="opacity:.4;cursor:default;" disabled>No Proof</button>'}
         ${d.status==='pending'
           ? `<button class="btn btn--sm btn--green" onclick="opsApproveDeposit('${d.id}','${d.account_id}','${d.user_id}',${d.amount})">Approve</button>
              <button class="btn btn--sm btn--red" onclick="opsRejectDeposit('${d.id}','${d.user_id}')">Reject</button>`
-          : `${d.proof_url ? `<a class="btn btn--sm btn--outline" href="${d.proof_url}" target="_blank">Proof</a>` : '<button class="btn btn--sm btn--outline" disabled>No Proof</button>'}`}
+          : `<button class="btn btn--sm btn--outline" style="opacity:.4;cursor:default;" disabled>Processed</button>`}
       </div></td>
     </tr>`;
   }).join('');
@@ -2098,6 +2099,13 @@ window.opsToggleAnnouncement = async function(annId, enable) {
   await db.from('notifications').update({ enabled: enable }).eq('announcement_id', annId);
   await logAudit(enable ? 'ENABLE_POPUP' : 'DISABLE_POPUP', annId, `Popup ${enable?'enabled':'disabled'} by admin`);
   showToast(`Popup ${enable ? 'enabled — will show to users' : 'disabled — users will no longer see it'}`, enable ? 'success' : 'error');
+};
+
+window.opsViewProof = async function(path) {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data, error } = await db.storage.from('payment-proofs').createSignedUrl(path, 300);
+  if (error || !data?.signedUrl) { showToast('Could not load proof: ' + (error?.message||'unknown'), 'error'); return; }
+  window.open(data.signedUrl, '_blank');
 };
 
 window.opsDeleteAnnouncement = async function(id) {

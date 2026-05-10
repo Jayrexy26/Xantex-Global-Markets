@@ -1131,6 +1131,28 @@
             </div>
           </div>
         </div>
+        <!-- User Trade History -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card__head">
+            <div>
+              <div class="card__title">User Trade History</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">View and delete closed trades for any account</div>
+            </div>
+          </div>
+          <div class="card__body">
+            <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:18px;">
+              <div class="field" style="flex:1;margin:0;">
+                <label>Account</label>
+                <select id="th-account" onchange="opsTHLoad(this.value)">
+                  <option value="">— Select an account —</option>
+                </select>
+              </div>
+            </div>
+            <div id="th-table-wrap">
+              <p style="color:var(--muted);font-size:13px;">Select an account to view trade history.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ════════════════════ SETTINGS ════════════════════ -->
@@ -2809,22 +2831,107 @@ window.opsSubmitDirectTrade = async function() {
 };
 
 window.dtPopulateAccounts = async function() {
-  const sel = document.getElementById('dt-account'); if (!sel) return;
+  const sel   = document.getElementById('dt-account');
+  const selTH = document.getElementById('th-account');
+  if (!sel && !selTH) return;
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
     .from('trading_accounts')
     .select('id, account_number, balance, user_id, profiles(first_name, last_name, email)')
     .order('account_number');
   if (!data?.length) return;
-  // cache for balance display
   data.forEach(a => { _dtAccountCache[a.id] = { balance: a.balance, user_id: a.user_id, account_number: a.account_number }; });
-  sel.innerHTML = '<option value="">— Select an account —</option>' +
+  const opts = '<option value="">— Select an account —</option>' +
     data.map(a => {
       const p = a.profiles;
       const name = p ? `${p.first_name||''} ${p.last_name||''}`.trim() || p.email : 'Unknown';
       const bal = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2});
       return `<option value="${a.id}">${name} — #${a.account_number} ($${bal})</option>`;
     }).join('');
+  if (sel)   sel.innerHTML   = opts;
+  if (selTH) selTH.innerHTML = opts;
+};
+
+// ── User Trade History ─────────────────────────────────────────
+window.opsTHLoad = async function(accountId) {
+  const wrap = document.getElementById('th-table-wrap');
+  if (!accountId) {
+    wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">Select an account to view trade history.</p>';
+    return;
+  }
+  wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">Loading...</p>';
+  const db = window.XANTEX_DB;
+
+  const cached = _dtAccountCache[accountId];
+  const userId = cached?.user_id;
+  if (!userId) {
+    const { data: acc } = await db.from('trading_accounts').select('user_id').eq('id', accountId).single();
+    if (!acc) { wrap.innerHTML = '<p style="color:var(--muted);">Account not found.</p>'; return; }
+  }
+  const uid = userId || (await db.from('trading_accounts').select('user_id').eq('id', accountId).single()).data?.user_id;
+
+  const { data: trades, error } = await db
+    .from('positions')
+    .select('id, symbol, direction, lots, open_price, close_price, realised_pnl, closed_at')
+    .eq('user_id', uid)
+    .eq('status', 'closed')
+    .order('closed_at', { ascending: false });
+
+  if (error || !trades?.length) {
+    wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">No closed trades for this account.</p>';
+    return;
+  }
+
+  const fmtPx = v => { const n = parseFloat(v); if (isNaN(n)) return '—'; return n >= 100 ? n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : n.toFixed(5); };
+
+  wrap.innerHTML = `<div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead><tr>
+        <th>Symbol</th><th>Direction</th><th>Lots</th>
+        <th>Open</th><th>Close</th><th>P&amp;L</th><th>Date</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${trades.map(t => {
+          const pnl     = parseFloat(t.realised_pnl || 0);
+          const pnlStr  = (pnl >= 0 ? '+' : '') + '$' + Math.abs(pnl).toFixed(2);
+          const pnlCol  = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+          const dir     = (t.direction || '').toLowerCase();
+          const dirPill = dir === 'buy' ? 'pill-green' : 'pill-red';
+          const date    = t.closed_at ? new Date(t.closed_at).toLocaleDateString() : '—';
+          return `<tr>
+            <td style="font-weight:600;">${t.symbol}</td>
+            <td><span class="badge-pill ${dirPill}">${(t.direction||'').toUpperCase()}</span></td>
+            <td>${parseFloat(t.lots).toFixed(2)}</td>
+            <td>${fmtPx(t.open_price)}</td>
+            <td>${t.close_price ? fmtPx(t.close_price) : '—'}</td>
+            <td style="font-weight:600;color:${pnlCol};">${pnlStr}</td>
+            <td style="color:var(--muted);font-size:12px;">${date}</td>
+            <td><button class="btn btn--sm btn--red" onclick="opsTHDelete('${t.id}','${accountId}',${pnl})">Delete</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`;
+};
+
+window.opsTHDelete = async function(positionId, accountId, pnl) {
+  if (!confirm('Delete this trade? The P&L will be reversed from the account balance.')) return;
+  const db = window.XANTEX_DB;
+
+  const { error } = await db.from('positions').delete().eq('id', positionId);
+  if (error) { showToast('Failed to delete trade: ' + error.message, 'error'); return; }
+
+  // Reverse the P&L impact on the account balance
+  if (pnl !== 0 && accountId) {
+    const { data: acc } = await db.from('trading_accounts').select('balance').eq('id', accountId).single();
+    if (acc) {
+      const newBal = Math.max(0, parseFloat(acc.balance || 0) - pnl);
+      await db.from('trading_accounts').update({ balance: newBal }).eq('id', accountId);
+    }
+  }
+
+  showToast('Trade deleted', 'success');
+  opsTHLoad(accountId);
 };
 
 // ── Override renderAll to use live versions ───────────────────

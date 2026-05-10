@@ -757,6 +757,10 @@
     const country   = document.getElementById('country').value;
     const phone     = document.getElementById('phone').value.trim();
     const phoneCode = document.getElementById('phone-code').value;
+    const dob       = document.getElementById('dob').value || null;
+    const idType    = document.getElementById('id-type').value || null;
+    const idFile    = document.getElementById('upload-id').files[0];
+    const poaFile   = document.getElementById('upload-selfie').files[0];
 
     const submitBtn = document.querySelector('#step-3 button.btn-submit:last-of-type');
     submitBtn.classList.add('loading');
@@ -777,15 +781,50 @@
     }
 
     if (data.user) {
+      const userId = data.user.id;
+
+      // Save profile including date of birth
       await db.from('profiles').upsert({
-        id:         data.user.id,
-        first_name: firstName,
-        last_name:  lastName,
+        id:            userId,
+        first_name:    firstName,
+        last_name:     lastName,
         email,
-        phone:      phoneCode + phone,
+        phone:         phoneCode + phone,
         country,
-        kyc_status: 'pending',
+        date_of_birth: dob,
+        kyc_status:    'pending',
       });
+
+      // Upload KYC documents and record submission
+      try {
+        let frontUrl = null, poaUrl = null;
+
+        if (idFile) {
+          const ext  = idFile.name.split('.').pop().toLowerCase();
+          const path = `${userId}/id-front.${ext}`;
+          const { error: upErr } = await db.storage.from('kyc-docs').upload(path, idFile, { upsert: true });
+          if (!upErr) frontUrl = path;
+        }
+
+        if (poaFile) {
+          const ext  = poaFile.name.split('.').pop().toLowerCase();
+          const path = `${userId}/proof-address.${ext}`;
+          const { error: upErr } = await db.storage.from('kyc-docs').upload(path, poaFile, { upsert: true });
+          if (!upErr) poaUrl = path;
+        }
+
+        if (frontUrl || poaUrl) {
+          await db.from('kyc_submissions').insert({
+            user_id:           userId,
+            front_url:         frontUrl,
+            proof_address_url: poaUrl,
+            status:            'pending',
+            submitted_at:      new Date().toISOString(),
+          });
+        }
+      } catch (kycErr) {
+        console.error('KYC upload error:', kycErr);
+      }
     }
 
     submitBtn.classList.remove('loading');

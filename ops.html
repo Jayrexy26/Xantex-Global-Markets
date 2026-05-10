@@ -1574,12 +1574,21 @@ window.deleteUser = async function(userId) {
 };
 
 // ── KYC ───────────────────────────────────────────────────────
-function _kycDocUrl(url, bucket) {
+function _kycBucketPath(url, bucket) {
   if (!url) return null;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  // Legacy records stored a bare path — reconstruct the full Supabase public URL
-  const base = `https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/${bucket}/`;
-  return base + url;
+  const marker = `/${bucket}/`;
+  const idx = url.indexOf(marker);
+  // Full URL — extract just the path portion after the bucket name
+  if (idx !== -1) return url.slice(idx + marker.length);
+  // Already a bare path (legacy)
+  return url;
+}
+
+async function _signKycUrl(db, url, bucket) {
+  if (!url) return null;
+  const path = _kycBucketPath(url, bucket);
+  const { data } = await db.storage.from(bucket).createSignedUrl(path, 600);
+  return data?.signedUrl || null;
 }
 
 async function renderKYCLive() {
@@ -1588,14 +1597,21 @@ async function renderKYCLive() {
     .select('id, document_type, submitted_at, status, user_id, selfie_url, front_url, back_url, profiles(first_name, last_name, email)')
     .order('submitted_at', { ascending: false });
   if (!data?.length) { document.getElementById('kyc-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">No KYC submissions</td></tr>'; return; }
-  document.getElementById('kyc-tbody').innerHTML = data.map(k => {
+
+  // Generate signed URLs for all private docs in parallel
+  const rows = await Promise.all(data.map(async k => {
+    const [frontSigned, backSigned] = await Promise.all([
+      _signKycUrl(db, k.front_url,  'kyc-docs'),
+      _signKycUrl(db, k.back_url,   'kyc-docs'),
+    ]);
+    return { ...k, frontSigned, backSigned };
+  }));
+
+  document.getElementById('kyc-tbody').innerHTML = rows.map(k => {
     const name = k.profiles ? `${k.profiles.first_name||''} ${k.profiles.last_name||''}`.trim() || k.profiles.email : '—';
-    const frontUrl   = _kycDocUrl(k.front_url,   'kyc-docs');
-    const backUrl    = _kycDocUrl(k.back_url,    'kyc-docs');
-    const selfieUrl  = _kycDocUrl(k.selfie_url,  'avatars');
-    const docs = [frontUrl  && `<a href="${frontUrl}"  target="_blank" class="btn btn--sm btn--outline">Front</a>`,
-                  backUrl   && `<a href="${backUrl}"   target="_blank" class="btn btn--sm btn--outline">Back</a>`,
-                  selfieUrl && `<a href="${selfieUrl}" target="_blank" class="btn btn--sm btn--outline">Selfie</a>`].filter(Boolean).join('');
+    const docs = [k.frontSigned  && `<a href="${k.frontSigned}"  target="_blank" class="btn btn--sm btn--outline">Front</a>`,
+                  k.backSigned   && `<a href="${k.backSigned}"   target="_blank" class="btn btn--sm btn--outline">Back</a>`,
+                  k.selfie_url   && `<a href="${k.selfie_url}"   target="_blank" class="btn btn--sm btn--outline">Selfie</a>`].filter(Boolean).join('');
     return `<tr>
       <td><div class="user-cell"><div><div class="user-name">${name}</div><div class="user-email">${k.profiles?.email||''}</div></div></div></td>
       <td>${k.document_type||'—'}</td>

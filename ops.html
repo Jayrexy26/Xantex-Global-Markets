@@ -1289,30 +1289,32 @@ window.adminLogin = async function() {
   const pass        = document.getElementById('admin-pass').value;
   const db          = window.XANTEX_DB;
 
-  if (db) {
-    const { data, error } = await db.auth.signInWithPassword({ email: emailOrUser, password: pass });
-    if (!error && data?.user) {
-      const { data: adminRow } = await db.from('admin_users').select('id, email, role').eq('id', data.user.id).single();
-      if (adminRow) {
-        _adminUser = { id: data.user.id, email: data.user.email, role: adminRow.role || 'admin' };
-        const initials = data.user.email.slice(0,2).toUpperCase();
-        document.querySelector('.sidebar__user-name').textContent = data.user.email.split('@')[0];
-        document.querySelector('.sidebar__user-role').textContent = (_adminUser.role) + ' · OPS';
-        document.querySelector('.sidebar__avatar').textContent    = initials;
-        document.querySelector('.topbar__avatar').textContent     = initials;
-        document.getElementById('login-gate').style.display = 'none';
-        document.getElementById('main-app').style.display   = 'flex';
-        renderAll();
-        return;
-      }
-      document.getElementById('login-err').style.display = 'block';
-      document.getElementById('login-err').textContent   = 'Not an authorised admin account.';
-      return;
-    }
-  }
+  const errEl = document.getElementById('login-err');
+  function showErr(msg) { errEl.style.display = 'block'; errEl.textContent = msg; }
 
-  document.getElementById('login-err').style.display = 'block';
-  document.getElementById('login-err').textContent   = 'Incorrect credentials or not an admin account.';
+  if (!db) { showErr('Database not connected — please refresh the page.'); return; }
+
+  const { data, error } = await db.auth.signInWithPassword({ email: emailOrUser, password: pass });
+
+  if (error) { showErr('Auth error: ' + error.message); return; }
+
+  if (!data?.user) { showErr('No user returned — try again.'); return; }
+
+  const { data: adminRow, error: adminErr } = await db.from('admin_users').select('id, email, role').eq('id', data.user.id).single();
+
+  if (adminErr) { showErr('Admin lookup error: ' + adminErr.message); return; }
+
+  if (!adminRow) { showErr('Account exists but is not in the admin_users table.'); return; }
+
+  _adminUser = { id: data.user.id, email: data.user.email, role: adminRow.role || 'admin' };
+  const initials = data.user.email.slice(0,2).toUpperCase();
+  document.querySelector('.sidebar__user-name').textContent = data.user.email.split('@')[0];
+  document.querySelector('.sidebar__user-role').textContent = (_adminUser.role) + ' · OPS';
+  document.querySelector('.sidebar__avatar').textContent    = initials;
+  document.querySelector('.topbar__avatar').textContent     = initials;
+  document.getElementById('login-gate').style.display = 'none';
+  document.getElementById('main-app').style.display   = 'flex';
+  renderAll();
 };
 
 // ── Dashboard Stats ───────────────────────────────────────────

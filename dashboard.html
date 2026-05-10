@@ -241,12 +241,20 @@
     .summary-card--blue .summary-card__label { color: rgba(255,255,255,0.7); }
     .summary-card--blue .summary-card__label svg { stroke: rgba(255,255,255,0.7); }
     .summary-card--blue .summary-card__change { color: rgba(255,255,255,0.8); }
+    @property --pnl-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+    @keyframes pnl-spin { to { --pnl-angle: 360deg; } }
+
     .summary-card--pnl {
       border: 1.5px solid transparent;
-      background-image: linear-gradient(#fff, #fff),
-                        linear-gradient(to right, var(--green) 50%, var(--red) 50%);
-      background-origin: border-box;
-      background-clip: padding-box, border-box;
+      background:
+        linear-gradient(var(--white), var(--white)) padding-box,
+        conic-gradient(from var(--pnl-angle),
+          transparent 0%,
+          var(--green) 15%, var(--green) 25%, transparent 40%,
+          transparent 50%,
+          var(--red) 65%, var(--red) 75%, transparent 90%
+        ) border-box;
+      animation: pnl-spin 4s linear infinite;
     }
     @keyframes card-pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
     .card-loading { animation: card-pulse 1.4s ease-in-out infinite; color: var(--muted) !important; }
@@ -544,10 +552,14 @@
     body.dark .testimonial         { background: #1a1d27; }
     body.dark .summary-card--blue  { background: var(--blue); }
     body.dark .summary-card--pnl {
-      background-image: linear-gradient(#1a1d27, #1a1d27),
-                        linear-gradient(to right, var(--green) 50%, var(--red) 50%);
-      background-origin: border-box;
-      background-clip: padding-box, border-box;
+      background:
+        linear-gradient(#1a1d27, #1a1d27) padding-box,
+        conic-gradient(from var(--pnl-angle),
+          transparent 0%,
+          var(--green) 15%, var(--green) 25%, transparent 40%,
+          transparent 50%,
+          var(--red) 65%, var(--red) 75%, transparent 90%
+        ) border-box;
     }
     body.dark .topbar__search input { background: #0f1117; color: var(--text); }
     body.dark .account-row:hover,

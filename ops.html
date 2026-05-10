@@ -2951,8 +2951,10 @@ window.opsTHDelete = async function(positionId, accountId, pnl) {
   if (!confirm('Delete this trade? The P&L will be reversed from the account balance.')) return;
   const db = window.XANTEX_DB;
 
-  const { error } = await db.from('positions').delete().eq('id', positionId);
+  const { data: deleted, error } = await db
+    .from('positions').delete().eq('id', positionId).select('id');
   if (error) { showToast('Failed to delete trade: ' + error.message, 'error'); return; }
+  if (!deleted?.length) { showToast('Delete failed: permission denied', 'error'); return; }
 
   // Reverse the P&L impact on the account balance
   if (pnl !== 0 && accountId) {

@@ -1297,6 +1297,23 @@
 
       </div><!-- /page-overview -->
 
+      <!-- ── MY ACCOUNTS PAGE ─────────────────────────────────────── -->
+      <div id="page-accounts" style="display:none;padding:24px 28px;">
+        <div class="page-header">
+          <div>
+            <div class="page-header__title">My Accounts</div>
+            <div class="page-header__sub">All your trading accounts</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__body--p0">
+            <div class="account-list" id="accounts-page-list">
+              <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Loading accounts…</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /page-accounts -->
+
       <!-- ── NOTIFICATIONS PAGE ────────────────────────────────────── -->
       <div id="page-notifications" style="display:none;padding:24px 28px;">
         <div class="page-header">
@@ -2125,9 +2142,10 @@
     if (event?.currentTarget) event.currentTarget.classList.add('active');
     document.getElementById('topbar-title').textContent = pages[id] || id;
     document.getElementById('sidebar').classList.remove('open');
-    const allPages = ['page-overview','page-history','page-settings','page-notifications'];
+    const allPages = ['page-overview','page-accounts','page-history','page-settings','page-notifications'];
     allPages.forEach(p => { const el=document.getElementById(p); if(el) el.style.display='none'; });
     if (id === 'overview')  document.getElementById('page-overview')?.style && (document.getElementById('page-overview').style.display = '');
+    if (id === 'accounts')  { document.getElementById('page-accounts').style.display = ''; _renderAccountsPage(); }
     if (id === 'history')   { document.getElementById('page-history').style.display = ''; _renderHistory(); }
     if (id === 'notifications') { document.getElementById('page-notifications').style.display = ''; _renderNotifications(); }
     if (id === 'settings' || id === 'verification') {
@@ -2140,6 +2158,35 @@
         document.querySelector('.sett-nav__item[onclick*="documents"]')?.classList.add('active');
       }
     }
+  }
+
+  // ── My Accounts page renderer ────────────────────────────
+  function _renderAccountsPage() {
+    const list = document.getElementById('accounts-page-list');
+    if (!list) return;
+    if (!accounts || accounts.length === 0) {
+      list.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);">No accounts yet</div>';
+      return;
+    }
+    const platformMap = {MT4:'account-icon--mt4',MT5:'account-icon--mt5',cTrader:'account-icon--ct',TradingView:'account-icon--tv'};
+    list.innerHTML = accounts.map(a => {
+      const cls  = platformMap[a.platform] || 'account-icon--mt4';
+      const bal  = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2});
+      const pnl  = parseFloat(a.equity||a.balance||0) - parseFloat(a.balance||0);
+      const live = a.type === 'live';
+      return `<div class="account-row">
+        <div class="account-icon ${cls}">${(a.platform||'MT').slice(0,2).toUpperCase()}</div>
+        <div class="account-col">
+          <div class="account-col__id">#${a.account_number||a.id.slice(0,8)}</div>
+          <div class="account-col__type">${a.platform||'—'} · ${a.account_type||'—'} · ${a.currency||'USD'}</div>
+        </div>
+        <span class="account-status ${live?'account-status--live':'account-status--demo'}">${live?'Live':'Demo'}</span>
+        <div class="account-balance">
+          <div class="account-balance__val">$${bal}</div>
+          <div class="account-balance__pnl ${pnl>=0?'up':'down'}" style="color:${pnl>=0?'var(--green)':'var(--red)'};">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)} P&L</div>
+        </div>
+      </div>`;
+    }).join('');
   }
 
   // ── Notifications renderer ───────────────────────────────

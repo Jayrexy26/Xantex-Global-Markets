@@ -5,7 +5,32 @@
       "PowerShell(git remote *)",
       "PowerShell(git fetch *)",
       "PowerShell(git checkout *)",
-      "PowerShell(git add *)"
+      "PowerShell(git add *)",
+      "Bash(dir supabase *)",
+      "PowerShell(\\(Get-Content history.html\\).Count; \\(Get-Content notifications.html\\).Count; \\(Get-Content dashboard.html\\).Count)",
+      "PowerShell(Get-Content *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(dir *.js)",
+      "mcp__plugin_supabase_supabase__list_projects",
+      "mcp__plugin_supabase_supabase__list_tables",
+      "mcp__plugin_supabase_supabase__execute_sql",
+      "mcp__plugin_supabase_supabase__get_logs",
+      "Bash(dir vercel.json)",
+      "Bash(git pull *)",
+      "Bash(git stash *)",
+      "mcp__plugin_supabase_supabase__list_edge_functions",
+      "mcp__plugin_supabase_supabase__deploy_edge_function",
+      "Bash(supabase secrets *)",
+      "PowerShell(supabase secrets *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(scoop which *)",
+      "Bash(python *)",
+      "PowerShell(py *)",
+      "Bash(supabase db *)",
+      "Bash(npx supabase *)",
+      "Bash(grep -v \"^\\\\s*//\")"
     ]
   }
 }

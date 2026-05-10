@@ -908,56 +908,74 @@
         <div class="page-header">
           <div>
             <div class="page-header__title">Announcements</div>
-            <div class="page-header__sub">Push messages to user dashboards</div>
+            <div class="page-header__sub">Push notifications to user dashboards</div>
           </div>
         </div>
-        <div class="two-col-grid">
-          <div class="card">
-            <div class="card__head"><div class="card__title">New Announcement</div></div>
-            <div class="card__body">
-              <div style="display:flex;flex-direction:column;gap:14px;">
-                <div class="field">
-                  <label>Title</label>
-                  <input type="text" placeholder="Announcement title…" id="ann-title">
-                </div>
-                <div class="field">
-                  <label>Message</label>
-                  <textarea placeholder="Write your announcement…" id="ann-body" style="min-height:120px;"></textarea>
-                </div>
-                <div class="field">
-                  <label>Type</label>
-                  <select id="ann-type">
-                    <option>Info</option>
-                    <option>Warning</option>
-                    <option>Success</option>
-                    <option>Urgent</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label>Target Audience</label>
-                  <select id="ann-audience">
-                    <option>All Users</option>
-                    <option>Live Account Users</option>
-                    <option>Demo Account Users</option>
-                    <option>Unverified Users</option>
-                    <option>Specific User (enter ID below)</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label>Scheduled At (leave blank for immediate)</label>
-                  <input type="datetime-local" id="ann-schedule">
-                </div>
-                <button class="btn btn--primary" onclick="publishAnnouncement()">
-                  <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                  Publish Announcement
-                </button>
+
+        <!-- Compose form -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card__head"><div class="card__title">New Announcement</div></div>
+          <div class="card__body">
+            <div class="form-grid">
+              <div class="field field--full">
+                <label>Title</label>
+                <input type="text" placeholder="Announcement title…" id="ann-title">
+              </div>
+              <div class="field field--full">
+                <label>Message</label>
+                <textarea placeholder="Write your announcement…" id="ann-body" style="min-height:100px;"></textarea>
+              </div>
+              <div class="field">
+                <label>Type</label>
+                <select id="ann-type">
+                  <option value="info">Info</option>
+                  <option value="warning">Warning</option>
+                  <option value="success">Success</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Target Audience</label>
+                <select id="ann-audience" onchange="onAnnAudienceChange(this.value)">
+                  <option value="all">All Users</option>
+                  <option value="live">Live Account Users</option>
+                  <option value="demo">Demo Account Users</option>
+                  <option value="unverified">Unverified Users</option>
+                  <option value="specific">Specific User</option>
+                </select>
+              </div>
+              <!-- Shown only when "Specific User" is selected -->
+              <div class="field field--full" id="ann-specific-wrap" style="display:none;">
+                <label>Select User</label>
+                <select id="ann-specific-user">
+                  <option value="">— Select a user —</option>
+                </select>
               </div>
             </div>
+            <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn--primary" onclick="publishAnnouncement()">
+                <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Publish Now
+              </button>
+              <button class="btn btn--outline" onclick="resetAnnForm()">Clear</button>
+            </div>
           </div>
+        </div>
 
-          <div class="card">
-            <div class="card__head"><div class="card__title">Published Announcements</div></div>
-            <div class="card__body" id="ann-list" style="padding:12px 20px;display:flex;flex-direction:column;gap:12px;"></div>
+        <!-- History table -->
+        <div class="card">
+          <div class="card__head">
+            <div class="card__title">Announcement History</div>
+            <button class="btn btn--sm btn--outline" onclick="renderAnnouncementsLive()">Refresh</button>
+          </div>
+          <div class="card__body--p0 table-wrap">
+            <table class="data-table">
+              <thead><tr>
+                <th>Sent</th><th>Title</th><th>Message</th><th>Type</th>
+                <th>Audience</th><th>Recipients</th><th>By</th><th></th>
+              </tr></thead>
+              <tbody id="ann-tbody"></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -1909,31 +1927,91 @@ async function renderAuditLive() {
 window.renderAuditLive = renderAuditLive;
 
 // ── Announcements ─────────────────────────────────────────────
-async function renderAnnouncementsLive() {
-  renderAnnouncements();
+const _annAudienceLabels = {
+  all:'All Users', live:'Live Account Users', demo:'Demo Account Users',
+  unverified:'Unverified Users', specific:'Specific User',
+};
+
+window.onAnnAudienceChange = function(val) {
+  const wrap = document.getElementById('ann-specific-wrap');
+  if (!wrap) return;
+  wrap.style.display = val === 'specific' ? '' : 'none';
+  if (val === 'specific') populateAnnUserDropdown();
+};
+
+async function populateAnnUserDropdown() {
   const db = window.XANTEX_DB; if (!db) return;
-  const { data } = await db
+  const sel = document.getElementById('ann-specific-user'); if (!sel) return;
+  if (sel.options.length > 1) return; // already populated
+  const { data } = await db.from('profiles').select('id, first_name, last_name, email').order('created_at');
+  if (!data?.length) return;
+  sel.innerHTML = '<option value="">— Select a user —</option>' +
+    data.map(p => {
+      const name = `${p.first_name||''} ${p.last_name||''}`.trim() || p.email;
+      return `<option value="${p.id}">${name} (${p.email})</option>`;
+    }).join('');
+}
+
+window.resetAnnForm = function() {
+  ['ann-title','ann-body'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  const aud = document.getElementById('ann-audience'); if(aud) aud.value = 'all';
+  const wrap = document.getElementById('ann-specific-wrap'); if(wrap) wrap.style.display='none';
+};
+
+async function _resolveAnnRecipients(db, audience, specificUserId) {
+  // Returns array of user_id strings
+  if (audience === 'specific') {
+    return specificUserId ? [specificUserId] : [];
+  }
+  if (audience === 'all') {
+    const { data } = await db.from('profiles').select('id');
+    return (data||[]).map(p => p.id);
+  }
+  if (audience === 'live' || audience === 'demo') {
+    const { data } = await db.from('trading_accounts').select('user_id').eq('type', audience);
+    return [...new Set((data||[]).map(a => a.user_id))];
+  }
+  if (audience === 'unverified') {
+    const { data } = await db.from('profiles').select('id').neq('kyc_status','verified');
+    return (data||[]).map(p => p.id);
+  }
+  return [];
+}
+
+async function renderAnnouncementsLive() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const tbody = document.getElementById('ann-tbody'); if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">Loading…</td></tr>';
+
+  const { data, error } = await db
     .from('announcements')
     .select('*')
     .order('created_at', { ascending: false })
-    .limit(20);
-  if (!data?.length) return;
-  document.getElementById('ann-list').innerHTML = data.map(a => `
-    <div style="border:1px solid var(--border);border-radius:8px;padding:12px 14px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-        <div style="font-size:13px;font-weight:700;">${a.title}</div>
-        <span class="badge-pill ${a.type==='warning'?'pill-orange':a.type==='success'?'pill-green':'pill-blue'}">${a.type}</span>
-      </div>
-      <div style="font-size:12px;color:var(--muted);">${a.body || ''}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;">
-        ${fmtDate(a.created_at)} ·
-        <span style="color:var(--red);cursor:pointer;" onclick="opsDeleteAnnouncement('${a.id}')">Delete</span>
-      </div>
-    </div>`).join('');
+    .limit(50);
+
+  if (error) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--red);">Error: ${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">No announcements yet</td></tr>'; return; }
+
+  const typePill = { info:'pill-blue', warning:'pill-orange', success:'pill-green', urgent:'pill-red' };
+  tbody.innerHTML = data.map(a => `
+    <tr>
+      <td style="font-size:12px;white-space:nowrap;">${fmtDate(a.created_at)}</td>
+      <td style="font-weight:600;max-width:160px;">${a.title||'—'}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+          title="${(a.body||'').replace(/"/g,'&quot;')}">${a.body||'—'}</td>
+      <td><span class="badge-pill ${typePill[a.type]||'pill-blue'}">${a.type||'info'}</span></td>
+      <td style="font-size:12px;">${_annAudienceLabels[a.audience]||a.audience||'—'}</td>
+      <td style="font-weight:700;text-align:center;">${a.sent_count||0}</td>
+      <td style="font-size:11px;color:var(--muted);">${_adminUser?.email?.split('@')[0]||'Admin'}</td>
+      <td>
+        <button class="btn btn--sm btn--red" onclick="opsDeleteAnnouncement('${a.id}')">Delete</button>
+      </td>
+    </tr>`).join('');
 }
 window.renderAnnouncementsLive = renderAnnouncementsLive;
+
 window.opsDeleteAnnouncement = async function(id) {
-  if (!confirm('Delete this announcement?')) return;
+  if (!confirm('Delete this announcement? This does NOT remove notifications already sent to users.')) return;
   const db = window.XANTEX_DB; if (!db) return;
   await db.from('announcements').delete().eq('id', id);
   await logAudit('DELETE_ANNOUNCEMENT', id, 'Deleted by admin');
@@ -1941,28 +2019,59 @@ window.opsDeleteAnnouncement = async function(id) {
   renderAnnouncementsLive();
 };
 
-// ── Patch publishAnnouncement ─────────────────────────────────
 window.publishAnnouncement = async function() {
   const title    = document.getElementById('ann-title').value.trim();
   const body     = document.getElementById('ann-body').value.trim();
-  const type     = document.getElementById('ann-type').value.toLowerCase();
+  const type     = document.getElementById('ann-type').value;
   const audience = document.getElementById('ann-audience').value;
-  const schedule = document.getElementById('ann-schedule').value;
-  if (!title) { showToast('Please enter a title','error'); return; }
+  const specificId = document.getElementById('ann-specific-user')?.value || null;
+
+  if (!title)               { showToast('Please enter a title','error'); return; }
+  if (!body)                { showToast('Please enter a message','error'); return; }
+  if (audience === 'specific' && !specificId) { showToast('Please select a user','error'); return; }
+
   const db = window.XANTEX_DB;
   if (!db) { showToast('No database connection','error'); return; }
-  const { error } = await db.from('announcements').insert({
-    title, body, type, audience,
-    scheduled_at: schedule || null,
-    published: !schedule,
-  });
-  if (error) { showToast('Error: ' + error.message,'error'); return; }
-  await logAudit('PUBLISH_ANNOUNCEMENT', title, `Type: ${type}, Audience: ${audience}`);
-  showToast('Announcement published','success');
-  document.getElementById('ann-title').value    = '';
-  document.getElementById('ann-body').value     = '';
-  document.getElementById('ann-schedule').value = '';
-  renderAnnouncementsLive();
+
+  const btn = document.querySelector('[onclick="publishAnnouncement()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+  try {
+    // Resolve recipients
+    const recipientIds = await _resolveAnnRecipients(db, audience, specificId);
+    if (!recipientIds.length) { showToast('No users matched that audience','error'); return; }
+
+    // Insert notification for every recipient
+    const notifRows = recipientIds.map(uid => ({
+      user_id: uid,
+      title,
+      message: body,
+      enabled: true,
+    }));
+    // Insert in batches of 100 to stay within Supabase limits
+    for (let i = 0; i < notifRows.length; i += 100) {
+      const { error: nErr } = await db.from('notifications').insert(notifRows.slice(i, i + 100));
+      if (nErr) throw nErr;
+    }
+
+    // Record in announcements history
+    await db.from('announcements').insert({
+      title, body, type, audience,
+      target_user_id: audience === 'specific' ? specificId : null,
+      published: true,
+      sent_count: recipientIds.length,
+      created_by: _adminUser?.id || null,
+    });
+
+    await logAudit('PUBLISH_ANNOUNCEMENT', title, `Type: ${type} | Audience: ${audience} | Recipients: ${recipientIds.length}`);
+    showToast(`Sent to ${recipientIds.length} user${recipientIds.length !== 1 ? 's' : ''}`, 'success');
+    resetAnnForm();
+    renderAnnouncementsLive();
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Publish Now'; }
+  }
 };
 
 // ── Balances & Adjustments ────────────────────────────────────

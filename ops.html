@@ -1310,7 +1310,54 @@
             </div>
           </div>
         </div>
-      </div>
+
+        <!-- Client Reviews -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card__head" style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div class="card__title">Client Reviews</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Testimonials displayed on the public homepage</div>
+            </div>
+            <button class="btn btn--primary" onclick="showReviewForm()">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Review
+            </button>
+          </div>
+          <div class="card__body" style="padding:0;">
+            <div id="reviews-list" style="min-height:60px;"></div>
+          </div>
+          <!-- Inline add/edit form -->
+          <div id="review-form-wrap" style="display:none;border-top:1px solid var(--border);padding:20px 24px;background:var(--bg);">
+            <div style="font-size:13px;font-weight:600;margin-bottom:14px;" id="review-form-title">Add Review</div>
+            <input type="hidden" id="rev-id">
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+              <div class="field"><label>Name</label><input type="text" id="rev-name" placeholder="e.g. James M."></div>
+              <div class="field"><label>Role / Location</label><input type="text" id="rev-role" placeholder="e.g. Forex trader, UK"></div>
+            </div>
+            <div class="field" style="margin-bottom:12px;">
+              <label>Review Text</label>
+              <textarea id="rev-body" rows="3" style="resize:vertical;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;width:100%;outline:none;" placeholder="What the client said…"></textarea>
+            </div>
+            <div class="field" style="margin-bottom:16px;">
+              <label>Stars (1–5)</label>
+              <select id="rev-stars" style="width:120px;height:38px;border:1.5px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;font-family:inherit;">
+                <option value="5" selected>★★★★★  (5)</option>
+                <option value="4">★★★★☆  (4)</option>
+                <option value="3">★★★☆☆  (3)</option>
+                <option value="2">★★☆☆☆  (2)</option>
+                <option value="1">★☆☆☆☆  (1)</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn--primary" onclick="saveReview()">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                Save
+              </button>
+              <button class="btn" onclick="hideReviewForm()" style="background:var(--border);">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /page-settings -->
 
       <!-- ════════════════════ AUDIT LOG ════════════════════ -->
       <div class="page" id="page-audit">
@@ -2857,6 +2904,98 @@ window.saveDepositAddresses = async function() {
   showToast('Deposit addresses saved', 'success');
 };
 
+// ── Client Reviews CRUD ───────────────────────────────────────
+async function loadReviews() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data, error } = await db.from('client_reviews').select('*').order('sort_order');
+  const list = document.getElementById('reviews-list'); if (!list) return;
+  if (error || !data?.length) {
+    list.innerHTML = '<p style="padding:20px 24px;font-size:13px;color:var(--muted);">No reviews yet.</p>';
+    return;
+  }
+  list.innerHTML = data.map(r => `
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--border);">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;">${escHtml(r.name)} <span style="color:var(--muted);font-weight:400;">· ${escHtml(r.role)}</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:500px;">${escHtml(r.body)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        <span style="color:#f5a623;font-size:13px;">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>
+        <label class="toggle-switch" title="${r.active ? 'Visible' : 'Hidden'}">
+          <input type="checkbox" ${r.active ? 'checked' : ''} onchange="toggleReview('${r.id}',this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+        <button class="btn btn--outline" style="padding:4px 10px;font-size:12px;" onclick="editReview(${JSON.stringify(r).replace(/"/g,'&quot;')})">Edit</button>
+        <button class="btn" style="padding:4px 10px;font-size:12px;background:#fee2e2;color:#dc2626;border:none;" onclick="deleteReview('${r.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+window.showReviewForm = function(review) {
+  document.getElementById('rev-id').value   = '';
+  document.getElementById('rev-name').value  = '';
+  document.getElementById('rev-role').value  = '';
+  document.getElementById('rev-body').value  = '';
+  document.getElementById('rev-stars').value = '5';
+  document.getElementById('review-form-title').textContent = 'Add Review';
+  document.getElementById('review-form-wrap').style.display = 'block';
+};
+
+window.hideReviewForm = function() {
+  document.getElementById('review-form-wrap').style.display = 'none';
+};
+
+window.editReview = function(r) {
+  document.getElementById('rev-id').value    = r.id;
+  document.getElementById('rev-name').value  = r.name;
+  document.getElementById('rev-role').value  = r.role;
+  document.getElementById('rev-body').value  = r.body;
+  document.getElementById('rev-stars').value = String(r.stars);
+  document.getElementById('review-form-title').textContent = 'Edit Review';
+  document.getElementById('review-form-wrap').style.display = 'block';
+  document.getElementById('review-form-wrap').scrollIntoView({ behavior:'smooth', block:'nearest' });
+};
+
+window.saveReview = async function() {
+  const db   = window.XANTEX_DB; if (!db) return;
+  const id   = document.getElementById('rev-id').value.trim();
+  const name = document.getElementById('rev-name').value.trim();
+  const role = document.getElementById('rev-role').value.trim();
+  const body = document.getElementById('rev-body').value.trim();
+  const stars = parseInt(document.getElementById('rev-stars').value);
+  if (!name || !body) { showToast('Name and review text are required', 'error'); return; }
+  let error;
+  if (id) {
+    ({ error } = await db.from('client_reviews').update({ name, role, body, stars }).eq('id', id));
+  } else {
+    const { data: maxRow } = await db.from('client_reviews').select('sort_order').order('sort_order', { ascending: false }).limit(1);
+    const sort_order = (maxRow?.[0]?.sort_order ?? 0) + 1;
+    ({ error } = await db.from('client_reviews').insert({ name, role, body, stars, sort_order }));
+  }
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast(id ? 'Review updated' : 'Review added', 'success');
+  hideReviewForm();
+  await loadReviews();
+};
+
+window.toggleReview = async function(id, active) {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { error } = await db.from('client_reviews').update({ active }).eq('id', id);
+  if (error) showToast('Error: ' + error.message, 'error');
+  else showToast(active ? 'Review visible' : 'Review hidden', 'success');
+};
+
+window.deleteReview = async function(id) {
+  if (!confirm('Delete this review?')) return;
+  const db = window.XANTEX_DB; if (!db) return;
+  const { error } = await db.from('client_reviews').delete().eq('id', id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Review deleted', 'success');
+  await loadReviews();
+};
+
 // ── Direct Trade Input ────────────────────────────────────────
 const _TRADE_PAIRS = {
   forex:   ['EUR/USD','GBP/USD','USD/JPY','AUD/USD','USD/CHF','NZD/USD','USD/CAD','EUR/GBP','EUR/JPY','GBP/JPY','EUR/AUD','AUD/JPY','GBP/CHF','EUR/CHF','CAD/JPY','USD/MXN','USD/ZAR','USD/SGD','USD/HKD','GBP/AUD','GBP/NZD','AUD/NZD','EUR/NZD','EUR/CAD'],
@@ -3133,6 +3272,7 @@ window.renderAll = async function() {
   renderActivityLive();
   renderMarketsControl();
   loadDepositAddresses();
+  loadReviews();
   dtPopulateAccounts();
 };
 </script>

@@ -1339,50 +1339,8 @@
       <p class="section__eyebrow">Client reviews</p>
       <h2 class="section__h2" id="reviews-h">Trusted by traders worldwide</h2>
 
-      <div class="testimonials__grid">
-
-        <div class="testimonial">
-          <div class="testimonial__stars">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-          </div>
-          <p class="testimonial__text">"Switched from another broker last year and haven't looked back. Spreads are consistently tight and withdrawals process the same day. The MT4 integration is seamless."</p>
-          <div class="testimonial__author">
-            <div class="testimonial__avatar">JM</div>
-            <div>
-              <div class="testimonial__name">James M.</div>
-              <div class="testimonial__role">Forex trader, UK</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="testimonial">
-          <div class="testimonial__stars">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-          </div>
-          <p class="testimonial__text">"The cTrader platform is excellent — Level II pricing gives me a real edge. Support team is always responsive and knowledgeable. Highly recommend for serious traders."</p>
-          <div class="testimonial__author">
-            <div class="testimonial__avatar">SL</div>
-            <div>
-              <div class="testimonial__name">Sarah L.</div>
-              <div class="testimonial__role">Day trader, Australia</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="testimonial">
-          <div class="testimonial__stars">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-          </div>
-          <p class="testimonial__text">"Been using Xantex for 3 years for index and commodity trading. Execution is fast, the mobile app works perfectly and I've never had an issue with deposits or withdrawals."</p>
-          <div class="testimonial__author">
-            <div class="testimonial__avatar">AK</div>
-            <div>
-              <div class="testimonial__name">Ahmed K.</div>
-              <div class="testimonial__role">Position trader, UAE</div>
-            </div>
-          </div>
-        </div>
-
+      <div class="testimonials__grid" id="reviews-grid">
+        <!-- populated from Supabase -->
       </div>
     </div>
   </section>
@@ -1614,6 +1572,45 @@
   }, { threshold: 0.3 });
 
   document.querySelectorAll('.stats').forEach(el => counterObserver.observe(el));
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+(async () => {
+  const db = window.XANTEX_DB;
+  const grid = document.getElementById('reviews-grid');
+  if (!db || !grid) return;
+
+  const { data } = await db.from('client_reviews')
+    .select('name,role,body,stars')
+    .eq('active', true)
+    .order('sort_order');
+
+  if (!data?.length) return;
+
+  const initials = name => name.split(' ').map(w => w[0] || '').join('').toUpperCase().slice(0, 2);
+  const stars = n => '★'.repeat(n).split('').map(s => `<span>${s}</span>`).join('');
+
+  grid.innerHTML = data.map(r => `
+    <div class="testimonial">
+      <div class="testimonial__stars">${stars(r.stars)}</div>
+      <p class="testimonial__text">"${r.body}"</p>
+      <div class="testimonial__author">
+        <div class="testimonial__avatar">${initials(r.name)}</div>
+        <div>
+          <div class="testimonial__name">${r.name}</div>
+          <div class="testimonial__role">${r.role}</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // re-observe newly created testimonials for scroll reveal
+  document.querySelectorAll('.testimonial').forEach(el => {
+    el.classList.add('reveal');
+    if (typeof observer !== 'undefined') observer.observe(el);
+  });
+})();
 </script>
 </body>
 </html>

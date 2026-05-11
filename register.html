@@ -824,33 +824,146 @@
   }
 
   function goStep1() { setStep(1); }
+
   function goStep2() {
     let valid = true;
-    ['first-name','last-name','email','password'].forEach(id => {
+
+    // First / last name
+    ['first-name','last-name'].forEach(id => {
       const el = document.getElementById(id);
       const empty = !el.value.trim();
       el.classList.toggle('error', empty);
       if (empty) valid = false;
     });
-    // Validate country (custom select — hidden input)
+
+    // Email — required + valid format
+    const emailEl = document.getElementById('email');
+    const emailOk = emailEl.value.trim() && /\S+@\S+\.\S+/.test(emailEl.value.trim());
+    emailEl.classList.toggle('error', !emailOk);
+    if (!emailOk) valid = false;
+
+    // Phone — must have digits entered
+    const phoneEl = document.getElementById('phone');
+    const phoneOk = phoneEl.value.trim().length >= 5;
+    phoneEl.classList.toggle('error', !phoneOk);
+    if (!phoneOk) valid = false;
+
+    // Country
     const countryVal     = document.getElementById('country').value;
     const countryTrigger = document.getElementById('trigger-country');
-    if (!countryVal) {
-      countryTrigger.classList.add('error');
+    if (!countryVal) { countryTrigger.classList.add('error'); valid = false; }
+    else              { countryTrigger.classList.remove('error'); }
+
+    // Password — required + at least 8 chars
+    const pwEl = document.getElementById('password');
+    const pwOk = pwEl.value.length >= 8;
+    pwEl.classList.toggle('error', !pwOk);
+    if (!pwOk) {
+      const errSpan = pwEl.closest('.field')?.querySelector('.field__error');
+      if (errSpan) errSpan.textContent = pwEl.value ? 'Password must be at least 8 characters' : 'Please enter a password';
       valid = false;
-    } else {
-      countryTrigger.classList.remove('error');
     }
+
+    // Terms
     if (!document.getElementById('terms').checked) {
-      valid = false;
       document.getElementById('terms').style.outline = '2px solid var(--error)';
+      valid = false;
     } else {
       document.getElementById('terms').style.outline = '';
     }
+
     if (valid) setStep(2);
   }
-  function goStep3() { setStep(3); }
+
+  function goStep3() {
+    let valid = true;
+
+    // Trading experience
+    const expEl = document.getElementById('experience');
+    const expOk = expEl.value && expEl.value !== '';
+    expEl.classList.toggle('error', !expOk);
+    if (!expOk) {
+      let errEl = document.getElementById('exp-error');
+      if (!errEl) {
+        errEl = document.createElement('span');
+        errEl.id = 'exp-error';
+        errEl.className = 'field__error';
+        errEl.style.display = 'block';
+        expEl.parentNode.appendChild(errEl);
+      }
+      errEl.textContent = 'Please select your trading experience';
+      valid = false;
+    } else {
+      const errEl = document.getElementById('exp-error');
+      if (errEl) errEl.textContent = '';
+    }
+
+    // Expected deposit
+    const depEl = document.getElementById('deposit');
+    const depOk = depEl.value && depEl.value !== '';
+    depEl.classList.toggle('error', !depOk);
+    if (!depOk) {
+      let errEl = document.getElementById('dep-error');
+      if (!errEl) {
+        errEl = document.createElement('span');
+        errEl.id = 'dep-error';
+        errEl.className = 'field__error';
+        errEl.style.display = 'block';
+        depEl.parentNode.appendChild(errEl);
+      }
+      errEl.textContent = 'Please select your expected initial deposit';
+      valid = false;
+    } else {
+      const errEl = document.getElementById('dep-error');
+      if (errEl) errEl.textContent = '';
+    }
+
+    if (valid) setStep(3);
+  }
+
   async function submitForm() {
+    // ── Step 3 validation ──────────────────────────────────────
+    let s3valid = true;
+
+    const dobEl = document.getElementById('dob');
+    if (!dobEl.value) {
+      dobEl.style.borderColor = 'var(--error)';
+      dobEl.style.boxShadow   = '0 0 0 3px rgba(230,0,35,0.1)';
+      s3valid = false;
+    } else {
+      dobEl.style.borderColor = '';
+      dobEl.style.boxShadow   = '';
+    }
+
+    const idTypeEl = document.getElementById('id-type');
+    if (!idTypeEl.value) {
+      idTypeEl.classList.add('error');
+      s3valid = false;
+    } else {
+      idTypeEl.classList.remove('error');
+    }
+
+    const idFront = document.getElementById('upload-id').files[0];
+    const frontBox = document.getElementById('upload-id').closest('[onclick]');
+    if (!idFront) {
+      if (frontBox) frontBox.style.borderColor = 'var(--error)';
+      let errEl = document.getElementById('front-error');
+      if (!errEl) {
+        errEl = document.createElement('div');
+        errEl.id = 'front-error';
+        errEl.style.cssText = 'font-size:12px;color:var(--error);margin-top:6px;text-align:center;';
+        errEl.textContent = 'ID front photo is required';
+        frontBox?.parentNode?.insertBefore(errEl, frontBox.nextSibling);
+      }
+      s3valid = false;
+    } else {
+      if (frontBox) frontBox.style.borderColor = '';
+      const errEl = document.getElementById('front-error');
+      if (errEl) errEl.remove();
+    }
+
+    if (!s3valid) return;
+
     const email     = document.getElementById('email').value.trim();
     const password  = document.getElementById('password').value;
     const firstName = document.getElementById('first-name').value.trim();
@@ -858,9 +971,9 @@
     const country   = document.getElementById('country').value;
     const phone     = document.getElementById('phone').value.trim();
     const phoneCode = document.getElementById('phone-code').value;
-    const dob    = document.getElementById('dob').value || null;
-    const idType = document.getElementById('id-type').value || null;
-    const idFile = document.getElementById('upload-id').files[0];
+    const dob    = dobEl.value || null;
+    const idType = idTypeEl.value || null;
+    const idFile = idFront;
 
     const submitBtn = document.querySelector('#step-3 button.btn-submit:last-of-type');
     submitBtn.classList.add('loading');

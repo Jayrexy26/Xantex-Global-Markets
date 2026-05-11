@@ -324,9 +324,82 @@
       .form-row { grid-template-columns: 1fr; }
       .social-btns { flex-direction: column; }
     }
+
+    /* ── Registration loading overlay ── */
+    .reg-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(7, 15, 28, 0.88);
+      backdrop-filter: blur(6px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    .reg-overlay.visible { display: flex; }
+    .reg-spinner {
+      width: 52px; height: 52px;
+      border: 3.5px solid rgba(255,255,255,0.15);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: reg-spin 0.8s linear infinite;
+    }
+    @keyframes reg-spin { to { transform: rotate(360deg); } }
+    .reg-overlay__title {
+      font-size: 17px; font-weight: 600; color: #fff;
+    }
+    .reg-overlay__sub {
+      font-size: 13px; color: rgba(255,255,255,0.55);
+      text-align: center; max-width: 280px; line-height: 1.6;
+    }
+    .reg-overlay__steps {
+      display: flex; flex-direction: column; gap: 8px;
+      margin-top: 4px;
+    }
+    .reg-step {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: rgba(255,255,255,0.4);
+      transition: color 0.3s;
+    }
+    .reg-step.active  { color: rgba(255,255,255,0.9); }
+    .reg-step.done    { color: #22a06b; }
+    .reg-step__dot {
+      width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      border: 1.5px solid currentColor; font-size: 10px;
+      transition: background 0.3s;
+    }
+    .reg-step.active .reg-step__dot {
+      background: rgba(255,255,255,0.15); border-color: #fff;
+    }
+    .reg-step.done .reg-step__dot {
+      background: #22a06b; border-color: #22a06b; color: #fff;
+    }
+    .reg-step.done .reg-step__dot::after { content: '✓'; }
+    .reg-step:not(.done) .reg-step__dot::after { content: attr(data-n); }
   </style>
 </head>
 <body>
+
+<!-- Registration loading overlay -->
+<div class="reg-overlay" id="reg-overlay">
+  <div class="reg-spinner"></div>
+  <div class="reg-overlay__title" id="reg-overlay-title">Creating your account…</div>
+  <div class="reg-overlay__steps">
+    <div class="reg-step" id="rstep-1">
+      <div class="reg-step__dot" data-n="1"></div>
+      <span>Creating account</span>
+    </div>
+    <div class="reg-step" id="rstep-2">
+      <div class="reg-step__dot" data-n="2"></div>
+      <span>Uploading documents</span>
+    </div>
+    <div class="reg-step" id="rstep-3">
+      <div class="reg-step__dot" data-n="3"></div>
+      <span>Finalising setup</span>
+    </div>
+  </div>
+</div>
 
 <!-- NAVBAR -->
 <nav class="navbar">
@@ -793,6 +866,19 @@
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
 
+    // Show loading overlay immediately
+    const overlay      = document.getElementById('reg-overlay');
+    const overlayTitle = document.getElementById('reg-overlay-title');
+    function rStep(n, state) {
+      const el = document.getElementById('rstep-' + n);
+      if (!el) return;
+      el.classList.remove('active', 'done');
+      if (state) el.classList.add(state);
+    }
+    overlay.classList.add('visible');
+    rStep(1, 'active'); rStep(2, ''); rStep(3, '');
+    overlayTitle.textContent = 'Creating your account…';
+
     const db = window.XANTEX_DB;
 
     // Sign out any existing session so it doesn't bleed into the new account
@@ -814,6 +900,7 @@
     });
 
     if (error) {
+      overlay.classList.remove('visible');
       submitBtn.classList.remove('loading');
       submitBtn.disabled = false;
       alert('Registration error: ' + error.message);
@@ -835,6 +922,9 @@
 
       // If we have a live session, update profile with all fields and upload files
       if (session) {
+        rStep(1, 'done'); rStep(2, 'active'); rStep(3, '');
+        overlayTitle.textContent = 'Uploading your documents…';
+
         await db.from('profiles').update({
           phone:         fullPhone,
           country,
@@ -889,6 +979,9 @@
             });
             if (insErr) console.error('kyc_submissions insert error:', insErr.message);
           } catch(insEx) { console.error('kyc_submissions insert threw:', insEx); }
+
+        rStep(2, 'done'); rStep(3, 'active');
+        overlayTitle.textContent = 'Finalising your account…';
       }
       // If no session (email confirmation required), the trigger already saved
       // phone/country/DOB from signUp metadata — uploads will be available after login
@@ -898,14 +991,17 @@
     submitBtn.disabled = false;
 
     if (session?.access_token && session?.refresh_token) {
+      rStep(1, 'done'); rStep(2, 'done'); rStep(3, 'done');
+      overlayTitle.textContent = 'All done! Redirecting…';
       // Live session — store tokens and go through PIN setup then KYC pending
       try {
         sessionStorage.setItem('xantex_tmp_at', session.access_token);
         sessionStorage.setItem('xantex_tmp_rt', session.refresh_token);
       } catch(e) {}
-      window.location.href = 'session.html';
+      setTimeout(() => { window.location.href = 'session.html'; }, 800);
     } else {
-      // Email confirmation required — show static success screen
+      // Email confirmation required — hide overlay and show static success screen
+      overlay.classList.remove('visible');
       [1,2,3].forEach(i => document.getElementById('step-' + i).style.display = 'none');
       ['step-ind-1','step-ind-2','step-ind-3'].forEach(id => {
         const el = document.getElementById(id);

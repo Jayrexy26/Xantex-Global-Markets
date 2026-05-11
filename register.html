@@ -77,8 +77,39 @@
     /* ============================================================
        LEFT PANEL — benefits
     ============================================================ */
+    /* ── Left panel keyframes ───────────────────────────────── */
+    @keyframes bgDrift {
+      0%   { transform: scale(1)    translate(0, 0); }
+      50%  { transform: scale(1.07) translate(-1.5%, -1%); }
+      100% { transform: scale(1.04) translate(1.5%,  0.8%); }
+    }
+    @keyframes lSlideRight {
+      from { opacity: 0; transform: translateX(-22px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes lFadeUp {
+      from { opacity: 0; transform: translateY(26px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes lFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes eyebrowShimmer {
+      0%, 100% { color: var(--red); }
+      50%      { color: #ff6b6b; }
+    }
+    @keyframes headlineFloat {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-6px); }
+    }
+    @keyframes iconPulse {
+      0%, 100% { background: rgba(26,92,255,0.18); box-shadow: 0 0 0 0 rgba(26,92,255,0); }
+      50%      { background: rgba(26,92,255,0.32); box-shadow: 0 0 16px 4px rgba(26,92,255,0.28); }
+    }
+
     .panel-left {
-      background: #070f1c url('/images/mt4-main.png') center/cover no-repeat;
+      background: #070f1c;
       position: relative;
       display: flex;
       flex-direction: column;
@@ -87,36 +118,66 @@
       color: #fff;
       overflow: hidden;
     }
+    /* animated background image layer */
+    .panel-left::before {
+      content: '';
+      position: absolute;
+      inset: -10%;
+      background: url('/images/mt4-main.png') center/cover no-repeat;
+      animation: bgDrift 28s ease-in-out infinite alternate;
+      z-index: 0;
+    }
     .panel-left__overlay {
-      position: absolute; inset: 0;
+      position: absolute; inset: 0; z-index: 1;
       background: linear-gradient(135deg, rgba(4,8,20,0.96) 50%, rgba(4,8,20,0.75) 100%);
     }
     .panel-left__content { position: relative; z-index: 2; max-width: 480px; }
+
+    /* Entrance + continuous animations */
     .panel-left__eyebrow {
       font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
       text-transform: uppercase; color: var(--red); margin-bottom: 16px;
+      opacity: 0;
+      animation: lSlideRight 0.6s 0.1s ease forwards,
+                 eyebrowShimmer 3s 1.5s ease-in-out infinite;
     }
     .panel-left__h1 {
       font-size: clamp(26px, 3vw, 40px); font-weight: 700;
       line-height: 1.1; letter-spacing: -0.5px; margin-bottom: 14px;
+      opacity: 0;
+      animation: lFadeUp 0.7s 0.3s ease forwards,
+                 headlineFloat 5s 1.8s ease-in-out infinite;
     }
     .panel-left__sub {
       font-size: 15px; color: rgba(255,255,255,0.65);
       margin-bottom: 48px; line-height: 1.65;
+      opacity: 0;
+      animation: lFadeUp 0.7s 0.55s ease forwards;
     }
     .benefits { display: flex; flex-direction: column; gap: 24px; margin-bottom: 48px; }
-    .benefit { display: flex; align-items: flex-start; gap: 14px; }
+    .benefit { display: flex; align-items: flex-start; gap: 14px; opacity: 0; }
+    .benefit:nth-child(1) { animation: lFadeUp 0.6s 0.75s ease forwards; }
+    .benefit:nth-child(2) { animation: lFadeUp 0.6s 0.90s ease forwards; }
+    .benefit:nth-child(3) { animation: lFadeUp 0.6s 1.05s ease forwards; }
+    .benefit:nth-child(4) { animation: lFadeUp 0.6s 1.20s ease forwards; }
     .benefit__icon {
       width: 40px; height: 40px; border-radius: 10px;
       background: rgba(26,92,255,0.18); border: 1px solid rgba(26,92,255,0.3);
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      animation: iconPulse 3.5s ease-in-out infinite;
     }
+    .benefit:nth-child(1) .benefit__icon { animation-delay: 2.0s; }
+    .benefit:nth-child(2) .benefit__icon { animation-delay: 2.7s; }
+    .benefit:nth-child(3) .benefit__icon { animation-delay: 3.4s; }
+    .benefit:nth-child(4) .benefit__icon { animation-delay: 4.1s; }
     .benefit__icon svg { width: 20px; height: 20px; fill: none; stroke: #6b9fff; stroke-width: 1.8; }
     .benefit__title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
     .benefit__text  { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; }
     .panel-left__awards {
       display: flex; gap: 20px; flex-wrap: wrap;
       padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1);
+      opacity: 0;
+      animation: lFadeIn 0.8s 1.45s ease forwards;
     }
     .award-chip {
       display: flex; flex-direction: column; gap: 2px;

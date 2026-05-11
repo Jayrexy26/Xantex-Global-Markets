@@ -277,6 +277,16 @@
   <!-- RIGHT — Login form -->
   <div class="panel-right">
 
+    <!-- Already-signed-in banner (hidden until JS detects a session) -->
+    <div id="session-banner" style="display:none;background:#f0f4ff;border:1.5px solid #c7d7ff;border-radius:12px;padding:14px 16px;margin-bottom:20px;">
+      <div style="font-size:13px;color:#1a5cff;font-weight:600;margin-bottom:4px;">Already signed in</div>
+      <div style="font-size:13px;color:#444;margin-bottom:12px;">You're currently logged in as <strong id="banner-email"></strong></div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="continueSession()" style="flex:1;height:38px;background:#1a5cff;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Continue</button>
+        <button onclick="switchAccount()" style="flex:1;height:38px;background:#fff;color:#444;border:1.5px solid #e0e3e8;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Switch account</button>
+      </div>
+    </div>
+
     <div class="form-head">
       <div class="form-head__title">Sign in</div>
       <div class="form-head__sub">Enter your email and password to access your account</div>
@@ -402,6 +412,9 @@
     btn.disabled = true;
 
     const db = window.XANTEX_DB;
+    // Always clear any existing session before signing in so a stale
+    // session from a different account can never bleed through
+    try { await db.auth.signOut(); } catch(e) {}
     const { data: signInData, error } = await db.auth.signInWithPassword({
       email:    emailEl.value.trim(),
       password: pwEl.value,
@@ -446,13 +459,30 @@
     }
   }
 
-  // ── Redirect if already logged in ─────────────────────────
+  // ── Already-logged-in banner ──────────────────────────────
   (async () => {
     const db = window.XANTEX_DB;
     if (!db) return;
-    const { data: { session } } = await db.auth.getSession();
-    if (session) window.location.href = 'session.html';
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) return;
+      const banner = document.getElementById('session-banner');
+      const emailEl = document.getElementById('banner-email');
+      if (banner) {
+        emailEl.textContent = session.user.email || 'your account';
+        banner.style.display = 'block';
+      }
+    } catch(e) {}
   })();
+
+  async function continueSession() {
+    window.location.href = 'session.html';
+  }
+  async function switchAccount() {
+    const db = window.XANTEX_DB;
+    try { await db.auth.signOut(); } catch(e) {}
+    document.getElementById('session-banner').style.display = 'none';
+  }
 
   // ── Show suspended message from URL param ─────────────────
   (function() {

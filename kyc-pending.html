@@ -400,10 +400,10 @@
   const userId = session.user.id;
 
   // ── Load profile ───────────────────────────────────────────
-  let _kycStatus = 'pending', _userId = userId;
+  let _kycStatus = 'pending', _userId = userId, _profileCountry = '';
   try {
     const { data: prof } = await db.from('profiles')
-      .select('first_name,last_name,email,kyc_status,status')
+      .select('first_name,last_name,email,kyc_status,status,country')
       .eq('id', userId).maybeSingle();
 
     if (prof?.status === 'suspended') {
@@ -426,7 +426,6 @@
   } catch(e) {}
 
   // Check if any documents have been submitted yet
-  let _profileCountry = '';
   let _hasSubmission = false;
   try {
     const { data: subs } = await db.from('kyc_submissions').select('id').eq('user_id', userId).limit(1);

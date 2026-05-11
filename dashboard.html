@@ -492,6 +492,67 @@
       from { opacity: 0; transform: scale(0.95) translateY(12px); }
       to   { opacity: 1; transform: scale(1) translateY(0); }
     }
+
+    /* ── Genie effect (deposit modal only) ───────────────── */
+    .dep-modal {
+      animation: none;
+      transform-origin: center 85%;
+      will-change: clip-path, transform;
+    }
+    .dep-modal.genie-in  { animation: genieIn  0.54s cubic-bezier(0.34,1.1,0.64,1) both; }
+    .dep-modal.genie-out { animation: genieOut 0.36s cubic-bezier(0.4,0,0.8,1)     both; }
+
+    @keyframes genieIn {
+      0%  {
+        opacity: .7;
+        clip-path: polygon(48% 100%,52% 100%,52% 100%,48% 100%,48% 100%,52% 100%);
+        transform: scaleY(0.02);
+      }
+      18% {
+        opacity: 1;
+        clip-path: polygon(0% 0%,100% 0%,74% 50%,62% 100%,38% 100%,26% 50%);
+        transform: scaleY(0.58);
+      }
+      50% {
+        clip-path: polygon(0% 0%,100% 0%,90% 50%,82% 100%,18% 100%,10% 50%);
+        transform: scaleY(0.84);
+      }
+      78% {
+        clip-path: polygon(0% 0%,100% 0%,98% 50%,94% 100%,6% 100%,2% 50%);
+        transform: scaleY(0.97);
+      }
+      100% {
+        clip-path: polygon(0% 0%,100% 0%,100% 50%,100% 100%,0% 100%,0% 50%);
+        transform: scaleY(1);
+        opacity: 1;
+      }
+    }
+    @keyframes genieOut {
+      0%  {
+        clip-path: polygon(0% 0%,100% 0%,100% 50%,100% 100%,0% 100%,0% 50%);
+        transform: scaleY(1);
+        opacity: 1;
+      }
+      20% {
+        clip-path: polygon(0% 0%,100% 0%,98% 50%,94% 100%,6% 100%,2% 50%);
+        transform: scaleY(0.97);
+      }
+      50% {
+        clip-path: polygon(0% 0%,100% 0%,90% 50%,82% 100%,18% 100%,10% 50%);
+        transform: scaleY(0.84);
+        opacity: 1;
+      }
+      80% {
+        clip-path: polygon(0% 0%,100% 0%,74% 50%,62% 100%,38% 100%,26% 50%);
+        transform: scaleY(0.56);
+        opacity: .8;
+      }
+      100% {
+        clip-path: polygon(48% 100%,52% 100%,52% 100%,48% 100%,48% 100%,52% 100%);
+        transform: scaleY(0.02);
+        opacity: 0;
+      }
+    }
     .modal__head {
       display: flex; align-items: center; justify-content: space-between;
       padding: 20px 24px; border-bottom: 1px solid var(--border);
@@ -2370,18 +2431,44 @@
 
   // ── Modals ────────────────────────────────────────────────
   function openModal(id) {
-    document.getElementById('modal-' + id).classList.add('open');
+    const overlay = document.getElementById('modal-' + id);
+    if (id === 'deposit') {
+      const m = overlay.querySelector('.dep-modal');
+      m.classList.remove('genie-out');
+      overlay.classList.add('open');
+      void m.offsetWidth; // force reflow so animation restarts cleanly
+      m.classList.add('genie-in');
+      m.addEventListener('animationend', () => m.classList.remove('genie-in'), { once: true });
+    } else {
+      overlay.classList.add('open');
+    }
   }
   function closeModal(id) {
-    document.getElementById('modal-' + id).classList.remove('open');
+    const overlay = document.getElementById('modal-' + id);
+    if (id === 'deposit') {
+      const m = overlay.querySelector('.dep-modal');
+      m.classList.remove('genie-in');
+      m.classList.add('genie-out');
+      m.addEventListener('animationend', () => {
+        m.classList.remove('genie-out');
+        overlay.classList.remove('open');
+      }, { once: true });
+    } else {
+      overlay.classList.remove('open');
+    }
   }
   // Close on overlay click
   document.querySelectorAll('.modal-overlay').forEach(el => {
-    el.addEventListener('click', e => { if (e.target === el && !el.classList.contains('pin-persistent')) el.classList.remove('open'); });
+    el.addEventListener('click', e => {
+      if (e.target === el && !el.classList.contains('pin-persistent'))
+        closeModal(el.id.replace('modal-', ''));
+    });
   });
   // Close on Escape
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => { if (!el.classList.contains('pin-persistent')) el.classList.remove('open'); });
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => {
+      if (!el.classList.contains('pin-persistent')) closeModal(el.id.replace('modal-', ''));
+    });
   });
 
   // ── Portfolio SVG line chart ──────────────────────────────

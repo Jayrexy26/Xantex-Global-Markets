@@ -312,6 +312,14 @@
         </div>
 
         <div class="field">
+          <label>Phone Number</label>
+          <input type="tel" id="reup-phone" placeholder="+1 234 567 8900"
+            style="height:42px;border:1.5px solid var(--border);border-radius:8px;padding:0 12px;font-size:13px;font-family:inherit;color:var(--text);width:100%;outline:none;background:#fff;"
+            onfocus="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 3px rgba(26,92,255,0.1)'"
+            onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+        </div>
+
+        <div class="field">
           <label>Identity Document Type</label>
           <select id="id-type-reup">
             <option value="" disabled selected>Select document type…</option>
@@ -400,10 +408,10 @@
   const userId = session.user.id;
 
   // ── Load profile ───────────────────────────────────────────
-  let _kycStatus = 'pending', _userId = userId, _profileCountry = '';
+  let _kycStatus = 'pending', _userId = userId, _profileCountry = '', _profilePhone = '';
   try {
     const { data: prof } = await db.from('profiles')
-      .select('first_name,last_name,email,kyc_status,status,country')
+      .select('first_name,last_name,email,kyc_status,status,country,phone')
       .eq('id', userId).maybeSingle();
 
     if (prof?.status === 'suspended') {
@@ -414,6 +422,7 @@
 
     _kycStatus = prof?.kyc_status || 'pending';
     _profileCountry = prof?.country || '';
+    _profilePhone   = prof?.phone   || '';
 
     // Populate user strip
     const fn   = prof?.first_name || '';
@@ -444,10 +453,14 @@
     applyStatus(_kycStatus);
   }
 
-  // Pre-populate country if already on profile
+  // Pre-populate country and phone if already on profile
   if (_profileCountry) {
     const csel = document.getElementById('reup-country');
     if (csel) csel.value = _profileCountry;
+  }
+  if (_profilePhone) {
+    const ptel = document.getElementById('reup-phone');
+    if (ptel) ptel.value = _profilePhone;
   }
 
   // ── Poll every 30 s ────────────────────────────────────────
@@ -481,6 +494,7 @@
     const btn  = document.getElementById('reup-btn');
     const msg  = document.getElementById('reup-msg');
     const country    = document.getElementById('reup-country').value;
+    const phone      = document.getElementById('reup-phone').value.trim();
     const idType     = document.getElementById('id-type-reup').value;
     const frontFile  = document.getElementById('reup-front').files[0];
     const backFile   = document.getElementById('reup-back').files[0];
@@ -526,7 +540,7 @@
           selfie_url:    selfieUrl,
           status:        'pending',
         }),
-        db.from('profiles').update({ kyc_status: 'pending', ...(country && { country }) }).eq('id', _userId),
+        db.from('profiles').update({ kyc_status: 'pending', ...(country && { country }), ...(phone && { phone }) }).eq('id', _userId),
       ]);
 
       _kycStatus = 'pending';

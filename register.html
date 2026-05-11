@@ -794,6 +794,10 @@
     submitBtn.disabled = true;
 
     const db = window.XANTEX_DB;
+
+    // Sign out any existing session so it doesn't bleed into the new account
+    try { await db.auth.signOut(); } catch(e) {}
+
     const fullPhone = phoneCode + phone;
     const { data, error } = await db.auth.signUp({
       email,
@@ -816,12 +820,14 @@
       return;
     }
 
+    let session = null;
+
     if (data.user) {
       const userId  = data.user.id;
 
       // If signUp didn't return a session (email confirmation enabled), try signing in
       // immediately — if confirmation is off, signIn will succeed and give us a session
-      let session = data.session;
+      session = data.session;
       if (!session) {
         const { data: si } = await db.auth.signInWithPassword({ email, password });
         session = si?.session || null;

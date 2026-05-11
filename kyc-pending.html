@@ -261,12 +261,12 @@
           </div>
         </div>
         <div class="step-item">
-          <div class="step-item__dot step-item__dot--done">
+          <div class="step-item__dot step-item__dot--done" id="step-docs-dot">
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <div>
-            <div class="step-item__label">Documents Submitted</div>
-            <div class="step-item__sub">Your identity documents have been uploaded</div>
+            <div class="step-item__label" id="step-docs-label">Documents Submitted</div>
+            <div class="step-item__sub"   id="step-docs-sub">Your identity documents have been uploaded</div>
           </div>
         </div>
         <div class="step-item" id="step-review">
@@ -301,7 +301,7 @@
 
       <!-- Re-upload section (shown on rejection) -->
       <div class="reupload-section" id="reupload-section">
-        <div class="section-title">Re-submit Your Documents</div>
+        <div class="section-title" id="section-title-reup">Re-submit Your Documents</div>
 
         <div class="field">
           <label>Identity Document Type</label>
@@ -416,13 +416,24 @@
     document.getElementById('user-email').textContent  = prof?.email || session.user.email || '';
   } catch(e) {}
 
+  // Check if any documents have been submitted yet
+  let _hasSubmission = false;
+  try {
+    const { data: subs } = await db.from('kyc_submissions').select('id').eq('user_id', userId).limit(1);
+    _hasSubmission = !!(subs && subs.length > 0);
+  } catch(e) {}
+
   // If already verified, redirect straight to dashboard
   if (_kycStatus === 'verified') {
     showApproved();
     return;
   }
 
-  applyStatus(_kycStatus);
+  if (!_hasSubmission) {
+    applyNoSubmission();
+  } else {
+    applyStatus(_kycStatus);
+  }
 
   // ── Poll every 30 s ────────────────────────────────────────
   let _pollCount = 0;
@@ -562,6 +573,51 @@
       reupSection.classList.remove('visible');
       pollRow.style.display = '';
     }
+  }
+
+  function applyNoSubmission() {
+    const icon          = document.getElementById('status-icon');
+    const title         = document.getElementById('status-title');
+    const sub           = document.getElementById('status-sub');
+    const badge         = document.getElementById('kyc-badge');
+    const infoBox       = document.getElementById('info-box');
+    const reupSection   = document.getElementById('reupload-section');
+    const pollRow       = document.getElementById('poll-row');
+    const stepDocsDot   = document.getElementById('step-docs-dot');
+    const stepDocsLabel = document.getElementById('step-docs-label');
+    const stepDocsSub   = document.getElementById('step-docs-sub');
+    const reviewDot     = document.getElementById('step-review-dot');
+    const reviewLabel   = document.getElementById('step-review-label');
+    const reviewSub     = document.getElementById('step-review-sub');
+    const sectionTitle  = document.getElementById('section-title-reup');
+    const reupBtn       = document.getElementById('reup-btn');
+
+    icon.className = 'status-icon status-icon--pending';
+    icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>';
+    title.textContent = 'Complete Your Verification';
+    sub.textContent   = 'Upload your identity documents to unlock full access to your Xantex account.';
+    badge.className   = 'kyc-badge kyc-badge--pending'; badge.textContent = 'Action Required';
+
+    infoBox.className = 'info-box';
+    infoBox.innerHTML = '<strong>Why do we need this?</strong><br>KYC verification is required by financial regulations. It keeps your account safe and ensures compliance with international trading standards.';
+
+    if (stepDocsDot) {
+      stepDocsDot.className = 'step-item__dot step-item__dot--active';
+      stepDocsDot.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+    }
+    if (stepDocsLabel) stepDocsLabel.textContent = 'Submit Documents';
+    if (stepDocsSub)   stepDocsSub.textContent   = 'Upload your ID and selfie below';
+
+    reviewDot.className = 'step-item__dot step-item__dot--waiting';
+    reviewDot.textContent = '3';
+    reviewLabel.textContent = 'Compliance Review';
+    reviewSub.textContent   = 'Our team will review once documents are submitted';
+
+    if (sectionTitle) sectionTitle.textContent = 'Submit Your Documents';
+    if (reupBtn) reupBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Submit Documents';
+
+    reupSection.classList.add('visible');
+    pollRow.style.display = 'none';
   }
 
   function showApproved() {

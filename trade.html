@@ -345,8 +345,23 @@
     ============================================================ */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.open { display: flex; }
-    .modal { background: #fff; border-radius: 14px; width: 100%; max-width: 380px; overflow: hidden; animation: modalIn 0.2s ease; }
-    @keyframes modalIn { from { opacity:0; transform:scale(0.95) translateY(12px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    .modal { background: #fff; border-radius: 14px; width: 100%; max-width: 380px; overflow: hidden; transform-origin: center 85%; will-change: clip-path, transform; }
+    .modal.genie-in  { animation: genieIn  0.54s cubic-bezier(0.34,1.1,0.64,1) both; }
+    .modal.genie-out { animation: genieOut 0.36s cubic-bezier(0.4,0,0.8,1)     both; }
+    @keyframes genieIn {
+      0%  { opacity:.7; clip-path:polygon(48% 100%,52% 100%,52% 100%,48% 100%,48% 100%,52% 100%); transform:scaleY(0.02); }
+      18% { opacity:1;  clip-path:polygon(0% 0%,100% 0%,74% 50%,62% 100%,38% 100%,26% 50%);        transform:scaleY(0.58); }
+      50% {             clip-path:polygon(0% 0%,100% 0%,90% 50%,82% 100%,18% 100%,10% 50%);        transform:scaleY(0.84); }
+      78% {             clip-path:polygon(0% 0%,100% 0%,98% 50%,94% 100%,6%  100%,2%  50%);        transform:scaleY(0.97); }
+      100%{ opacity:1;  clip-path:polygon(0% 0%,100% 0%,100% 50%,100% 100%,0% 100%,0% 50%);        transform:scaleY(1);    }
+    }
+    @keyframes genieOut {
+      0%  { opacity:1;  clip-path:polygon(0% 0%,100% 0%,100% 50%,100% 100%,0% 100%,0% 50%);        transform:scaleY(1);    }
+      20% {             clip-path:polygon(0% 0%,100% 0%,98% 50%,94% 100%,6%  100%,2%  50%);        transform:scaleY(0.97); }
+      50% { opacity:1;  clip-path:polygon(0% 0%,100% 0%,90% 50%,82% 100%,18% 100%,10% 50%);        transform:scaleY(0.84); }
+      80% { opacity:.8; clip-path:polygon(0% 0%,100% 0%,74% 50%,62% 100%,38% 100%,26% 50%);        transform:scaleY(0.56); }
+      100%{ opacity:0;  clip-path:polygon(48% 100%,52% 100%,52% 100%,48% 100%,48% 100%,52% 100%); transform:scaleY(0.02); }
+    }
     .modal__head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); }
     .modal__title { font-size: 16px; font-weight: 700; }
     .modal__close { background: none; border: none; color: var(--muted); padding: 4px; }
@@ -980,7 +995,7 @@
   <div class="modal">
     <div class="modal__head">
       <div class="modal__title">Close Position</div>
-      <button class="modal__close" onclick="document.getElementById('modal-close').classList.remove('open')">
+      <button class="modal__close" onclick="closeModal('modal-close')">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
@@ -992,7 +1007,7 @@
       <p style="font-size:12px;color:var(--muted);background:var(--bg);padding:10px;border-radius:8px;">Are you sure you want to close this position at the current market price?</p>
     </div>
     <div class="modal__foot">
-      <button class="btn btn--outline" onclick="document.getElementById('modal-close').classList.remove('open')">Cancel</button>
+      <button class="btn btn--outline" onclick="closeModal('modal-close')">Cancel</button>
       <button class="btn btn--red" onclick="confirmClose()">Close Position</button>
     </div>
   </div>
@@ -1003,7 +1018,7 @@
   <div class="modal">
     <div class="modal__head">
       <div class="modal__title">Order Placed ✓</div>
-      <button class="modal__close" onclick="document.getElementById('modal-confirm').classList.remove('open')">
+      <button class="modal__close" onclick="closeModal('modal-confirm')">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
@@ -1017,7 +1032,7 @@
       </div>
     </div>
     <div class="modal__foot">
-      <button class="btn btn--green" style="width:100%;justify-content:center;" onclick="document.getElementById('modal-confirm').classList.remove('open')">Done</button>
+      <button class="btn btn--green" style="width:100%;justify-content:center;" onclick="closeModal('modal-confirm')">Done</button>
     </div>
   </div>
 </div>
@@ -1264,7 +1279,7 @@
       : document.getElementById('bid-price').textContent;
     document.getElementById('conf-title').textContent = `${side} ${sym}`;
     document.getElementById('conf-sub').textContent   = `${lots} lots at market price ${price}`;
-    document.getElementById('modal-confirm').classList.add('open');
+    openModal('modal-confirm');
   }
 
   // ── Close position modal ──────────────────────────────────
@@ -1274,10 +1289,10 @@
     const pnlEl = document.getElementById('mc-pnl');
     pnlEl.textContent = pnl;
     pnlEl.style.color = pnl.startsWith('+') ? 'var(--green)' : 'var(--red)';
-    document.getElementById('modal-close').classList.add('open');
+    openModal('modal-close');
   }
   function confirmClose() {
-    document.getElementById('modal-close').classList.remove('open');
+    closeModal('modal-close');
   }
 
   // ── Filter instruments ────────────────────────────────────
@@ -1301,12 +1316,31 @@
     }
   });
 
-  // ── Close modals on overlay click ─────────────────────────
+  // ── Genie modal open / close ──────────────────────────────
+  function openModal(id) {
+    const overlay = document.getElementById(id);
+    const m = overlay.querySelector('.modal');
+    m.classList.remove('genie-out');
+    overlay.classList.add('open');
+    void m.offsetWidth;
+    m.classList.add('genie-in');
+    m.addEventListener('animationend', () => m.classList.remove('genie-in'), { once: true });
+  }
+  function closeModal(id) {
+    const overlay = document.getElementById(id);
+    const m = overlay.querySelector('.modal');
+    m.classList.remove('genie-in');
+    m.classList.add('genie-out');
+    m.addEventListener('animationend', () => {
+      m.classList.remove('genie-out');
+      overlay.classList.remove('open');
+    }, { once: true });
+  }
   document.querySelectorAll('.modal-overlay').forEach(el => {
-    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+    el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => closeModal(el.id));
   });
 
   // pos-tab active state is managed by switchPosTab() in the auth script
@@ -1359,7 +1393,7 @@
     closeSheet();
     document.getElementById('conf-title').textContent = `${side} ${sym}`;
     document.getElementById('conf-sub').textContent   = `${lots} lots at market price ${price}`;
-    document.getElementById('modal-confirm').classList.add('open');
+    openModal('modal-confirm');
   }
   // ── Dark mode ─────────────────────────────────────────────
   const sunIcon  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;

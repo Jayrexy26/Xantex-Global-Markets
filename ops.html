@@ -300,8 +300,23 @@
     ============================================================ */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.open { display: flex; }
-    .modal { background: var(--white); border-radius: 14px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.2s ease; }
-    @keyframes modalIn { from { opacity:0; transform:scale(0.95) translateY(12px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    .modal { background: var(--white); border-radius: 14px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; transform-origin: center 85%; will-change: clip-path, transform; }
+    .modal.genie-in  { animation: genieIn  0.54s cubic-bezier(0.34,1.1,0.64,1) both; }
+    .modal.genie-out { animation: genieOut 0.36s cubic-bezier(0.4,0,0.8,1)     both; }
+    @keyframes genieIn {
+      0%  { opacity:.7; clip-path:polygon(48% 100%,52% 100%,52% 100%,48% 100%,48% 100%,52% 100%); transform:scaleY(0.02); }
+      18% { opacity:1;  clip-path:polygon(0% 0%,100% 0%,74% 50%,62% 100%,38% 100%,26% 50%);        transform:scaleY(0.58); }
+      50% {             clip-path:polygon(0% 0%,100% 0%,90% 50%,82% 100%,18% 100%,10% 50%);        transform:scaleY(0.84); }
+      78% {             clip-path:polygon(0% 0%,100% 0%,98% 50%,94% 100%,6%  100%,2%  50%);        transform:scaleY(0.97); }
+      100%{ opacity:1;  clip-path:polygon(0% 0%,100% 0%,100% 50%,100% 100%,0% 100%,0% 50%);        transform:scaleY(1);    }
+    }
+    @keyframes genieOut {
+      0%  { opacity:1;  clip-path:polygon(0% 0%,100% 0%,100% 50%,100% 100%,0% 100%,0% 50%);        transform:scaleY(1);    }
+      20% {             clip-path:polygon(0% 0%,100% 0%,98% 50%,94% 100%,6%  100%,2%  50%);        transform:scaleY(0.97); }
+      50% { opacity:1;  clip-path:polygon(0% 0%,100% 0%,90% 50%,82% 100%,18% 100%,10% 50%);        transform:scaleY(0.84); }
+      80% { opacity:.8; clip-path:polygon(0% 0%,100% 0%,74% 50%,62% 100%,38% 100%,26% 50%);        transform:scaleY(0.56); }
+      100%{ opacity:0;  clip-path:polygon(48% 100%,52% 100%,52% 100%,48% 100%,48% 100%,52% 100%); transform:scaleY(0.02); }
+    }
     .modal__head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--white); z-index: 1; }
     .modal__title { font-size: 16px; font-weight: 700; }
     .modal__close { background: none; border: none; color: var(--muted); padding: 4px; }
@@ -1509,13 +1524,30 @@
   }
 
   /* ── Modals ───────────────────────────────────────────────── */
-  function openModal(id)  { document.getElementById(id).classList.add('open'); }
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  function openModal(id) {
+    const overlay = document.getElementById(id);
+    const m = overlay.querySelector('.modal');
+    m.classList.remove('genie-out');
+    overlay.classList.add('open');
+    void m.offsetWidth;
+    m.classList.add('genie-in');
+    m.addEventListener('animationend', () => m.classList.remove('genie-in'), { once: true });
+  }
+  function closeModal(id) {
+    const overlay = document.getElementById(id);
+    const m = overlay.querySelector('.modal');
+    m.classList.remove('genie-in');
+    m.classList.add('genie-out');
+    m.addEventListener('animationend', () => {
+      m.classList.remove('genie-out');
+      overlay.classList.remove('open');
+    }, { once: true });
+  }
   document.querySelectorAll('.modal-overlay').forEach(el => {
-    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+    el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => closeModal(el.id));
   });
 
   /* ── Toast ────────────────────────────────────────────────── */

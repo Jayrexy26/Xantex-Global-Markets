@@ -84,9 +84,24 @@
     /* MODAL */
     .modal-overlay { display: none; position: fixed; top: 0; right: 0; bottom: 0; left: var(--sidebar-w); background: rgba(0,0,0,0.55); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.open { display: flex; }
-    .modal { background: #fff; border-radius: 14px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.2s ease; }
+    .modal { background: #fff; border-radius: 14px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; transform-origin: center 85%; will-change: clip-path, transform; }
     @media (max-width: 768px) { .modal-overlay { left: 0; } }
-    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal.genie-in  { animation: genieIn  0.54s cubic-bezier(0.34,1.1,0.64,1) both; }
+    .modal.genie-out { animation: genieOut 0.36s cubic-bezier(0.4,0,0.8,1)     both; }
+    @keyframes genieIn {
+      0%  { opacity:.7; clip-path:polygon(48% 100%,52% 100%,52% 100%,48% 100%,48% 100%,52% 100%); transform:scaleY(0.02); }
+      18% { opacity:1;  clip-path:polygon(0% 0%,100% 0%,74% 50%,62% 100%,38% 100%,26% 50%);        transform:scaleY(0.58); }
+      50% {             clip-path:polygon(0% 0%,100% 0%,90% 50%,82% 100%,18% 100%,10% 50%);        transform:scaleY(0.84); }
+      78% {             clip-path:polygon(0% 0%,100% 0%,98% 50%,94% 100%,6%  100%,2%  50%);        transform:scaleY(0.97); }
+      100%{ opacity:1;  clip-path:polygon(0% 0%,100% 0%,100% 50%,100% 100%,0% 100%,0% 50%);        transform:scaleY(1);    }
+    }
+    @keyframes genieOut {
+      0%  { opacity:1;  clip-path:polygon(0% 0%,100% 0%,100% 50%,100% 100%,0% 100%,0% 50%);        transform:scaleY(1);    }
+      20% {             clip-path:polygon(0% 0%,100% 0%,98% 50%,94% 100%,6%  100%,2%  50%);        transform:scaleY(0.97); }
+      50% { opacity:1;  clip-path:polygon(0% 0%,100% 0%,90% 50%,82% 100%,18% 100%,10% 50%);        transform:scaleY(0.84); }
+      80% { opacity:.8; clip-path:polygon(0% 0%,100% 0%,74% 50%,62% 100%,38% 100%,26% 50%);        transform:scaleY(0.56); }
+      100%{ opacity:0;  clip-path:polygon(48% 100%,52% 100%,52% 100%,48% 100%,48% 100%,52% 100%); transform:scaleY(0.02); }
+    }
     .modal__head { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
     .modal__title { font-size: 16px; font-weight: 700; }
     .modal__close { background: none; border: none; color: var(--muted); padding: 4px; }
@@ -681,7 +696,7 @@
                 </div>
               </div>
               <div class="sett-card__foot" id="kyc-upload-foot">
-                <button class="btn btn--primary" onclick="document.getElementById('modal-kyc-submit').classList.add('open')">
+                <button class="btn btn--primary" onclick="openModal('modal-kyc-submit')">
                   <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                   Upload Documents
                 </button>
@@ -711,7 +726,7 @@
   <div class="modal" style="max-width:480px;">
     <div class="modal__head">
       <div class="modal__title">Identity Verification</div>
-      <button class="modal__close" onclick="document.getElementById('modal-kyc-submit').classList.remove('open')">
+      <button class="modal__close" onclick="closeModal('modal-kyc-submit')">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
@@ -742,7 +757,7 @@
       <div id="kyc-submit-msg" style="font-size:13px;min-height:18px;"></div>
     </div>
     <div class="modal__foot">
-      <button class="btn btn--outline" onclick="document.getElementById('modal-kyc-submit').classList.remove('open')">Cancel</button>
+      <button class="btn btn--outline" onclick="closeModal('modal-kyc-submit')">Cancel</button>
       <button class="btn btn--primary" id="kyc-submit-btn" onclick="submitKYC()">Submit for Review</button>
     </div>
   </div>
@@ -1053,7 +1068,7 @@
         if (error) throw error;
         if (btn) { btn.disabled = false; btn.textContent = 'Submit for Review'; }
         if (msg) { msg.style.color = 'var(--green)'; msg.textContent = 'Documents submitted! We\'ll review within 24 hours.'; }
-        setTimeout(() => document.getElementById('modal-kyc-submit').classList.remove('open'), 2500);
+        setTimeout(() => closeModal('modal-kyc-submit'), 2500);
         _profile.kyc_status  = 'pending';
         _profile.avatar_url  = selfieUrl;
         location.reload();
@@ -1063,12 +1078,31 @@
       }
     };
 
-    // Close modal on overlay click / Escape
+    // ── Genie modal open / close ─────────────────────────────
+    function openModal(id) {
+      const overlay = document.getElementById(id);
+      const m = overlay.querySelector('.modal');
+      m.classList.remove('genie-out');
+      overlay.classList.add('open');
+      void m.offsetWidth;
+      m.classList.add('genie-in');
+      m.addEventListener('animationend', () => m.classList.remove('genie-in'), { once: true });
+    }
+    function closeModal(id) {
+      const overlay = document.getElementById(id);
+      const m = overlay.querySelector('.modal');
+      m.classList.remove('genie-in');
+      m.classList.add('genie-out');
+      m.addEventListener('animationend', () => {
+        m.classList.remove('genie-out');
+        overlay.classList.remove('open');
+      }, { once: true });
+    }
     document.getElementById('modal-kyc-submit').addEventListener('click', e => {
-      if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+      if (e.target === e.currentTarget) closeModal('modal-kyc-submit');
     });
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') document.getElementById('modal-kyc-submit').classList.remove('open');
+      if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => closeModal(el.id));
     });
 
     // Open the tab named in hash (e.g. settings.html#security)

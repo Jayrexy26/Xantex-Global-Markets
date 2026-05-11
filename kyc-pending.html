@@ -567,6 +567,7 @@
   function showApproved() {
     clearInterval(window._kycPollInterval);
     document.getElementById('redirect-overlay').classList.add('visible');
+    try { sessionStorage.setItem('xantex_pin_ok', '1'); } catch(e) {}
     setTimeout(() => { window.location.href = 'dashboard.html'; }, 2500);
   }
   window._kycPollInterval = _pollInterval;

@@ -2651,7 +2651,7 @@ function savePreferences() {
   // ── KYC gate — unverified users must wait on kyc-pending ──
   try {
     const { data: kp } = await db.from('profiles').select('kyc_status').eq('id', userId).maybeSingle();
-    if (kp?.kyc_status !== 'verified') {
+    if (kp?.kyc_status && kp.kyc_status !== 'verified') {
       window.location.href = 'kyc-pending.html';
       return;
     }

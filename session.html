@@ -382,7 +382,7 @@
   } catch(e) {}
 
   // ── Suspend + KYC check ───────────────────────────────────
-  let _kycStatus = 'pending';
+  let _kycStatus = 'verified';
   try {
     const { data: prof } = await db.from('profiles').select('status,kyc_status').eq('id', userId).maybeSingle();
     if (prof?.status === 'suspended') {
@@ -391,7 +391,7 @@
       window.location.href = 'login.html?suspended=1';
       return;
     }
-    _kycStatus = prof?.kyc_status || 'pending';
+    _kycStatus = prof?.kyc_status || 'verified';
   } catch(e) {}
 
   // ── Load profile for display ──────────────────────────────

@@ -842,47 +842,53 @@
           kyc_status:    'pending',
         }).eq('id', userId);
 
-        try {
-          let frontUrl = null, backUrl = null, selfieUrl = null;
+        let frontUrl = null, backUrl = null, selfieUrl = null;
 
           if (idFile) {
             const ext = idFile.name.split('.').pop().toLowerCase();
             const { error: e } = await db.storage.from('kyc-docs').upload(`${userId}/id-front.${ext}`, idFile, { upsert: true });
-            if (!e) frontUrl = `${userId}/id-front.${ext}`;
+            if (e) console.error('KYC front upload error:', e.message);
+            else frontUrl = `${userId}/id-front.${ext}`;
           }
 
-          const idBackFile = document.getElementById('upload-id-back').files[0];
-          if (idBackFile) {
-            const ext = idBackFile.name.split('.').pop().toLowerCase();
-            const { error: e } = await db.storage.from('kyc-docs').upload(`${userId}/id-back.${ext}`, idBackFile, { upsert: true });
-            if (!e) backUrl = `${userId}/id-back.${ext}`;
-          }
-
-          const selfieFile = document.getElementById('upload-selfie').files[0];
-          if (selfieFile) {
-            const ext        = selfieFile.name.split('.').pop().toLowerCase();
-            const avatarPath = `${userId}/avatar.${ext}`;
-            const { error: e } = await db.storage.from('avatars').upload(avatarPath, selfieFile, { upsert: true });
-            if (!e) {
-              const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(avatarPath);
-              selfieUrl = publicUrl;
-              await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId);
+          try {
+            const idBackFile = document.getElementById('upload-id-back').files[0];
+            if (idBackFile) {
+              const ext = idBackFile.name.split('.').pop().toLowerCase();
+              const { error: e } = await db.storage.from('kyc-docs').upload(`${userId}/id-back.${ext}`, idBackFile, { upsert: true });
+              if (e) console.error('KYC back upload error:', e.message);
+              else backUrl = `${userId}/id-back.${ext}`;
             }
-          }
+          } catch(e) { console.error('KYC back upload threw:', e); }
 
-          if (frontUrl || backUrl || selfieUrl) {
-            await db.from('kyc_submissions').insert({
-              user_id:      userId,
+          try {
+            const selfieFile = document.getElementById('upload-selfie').files[0];
+            if (selfieFile) {
+              const ext        = selfieFile.name.split('.').pop().toLowerCase();
+              const avatarPath = `${userId}/avatar.${ext}`;
+              const { error: e } = await db.storage.from('avatars').upload(avatarPath, selfieFile, { upsert: true });
+              if (e) console.error('Selfie upload error:', e.message);
+              else {
+                const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(avatarPath);
+                selfieUrl = publicUrl;
+                await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId);
+              }
+            }
+          } catch(e) { console.error('Selfie upload threw:', e); }
+
+          // Always insert the submission row so admin can see pending applications
+          // even if file uploads partially failed
+          try {
+            const { error: insErr } = await db.from('kyc_submissions').insert({
+              user_id:       userId,
               document_type: idType || 'National ID',
-              front_url:    frontUrl,
-              back_url:     backUrl,
-              selfie_url:   selfieUrl,
-              status:       'pending',
+              front_url:     frontUrl,
+              back_url:      backUrl,
+              selfie_url:    selfieUrl,
+              status:        'pending',
             });
-          }
-        } catch (kycErr) {
-          console.error('KYC upload error:', kycErr);
-        }
+            if (insErr) console.error('kyc_submissions insert error:', insErr.message);
+          } catch(insEx) { console.error('kyc_submissions insert threw:', insEx); }
       }
       // If no session (email confirmation required), the trigger already saved
       // phone/country/DOB from signUp metadata — uploads will be available after login

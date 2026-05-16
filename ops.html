@@ -3496,7 +3496,7 @@ window.ptLoadUser = async function(userId) {
 
   const { data: rows, error } = await db
     .from('profit_targets')
-    .select('*, profit_target_trades(percentage_delta)')
+    .select('*')
     .eq('user_id', userId)
     .eq('is_active', true)
     .order('created_at', { ascending: false })
@@ -3515,8 +3515,15 @@ window.ptLoadUser = async function(userId) {
   }
 
   const target = rows[0];
+
+  // Fetch trades separately to avoid nested-select RLS issues
+  const { data: trades } = await db
+    .from('profit_target_trades')
+    .select('percentage_delta')
+    .eq('target_id', target.id);
+
   const pct = Math.round(
-    (target.profit_target_trades || []).reduce((s, tr) => s + Number(tr.percentage_delta), 0) * 100
+    (trades || []).reduce((s, tr) => s + Number(tr.percentage_delta), 0) * 100
   ) / 100;
   target.current_percentage = pct;
   _ptCurrentTarget = target;
@@ -3646,14 +3653,15 @@ window.ptSaveTrade = async function() {
     if (!pct || pct === 0) { showToast('Enter a percentage', 'error'); return; }
     pctDelta = pct;
   }
-  const { error } = await db.from('profit_target_trades').insert({
+  const { data: inserted, error } = await db.from('profit_target_trades').insert({
     target_id:        _ptCurrentTarget.id,
     user_id:          _ptCurrentTarget.user_id,
     amount:           dollarAmt,
     percentage_delta: pctDelta,
     note:             note || null,
-  });
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  }).select();
+  if (error) { showToast('Error saving trade: ' + error.message, 'error'); return; }
+  if (!inserted?.length) { showToast('Trade not saved — check permissions', 'error'); return; }
   await db.from('profit_targets').update({ updated_at: new Date().toISOString() }).eq('id', _ptCurrentTarget.id);
   closeModal('modal-pt-trade');
   showToast('Trade entry added', 'success');

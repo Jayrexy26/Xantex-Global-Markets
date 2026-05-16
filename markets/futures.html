@@ -154,6 +154,17 @@ footer{background:#0d1120}
 @media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){.features-grid{grid-template-columns:1fr}.footer-disclaimer__inner{grid-template-columns:1fr}.contact-grid{grid-template-columns:1fr}.award-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}.page-hero{padding:60px 16px}.award-grid{grid-template-columns:1fr}.comp-table{font-size:12px}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+.page-hero__eyebrow{opacity:0;animation:slideRight .6s ease forwards;animation-delay:.15s}
+.page-hero__h1{opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.35s}
+.page-hero__sub{opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.55s}
+.page-hero__actions{opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.75s}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal--left{transform:translateX(-32px)}
+.reveal--scale{transform:scale(.93) translateY(16px)}
+.reveal.visible{opacity:1;transform:translateY(0) translateX(0) scale(1)}
 </style>
 </head>
 <body>
@@ -327,6 +338,25 @@ footer{background:#0d1120}
   </div>
 </footer>
 
+<script>
+// Scroll reveal
+const _revealEls = document.querySelectorAll(
+  '.section__eyebrow,.section__h2,.section__lead,.feature-card,.stats-bar__item,.step-item,.cta-section__h2,.cta-section__sub,.cta-section__actions,.footer-col'
+);
+_revealEls.forEach(el => {
+  el.classList.add('reveal');
+  if (el.classList.contains('footer-col')) el.classList.add('reveal--scale');
+  const siblings = el.parentElement
+    ? [...el.parentElement.children].filter(c => c.classList.contains(el.classList[0]))
+    : [];
+  const idx = siblings.indexOf(el);
+  if (idx > 0) el.style.transitionDelay = (idx * 0.09) + 's';
+});
+const _revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); _revealObs.unobserve(e.target); } });
+}, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+document.querySelectorAll('.reveal').forEach(el => _revealObs.observe(el));
+</script>
 <script>
 const _nBtns=document.querySelectorAll('.navbar__nav-btn[data-dropdown]');
 function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=document.getElementById(b.dataset.dropdown);if(d)d.classList.remove('open')})}

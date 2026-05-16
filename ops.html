@@ -3468,18 +3468,22 @@ function ptUpdateRing(pct) {
 }
 
 window.ptPopulateUsers = async function() {
-  try {
-    const { users } = await adminApiCall('get_users');
-    const opts = '<option value="">— Select a user —</option>' +
-      (users || []).map(u => {
-        const name = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email;
-        return `<option value="${u.id}">${name} (${u.email})</option>`;
-      }).join('');
-    ['pt-user-sel', 'pt-set-user'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.innerHTML = opts;
-    });
-  } catch(e) { /* silent */ }
+  const db = window.XANTEX_DB;
+  if (!db) return;
+  const { data: users, error } = await db
+    .from('profiles')
+    .select('id, email, first_name, last_name')
+    .order('created_at', { ascending: false });
+  if (error || !users?.length) return;
+  const opts = '<option value="">— Select a user —</option>' +
+    users.map(u => {
+      const name = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email;
+      return `<option value="${u.id}">${name} (${u.email})</option>`;
+    }).join('');
+  ['pt-user-sel', 'pt-set-user'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = opts;
+  });
 };
 
 window.ptLoadUser = async function(userId) {

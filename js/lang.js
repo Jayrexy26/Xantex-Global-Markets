@@ -1,46 +1,51 @@
 (function(){
   var LANGS=[
-    {code:'en',flag:'🇬🇧',name:'English',eng:'English',label:'EN'},
-    {code:'es',flag:'🇪🇸',name:'Español',eng:'Spanish',label:'ES'},
-    {code:'pt',flag:'🇵🇹',name:'Português',eng:'Portuguese',label:'PT'},
-    {code:'fr',flag:'🇫🇷',name:'Français',eng:'French',label:'FR'},
-    {code:'de',flag:'🇩🇪',name:'Deutsch',eng:'German',label:'DE'},
-    {code:'ar',flag:'🇸🇦',name:'العربية',eng:'Arabic',label:'AR'},
-    {code:'id',flag:'🇮🇩',name:'Bahasa Indonesia',eng:'Indonesian',label:'ID'},
-    {code:'ms',flag:'🇲🇾',name:'Bahasa Melayu',eng:'Malay',label:'MS'},
-    {code:'ko',flag:'🇰🇷',name:'한국어',eng:'Korean',label:'KO'},
-    {code:'zh-CN',flag:'🇨🇳',name:'中文简体',eng:'Chinese (Simplified)',label:'ZH'},
-    {code:'zh-TW',flag:'🇹🇼',name:'中文繁體',eng:'Chinese (Traditional)',label:'ZH'},
-    {code:'vi',flag:'🇻🇳',name:'Tiếng Việt',eng:'Vietnamese',label:'VI'},
-    {code:'th',flag:'🇹🇭',name:'ไทย',eng:'Thai',label:'TH'},
-    {code:'hi',flag:'🇮🇳',name:'हिंदी',eng:'Hindi',label:'HI'},
-    {code:'uz',flag:'🇺🇿',name:'Oʻzbekcha',eng:'Uzbek',label:'UZ'},
-    {code:'uk',flag:'🇺🇦',name:'Українська',eng:'Ukrainian',label:'UK'},
-    {code:'ja',flag:'🇯🇵',name:'日本語',eng:'Japanese',label:'JA'},
-    {code:'tr',flag:'🇹🇷',name:'Türkçe',eng:'Turkish',label:'TR'},
-    {code:'ru',flag:'🇷🇺',name:'Русский',eng:'Russian',label:'RU'},
-    {code:'it',flag:'🇮🇹',name:'Italiano',eng:'Italian',label:'IT'},
-    {code:'pl',flag:'🇵🇱',name:'Polski',eng:'Polish',label:'PL'},
-    {code:'nl',flag:'🇳🇱',name:'Nederlands',eng:'Dutch',label:'NL'},
-    {code:'ro',flag:'🇷🇴',name:'Română',eng:'Romanian',label:'RO'},
-    {code:'el',flag:'🇬🇷',name:'Ελληνικά',eng:'Greek',label:'EL'},
-    {code:'sv',flag:'🇸🇪',name:'Svenska',eng:'Swedish',label:'SV'},
-    {code:'no',flag:'🇳🇴',name:'Norsk',eng:'Norwegian',label:'NO'},
-    {code:'da',flag:'🇩🇰',name:'Dansk',eng:'Danish',label:'DA'},
-    {code:'fi',flag:'🇫🇮',name:'Suomi',eng:'Finnish',label:'FI'},
-    {code:'bn',flag:'🇧🇩',name:'বাংলা',eng:'Bengali',label:'BN'},
-    {code:'fa',flag:'🇮🇷',name:'فارسی',eng:'Persian',label:'FA'},
-    {code:'ur',flag:'🇵🇰',name:'اردو',eng:'Urdu',label:'UR'},
-    {code:'af',flag:'🇿🇦',name:'Afrikaans',eng:'Afrikaans',label:'AF'},
-    {code:'cs',flag:'🇨🇿',name:'Čeština',eng:'Czech',label:'CS'},
-    {code:'hu',flag:'🇭🇺',name:'Magyar',eng:'Hungarian',label:'HU'},
-    {code:'bg',flag:'🇧🇬',name:'Български',eng:'Bulgarian',label:'BG'},
-    {code:'sr',flag:'🇷🇸',name:'Srpski',eng:'Serbian',label:'SR'},
-    {code:'tl',flag:'🇵🇭',name:'Filipino',eng:'Filipino',label:'TL'},
-    {code:'sw',flag:'🇰🇪',name:'Kiswahili',eng:'Swahili',label:'SW'},
-    {code:'az',flag:'🇦🇿',name:'Azərbaycan',eng:'Azerbaijani',label:'AZ'},
-    {code:'ka',flag:'🇬🇪',name:'ქართული',eng:'Georgian',label:'KA'}
+    {code:'en', iso:'gb', name:'English',           eng:'English',              label:'EN'},
+    {code:'es', iso:'es', name:'Español',            eng:'Spanish',              label:'ES'},
+    {code:'pt', iso:'pt', name:'Português',          eng:'Portuguese',           label:'PT'},
+    {code:'fr', iso:'fr', name:'Français',           eng:'French',               label:'FR'},
+    {code:'de', iso:'de', name:'Deutsch',            eng:'German',               label:'DE'},
+    {code:'ar', iso:'sa', name:'العربية',            eng:'Arabic',               label:'AR'},
+    {code:'id', iso:'id', name:'Bahasa Indonesia',   eng:'Indonesian',           label:'ID'},
+    {code:'ms', iso:'my', name:'Bahasa Melayu',      eng:'Malay',                label:'MS'},
+    {code:'ko', iso:'kr', name:'한국어',              eng:'Korean',               label:'KO'},
+    {code:'zh-CN',iso:'cn',name:'中文简体',           eng:'Chinese (Simplified)', label:'ZH'},
+    {code:'zh-TW',iso:'tw',name:'中文繁體',           eng:'Chinese (Traditional)',label:'ZH'},
+    {code:'vi', iso:'vn', name:'Tiếng Việt',         eng:'Vietnamese',           label:'VI'},
+    {code:'th', iso:'th', name:'ไทย',                eng:'Thai',                 label:'TH'},
+    {code:'hi', iso:'in', name:'हिंदी',              eng:'Hindi',                label:'HI'},
+    {code:'uz', iso:'uz', name:'Oʻzbekcha',          eng:'Uzbek',                label:'UZ'},
+    {code:'uk', iso:'ua', name:'Українська',         eng:'Ukrainian',            label:'UK'},
+    {code:'ja', iso:'jp', name:'日本語',              eng:'Japanese',             label:'JA'},
+    {code:'tr', iso:'tr', name:'Türkçe',             eng:'Turkish',              label:'TR'},
+    {code:'ru', iso:'ru', name:'Русский',            eng:'Russian',              label:'RU'},
+    {code:'it', iso:'it', name:'Italiano',           eng:'Italian',              label:'IT'},
+    {code:'pl', iso:'pl', name:'Polski',             eng:'Polish',               label:'PL'},
+    {code:'nl', iso:'nl', name:'Nederlands',         eng:'Dutch',                label:'NL'},
+    {code:'ro', iso:'ro', name:'Română',             eng:'Romanian',             label:'RO'},
+    {code:'el', iso:'gr', name:'Ελληνικά',           eng:'Greek',                label:'EL'},
+    {code:'sv', iso:'se', name:'Svenska',            eng:'Swedish',              label:'SV'},
+    {code:'no', iso:'no', name:'Norsk',              eng:'Norwegian',            label:'NO'},
+    {code:'da', iso:'dk', name:'Dansk',              eng:'Danish',               label:'DA'},
+    {code:'fi', iso:'fi', name:'Suomi',              eng:'Finnish',              label:'FI'},
+    {code:'bn', iso:'bd', name:'বাংলা',              eng:'Bengali',              label:'BN'},
+    {code:'fa', iso:'ir', name:'فارسی',              eng:'Persian',              label:'FA'},
+    {code:'ur', iso:'pk', name:'اردو',               eng:'Urdu',                 label:'UR'},
+    {code:'af', iso:'za', name:'Afrikaans',          eng:'Afrikaans',            label:'AF'},
+    {code:'cs', iso:'cz', name:'Čeština',            eng:'Czech',                label:'CS'},
+    {code:'hu', iso:'hu', name:'Magyar',             eng:'Hungarian',            label:'HU'},
+    {code:'bg', iso:'bg', name:'Български',          eng:'Bulgarian',            label:'BG'},
+    {code:'sr', iso:'rs', name:'Srpski',             eng:'Serbian',              label:'SR'},
+    {code:'tl', iso:'ph', name:'Filipino',           eng:'Filipino',             label:'TL'},
+    {code:'sw', iso:'ke', name:'Kiswahili',          eng:'Swahili',              label:'SW'},
+    {code:'az', iso:'az', name:'Azərbaycan',         eng:'Azerbaijani',          label:'AZ'},
+    {code:'ka', iso:'ge', name:'ქართული',            eng:'Georgian',             label:'KA'}
   ];
+
+  function flagImg(iso,size){
+    size=size||20;
+    return '<img src="https://flagcdn.com/w'+size+'/'+iso+'.png" width="'+size+'" height="'+(Math.round(size*0.667))+'" alt="" style="border-radius:2px;flex-shrink:0;display:block;">';
+  }
 
   function getCookie(name){
     var m=document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');
@@ -58,7 +63,7 @@
     var active=LANGS.find(function(l){return l.code===lang;})||LANGS[0];
     return '<div class="lang-selector">'+
       '<button class="lang-btn" id="langBtn" aria-haspopup="true" aria-expanded="false">'+
-        '<span class="lang-globe">🌐</span>'+
+        flagImg(active.iso,18)+
         '<span id="langLabel">'+active.label+'</span>'+
         '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>'+
       '</button>'+
@@ -68,8 +73,8 @@
   function buildPanel(activeLang){
     var items=LANGS.map(function(l){
       var ac=l.code===activeLang?' active':'';
-      return '<button class="lang-item'+ac+'" data-code="'+l.code+'" data-label="'+l.label+'">'+
-        '<span class="lang-item__flag">'+l.flag+'</span>'+
+      return '<button class="lang-item'+ac+'" data-code="'+l.code+'" data-label="'+l.label+'" data-iso="'+l.iso+'">'+
+        '<span class="lang-item__flag">'+flagImg(l.iso,24)+'</span>'+
         '<span><span class="lang-item__name">'+l.name+'</span>'+
         '<span class="lang-item__eng">'+l.eng+'</span></span>'+
       '</button>';
@@ -138,7 +143,6 @@
     s.src='//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
     document.body.appendChild(s);
 
-    // Wire up toggle
     var btn=document.getElementById('langBtn');
     var panel=document.getElementById('langPanel');
 
@@ -157,16 +161,22 @@
       }
     });
 
-    // Language item clicks
     panel.addEventListener('click',function(e){
       var item=e.target.closest('.lang-item');
       if(!item)return;
       var code=item.dataset.code;
       var label=item.dataset.label;
+      var iso=item.dataset.iso;
 
-      // Update active states
       panel.querySelectorAll('.lang-item').forEach(function(el){el.classList.remove('active');});
       item.classList.add('active');
+
+      // Update button flag + label
+      var btnFlag=btn.querySelector('img');
+      if(btnFlag){
+        btnFlag.src='https://flagcdn.com/w18/'+iso+'.png';
+        btnFlag.width=18;
+      }
       document.getElementById('langLabel').textContent=label;
 
       panel.classList.remove('open');

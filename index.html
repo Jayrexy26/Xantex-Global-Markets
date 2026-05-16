@@ -42,10 +42,12 @@
     /* ============================================================
        NAVBAR
     ============================================================ */
-    .navbar {
+    header {
       position: sticky;
       top: 0;
       z-index: 100;
+    }
+    .navbar {
       background: var(--white);
       border-bottom: 1px solid var(--border);
       height: 56px;
@@ -845,12 +847,8 @@
         <a href="/"><img src="/images/logo.png" alt="Xantex logo" style="height:130px;width:auto;display:block;"></a>
       </div>
 
-      <div class="navbar__lang">
-        <img src="/images/flag-en.png" alt="English" width="20" height="14">
-        EN
-      </div>
 
-      <div class="navbar__nav">
+<div class="navbar__nav">
 
         <div class="navbar__nav-item">
           <button class="navbar__nav-btn" data-dropdown="dd-markets" aria-haspopup="true" aria-expanded="false">

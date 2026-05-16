@@ -2,7 +2,7 @@
 .lang-selector{display:flex;align-items:center;margin-left:8px}
 .lang-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:none;border:1.5px solid #e0e3e8;font-size:13px;font-weight:600;color:#111;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s,border-color .15s;white-space:nowrap;line-height:1}
 .lang-btn:hover,.lang-btn.open{background:#f4f6f9;border-color:#b0b8c8}
-.lang-btn .lang-globe{font-size:15px;line-height:1}
+.lang-btn img{border-radius:2px;display:block}
 .lang-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;flex-shrink:0;transition:transform .2s}
 .lang-btn.open svg{transform:rotate(180deg)}
 
@@ -19,7 +19,7 @@
 .lang-item:hover{background:#f4f6f9}
 .lang-item.active{background:#eef2ff}
 .lang-item.active .lang-item__name{color:#1a5cff}
-.lang-item__flag{font-size:22px;flex-shrink:0;line-height:1}
+.lang-item__flag{flex-shrink:0;line-height:1;display:flex;align-items:center}
 .lang-item__name{display:block;font-size:14px;font-weight:600;color:#111;line-height:1.25}
 .lang-item__eng{display:block;font-size:11px;color:#999;margin-top:1px}
 

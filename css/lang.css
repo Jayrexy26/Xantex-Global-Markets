@@ -1,0 +1,34 @@
+/* Language selector */
+.lang-selector{display:flex;align-items:center;margin-left:8px}
+.lang-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:none;border:1.5px solid #e0e3e8;font-size:13px;font-weight:600;color:#111;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s,border-color .15s;white-space:nowrap;line-height:1}
+.lang-btn:hover,.lang-btn.open{background:#f4f6f9;border-color:#b0b8c8}
+.lang-btn .lang-globe{font-size:15px;line-height:1}
+.lang-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;flex-shrink:0;transition:transform .2s}
+.lang-btn.open svg{transform:rotate(180deg)}
+
+/* Panel */
+.lang-panel{display:none;position:fixed;top:56px;left:0;right:0;background:#fff;border-bottom:1px solid #e0e3e8;box-shadow:0 8px 40px rgba(0,0,0,.14);z-index:99;overflow-y:auto;max-height:calc(100vh - 56px)}
+.lang-panel.open{display:block;animation:_langIn .15s ease}
+@keyframes _langIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.lang-panel__inner{max-width:1240px;margin:0 auto;padding:28px clamp(16px,4vw,60px) 32px}
+.lang-panel__title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#aaa;margin-bottom:18px}
+
+/* Grid */
+.lang-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.lang-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;border:none;background:none;cursor:pointer;text-align:left;width:100%;transition:background .12s;font-family:'Inter',sans-serif}
+.lang-item:hover{background:#f4f6f9}
+.lang-item.active{background:#eef2ff}
+.lang-item.active .lang-item__name{color:#1a5cff}
+.lang-item__flag{font-size:22px;flex-shrink:0;line-height:1}
+.lang-item__name{display:block;font-size:14px;font-weight:600;color:#111;line-height:1.25}
+.lang-item__eng{display:block;font-size:11px;color:#999;margin-top:1px}
+
+/* Hide Google Translate toolbar */
+.goog-te-banner-frame,.skiptranslate{display:none!important}
+body{top:0!important}
+#goog-gt-tt,.goog-te-balloon-frame{display:none!important}
+.goog-tooltip,.goog-tooltip:hover{display:none!important}
+.goog-text-highlight{background:none!important;box-shadow:none!important}
+
+@media(max-width:900px){.lang-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:580px){.lang-grid{grid-template-columns:repeat(2,1fr)}}

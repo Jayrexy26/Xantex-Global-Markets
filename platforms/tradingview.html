@@ -104,6 +104,7 @@ footer{background:#0d1120}
 .reveal--scale{transform:scale(.93) translateY(16px)}
 .reveal.visible{opacity:1;transform:translateY(0) translateX(0) scale(1)}
 </style>
+  <link rel="stylesheet" href="/css/lang.css">
 </head>
 <body>
 <header>
@@ -291,5 +292,6 @@ function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=doc
 _nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});
 document.addEventListener('click',_closeAll);
 </script>
+  <script src="/js/lang.js"></script>
 </body>
 </html>

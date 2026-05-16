@@ -129,6 +129,7 @@ footer{background:#0d1120}
   .footer-nav__grid{grid-template-columns:1fr}
 }
 </style>
+  <link rel="stylesheet" href="/css/lang.css">
 </head>
 <body>
 
@@ -434,5 +435,6 @@ document.addEventListener('click',_closeAll);
 const _ro=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');_ro.unobserve(x.target);}});},{threshold:.06,rootMargin:'0px 0px -20px 0px'});
 document.querySelectorAll('.reveal').forEach(el=>_ro.observe(el));
 </script>
+  <script src="/js/lang.js"></script>
 </body>
 </html>

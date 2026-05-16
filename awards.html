@@ -48,7 +48,7 @@ img{display:block;max-width:100%}
 .page-hero__title-wrap{display:flex;align-items:center;gap:16px;margin-bottom:16px;opacity:0;animation:slideRight .65s ease forwards;animation-delay:.15s}
 .page-hero__dot{width:14px;height:14px;background:#e60023;flex-shrink:0}
 .page-hero__h1{font-size:clamp(40px,7vw,72px);font-weight:700;letter-spacing:-2px;line-height:1.02}
-.page-hero__sub{font-size:clamp(15px,1.8vw,20px);font-weight:600;color:rgba(255,255,255,.85);max-width:560px;margin-bottom:0;line-height:1.55;opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.45s}
+.page-hero__sub{font-size:clamp(15px,1.8vw,20px);font-weight:600;color:rgba(255,255,255,.85);max-width:560px;line-height:1.55;opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.45s}
 @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideRight{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
 
@@ -63,31 +63,43 @@ img{display:block;max-width:100%}
 .section{padding:80px clamp(16px,4vw,60px)}
 .section__inner{max-width:1240px;margin:0 auto}
 .section--grey{background:#f7f8fa}
-.year-heading{font-size:clamp(28px,3vw,38px);font-weight:700;letter-spacing:-1px;color:#111;margin-bottom:32px;padding-bottom:16px;border-bottom:2px solid #e8eaed}
-.year-pill{display:inline-block;background:#1a5cff;color:#fff;font-size:13px;font-weight:700;letter-spacing:.04em;border-radius:6px;padding:4px 12px;margin-right:12px;vertical-align:middle}
+.year-block{margin-bottom:72px}
+.year-block:last-child{margin-bottom:0}
+.year-heading{font-size:clamp(26px,3vw,34px);font-weight:700;letter-spacing:-1px;color:#111;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid #e4e6ea;display:flex;align-items:center;gap:12px}
+.year-pill{display:inline-flex;align-items:center;background:#1a5cff;color:#fff;font-size:14px;font-weight:700;letter-spacing:.02em;border-radius:8px;padding:5px 14px;flex-shrink:0}
 
-/* ── Award cards ── */
-.award-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:64px}
-.award-card{background:#fff;border:1px solid #e8eaed;border-radius:16px;padding:32px 24px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0;transition:box-shadow .2s,transform .2s;cursor:default}
+/* ── Award grid ── */
+.award-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.award-grid--2col{grid-template-columns:repeat(2,1fr);max-width:520px}
+
+/* ── Award card with image ── */
+.award-card{background:#fff;border:1px solid #e4e6ea;border-radius:16px;padding:28px 20px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;transition:box-shadow .2s,transform .2s}
 .award-card:hover{box-shadow:0 12px 36px rgba(0,0,0,.1);transform:translateY(-3px)}
-.award-card__img-wrap{width:100%;height:180px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
-.award-card__img-wrap img{max-height:170px;max-width:100%;object-fit:contain}
-.award-card__title{font-size:15px;font-weight:700;color:#111;margin-bottom:6px;line-height:1.35}
-.award-card__org{font-size:13px;color:#666;margin-bottom:10px}
-.award-card__year-badge{font-size:11px;font-weight:700;background:#f0f4ff;color:#1a5cff;border-radius:20px;padding:3px 12px;letter-spacing:.04em}
+.award-card__img-wrap{width:100%;height:160px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.award-card__img-wrap img{max-height:155px;max-width:100%;object-fit:contain}
+.award-card__title{font-size:13px;font-weight:700;color:#111;margin-bottom:5px;line-height:1.35}
+.award-card__org{font-size:12px;color:#888;margin-bottom:10px}
+.award-card__year-badge{font-size:11px;font-weight:700;background:#eef2ff;color:#1a5cff;border-radius:20px;padding:3px 12px;letter-spacing:.03em;margin-top:auto}
+
+/* ── Placeholder card (no badge image yet) ── */
+.award-card--placeholder{background:linear-gradient(135deg,#0e1b3d 0%,#1a3060 100%);border:1px solid #1e3572}
+.award-card--placeholder .award-card__icon{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:26px}
+.award-card--placeholder .award-card__title{color:#fff;font-size:13px}
+.award-card--placeholder .award-card__org{color:rgba(255,255,255,.45)}
+.award-card--placeholder .award-card__year-badge{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
 
 /* ── Quote section ── */
 .quote-section{background:linear-gradient(135deg,#1a3fa8 0%,#0d2470 100%);padding:72px clamp(16px,4vw,60px);color:#fff;text-align:center}
 .quote-section__inner{max-width:760px;margin:0 auto}
-.quote-section__marks{font-size:64px;line-height:.8;color:rgba(255,255,255,.25);font-family:Georgia,serif;margin-bottom:8px}
-.quote-section__text{font-size:clamp(18px,2.2vw,24px);font-weight:600;line-height:1.6;color:#fff;margin-bottom:28px}
-.quote-section__attr{font-size:14px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.1em}
+.quote-section__marks{font-size:72px;line-height:.75;color:rgba(255,255,255,.2);font-family:Georgia,serif;margin-bottom:12px}
+.quote-section__text{font-size:clamp(17px,2.2vw,23px);font-weight:600;line-height:1.6;color:#fff;margin-bottom:28px}
+.quote-section__attr{font-size:13px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em}
 
-/* ── Need Help bar ── */
-.help-bar{background:#0d1120;padding:40px clamp(16px,4vw,60px)}
+/* ── Help bar ── */
+.help-bar{background:#0d1120;padding:44px clamp(16px,4vw,60px)}
 .help-bar__inner{max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
 .help-bar__text h3{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
-.help-bar__text p{font-size:14px;color:rgba(255,255,255,.5)}
+.help-bar__text p{font-size:14px;color:rgba(255,255,255,.45)}
 .help-bar__actions{display:flex;gap:12px;flex-wrap:wrap}
 
 /* ── Footer ── */
@@ -105,18 +117,20 @@ footer{background:#0d1120}
 .footer-disclaimer strong{color:rgba(255,255,255,.5)}
 .footer-disclaimer__copy{max-width:1240px;margin:0 auto;font-size:11px;color:rgba(255,255,255,.25)}
 
-/* ── Reveal animations ── */
+/* ── Reveal ── */
 .reveal{opacity:0;transform:translateY(32px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
 /* ── Responsive ── */
-@media(max-width:900px){
+@media(max-width:1100px){.award-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){
   .award-grid{grid-template-columns:repeat(2,1fr)}
+  .award-grid--2col{grid-template-columns:repeat(2,1fr);max-width:none}
   .footer-nav__grid{grid-template-columns:1fr 1fr}
   .help-bar__inner{flex-direction:column;text-align:center}
 }
-@media(max-width:600px){
-  .award-grid{grid-template-columns:1fr}
+@media(max-width:480px){
+  .award-grid,.award-grid--2col{grid-template-columns:1fr}
   .footer-disclaimer__inner{grid-template-columns:1fr}
   .footer-nav__grid{grid-template-columns:1fr}
 }
@@ -182,105 +196,179 @@ footer{background:#0d1120}
 <!-- Stats bar -->
 <div class="stats-bar">
   <div class="stats-bar__inner">
-    <div class="stats-bar__item reveal"><div class="stats-bar__value">10+</div><div class="stats-bar__label">Awards Won</div></div>
+    <div class="stats-bar__item reveal"><div class="stats-bar__value">16+</div><div class="stats-bar__label">Awards Won</div></div>
     <div class="stats-bar__item reveal"><div class="stats-bar__value">2024–2025</div><div class="stats-bar__label">Consecutive Years</div></div>
-    <div class="stats-bar__item reveal"><div class="stats-bar__value">4</div><div class="stats-bar__label">Awarding Bodies</div></div>
+    <div class="stats-bar__item reveal"><div class="stats-bar__value">5+</div><div class="stats-bar__label">Awarding Bodies</div></div>
     <div class="stats-bar__item reveal"><div class="stats-bar__value">Global</div><div class="stats-bar__label">Recognition</div></div>
   </div>
 </div>
 
-<!-- Awards sections -->
+<!-- Awards -->
 <section class="section section--grey">
   <div class="section__inner">
 
     <!-- 2025 -->
-    <div class="year-heading reveal"><span class="year-pill">2025</span>Awards</div>
-    <div class="award-grid">
+    <div class="year-block">
+      <div class="year-heading reveal"><span class="year-pill">2025</span> Awards</div>
+      <div class="award-grid">
 
-      <div class="award-card reveal">
-        <div class="award-card__img-wrap">
-          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/broker-of-the-year-2025.webp" alt="Broker of the Year Global 2025">
+        <!-- 1. Best Trading Conditions — no badge yet -->
+        <div class="award-card award-card--placeholder reveal">
+          <div class="award-card__icon">&#127942;</div>
+          <div class="award-card__title">Best Trading Conditions</div>
+          <div class="award-card__org">&nbsp;</div>
+          <div class="award-card__year-badge">2025</div>
         </div>
-        <div class="award-card__title">Broker of the Year — Global</div>
-        <div class="award-card__org">UFAwards</div>
-        <div class="award-card__year-badge">2025</div>
-      </div>
 
-      <div class="award-card reveal">
-        <div class="award-card__img-wrap">
-          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/best-trading-experience-2025.webp" alt="Best Trading Experience LATAM 2025">
+        <!-- 2. Best Trading Conditions For Professional Clients — no badge yet -->
+        <div class="award-card award-card--placeholder reveal">
+          <div class="award-card__icon">&#127942;</div>
+          <div class="award-card__title">Best Trading Conditions For Professional Clients</div>
+          <div class="award-card__org">&nbsp;</div>
+          <div class="award-card__year-badge">2025</div>
         </div>
-        <div class="award-card__title">Best Trading Experience — LATAM</div>
-        <div class="award-card__org">UFAwards</div>
-        <div class="award-card__year-badge">2025</div>
-      </div>
 
-      <div class="award-card reveal">
-        <div class="award-card__img-wrap">
-          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/most-transparent-broker-2025-a.webp" alt="Most Transparent Broker 2025">
+        <!-- 3. 5 Star App -->
+        <div class="award-card reveal">
+          <div class="award-card__img-wrap">
+            <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/5-star-app-2025.webp" alt="5 Star App 2025">
+          </div>
+          <div class="award-card__title">5 Star App</div>
+          <div class="award-card__org">Investors' Chronicle &amp; Financial Times</div>
+          <div class="award-card__year-badge">2025</div>
         </div>
-        <div class="award-card__title">Most Transparent Broker</div>
-        <div class="award-card__org">Money Expo India</div>
-        <div class="award-card__year-badge">2025</div>
-      </div>
 
-      <div class="award-card reveal">
-        <div class="award-card__img-wrap">
-          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/most-transparent-broker-2025-b.webp" alt="Most Transparent Broker 2025">
+        <!-- 4. 5 Star Selective Platform -->
+        <div class="award-card reveal">
+          <div class="award-card__img-wrap">
+            <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/5-star-selective-platform-badge.webp" alt="5 Star Selective Platform 2025">
+          </div>
+          <div class="award-card__title">5 Star Selective Platform</div>
+          <div class="award-card__org">Investors' Chronicle &amp; Financial Times</div>
+          <div class="award-card__year-badge">2025</div>
         </div>
-        <div class="award-card__title">Most Transparent Broker — Global</div>
-        <div class="award-card__org">Money Expo India</div>
-        <div class="award-card__year-badge">2025</div>
-      </div>
 
-      <div class="award-card reveal">
-        <div class="award-card__img-wrap">
-          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/5-star-app-2025.webp" alt="5 Star Winner App 2025">
+        <!-- 5. Best Liquidity Provider — no badge yet -->
+        <div class="award-card award-card--placeholder reveal">
+          <div class="award-card__icon">&#127942;</div>
+          <div class="award-card__title">Best Liquidity Provider</div>
+          <div class="award-card__org">&nbsp;</div>
+          <div class="award-card__year-badge">2025</div>
         </div>
-        <div class="award-card__title">5 Star Winner — App</div>
-        <div class="award-card__org">Investors' Chronicle &amp; Financial Times</div>
-        <div class="award-card__year-badge">2025</div>
-      </div>
 
-      <div class="award-card reveal">
-        <div class="award-card__img-wrap">
-          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/5-star-selective-platform-badge.webp" alt="5 Star Winner Selective Platform 2025">
+        <!-- 6. Best Mobile Trading App — no badge yet -->
+        <div class="award-card award-card--placeholder reveal">
+          <div class="award-card__icon">&#127942;</div>
+          <div class="award-card__title">Best Mobile Trading App</div>
+          <div class="award-card__org">&nbsp;</div>
+          <div class="award-card__year-badge">2025</div>
         </div>
-        <div class="award-card__title">5 Star Winner — Selective Platform</div>
-        <div class="award-card__org">Investors' Chronicle &amp; Financial Times</div>
-        <div class="award-card__year-badge">2025</div>
-      </div>
 
+        <!-- 7. Most Transparent Broker -->
+        <div class="award-card reveal">
+          <div class="award-card__img-wrap">
+            <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/most-transparent-broker-2025-b.webp" alt="Most Transparent Broker 2025">
+          </div>
+          <div class="award-card__title">Most Transparent Broker</div>
+          <div class="award-card__org">Money Expo India</div>
+          <div class="award-card__year-badge">2025</div>
+        </div>
+
+        <!-- 8. Best International Broker — no badge yet -->
+        <div class="award-card award-card--placeholder reveal">
+          <div class="award-card__icon">&#127942;</div>
+          <div class="award-card__title">Best International Broker</div>
+          <div class="award-card__org">&nbsp;</div>
+          <div class="award-card__year-badge">2025</div>
+        </div>
+
+        <!-- 9. Best Customer Service — no badge yet -->
+        <div class="award-card award-card--placeholder reveal">
+          <div class="award-card__icon">&#127942;</div>
+          <div class="award-card__title">Best Customer Service</div>
+          <div class="award-card__org">&nbsp;</div>
+          <div class="award-card__year-badge">2025</div>
+        </div>
+
+        <!-- 10. Broker of the Year -->
+        <div class="award-card reveal">
+          <div class="award-card__img-wrap">
+            <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/broker-of-the-year-2025.webp" alt="Broker of the Year 2025">
+          </div>
+          <div class="award-card__title">Broker of the Year</div>
+          <div class="award-card__org">UFAwards</div>
+          <div class="award-card__year-badge">2025</div>
+        </div>
+
+        <!-- 11. Best Trading Experience -->
+        <div class="award-card reveal">
+          <div class="award-card__img-wrap">
+            <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/best-trading-experience-2025.webp" alt="Best Trading Experience 2025">
+          </div>
+          <div class="award-card__title">Best Trading Experience</div>
+          <div class="award-card__org">UFAwards</div>
+          <div class="award-card__year-badge">2025</div>
+        </div>
+
+      </div>
     </div>
 
     <!-- 2024 -->
-    <div class="year-heading reveal"><span class="year-pill">2024</span>Awards</div>
-    <div class="award-grid" style="grid-template-columns:repeat(2,1fr);max-width:560px;">
+    <div class="year-block">
+      <div class="year-heading reveal"><span class="year-pill">2024</span> Awards</div>
+      <div class="award-grid">
 
-      <div class="award-card reveal">
-        <div class="award-card__img-wrap">
-          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/most-reliable-broker-2024.webp" alt="Most Reliable Broker 2024">
+        <!-- 1. Best Professional Trading Conditions — no badge yet -->
+        <div class="award-card award-card--placeholder reveal">
+          <div class="award-card__icon">&#127942;</div>
+          <div class="award-card__title">Best Professional Trading Conditions</div>
+          <div class="award-card__org">&nbsp;</div>
+          <div class="award-card__year-badge">2024</div>
         </div>
-        <div class="award-card__title">Most Reliable Broker</div>
-        <div class="award-card__org">Professional Trader Awards</div>
-        <div class="award-card__year-badge">2024</div>
-      </div>
 
-      <div class="award-card reveal">
-        <div class="award-card__img-wrap">
-          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/5-star-app-2024.webp" alt="5 Star Winner App 2024">
+        <!-- 2. Most Reliable Broker -->
+        <div class="award-card reveal">
+          <div class="award-card__img-wrap">
+            <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/most-reliable-broker-2024.webp" alt="Most Reliable Broker 2024">
+          </div>
+          <div class="award-card__title">Most Reliable Broker</div>
+          <div class="award-card__org">Professional Trader Awards</div>
+          <div class="award-card__year-badge">2024</div>
         </div>
-        <div class="award-card__title">5 Star Winner — App</div>
-        <div class="award-card__org">Investors' Chronicle &amp; Financial Times</div>
-        <div class="award-card__year-badge">2024</div>
-      </div>
 
+        <!-- 3. 5 Star App -->
+        <div class="award-card reveal">
+          <div class="award-card__img-wrap">
+            <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/5-star-app-2024.webp" alt="5 Star App 2024">
+          </div>
+          <div class="award-card__title">5 Star App</div>
+          <div class="award-card__org">Investors' Chronicle &amp; Financial Times</div>
+          <div class="award-card__year-badge">2024</div>
+        </div>
+
+        <!-- 4. Best Regulated Global Broker — no badge yet -->
+        <div class="award-card award-card--placeholder reveal">
+          <div class="award-card__icon">&#127942;</div>
+          <div class="award-card__title">Best Regulated Global Broker</div>
+          <div class="award-card__org">&nbsp;</div>
+          <div class="award-card__year-badge">2024</div>
+        </div>
+
+        <!-- 5. Best Online Broker (MENA) — no badge yet -->
+        <div class="award-card award-card--placeholder reveal">
+          <div class="award-card__icon">&#127942;</div>
+          <div class="award-card__title">Best Online Broker (MENA)</div>
+          <div class="award-card__org">&nbsp;</div>
+          <div class="award-card__year-badge">2024</div>
+        </div>
+
+      </div>
     </div>
 
   </div>
 </section>
 
-<!-- Quote section -->
+<!-- Quote -->
 <div class="quote-section">
   <div class="quote-section__inner reveal">
     <div class="quote-section__marks">"</div>
@@ -289,7 +377,7 @@ footer{background:#0d1120}
   </div>
 </div>
 
-<!-- Need help bar -->
+<!-- Help bar -->
 <div class="help-bar">
   <div class="help-bar__inner">
     <div class="help-bar__text reveal">
@@ -331,7 +419,7 @@ function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=doc
 _nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});
 document.addEventListener('click',_closeAll);
 
-const _ro=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');_ro.unobserve(x.target);}});},{threshold:.08,rootMargin:'0px 0px -20px 0px'});
+const _ro=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');_ro.unobserve(x.target);}});},{threshold:.06,rootMargin:'0px 0px -20px 0px'});
 document.querySelectorAll('.reveal').forEach(el=>_ro.observe(el));
 </script>
 </body>

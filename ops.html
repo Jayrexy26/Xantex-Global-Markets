@@ -3432,18 +3432,6 @@ window.renderAll = async function() {
 /* ============================================================
    PROFIT TARGET MANAGER
 ============================================================ */
-const ADMIN_API_URL = 'https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/admin-api';
-
-async function adminApiCall(action, extra = {}) {
-  const res = await fetch(ADMIN_API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-secret': 'Driver112#' },
-    body: JSON.stringify({ action, ...extra }),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error || 'Admin API error');
-  return json;
-}
 
 let _ptCurrentTarget = null;
 let _ptTradeMode = 'dollar';
@@ -3501,74 +3489,83 @@ window.ptLoadUser = async function(userId) {
     return;
   }
 
-  emptyMsg.textContent = 'Loading…';
-  try {
-    const { targets } = await adminApiCall('get_profit_targets');
-    const target = (targets || []).find(t => t.user_id === userId);
+  emptyMsg.textContent   = 'Loading…';
+  emptyMsg.style.display = 'block';
+  display.style.display  = 'none';
 
-    if (!target) {
-      emptyMsg.textContent = 'No active profit target for this user. Use "Set Target" to create one.';
-      emptyMsg.style.display = 'block';
-      display.style.display  = 'none';
-      addBtn.style.display   = 'none';
-      deactBtn.style.display = 'none';
-      return;
-    }
+  const db = window.XANTEX_DB;
+  if (!db) return;
 
-    _ptCurrentTarget = target;
-    const pct = target.current_percentage || 0;
+  const { data: rows, error } = await db
+    .from('profit_targets')
+    .select('*, profit_target_trades(percentage_delta)')
+    .eq('user_id', userId)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(1);
 
-    document.getElementById('pt-info-label').textContent    = target.label || '(no label)';
-    document.getElementById('pt-info-amount').textContent   = fmtMoney(target.target_amount);
-    document.getElementById('pt-info-progress').textContent = pct.toFixed(2) + '%';
-    document.getElementById('pt-info-date').textContent     = fmtDate(target.created_at);
-
-    display.style.display  = 'block';
-    emptyMsg.style.display = 'none';
-    addBtn.style.display   = 'inline-flex';
-    deactBtn.style.display = 'inline-flex';
-
-    // slight delay so ring transition is visible
-    requestAnimationFrame(() => requestAnimationFrame(() => ptUpdateRing(pct)));
-
-    // Load trade entries
-    ptRenderTrades(target.id);
-  } catch(e) {
-    emptyMsg.textContent   = 'Error loading target: ' + e.message;
-    emptyMsg.style.display = 'block';
-    display.style.display  = 'none';
+  if (error) {
+    emptyMsg.textContent = 'Error: ' + error.message;
+    return;
   }
+
+  if (!rows?.length) {
+    emptyMsg.textContent = 'No active profit target for this user. Use "Set Target" to create one.';
+    addBtn.style.display   = 'none';
+    deactBtn.style.display = 'none';
+    return;
+  }
+
+  const target = rows[0];
+  const pct = Math.round(
+    (target.profit_target_trades || []).reduce((s, tr) => s + Number(tr.percentage_delta), 0) * 100
+  ) / 100;
+  target.current_percentage = pct;
+  _ptCurrentTarget = target;
+
+  document.getElementById('pt-info-label').textContent    = target.label || '(no label)';
+  document.getElementById('pt-info-amount').textContent   = fmtMoney(target.target_amount);
+  document.getElementById('pt-info-progress').textContent = pct.toFixed(2) + '%';
+  document.getElementById('pt-info-date').textContent     = fmtDate(target.created_at);
+
+  display.style.display  = 'block';
+  emptyMsg.style.display = 'none';
+  addBtn.style.display   = 'inline-flex';
+  deactBtn.style.display = 'inline-flex';
+
+  requestAnimationFrame(() => requestAnimationFrame(() => ptUpdateRing(pct)));
+  ptRenderTrades(target.id);
 };
 
 async function ptRenderTrades(targetId) {
   const wrap = document.getElementById('pt-trades-wrap');
   if (!wrap) return;
   wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">Loading entries…</p>';
-  try {
-    const { trades } = await adminApiCall('get_target_trades', { target_id: targetId });
-    if (!trades?.length) {
-      wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">No trade entries yet.</p>';
-      return;
-    }
-    wrap.innerHTML = `<div style="overflow-x:auto;">
-      <table class="data-table">
-        <thead><tr>
-          <th>Date</th><th>Delta %</th><th>Amount</th><th>Note</th><th>Actions</th>
-        </tr></thead>
-        <tbody>
-          ${trades.map(tr => `<tr>
-            <td>${fmtDate(tr.created_at)}</td>
-            <td><span style="color:${Number(tr.percentage_delta)>=0?'var(--green)':'var(--red)'};font-weight:600;">${Number(tr.percentage_delta)>=0?'+':''}${Number(tr.percentage_delta).toFixed(2)}%</span></td>
-            <td>${tr.amount != null ? fmtMoney(tr.amount) : '—'}</td>
-            <td style="color:var(--muted);">${tr.note || '—'}</td>
-            <td><button class="btn btn--red" style="font-size:11px;padding:4px 10px;" onclick="ptDeleteTrade('${tr.id}','${targetId}')">Delete</button></td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>`;
-  } catch(e) {
-    wrap.innerHTML = `<p style="color:var(--muted);font-size:13px;">Error: ${e.message}</p>`;
-  }
+  const db = window.XANTEX_DB;
+  if (!db) return;
+  const { data: trades, error } = await db
+    .from('profit_target_trades')
+    .select('*')
+    .eq('target_id', targetId)
+    .order('created_at', { ascending: false });
+  if (error) { wrap.innerHTML = `<p style="color:var(--muted);font-size:13px;">Error: ${error.message}</p>`; return; }
+  if (!trades?.length) { wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">No trade entries yet.</p>'; return; }
+  wrap.innerHTML = `<div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead><tr>
+        <th>Date</th><th>Delta %</th><th>Amount</th><th>Note</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+        ${trades.map(tr => `<tr>
+          <td>${fmtDate(tr.created_at)}</td>
+          <td><span style="color:${Number(tr.percentage_delta)>=0?'var(--green)':'var(--red)'};font-weight:600;">${Number(tr.percentage_delta)>=0?'+':''}${Number(tr.percentage_delta).toFixed(2)}%</span></td>
+          <td>${tr.amount != null ? fmtMoney(tr.amount) : '—'}</td>
+          <td style="color:var(--muted);">${tr.note || '—'}</td>
+          <td><button class="btn btn--red" style="font-size:11px;padding:4px 10px;" onclick="ptDeleteTrade('${tr.id}','${targetId}')">Delete</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
 }
 
 window.ptOpenSetModal = function() {
@@ -3587,15 +3584,19 @@ window.ptSaveTarget = async function() {
   const label  = document.getElementById('pt-set-label')?.value?.trim();
   if (!userId) { showToast('Select a user', 'error'); return; }
   if (!amount || Number(amount) <= 0) { showToast('Enter a valid target amount', 'error'); return; }
-  try {
-    await adminApiCall('set_profit_target', { user_id: userId, target_amount: Number(amount), label: label || null });
-    closeModal('modal-pt-set');
-    showToast('Profit target set', 'success');
-    // Sync card user select and reload
-    const userSel = document.getElementById('pt-user-sel');
-    if (userSel) { userSel.value = userId; }
-    ptLoadUser(userId);
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+  const db = window.XANTEX_DB;
+  if (!db) return;
+  await db.from('profit_targets')
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq('user_id', userId).eq('is_active', true);
+  const { error } = await db.from('profit_targets')
+    .insert({ user_id: userId, target_amount: Number(amount), label: label || null, is_active: true });
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  closeModal('modal-pt-set');
+  showToast('Profit target set', 'success');
+  const userSel = document.getElementById('pt-user-sel');
+  if (userSel) userSel.value = userId;
+  ptLoadUser(userId);
 };
 
 window.ptOpenAddTrade = function() {
@@ -3634,48 +3635,54 @@ window.ptSetTradeMode = function(mode) {
 
 window.ptSaveTrade = async function() {
   if (!_ptCurrentTarget) return;
+  const db   = window.XANTEX_DB; if (!db) return;
   const note = document.getElementById('pt-trade-note')?.value?.trim();
-  const payload = {
-    target_id: _ptCurrentTarget.id,
-    user_id:   _ptCurrentTarget.user_id,
-    note: note || null,
-  };
+  let pctDelta, dollarAmt = null;
   if (_ptTradeMode === 'dollar') {
-    const amt = document.getElementById('pt-trade-amount')?.value;
-    if (!amt || Number(amt) === 0) { showToast('Enter a dollar amount', 'error'); return; }
-    payload.amount = Number(amt);
+    const amt = parseFloat(document.getElementById('pt-trade-amount')?.value);
+    if (!amt || amt === 0) { showToast('Enter a dollar amount', 'error'); return; }
+    dollarAmt = amt;
+    pctDelta  = (amt / Number(_ptCurrentTarget.target_amount)) * 100;
   } else {
-    const pct = document.getElementById('pt-trade-pct')?.value;
-    if (!pct || Number(pct) === 0) { showToast('Enter a percentage', 'error'); return; }
-    payload.percentage_delta = Number(pct);
+    const pct = parseFloat(document.getElementById('pt-trade-pct')?.value);
+    if (!pct || pct === 0) { showToast('Enter a percentage', 'error'); return; }
+    pctDelta = pct;
   }
-  try {
-    await adminApiCall('add_profit_trade', payload);
-    closeModal('modal-pt-trade');
-    showToast('Trade entry added', 'success');
-    ptLoadUser(_ptCurrentTarget.user_id);
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+  const { error } = await db.from('profit_target_trades').insert({
+    target_id:        _ptCurrentTarget.id,
+    user_id:          _ptCurrentTarget.user_id,
+    amount:           dollarAmt,
+    percentage_delta: pctDelta,
+    note:             note || null,
+  });
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  await db.from('profit_targets').update({ updated_at: new Date().toISOString() }).eq('id', _ptCurrentTarget.id);
+  closeModal('modal-pt-trade');
+  showToast('Trade entry added', 'success');
+  ptLoadUser(_ptCurrentTarget.user_id);
 };
 
-window.ptDeleteTrade = async function(tradeId, targetId) {
+window.ptDeleteTrade = async function(tradeId) {
   if (!confirm('Delete this trade entry? The percentage will be subtracted from progress.')) return;
-  try {
-    await adminApiCall('delete_profit_trade', { trade_id: tradeId });
-    showToast('Entry deleted', 'success');
-    if (_ptCurrentTarget) ptLoadUser(_ptCurrentTarget.user_id);
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+  const db = window.XANTEX_DB; if (!db) return;
+  const { error } = await db.from('profit_target_trades').delete().eq('id', tradeId);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Entry deleted', 'success');
+  if (_ptCurrentTarget) ptLoadUser(_ptCurrentTarget.user_id);
 };
 
 window.ptDeactivate = async function() {
   if (!_ptCurrentTarget) return;
   if (!confirm('Deactivate this profit target? The user will no longer see it in their dashboard.')) return;
-  try {
-    await adminApiCall('deactivate_profit_target', { target_id: _ptCurrentTarget.id });
-    showToast('Target deactivated', 'success');
-    _ptCurrentTarget = null;
-    const userSel = document.getElementById('pt-user-sel');
-    ptLoadUser(userSel?.value || '');
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+  const db = window.XANTEX_DB; if (!db) return;
+  const { error } = await db.from('profit_targets')
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq('id', _ptCurrentTarget.id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Target deactivated', 'success');
+  _ptCurrentTarget = null;
+  const userSel = document.getElementById('pt-user-sel');
+  ptLoadUser(userSel?.value || '');
 };
 </script>
 </body>

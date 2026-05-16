@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy Policy — Xantex Global Markets</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:#111;background:#fff;font-size:15px;line-height:1.6}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none}
+img{display:block;max-width:100%}
+.navbar{background:#fff;border-bottom:1px solid #e0e3e8;position:sticky;top:0;z-index:100}
+.navbar__inner{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,60px);display:flex;align-items:center;gap:32px;height:72px}
+.navbar__logo{flex-shrink:0}
+.navbar__nav{display:flex;gap:4px;margin-left:auto}
+.navbar__nav-item{position:relative}
+.navbar__nav-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:none;font-size:14px;font-weight:500;color:#111;border-radius:8px;transition:background .15s;border:none;cursor:pointer}
+.navbar__nav-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;transition:transform .2s}
+.navbar__nav-btn:hover,.navbar__nav-btn.active{background:#f4f6f9;color:#1a5cff}
+.navbar__nav-btn.active svg{transform:rotate(180deg)}
+.nav-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid #e0e3e8;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.10);min-width:190px;padding:6px 0;z-index:200;animation:dropDown .18s ease}
+.nav-dropdown.open{display:block}
+@keyframes dropDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.nav-dropdown a{display:block;padding:10px 20px;font-size:14px;color:#111;white-space:nowrap;transition:background .12s,color .12s}
+.nav-dropdown a:hover{background:#f4f6f9;color:#1a5cff}
+.navbar__actions{display:flex;gap:12px;align-items:center;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;border-radius:28px;font-size:15px;font-weight:500;padding:10px 24px;transition:opacity .15s,background .15s;border:none;font-family:'Inter',sans-serif;cursor:pointer;text-decoration:none}
+.btn--primary{background:#1a5cff;color:#fff}
+.btn--primary:hover{background:#1244cc}
+.btn--ghost{background:transparent;color:#111;border:1.5px solid #e0e3e8}
+.btn--ghost:hover{border-color:#1a5cff;color:#1a5cff}
+.btn--white{background:#fff;color:#1a5cff;font-weight:600}
+.btn--white:hover{background:#e8eeff}
+.btn--outline{background:transparent;border:2px solid rgba(255,255,255,.5);color:#fff}
+.btn--outline:hover{background:rgba(255,255,255,.1)}
+.btn--lg{padding:14px 36px;font-size:16px}
+.page-hero{background:#0d1120;color:#fff;padding:72px clamp(16px,4vw,60px) 64px;text-align:center}
+.page-hero__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:14px}
+.page-hero__h1{font-size:clamp(28px,4vw,44px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:16px}
+.page-hero__sub{font-size:clamp(14px,1.8vw,16px);color:rgba(255,255,255,.65);max-width:560px;margin:0 auto;line-height:1.65}
+.section{padding:80px clamp(16px,4vw,60px)}
+.section__inner{max-width:1240px;margin:0 auto}
+.privacy-content{max-width:760px;margin:0 auto}
+.privacy-content h3{font-size:18px;font-weight:700;margin:36px 0 10px;color:#0d1120}
+.privacy-content h3:first-child{margin-top:0}
+.privacy-content p{font-size:14px;color:#444;line-height:1.8;margin-bottom:12px}
+.privacy-content ul{padding-left:20px;margin-bottom:12px}
+.privacy-content ul li{font-size:14px;color:#444;line-height:1.8;margin-bottom:4px}
+.privacy-content a{color:#1a5cff;text-decoration:underline}
+.cta-small{background:#f4f6f9;padding:48px clamp(16px,4vw,60px);text-align:center}
+.cta-small__h3{font-size:20px;font-weight:700;margin-bottom:10px}
+.cta-small__p{font-size:14px;color:#555;margin-bottom:24px}
+footer{background:#0d1120}
+.footer-nav{padding:48px clamp(16px,4vw,60px) 32px}
+.footer-nav__inner{max-width:1240px;margin:0 auto}
+.footer-nav__contact{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px}
+.footer-nav__contact a{color:#60a5fa}
+.footer-nav__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.footer-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35);margin-bottom:12px}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.6);margin-bottom:8px;transition:color .15s}
+.footer-col a:hover{color:#fff}
+.footer-disclaimer{background:#080e1d;padding:24px clamp(16px,4vw,60px)}
+.footer-disclaimer__inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;font-size:11px;color:rgba(255,255,255,.3);line-height:1.65;margin-bottom:16px}
+.footer-disclaimer strong{color:rgba(255,255,255,.5)}
+.footer-disclaimer__copy{max-width:1240px;margin:0 auto;font-size:11px;color:rgba(255,255,255,.25)}
+@media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.footer-disclaimer__inner{grid-template-columns:1fr}}
+@media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}.page-hero{padding:56px 16px}}
+</style>
+</head>
+<body>
+<header>
+<nav class="navbar">
+  <div class="navbar__inner">
+    <div class="navbar__logo"><a href="/"><img src="/images/logo.png" alt="Xantex" style="height:110px;width:auto;"></a></div>
+    <div class="navbar__nav">
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-markets">Markets <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-markets">
+          <a href="/markets/futures">Futures</a>
+          <a href="/markets/indices">Indices</a>
+          <a href="/markets/shares">Shares</a>
+          <a href="/markets/metals">Metals</a>
+          <a href="/markets/energy">Energy</a>
+          <a href="/markets/etfs">ETFs</a>
+        </div>
+      </div>
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-platforms">Platforms <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-platforms">
+          <a href="/platforms/xantex">Xantex Platform</a>
+          <a href="/platforms/tradingview">TradingView</a>
+        </div>
+      </div>
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-company">Company <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-company">
+          <a href="/about">About Xantex</a>
+          <a href="/security">Online Security</a>
+          <a href="/awards">Awards</a>
+          <a href="/benefits">Benefits</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/contact">Contact Us</a>
+        </div>
+      </div>
+    </div>
+    <div class="navbar__actions">
+      <a href="/register.html" class="btn btn--primary">Register</a>
+      <a href="/login.html" class="btn btn--ghost">Login</a>
+    </div>
+  </div>
+</nav>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero__eyebrow">Privacy Policy</div>
+  <h1 class="page-hero__h1">How We Handle Your Personal Data</h1>
+  <p class="page-hero__sub">Last updated: January 2026. We are committed to protecting your privacy and handling your data responsibly.</p>
+</section>
+
+<section class="section">
+  <div class="section__inner">
+    <div class="privacy-content">
+
+      <h3>1. What Information We Collect</h3>
+      <p>When you open and use a Xantex account, we collect personal information that is necessary to provide our services and meet our regulatory obligations. This includes:</p>
+      <ul>
+        <li>Full name, email address, phone number and residential address</li>
+        <li>Date of birth and national identification information (for KYC verification)</li>
+        <li>Payment details including bank account and card information</li>
+        <li>Trading activity, account balances and transaction history</li>
+        <li>IP address, device type, browser information and login timestamps</li>
+        <li>Communications you send us via chat, email or phone</li>
+      </ul>
+
+      <h3>2. How We Use Your Information</h3>
+      <p>We use the information we collect for the following purposes:</p>
+      <ul>
+        <li>To open, operate and maintain your trading account</li>
+        <li>To comply with regulatory requirements including KYC (Know Your Customer) and AML (Anti-Money Laundering) obligations</li>
+        <li>To personalise your platform experience and provide relevant market information</li>
+        <li>To send service communications such as account notifications, security alerts and withdrawal confirmations</li>
+        <li>To detect, prevent and investigate fraud, money laundering and other illegal activities</li>
+        <li>To improve our platform, products and services through aggregated usage analytics</li>
+      </ul>
+
+      <h3>3. Who We Share It With</h3>
+      <p>We do not sell your personal data to third parties under any circumstances. We may share your information with:</p>
+      <ul>
+        <li><strong>Payment processors</strong> — to process deposits, withdrawals and payment verifications securely</li>
+        <li><strong>Regulatory authorities</strong> — when legally required by the FCA, CySEC, SCB or other competent authorities</li>
+        <li><strong>Technology providers</strong> — including hosting, platform and analytics vendors, all bound by strict data processing agreements under GDPR and equivalent legislation</li>
+        <li><strong>Professional advisers</strong> — including lawyers, auditors and insurers, under confidentiality obligations</li>
+      </ul>
+
+      <h3>4. How We Protect Your Data</h3>
+      <p>Xantex takes the security of your personal data seriously. We implement the following technical and organisational measures:</p>
+      <ul>
+        <li>256-bit SSL encryption for all data transmitted between you and our systems</li>
+        <li>Strict role-based access controls — only authorised personnel can access personal data</li>
+        <li>Regular independent security audits and penetration testing</li>
+        <li>Mandatory data protection training for all staff handling personal information</li>
+        <li>Incident response procedures to detect, contain and report any data breaches</li>
+      </ul>
+
+      <h3>5. Your Rights</h3>
+      <p>Under applicable data protection law (including UK GDPR and EU GDPR), you have the following rights regarding your personal data:</p>
+      <ul>
+        <li><strong>Right of access</strong> — request a copy of the personal data we hold about you</li>
+        <li><strong>Right to rectification</strong> — request correction of inaccurate or incomplete data</li>
+        <li><strong>Right to erasure</strong> — request deletion of your data, subject to regulatory retention requirements</li>
+        <li><strong>Right to portability</strong> — receive your data in a machine-readable format for transfer to another provider</li>
+        <li><strong>Right to object</strong> — object to certain types of processing, including direct marketing</li>
+      </ul>
+      <p>To exercise any of these rights, contact our Data Protection Officer at <a href="mailto:privacy@xantexglobalmarkets.pro">privacy@xantexglobalmarkets.pro</a>.</p>
+
+      <h3>6. Cookies</h3>
+      <p>We use cookies on our website to provide essential functionality, remember your preferences, and analyse how visitors use our platform. Cookies we use include:</p>
+      <ul>
+        <li><strong>Essential cookies</strong> — required for the website to function (login sessions, security)</li>
+        <li><strong>Functional cookies</strong> — remember your preferences such as language and chart settings</li>
+        <li><strong>Analytics cookies</strong> — help us understand how visitors interact with our site (anonymised data only)</li>
+      </ul>
+      <p>You can manage or disable non-essential cookies at any time through your browser settings. Note that disabling certain cookies may affect platform functionality.</p>
+
+      <h3>7. Data Retention</h3>
+      <p>We retain your personal data for as long as your account is active and for a minimum of 7 years after account closure, as required by financial services regulations including the FCA's record-keeping rules. After this period, data is securely deleted or anonymised. Specific retention periods vary by data type in accordance with applicable law.</p>
+
+      <h3>8. Contact Our Data Protection Officer</h3>
+      <p>For any privacy-related queries, requests or complaints, you can contact our Data Protection Officer directly:</p>
+      <ul>
+        <li>Email: <a href="mailto:privacy@xantexglobalmarkets.pro">privacy@xantexglobalmarkets.pro</a></li>
+        <li>Post: Data Protection Officer, Xantex Global Markets Ltd, 22 Bishopsgate, London, EC2N 4BQ</li>
+      </ul>
+      <p>We aim to respond to all data protection enquiries within 30 days. If you are not satisfied with our response, you have the right to lodge a complaint with the Information Commissioner's Office (ICO) at ico.org.uk.</p>
+
+    </div>
+  </div>
+</section>
+
+<div class="cta-small">
+  <h3 class="cta-small__h3">Questions? Contact Our Data Protection Officer</h3>
+  <p class="cta-small__p">Our DPO is available to answer any questions about how we handle your personal data.</p>
+  <a href="mailto:privacy@xantexglobalmarkets.pro" class="btn btn--primary">Contact the DPO</a>
+</div>
+
+<footer>
+  <div class="footer-nav">
+    <div class="footer-nav__inner">
+      <p class="footer-nav__contact">More ways to reach us: <a href="/contact">Contact Us</a> · +44 (0) 20 7776 9720 · <a href="/contact">Live Chat</a></p>
+      <div class="footer-nav__grid">
+        <div class="footer-col"><h4>Markets</h4><a href="/markets/futures">Futures</a><a href="/markets/indices">Indices</a><a href="/markets/shares">Shares</a><a href="/markets/metals">Metals</a><a href="/markets/energy">Energy</a><a href="/markets/etfs">ETFs</a></div>
+        <div class="footer-col"><h4>Platforms</h4><a href="/platforms/xantex">Xantex Platform</a><a href="/platforms/tradingview">TradingView</a></div>
+        <div class="footer-col"><h4>Company</h4><a href="/about">About Xantex</a><a href="/security">Online Security</a><a href="/awards">Awards</a><a href="/benefits">Benefits</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact Us</a></div>
+        <div class="footer-col"><h4>Help</h4><a href="/contact">Help Centre</a><a href="/security">Security</a><a href="/privacy">Legal &amp; Privacy</a><a href="/about">About Us</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-disclaimer">
+    <div class="footer-disclaimer__inner">
+      <div><strong>Trade Responsibly:</strong> CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. 71.2% of retail investor accounts lose money when trading CFDs with this provider.</div>
+      <div><strong>Xantex Global Markets Ltd</strong> is authorised and regulated. Licence no. 509956. Registered in England &amp; Wales.</div>
+      <div>This website is not intended for residents of jurisdictions where trading is restricted. Past performance is not indicative of future results.</div>
+    </div>
+    <div class="footer-disclaimer__copy">© 2026 Xantex Global Markets. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+const _nBtns=document.querySelectorAll('.navbar__nav-btn[data-dropdown]');
+function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=document.getElementById(b.dataset.dropdown);if(d)d.classList.remove('open')})}
+_nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});
+document.addEventListener('click',_closeAll);
+</script>
+</body>
+</html>

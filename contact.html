@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact Us — Xantex Global Markets</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:#111;background:#fff;font-size:15px;line-height:1.6}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none}
+img{display:block;max-width:100%}
+.navbar{background:#fff;border-bottom:1px solid #e0e3e8;position:sticky;top:0;z-index:100}
+.navbar__inner{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,60px);display:flex;align-items:center;gap:32px;height:72px}
+.navbar__logo{flex-shrink:0}
+.navbar__nav{display:flex;gap:4px;margin-left:auto}
+.navbar__nav-item{position:relative}
+.navbar__nav-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:none;font-size:14px;font-weight:500;color:#111;border-radius:8px;transition:background .15s;border:none;cursor:pointer}
+.navbar__nav-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;transition:transform .2s}
+.navbar__nav-btn:hover,.navbar__nav-btn.active{background:#f4f6f9;color:#1a5cff}
+.navbar__nav-btn.active svg{transform:rotate(180deg)}
+.nav-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid #e0e3e8;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.10);min-width:190px;padding:6px 0;z-index:200;animation:dropDown .18s ease}
+.nav-dropdown.open{display:block}
+@keyframes dropDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.nav-dropdown a{display:block;padding:10px 20px;font-size:14px;color:#111;white-space:nowrap;transition:background .12s,color .12s}
+.nav-dropdown a:hover{background:#f4f6f9;color:#1a5cff}
+.navbar__actions{display:flex;gap:12px;align-items:center;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;border-radius:28px;font-size:15px;font-weight:500;padding:10px 24px;transition:opacity .15s,background .15s;border:none;font-family:'Inter',sans-serif;cursor:pointer;text-decoration:none}
+.btn--primary{background:#1a5cff;color:#fff}
+.btn--primary:hover{background:#1244cc}
+.btn--ghost{background:transparent;color:#111;border:1.5px solid #e0e3e8}
+.btn--ghost:hover{border-color:#1a5cff;color:#1a5cff}
+.btn--white{background:#fff;color:#1a5cff;font-weight:600}
+.btn--white:hover{background:#e8eeff}
+.btn--outline{background:transparent;border:2px solid rgba(255,255,255,.5);color:#fff}
+.btn--outline:hover{background:rgba(255,255,255,.1)}
+.btn--lg{padding:14px 36px;font-size:16px}
+.page-hero{background:#0d1120;color:#fff;padding:88px clamp(16px,4vw,60px) 80px;text-align:center}
+.page-hero__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:14px}
+.page-hero__h1{font-size:clamp(32px,5vw,54px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:18px}
+.page-hero__sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.7);max-width:600px;margin:0 auto 36px;line-height:1.65}
+.page-hero__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.stats-bar{background:#131d35;padding:24px clamp(16px,4vw,60px)}
+.stats-bar__inner{max-width:1240px;margin:0 auto;display:flex;justify-content:center;gap:clamp(20px,4vw,64px);flex-wrap:wrap}
+.stats-bar__item{text-align:center}
+.stats-bar__value{font-size:22px;font-weight:700;color:#fff}
+.stats-bar__label{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+.section{padding:80px clamp(16px,4vw,60px)}
+.section__inner{max-width:1240px;margin:0 auto}
+.section--grey{background:#f4f6f9}
+.section__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a5cff;margin-bottom:10px}
+.section__h2{font-size:clamp(26px,3.5vw,40px);font-weight:700;letter-spacing:-.5px;margin-bottom:14px}
+.section__lead{font-size:16px;color:#666;max-width:600px;line-height:1.7;margin-bottom:48px}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px;margin-top:40px}
+.contact-card{background:#fff;border:1px solid #e0e3e8;border-radius:14px;padding:32px;text-align:center;transition:box-shadow .2s}
+.contact-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.contact-card__icon{width:56px;height:56px;border-radius:50%;background:#e8eeff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.contact-card__icon svg{width:26px;height:26px;fill:none;stroke:#1a5cff;stroke-width:2;stroke-linecap:round}
+.contact-card__title{font-size:17px;font-weight:700;margin-bottom:6px}
+.contact-card__desc{font-size:13px;color:#666;line-height:1.6}
+.contact-card__link{display:inline-block;margin-top:14px;font-size:14px;font-weight:600;color:#fff;background:#1a5cff;padding:10px 22px;border-radius:22px;transition:background .15s}
+.contact-card__link:hover{background:#1244cc}
+.contact-form{max-width:600px;margin:48px auto 0;display:flex;flex-direction:column;gap:16px}
+.form-field{display:flex;flex-direction:column;gap:6px}
+.form-field label{font-size:13px;font-weight:600;color:#111}
+.form-field input,.form-field select,.form-field textarea{border:1.5px solid #e0e3e8;border-radius:10px;padding:12px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;background:#fff}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:#1a5cff;box-shadow:0 0 0 3px rgba(26,92,255,.1)}
+.form-field textarea{resize:vertical;min-height:120px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.faq-list{max-width:720px;margin:40px auto 0;display:flex;flex-direction:column;gap:16px}
+.faq-item{border:1px solid #e0e3e8;border-radius:12px;padding:20px 24px;transition:box-shadow .2s}
+.faq-item:hover{box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.faq-item__q{font-size:15px;font-weight:600;margin-bottom:8px;color:#0d1120}
+.faq-item__a{font-size:14px;color:#666;line-height:1.7}
+.cta-section{background:linear-gradient(135deg,#1a5cff 0%,#0a1128 100%);padding:80px clamp(16px,4vw,60px);text-align:center;color:#fff}
+.cta-section__h2{font-size:clamp(28px,4vw,44px);font-weight:700;letter-spacing:-.5px;margin-bottom:14px}
+.cta-section__sub{font-size:16px;color:rgba(255,255,255,.75);margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto}
+.cta-section__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+footer{background:#0d1120}
+.footer-nav{padding:48px clamp(16px,4vw,60px) 32px}
+.footer-nav__inner{max-width:1240px;margin:0 auto}
+.footer-nav__contact{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px}
+.footer-nav__contact a{color:#60a5fa}
+.footer-nav__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.footer-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35);margin-bottom:12px}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.6);margin-bottom:8px;transition:color .15s}
+.footer-col a:hover{color:#fff}
+.footer-disclaimer{background:#080e1d;padding:24px clamp(16px,4vw,60px)}
+.footer-disclaimer__inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;font-size:11px;color:rgba(255,255,255,.3);line-height:1.65;margin-bottom:16px}
+.footer-disclaimer strong{color:rgba(255,255,255,.5)}
+.footer-disclaimer__copy{max-width:1240px;margin:0 auto;font-size:11px;color:rgba(255,255,255,.25)}
+@media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.contact-grid{grid-template-columns:1fr}.footer-disclaimer__inner{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
+@media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}.page-hero{padding:60px 16px}}
+</style>
+</head>
+<body>
+<header>
+<nav class="navbar">
+  <div class="navbar__inner">
+    <div class="navbar__logo"><a href="/"><img src="/images/logo.png" alt="Xantex" style="height:110px;width:auto;"></a></div>
+    <div class="navbar__nav">
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-markets">Markets <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-markets">
+          <a href="/markets/futures">Futures</a>
+          <a href="/markets/indices">Indices</a>
+          <a href="/markets/shares">Shares</a>
+          <a href="/markets/metals">Metals</a>
+          <a href="/markets/energy">Energy</a>
+          <a href="/markets/etfs">ETFs</a>
+        </div>
+      </div>
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-platforms">Platforms <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-platforms">
+          <a href="/platforms/xantex">Xantex Platform</a>
+          <a href="/platforms/tradingview">TradingView</a>
+        </div>
+      </div>
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-company">Company <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-company">
+          <a href="/about">About Xantex</a>
+          <a href="/security">Online Security</a>
+          <a href="/awards">Awards</a>
+          <a href="/benefits">Benefits</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/contact">Contact Us</a>
+        </div>
+      </div>
+    </div>
+    <div class="navbar__actions">
+      <a href="/register.html" class="btn btn--primary">Register</a>
+      <a href="/login.html" class="btn btn--ghost">Login</a>
+    </div>
+  </div>
+</nav>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero__eyebrow">Contact Us</div>
+  <h1 class="page-hero__h1">We're Here 24/5</h1>
+  <p class="page-hero__sub">Reach our multilingual support team by live chat, email or phone — any time the markets are open. Average response time: under 2 minutes.</p>
+</section>
+
+<section class="section">
+  <div class="section__inner">
+    <div class="section__eyebrow">Get in Touch</div>
+    <h2 class="section__h2">Choose How You'd Like to Contact Us</h2>
+    <p class="section__lead">Our team is available across multiple channels — pick the one that works best for you.</p>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="contact-card__icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="contact-card__title">Live Chat</div>
+        <div class="contact-card__desc">Fastest option — average response time under 2 minutes. Available 24/5 during all market hours. Multilingual support team on standby.</div>
+        <a href="/contact" class="contact-card__link">Start Live Chat</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-card__icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="contact-card__title">Email Support</div>
+        <div class="contact-card__desc">We aim to respond to all email enquiries within 24 hours. For account-specific questions, please send from your registered email address.</div>
+        <a href="mailto:support@xantexglobalmarkets.pro" class="contact-card__link">Send Email</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-card__icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="contact-card__title">Phone</div>
+        <div class="contact-card__desc">Speak directly with our support team Monday to Friday, 8am–10pm GMT. +44 (0) 20 7776 9720 — calls answered promptly.</div>
+        <a href="tel:+442077769720" class="contact-card__link">Call Now</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--grey">
+  <div class="section__inner">
+    <div class="section__eyebrow">Send a Message</div>
+    <h2 class="section__h2" style="text-align:center">Contact Form</h2>
+    <p class="section__lead" style="margin:0 auto 0;text-align:center">Fill in the form below and our team will get back to you within 24 hours.</p>
+    <form class="contact-form" onsubmit="return false">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="cf-name">Full Name</label>
+          <input type="text" id="cf-name" placeholder="John Smith">
+        </div>
+        <div class="form-field">
+          <label for="cf-email">Email Address</label>
+          <input type="email" id="cf-email" placeholder="john@example.com">
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="cf-subject">Subject</label>
+        <select id="cf-subject">
+          <option value="" disabled selected>Select a subject</option>
+          <option value="account">Account Enquiry</option>
+          <option value="deposits">Deposits &amp; Withdrawals</option>
+          <option value="technical">Technical Support</option>
+          <option value="kyc">KYC &amp; Verification</option>
+          <option value="trading">Trading Conditions</option>
+          <option value="partnership">Partnership</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="cf-message">Message</label>
+        <textarea id="cf-message" placeholder="Please describe your enquiry in as much detail as possible..."></textarea>
+      </div>
+      <button type="submit" class="btn btn--primary btn--lg" style="align-self:flex-start;margin-top:8px">Send Message</button>
+    </form>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section__inner">
+    <div class="section__eyebrow">FAQ</div>
+    <h2 class="section__h2" style="text-align:center">Frequently Asked Questions</h2>
+    <p class="section__lead" style="margin:0 auto;text-align:center">Quick answers to the most common questions our clients ask.</p>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-item__q">How long does account verification take?</div>
+        <div class="faq-item__a">Most accounts are verified within 1–2 business days. Once you have submitted your documents, our compliance team will review them and you will receive an email confirmation as soon as your account is approved.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-item__q">What are the minimum deposit requirements?</div>
+        <div class="faq-item__a">The minimum deposit is $100 for a Standard account. You can fund your account via bank transfer, debit/credit card or cryptocurrency — whichever is most convenient for you.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-item__q">How do I withdraw my funds?</div>
+        <div class="faq-item__a">Log in to your trading dashboard, navigate to the Withdraw section, enter the amount you wish to withdraw and confirm the request. Withdrawals are processed within 24 hours and are typically received within 1–3 business days depending on your payment method.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-item__q">What platforms can I trade on?</div>
+        <div class="faq-item__a">We support the Xantex web platform — which requires no download and works in any browser — as well as TradingView integration, which allows you to trade directly from TradingView's world-class charts using your Xantex account credentials.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-item__q">Is my money safe with Xantex?</div>
+        <div class="faq-item__a">Yes. Client funds are held in segregated accounts at top-tier banks, completely separate from Xantex's own company funds. We are regulated by the FCA (UK), CySEC (Cyprus) and SCB (Bahamas), and all accounts benefit from negative balance protection.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section">
+  <h2 class="cta-section__h2">Can't Find Your Answer?</h2>
+  <p class="cta-section__sub">Our live chat team is online 24/5 and typically responds in under 2 minutes — no waiting, no queues.</p>
+  <div class="cta-section__actions">
+    <a href="/contact" class="btn btn--white btn--lg">Start a Live Chat</a>
+    <a href="/register.html" class="btn btn--outline btn--lg">Open an Account</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-nav">
+    <div class="footer-nav__inner">
+      <p class="footer-nav__contact">More ways to reach us: <a href="/contact">Contact Us</a> · +44 (0) 20 7776 9720 · <a href="/contact">Live Chat</a></p>
+      <div class="footer-nav__grid">
+        <div class="footer-col"><h4>Markets</h4><a href="/markets/futures">Futures</a><a href="/markets/indices">Indices</a><a href="/markets/shares">Shares</a><a href="/markets/metals">Metals</a><a href="/markets/energy">Energy</a><a href="/markets/etfs">ETFs</a></div>
+        <div class="footer-col"><h4>Platforms</h4><a href="/platforms/xantex">Xantex Platform</a><a href="/platforms/tradingview">TradingView</a></div>
+        <div class="footer-col"><h4>Company</h4><a href="/about">About Xantex</a><a href="/security">Online Security</a><a href="/awards">Awards</a><a href="/benefits">Benefits</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact Us</a></div>
+        <div class="footer-col"><h4>Help</h4><a href="/contact">Help Centre</a><a href="/security">Security</a><a href="/privacy">Legal &amp; Privacy</a><a href="/about">About Us</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-disclaimer">
+    <div class="footer-disclaimer__inner">
+      <div><strong>Trade Responsibly:</strong> CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. 71.2% of retail investor accounts lose money when trading CFDs with this provider.</div>
+      <div><strong>Xantex Global Markets Ltd</strong> is authorised and regulated. Licence no. 509956. Registered in England &amp; Wales.</div>
+      <div>This website is not intended for residents of jurisdictions where trading is restricted. Past performance is not indicative of future results.</div>
+    </div>
+    <div class="footer-disclaimer__copy">© 2026 Xantex Global Markets. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+const _nBtns=document.querySelectorAll('.navbar__nav-btn[data-dropdown]');
+function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=document.getElementById(b.dataset.dropdown);if(d)d.classList.remove('open')})}
+_nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});
+document.addEventListener('click',_closeAll);
+</script>
+</body>
+</html>

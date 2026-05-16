@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trade Futures — Xantex Global Markets</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:#111;background:#fff;font-size:15px;line-height:1.6}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none}
+img{display:block;max-width:100%}
+.navbar{background:#fff;border-bottom:1px solid #e0e3e8;position:sticky;top:0;z-index:100}
+.navbar__inner{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,60px);display:flex;align-items:center;gap:32px;height:72px}
+.navbar__logo{flex-shrink:0}
+.navbar__nav{display:flex;gap:4px;margin-left:auto}
+.navbar__nav-item{position:relative}
+.navbar__nav-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:none;font-size:14px;font-weight:500;color:#111;border-radius:8px;transition:background .15s;border:none;cursor:pointer}
+.navbar__nav-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;transition:transform .2s}
+.navbar__nav-btn:hover,.navbar__nav-btn.active{background:#f4f6f9;color:#1a5cff}
+.navbar__nav-btn.active svg{transform:rotate(180deg)}
+.nav-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid #e0e3e8;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.10);min-width:190px;padding:6px 0;z-index:200;animation:dropDown .18s ease}
+.nav-dropdown.open{display:block}
+@keyframes dropDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.nav-dropdown a{display:block;padding:10px 20px;font-size:14px;color:#111;white-space:nowrap;transition:background .12s,color .12s}
+.nav-dropdown a:hover{background:#f4f6f9;color:#1a5cff}
+.navbar__actions{display:flex;gap:12px;align-items:center;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;border-radius:28px;font-size:15px;font-weight:500;padding:10px 24px;transition:opacity .15s,background .15s;border:none;font-family:'Inter',sans-serif;cursor:pointer;text-decoration:none}
+.btn--primary{background:#1a5cff;color:#fff}
+.btn--primary:hover{background:#1244cc}
+.btn--ghost{background:transparent;color:#111;border:1.5px solid #e0e3e8}
+.btn--ghost:hover{border-color:#1a5cff;color:#1a5cff}
+.btn--white{background:#fff;color:#1a5cff;font-weight:600}
+.btn--white:hover{background:#e8eeff}
+.btn--outline{background:transparent;border:2px solid rgba(255,255,255,.5);color:#fff}
+.btn--outline:hover{background:rgba(255,255,255,.1)}
+.btn--lg{padding:14px 36px;font-size:16px}
+.page-hero{background:#0d1120;color:#fff;padding:88px clamp(16px,4vw,60px) 80px;text-align:center}
+.page-hero__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:14px}
+.page-hero__h1{font-size:clamp(32px,5vw,54px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:18px}
+.page-hero__sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.7);max-width:600px;margin:0 auto 36px;line-height:1.65}
+.page-hero__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.stats-bar{background:#131d35;padding:24px clamp(16px,4vw,60px)}
+.stats-bar__inner{max-width:1240px;margin:0 auto;display:flex;justify-content:center;gap:clamp(20px,4vw,64px);flex-wrap:wrap}
+.stats-bar__item{text-align:center}
+.stats-bar__value{font-size:22px;font-weight:700;color:#fff}
+.stats-bar__label{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+.section{padding:80px clamp(16px,4vw,60px)}
+.section__inner{max-width:1240px;margin:0 auto}
+.section--grey{background:#f4f6f9}
+.section--navy{background:#0d1120;color:#fff}
+.section--dark{background:#080e1d;color:#fff}
+.section__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a5cff;margin-bottom:10px}
+.section__h2{font-size:clamp(26px,3.5vw,40px);font-weight:700;letter-spacing:-.5px;margin-bottom:14px}
+.section__lead{font-size:16px;color:#666;max-width:600px;line-height:1.7;margin-bottom:48px}
+.section--navy .section__eyebrow,.section--dark .section__eyebrow{color:#60a5fa}
+.section--navy .section__h2,.section--dark .section__h2{color:#fff}
+.section--navy .section__lead,.section--dark .section__lead{color:rgba(255,255,255,.6)}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;margin-top:40px}
+.feature-card{background:#fff;border:1px solid #e0e3e8;border-radius:14px;padding:28px;transition:box-shadow .2s}
+.feature-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.feature-card__icon{width:48px;height:48px;border-radius:12px;background:#e8eeff;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.feature-card__icon svg{width:24px;height:24px;fill:none;stroke:#1a5cff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.feature-card__title{font-size:16px;font-weight:700;margin-bottom:8px}
+.feature-card__desc{font-size:14px;color:#666;line-height:1.65}
+.section--navy .feature-card,.section--dark .feature-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
+.section--navy .feature-card__title,.section--dark .feature-card__title{color:#fff}
+.section--navy .feature-card__desc,.section--dark .feature-card__desc{color:rgba(255,255,255,.55)}
+.cond-wrap{overflow-x:auto;margin-top:36px}
+.cond-table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+.cond-table th{background:#0d1120;color:#fff;padding:14px 18px;text-align:left;font-weight:600;font-size:13px;white-space:nowrap}
+.cond-table th:first-child{border-radius:10px 0 0 0}
+.cond-table th:last-child{border-radius:0 10px 0 0}
+.cond-table td{padding:13px 18px;border-bottom:1px solid #e0e3e8;color:#111}
+.cond-table tr:last-child td{border-bottom:none}
+.cond-table tr:nth-child(even) td{background:#f9fafb}
+.cond-table tr:hover td{background:#f0f4ff;transition:background .12s}
+.steps-list{display:flex;flex-direction:column;gap:0;max-width:580px;margin:40px auto 0}
+.step-item{display:flex;gap:20px;padding-bottom:32px;position:relative}
+.step-item:not(:last-child)::before{content:'';position:absolute;left:19px;top:40px;width:2px;height:calc(100% - 10px);background:#e0e3e8}
+.step-item__num{width:40px;height:40px;border-radius:50%;background:#1a5cff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0}
+.step-item__title{font-size:16px;font-weight:700;margin-bottom:4px}
+.step-item__desc{font-size:14px;color:#666;line-height:1.65}
+.cta-section{background:linear-gradient(135deg,#1a5cff 0%,#0a1128 100%);padding:80px clamp(16px,4vw,60px);text-align:center;color:#fff}
+.cta-section__h2{font-size:clamp(28px,4vw,44px);font-weight:700;letter-spacing:-.5px;margin-bottom:14px}
+.cta-section__sub{font-size:16px;color:rgba(255,255,255,.75);margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto}
+.cta-section__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.comp-table{width:100%;border-collapse:collapse;font-size:14px}
+.comp-table th{background:#0d1120;color:#fff;padding:16px 18px;text-align:center;font-weight:600}
+.comp-table th:first-child{text-align:left;border-radius:10px 0 0 0}
+.comp-table th:last-child{border-radius:0 10px 0 0}
+.comp-table td{padding:13px 18px;border-bottom:1px solid #e0e3e8;text-align:center}
+.comp-table td:first-child{text-align:left;font-weight:500}
+.comp-table tr:nth-child(even) td{background:#f9fafb}
+.comp-table .tick{color:#22a06b;font-size:18px;font-weight:700}
+.comp-table .cross{color:#e60023;font-size:16px}
+.award-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;margin-top:40px}
+.award-card{background:#fff;border:1px solid #e0e3e8;border-radius:14px;padding:28px;text-align:center}
+.award-card__year{font-size:12px;font-weight:700;color:#1a5cff;letter-spacing:.06em;margin-bottom:10px}
+.award-card__title{font-size:16px;font-weight:700;margin-bottom:6px}
+.award-card__org{font-size:13px;color:#666}
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px;margin-top:40px}
+.contact-card{background:#fff;border:1px solid #e0e3e8;border-radius:14px;padding:32px;text-align:center}
+.contact-card__icon{width:56px;height:56px;border-radius:50%;background:#e8eeff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.contact-card__icon svg{width:26px;height:26px;fill:none;stroke:#1a5cff;stroke-width:2;stroke-linecap:round}
+.contact-card__title{font-size:17px;font-weight:700;margin-bottom:6px}
+.contact-card__desc{font-size:13px;color:#666;line-height:1.6}
+.contact-card__link{display:inline-block;margin-top:12px;font-size:14px;font-weight:600;color:#1a5cff}
+.contact-form{max-width:600px;margin:48px auto 0;display:flex;flex-direction:column;gap:16px}
+.form-field{display:flex;flex-direction:column;gap:6px}
+.form-field label{font-size:13px;font-weight:600;color:#111}
+.form-field input,.form-field select,.form-field textarea{border:1.5px solid #e0e3e8;border-radius:10px;padding:12px 14px;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:#1a5cff;box-shadow:0 0 0 3px rgba(26,92,255,.1)}
+.form-field textarea{resize:vertical;min-height:120px}
+.privacy-content{max-width:760px;margin:0 auto}
+.privacy-content h3{font-size:18px;font-weight:700;margin:36px 0 10px}
+.privacy-content p{font-size:14px;color:#444;line-height:1.8;margin-bottom:12px}
+.privacy-content ul{padding-left:20px;margin-bottom:12px}
+.privacy-content ul li{font-size:14px;color:#444;line-height:1.8;margin-bottom:4px}
+.tier-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;margin-top:40px}
+.tier-card{border-radius:16px;padding:32px 24px;text-align:center;position:relative;overflow:hidden}
+.tier-card--bronze{background:#fdf6ec;border:2px solid #cd7f32}
+.tier-card--silver{background:#f5f5f7;border:2px solid #a8a9ad}
+.tier-card--gold{background:#fffbeb;border:2px solid #f5a623}
+.tier-card--platinum{background:#eef2ff;border:2px solid #1a5cff}
+.tier-card__name{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.tier-card__cashback{font-size:36px;font-weight:700;line-height:1;margin-bottom:4px}
+.tier-card__sub{font-size:13px;color:#666;margin-bottom:16px}
+.tier-card__features{list-style:none;text-align:left;font-size:13px;color:#444;display:flex;flex-direction:column;gap:6px}
+.tier-card__features li::before{content:'✓ ';color:#22a06b;font-weight:700}
+.faq-list{max-width:720px;margin:40px auto 0;display:flex;flex-direction:column;gap:16px}
+.faq-item{border:1px solid #e0e3e8;border-radius:12px;padding:20px 24px}
+.faq-item__q{font-size:15px;font-weight:600;margin-bottom:8px}
+.faq-item__a{font-size:14px;color:#666;line-height:1.7}
+footer{background:#0d1120}
+.footer-nav{padding:48px clamp(16px,4vw,60px) 32px}
+.footer-nav__inner{max-width:1240px;margin:0 auto}
+.footer-nav__contact{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px}
+.footer-nav__contact a{color:#60a5fa}
+.footer-nav__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.footer-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35);margin-bottom:12px}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.6);margin-bottom:8px;transition:color .15s}
+.footer-col a:hover{color:#fff}
+.footer-disclaimer{background:#080e1d;padding:24px clamp(16px,4vw,60px)}
+.footer-disclaimer__inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;font-size:11px;color:rgba(255,255,255,.3);line-height:1.65;margin-bottom:16px}
+.footer-disclaimer strong{color:rgba(255,255,255,.5)}
+.footer-disclaimer__copy{max-width:1240px;margin:0 auto;font-size:11px;color:rgba(255,255,255,.25)}
+@media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.features-grid{grid-template-columns:1fr}.footer-disclaimer__inner{grid-template-columns:1fr}.contact-grid{grid-template-columns:1fr}.award-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}.page-hero{padding:60px 16px}.award-grid{grid-template-columns:1fr}.comp-table{font-size:12px}}
+</style>
+</head>
+<body>
+<header>
+<nav class="navbar">
+  <div class="navbar__inner">
+    <div class="navbar__logo"><a href="/"><img src="/images/logo.png" alt="Xantex" style="height:110px;width:auto;"></a></div>
+    <div class="navbar__nav">
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-markets">Markets <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-markets">
+          <a href="/markets/futures">Futures</a>
+          <a href="/markets/indices">Indices</a>
+          <a href="/markets/shares">Shares</a>
+          <a href="/markets/metals">Metals</a>
+          <a href="/markets/energy">Energy</a>
+          <a href="/markets/etfs">ETFs</a>
+        </div>
+      </div>
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-platforms">Platforms <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-platforms">
+          <a href="/platforms/xantex">Xantex Platform</a>
+          <a href="/platforms/tradingview">TradingView</a>
+        </div>
+      </div>
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-company">Company <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-company">
+          <a href="/about">About Xantex</a>
+          <a href="/security">Online Security</a>
+          <a href="/awards">Awards</a>
+          <a href="/benefits">Benefits</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/contact">Contact Us</a>
+        </div>
+      </div>
+    </div>
+    <div class="navbar__actions">
+      <a href="/register.html" class="btn btn--primary">Register</a>
+      <a href="/login.html" class="btn btn--ghost">Login</a>
+    </div>
+  </div>
+</nav>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero__eyebrow">Trade Futures</div>
+  <h1 class="page-hero__h1">Trade Global Futures Markets</h1>
+  <p class="page-hero__sub">Access commodity, index and financial futures with competitive margins, tight spreads and 24/5 execution.</p>
+  <div class="page-hero__actions">
+    <a href="/register.html" class="btn btn--primary btn--lg">Start Trading Futures</a>
+    <a href="#conditions" class="btn btn--outline btn--lg">View Conditions</a>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stats-bar__inner">
+    <div class="stats-bar__item"><div class="stats-bar__value">50+</div><div class="stats-bar__label">Futures Contracts</div></div>
+    <div class="stats-bar__item"><div class="stats-bar__value">0.5%</div><div class="stats-bar__label">Margin from</div></div>
+    <div class="stats-bar__item"><div class="stats-bar__value">1:200</div><div class="stats-bar__label">Leverage up to</div></div>
+    <div class="stats-bar__item"><div class="stats-bar__value">24/5</div><div class="stats-bar__label">Trading</div></div>
+  </div>
+</div>
+
+<section class="section section--grey">
+  <div class="section__inner">
+    <div class="section__eyebrow">Advantages</div>
+    <h2 class="section__h2">Why Trade Futures with Xantex</h2>
+    <p class="section__lead">Access global futures markets with professional-grade tools, tight margins and transparent pricing.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="feature-card__title">Low Margin Requirements</div>
+        <div class="feature-card__desc">Trade with as little as 0.5% margin on major futures contracts, maximising your capital efficiency.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>
+        <div class="feature-card__title">Tight Spreads</div>
+        <div class="feature-card__desc">Competitive bid/ask on all futures instruments with no hidden markups — the price you see is the price you get.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <div class="feature-card__title">Portfolio Diversification</div>
+        <div class="feature-card__desc">Hedge your equity portfolio or speculate across asset classes — all from a single trading account.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+        </div>
+        <div class="feature-card__title">Professional Tools</div>
+        <div class="feature-card__desc">Full charting suite, level 2 data and expert advisors supported across all Xantex-connected platforms.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="conditions">
+  <div class="section__inner">
+    <div class="section__eyebrow">Trading Conditions</div>
+    <h2 class="section__h2">Futures Trading Conditions</h2>
+    <p class="section__lead">Transparent pricing across 50+ futures contracts. All spreads shown are typical values during normal market hours.</p>
+    <div class="cond-wrap">
+      <table class="cond-table">
+        <thead>
+          <tr>
+            <th>Contract</th>
+            <th>Spread from</th>
+            <th>Margin</th>
+            <th>Min lot</th>
+            <th>Trading Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>S&amp;P 500 Futures (ES)</td><td>0.5 pts</td><td>0.5%</td><td>1</td><td>24/5</td></tr>
+          <tr><td>NASDAQ Futures (NQ)</td><td>0.8 pts</td><td>0.5%</td><td>1</td><td>24/5</td></tr>
+          <tr><td>Dow Jones Futures (YM)</td><td>1.0 pts</td><td>0.5%</td><td>1</td><td>24/5</td></tr>
+          <tr><td>Crude Oil Futures (CL)</td><td>$0.03</td><td>1%</td><td>1</td><td>23h/day</td></tr>
+          <tr><td>Gold Futures (GC)</td><td>$0.30</td><td>0.5%</td><td>0.1</td><td>23h/day</td></tr>
+          <tr><td>Natural Gas Futures (NG)</td><td>$0.005</td><td>2%</td><td>1</td><td>23h/day</td></tr>
+          <tr><td>Wheat Futures (ZW)</td><td>0.5 pts</td><td>2%</td><td>1</td><td>Mon–Fri</td></tr>
+          <tr><td>Corn Futures (ZC)</td><td>0.5 pts</td><td>2%</td><td>1</td><td>Mon–Fri</td></tr>
+          <tr><td>Euro FX Futures (6E)</td><td>0.3 pts</td><td>1%</td><td>1</td><td>24/5</td></tr>
+          <tr><td>10-Year T-Note (ZN)</td><td>0.01 pts</td><td>0.3%</td><td>1</td><td>24/5</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section">
+  <h2 class="cta-section__h2">Start Trading Futures Today</h2>
+  <p class="cta-section__sub">Open an account in minutes and access 50+ futures contracts with competitive margins and tight spreads.</p>
+  <div class="cta-section__actions">
+    <a href="/register.html" class="btn btn--white btn--lg">Start Trading Futures</a>
+    <a href="/register.html" class="btn btn--outline btn--lg">Open Account</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-nav">
+    <div class="footer-nav__inner">
+      <p class="footer-nav__contact">More ways to reach us: <a href="/contact">Contact Us</a> · +44 (0) 20 7776 9720 · <a href="/contact">Live Chat</a></p>
+      <div class="footer-nav__grid">
+        <div class="footer-col"><h4>Markets</h4><a href="/markets/futures">Futures</a><a href="/markets/indices">Indices</a><a href="/markets/shares">Shares</a><a href="/markets/metals">Metals</a><a href="/markets/energy">Energy</a><a href="/markets/etfs">ETFs</a></div>
+        <div class="footer-col"><h4>Platforms</h4><a href="/platforms/xantex">Xantex Platform</a><a href="/platforms/tradingview">TradingView</a></div>
+        <div class="footer-col"><h4>Company</h4><a href="/about">About Xantex</a><a href="/security">Online Security</a><a href="/awards">Awards</a><a href="/benefits">Benefits</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact Us</a></div>
+        <div class="footer-col"><h4>Help</h4><a href="/contact">Help Centre</a><a href="/security">Security</a><a href="/privacy">Legal &amp; Privacy</a><a href="/about">About Us</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-disclaimer">
+    <div class="footer-disclaimer__inner">
+      <div><strong>Trade Responsibly:</strong> CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. 71.2% of retail investor accounts lose money when trading CFDs with this provider.</div>
+      <div><strong>Xantex Global Markets Ltd</strong> is authorised and regulated. Licence no. 509956. Registered in England &amp; Wales.</div>
+      <div>This website is not intended for residents of jurisdictions where trading is restricted. Past performance is not indicative of future results.</div>
+    </div>
+    <div class="footer-disclaimer__copy">© 2026 Xantex Global Markets. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+const _nBtns=document.querySelectorAll('.navbar__nav-btn[data-dropdown]');
+function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=document.getElementById(b.dataset.dropdown);if(d)d.classList.remove('open')})}
+_nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});
+document.addEventListener('click',_closeAll);
+</script>
+</body>
+</html>

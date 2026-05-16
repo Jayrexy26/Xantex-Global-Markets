@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TradingView — Xantex Global Markets</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;color:#111;background:#fff;font-size:15px;line-height:1.6}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none}
+img{display:block;max-width:100%}
+.navbar{background:#fff;border-bottom:1px solid #e0e3e8;position:sticky;top:0;z-index:100}
+.navbar__inner{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,60px);display:flex;align-items:center;gap:32px;height:72px}
+.navbar__logo{flex-shrink:0}
+.navbar__nav{display:flex;gap:4px;margin-left:auto}
+.navbar__nav-item{position:relative}
+.navbar__nav-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:none;font-size:14px;font-weight:500;color:#111;border-radius:8px;transition:background .15s;border:none;cursor:pointer}
+.navbar__nav-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;transition:transform .2s}
+.navbar__nav-btn:hover,.navbar__nav-btn.active{background:#f4f6f9;color:#1a5cff}
+.navbar__nav-btn.active svg{transform:rotate(180deg)}
+.nav-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid #e0e3e8;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.10);min-width:190px;padding:6px 0;z-index:200;animation:dropDown .18s ease}
+.nav-dropdown.open{display:block}
+@keyframes dropDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.nav-dropdown a{display:block;padding:10px 20px;font-size:14px;color:#111;white-space:nowrap;transition:background .12s,color .12s}
+.nav-dropdown a:hover{background:#f4f6f9;color:#1a5cff}
+.navbar__actions{display:flex;gap:12px;align-items:center;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;border-radius:28px;font-size:15px;font-weight:500;padding:10px 24px;transition:opacity .15s,background .15s;border:none;font-family:'Inter',sans-serif;cursor:pointer;text-decoration:none}
+.btn--primary{background:#1a5cff;color:#fff}
+.btn--primary:hover{background:#1244cc}
+.btn--ghost{background:transparent;color:#111;border:1.5px solid #e0e3e8}
+.btn--ghost:hover{border-color:#1a5cff;color:#1a5cff}
+.btn--white{background:#fff;color:#1a5cff;font-weight:600}
+.btn--white:hover{background:#e8eeff}
+.btn--outline{background:transparent;border:2px solid rgba(255,255,255,.5);color:#fff}
+.btn--outline:hover{background:rgba(255,255,255,.1)}
+.btn--lg{padding:14px 36px;font-size:16px}
+.page-hero{background:#0d1120;color:#fff;padding:88px clamp(16px,4vw,60px) 80px;text-align:center}
+.page-hero__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:14px}
+.page-hero__h1{font-size:clamp(32px,5vw,54px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:18px}
+.page-hero__sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.7);max-width:600px;margin:0 auto 36px;line-height:1.65}
+.page-hero__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.stats-bar{background:#131d35;padding:24px clamp(16px,4vw,60px)}
+.stats-bar__inner{max-width:1240px;margin:0 auto;display:flex;justify-content:center;gap:clamp(20px,4vw,64px);flex-wrap:wrap}
+.stats-bar__item{text-align:center}
+.stats-bar__value{font-size:22px;font-weight:700;color:#fff}
+.stats-bar__label{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+.section{padding:80px clamp(16px,4vw,60px)}
+.section__inner{max-width:1240px;margin:0 auto}
+.section--grey{background:#f4f6f9}
+.section--navy{background:#0d1120;color:#fff}
+.section__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a5cff;margin-bottom:10px}
+.section__h2{font-size:clamp(26px,3.5vw,40px);font-weight:700;letter-spacing:-.5px;margin-bottom:14px}
+.section__lead{font-size:16px;color:#666;max-width:600px;line-height:1.7;margin-bottom:48px}
+.section--navy .section__eyebrow{color:#60a5fa}
+.section--navy .section__h2{color:#fff}
+.section--navy .section__lead{color:rgba(255,255,255,.6)}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;margin-top:40px}
+.feature-card{background:#fff;border:1px solid #e0e3e8;border-radius:14px;padding:28px;transition:box-shadow .2s}
+.feature-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.feature-card__icon{width:48px;height:48px;border-radius:12px;background:#e8eeff;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.feature-card__icon svg{width:24px;height:24px;fill:none;stroke:#1a5cff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.feature-card__title{font-size:16px;font-weight:700;margin-bottom:8px}
+.feature-card__desc{font-size:14px;color:#666;line-height:1.65}
+.steps-list{display:flex;flex-direction:column;gap:0;max-width:580px;margin:40px auto 0}
+.step-item{display:flex;gap:20px;padding-bottom:32px;position:relative}
+.step-item:not(:last-child)::before{content:'';position:absolute;left:19px;top:40px;width:2px;height:calc(100% - 10px);background:#e0e3e8}
+.step-item__num{width:40px;height:40px;border-radius:50%;background:#1a5cff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0}
+.step-item__title{font-size:16px;font-weight:700;margin-bottom:4px}
+.step-item__desc{font-size:14px;color:#666;line-height:1.65}
+.cta-section{background:linear-gradient(135deg,#1a5cff 0%,#0a1128 100%);padding:80px clamp(16px,4vw,60px);text-align:center;color:#fff}
+.cta-section__h2{font-size:clamp(28px,4vw,44px);font-weight:700;letter-spacing:-.5px;margin-bottom:14px}
+.cta-section__sub{font-size:16px;color:rgba(255,255,255,.75);margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto}
+.cta-section__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+footer{background:#0d1120}
+.footer-nav{padding:48px clamp(16px,4vw,60px) 32px}
+.footer-nav__inner{max-width:1240px;margin:0 auto}
+.footer-nav__contact{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px}
+.footer-nav__contact a{color:#60a5fa}
+.footer-nav__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.footer-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35);margin-bottom:12px}
+.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.6);margin-bottom:8px;transition:color .15s}
+.footer-col a:hover{color:#fff}
+.footer-disclaimer{background:#080e1d;padding:24px clamp(16px,4vw,60px)}
+.footer-disclaimer__inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;font-size:11px;color:rgba(255,255,255,.3);line-height:1.65;margin-bottom:16px}
+.footer-disclaimer strong{color:rgba(255,255,255,.5)}
+.footer-disclaimer__copy{max-width:1240px;margin:0 auto;font-size:11px;color:rgba(255,255,255,.25)}
+@media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.features-grid{grid-template-columns:1fr}.footer-disclaimer__inner{grid-template-columns:1fr}}
+@media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}.page-hero{padding:60px 16px}}
+</style>
+</head>
+<body>
+<header>
+<nav class="navbar">
+  <div class="navbar__inner">
+    <div class="navbar__logo"><a href="/"><img src="/images/logo.png" alt="Xantex" style="height:110px;width:auto;"></a></div>
+    <div class="navbar__nav">
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-markets">Markets <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-markets">
+          <a href="/markets/futures">Futures</a>
+          <a href="/markets/indices">Indices</a>
+          <a href="/markets/shares">Shares</a>
+          <a href="/markets/metals">Metals</a>
+          <a href="/markets/energy">Energy</a>
+          <a href="/markets/etfs">ETFs</a>
+        </div>
+      </div>
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-platforms">Platforms <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-platforms">
+          <a href="/platforms/xantex">Xantex Platform</a>
+          <a href="/platforms/tradingview">TradingView</a>
+        </div>
+      </div>
+      <div class="navbar__nav-item">
+        <button class="navbar__nav-btn" data-dropdown="dd-company">Company <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="nav-dropdown" id="dd-company">
+          <a href="/about">About Xantex</a>
+          <a href="/security">Online Security</a>
+          <a href="/awards">Awards</a>
+          <a href="/benefits">Benefits</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/contact">Contact Us</a>
+        </div>
+      </div>
+    </div>
+    <div class="navbar__actions">
+      <a href="/register.html" class="btn btn--primary">Register</a>
+      <a href="/login.html" class="btn btn--ghost">Login</a>
+    </div>
+  </div>
+</nav>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero__eyebrow">TradingView</div>
+  <h1 class="page-hero__h1">The World's #1 Charting Platform, Connected to Xantex</h1>
+  <p class="page-hero__sub">Use TradingView's powerful charts, Pine Script indicators and social community — trade live with your Xantex account.</p>
+  <div class="page-hero__actions">
+    <a href="/register.html" class="btn btn--primary btn--lg">Connect TradingView</a>
+    <a href="/register.html" class="btn btn--outline btn--lg">Open Xantex Account</a>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stats-bar__inner">
+    <div class="stats-bar__item"><div class="stats-bar__value">100M+</div><div class="stats-bar__label">Users Worldwide</div></div>
+    <div class="stats-bar__item"><div class="stats-bar__value">100+</div><div class="stats-bar__label">Chart Types</div></div>
+    <div class="stats-bar__item"><div class="stats-bar__value">Pine Script</div><div class="stats-bar__label">Custom Indicators</div></div>
+    <div class="stats-bar__item"><div class="stats-bar__value">Live Trading</div><div class="stats-bar__label">Directly from Charts</div></div>
+  </div>
+</div>
+
+<section class="section section--grey">
+  <div class="section__inner">
+    <div class="section__eyebrow">Platform Features</div>
+    <h2 class="section__h2">Why Traders Choose TradingView + Xantex</h2>
+    <p class="section__lead">TradingView's industry-leading charts connected directly to Xantex execution — the best of both worlds in one seamless setup.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="feature-card__title">World-Class Charts</div>
+        <div class="feature-card__desc">TradingView's charts are the gold standard — 100+ chart types, 12 chart layouts, and more indicators than any other platform.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div class="feature-card__title">Pine Script</div>
+        <div class="feature-card__desc">Write your own indicators and strategies in Pine Script, or use thousands of community-built scripts — all for free.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="feature-card__title">Social Community</div>
+        <div class="feature-card__desc">Follow top traders, share ideas, get analysis from 100M+ members — the world's largest trading community at your fingertips.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div class="feature-card__title">Direct Broker Connection</div>
+        <div class="feature-card__desc">Connect your Xantex account directly in TradingView and execute live trades without switching tabs or applications.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section__inner">
+    <div class="section__eyebrow">Get Connected</div>
+    <h2 class="section__h2" style="text-align:center">How to Connect Your Xantex Account</h2>
+    <p class="section__lead" style="margin:0 auto;text-align:center">Four simple steps and you'll be trading live from TradingView charts.</p>
+    <div class="steps-list">
+      <div class="step-item">
+        <div class="step-item__num">1</div>
+        <div>
+          <div class="step-item__title">Open a Xantex Account</div>
+          <div class="step-item__desc">Register at Xantex Global Markets — takes 5 minutes with full digital KYC verification.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-item__num">2</div>
+        <div>
+          <div class="step-item__title">Go to TradingView.com</div>
+          <div class="step-item__desc">Open TradingView in your browser, navigate to the Trading Panel and search for Xantex in the broker list.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-item__num">3</div>
+        <div>
+          <div class="step-item__title">Enter Your Xantex Credentials</div>
+          <div class="step-item__desc">Log in with your Xantex username and password directly within TradingView — your account links instantly.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-item__num">4</div>
+        <div>
+          <div class="step-item__title">Trade Directly from Charts</div>
+          <div class="step-item__desc">Place and manage live orders right from TradingView charts — buy, sell, set stops and take-profits without leaving the chart.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section">
+  <h2 class="cta-section__h2">Connect TradingView to Xantex</h2>
+  <p class="cta-section__sub">The world's best charts, connected to award-winning execution. Open your account and get started today.</p>
+  <div class="cta-section__actions">
+    <a href="/register.html" class="btn btn--white btn--lg">Connect TradingView</a>
+    <a href="/register.html" class="btn btn--outline btn--lg">Open Xantex Account</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-nav">
+    <div class="footer-nav__inner">
+      <p class="footer-nav__contact">More ways to reach us: <a href="/contact">Contact Us</a> · +44 (0) 20 7776 9720 · <a href="/contact">Live Chat</a></p>
+      <div class="footer-nav__grid">
+        <div class="footer-col"><h4>Markets</h4><a href="/markets/futures">Futures</a><a href="/markets/indices">Indices</a><a href="/markets/shares">Shares</a><a href="/markets/metals">Metals</a><a href="/markets/energy">Energy</a><a href="/markets/etfs">ETFs</a></div>
+        <div class="footer-col"><h4>Platforms</h4><a href="/platforms/xantex">Xantex Platform</a><a href="/platforms/tradingview">TradingView</a></div>
+        <div class="footer-col"><h4>Company</h4><a href="/about">About Xantex</a><a href="/security">Online Security</a><a href="/awards">Awards</a><a href="/benefits">Benefits</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact Us</a></div>
+        <div class="footer-col"><h4>Help</h4><a href="/contact">Help Centre</a><a href="/security">Security</a><a href="/privacy">Legal &amp; Privacy</a><a href="/about">About Us</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-disclaimer">
+    <div class="footer-disclaimer__inner">
+      <div><strong>Trade Responsibly:</strong> CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. 71.2% of retail investor accounts lose money when trading CFDs with this provider.</div>
+      <div><strong>Xantex Global Markets Ltd</strong> is authorised and regulated. Licence no. 509956. Registered in England &amp; Wales.</div>
+      <div>This website is not intended for residents of jurisdictions where trading is restricted. Past performance is not indicative of future results.</div>
+    </div>
+    <div class="footer-disclaimer__copy">© 2026 Xantex Global Markets. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+const _nBtns=document.querySelectorAll('.navbar__nav-btn[data-dropdown]');
+function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=document.getElementById(b.dataset.dropdown);if(d)d.classList.remove('open')})}
+_nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});
+document.addEventListener('click',_closeAll);
+</script>
+</body>
+</html>

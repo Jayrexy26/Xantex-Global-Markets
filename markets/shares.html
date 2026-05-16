@@ -38,11 +38,15 @@ img{display:block;max-width:100%}
 .btn--outline{background:transparent;border:2px solid rgba(255,255,255,.5);color:#fff}
 .btn--outline:hover{background:rgba(255,255,255,.1)}
 .btn--lg{padding:14px 36px;font-size:16px}
-.page-hero{background:#0d1120;color:#fff;padding:88px clamp(16px,4vw,60px) 80px;text-align:center}
-.page-hero__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:14px}
-.page-hero__h1{font-size:clamp(32px,5vw,54px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:18px}
-.page-hero__sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.7);max-width:600px;margin:0 auto 36px;line-height:1.65}
-.page-hero__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.page-hero{position:relative;overflow:hidden;background:#0d1120;color:#fff;min-height:460px;display:flex;align-items:flex-end;padding:0 clamp(16px,4vw,60px)}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;z-index:0}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(10,14,28,.88) 0%,rgba(10,14,28,.6) 55%,rgba(10,14,28,.25) 100%);z-index:1}
+.page-hero__content{position:relative;z-index:2;max-width:760px;padding-bottom:56px}
+.page-hero__title-wrap{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.page-hero__dot{width:14px;height:14px;background:#e60023;flex-shrink:0}
+.page-hero__h1{font-size:clamp(40px,7vw,76px);font-weight:700;letter-spacing:-2px;line-height:1.02}
+.page-hero__sub{font-size:clamp(15px,1.8vw,20px);font-weight:600;color:rgba(255,255,255,.9);max-width:580px;margin-bottom:32px;line-height:1.55}
+.page-hero__actions{display:flex;gap:14px;flex-wrap:wrap}
 .stats-bar{background:#131d35;padding:24px clamp(16px,4vw,60px)}
 .stats-bar__inner{max-width:1240px;margin:0 auto;display:flex;justify-content:center;gap:clamp(20px,4vw,64px);flex-wrap:wrap}
 .stats-bar__item{text-align:center}
@@ -94,7 +98,15 @@ footer{background:#0d1120}
 .footer-disclaimer__copy{max-width:1240px;margin:0 auto;font-size:11px;color:rgba(255,255,255,.25)}
 @media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){.features-grid{grid-template-columns:1fr}.footer-disclaimer__inner{grid-template-columns:1fr}}
-@media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}.page-hero{padding:60px 16px}}
+@media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+.page-hero__title-wrap{opacity:0;animation:slideRight .65s ease forwards;animation-delay:.15s}
+.page-hero__sub{opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.45s}
+.page-hero__actions{opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.65s}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal--scale{transform:scale(.93) translateY(16px)}
+.reveal.visible{opacity:1;transform:translateY(0) translateX(0) scale(1)}
 </style>
 </head>
 <body>
@@ -142,12 +154,20 @@ footer{background:#0d1120}
 </header>
 
 <section class="page-hero">
-  <div class="page-hero__eyebrow">Trade Shares</div>
-  <h1 class="page-hero__h1">Trade 300+ Global Stocks as CFDs</h1>
-  <p class="page-hero__sub">Go long or short on Apple, Tesla, Amazon and 300+ world-leading companies with no stamp duty and flexible leverage.</p>
-  <div class="page-hero__actions">
-    <a href="/register.html" class="btn btn--primary btn--lg">Start Trading Shares</a>
-    <a href="#conditions" class="btn btn--outline btn--lg">View Conditions</a>
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/videos/shares.webm" type="video/webm">
+  </video>
+  <div class="hero-overlay"></div>
+  <div class="page-hero__content">
+    <div class="page-hero__title-wrap">
+      <span class="page-hero__dot"></span>
+      <h1 class="page-hero__h1">Shares &amp; Stocks</h1>
+    </div>
+    <p class="page-hero__sub">Trade shares and benefit from ultra-fast order execution.</p>
+    <div class="page-hero__actions">
+      <a href="/register.html" class="btn btn--primary btn--lg">Start Trading</a>
+      <a href="#conditions" class="btn btn--outline btn--lg">View Conditions</a>
+    </div>
   </div>
 </section>
 
@@ -261,6 +281,10 @@ footer{background:#0d1120}
 </footer>
 
 <script>
+const _revealEls=document.querySelectorAll('.section__eyebrow,.section__h2,.section__lead,.feature-card,.stats-bar__item,.step-item,.cta-section__h2,.cta-section__sub,.cta-section__actions,.footer-col');
+_revealEls.forEach(el=>{el.classList.add('reveal');if(el.classList.contains('footer-col'))el.classList.add('reveal--scale');const s=[...el.parentElement.children].filter(c=>c.classList.contains(el.classList[0]));const i=s.indexOf(el);if(i>0)el.style.transitionDelay=(i*.09)+'s';});
+const _ro=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');_ro.unobserve(x.target);}});},{threshold:.05,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>_ro.observe(el));
 const _nBtns=document.querySelectorAll('.navbar__nav-btn[data-dropdown]');
 function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=document.getElementById(b.dataset.dropdown);if(d)d.classList.remove('open')})}
 _nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});

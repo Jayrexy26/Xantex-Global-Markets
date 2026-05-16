@@ -109,6 +109,30 @@
     .sidebar__logout:hover { color: var(--red); }
     .sidebar__logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
 
+    /* ── Profit Target Widget ── */
+    .pt-widget {
+      display: none; /* shown by JS when target exists */
+      margin: 0 12px 12px;
+      background: linear-gradient(135deg, rgba(26,92,255,.12) 0%, rgba(26,92,255,.04) 100%);
+      border: 1px solid rgba(26,92,255,.25);
+      border-radius: 12px;
+      padding: 12px 14px;
+      animation: ptFadeIn .4s ease;
+    }
+    @keyframes ptFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    .pt-widget__header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .pt-widget__label  { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,.35); }
+    .pt-widget__body   { display:flex; align-items:center; gap:12px; }
+    .pt-ring-wrap      { position:relative; width:52px; height:52px; flex-shrink:0; }
+    .pt-ring-wrap svg  { transform:rotate(-90deg); }
+    .pt-ring-track     { fill:none; stroke:rgba(255,255,255,.07); stroke-width:4; }
+    .pt-ring-fill      { fill:none; stroke-width:4; stroke-linecap:round; transition:stroke-dashoffset .8s cubic-bezier(.22,1,.36,1), stroke .5s; }
+    .pt-ring-text      { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; }
+    .pt-widget__info   { flex:1; min-width:0; }
+    .pt-widget__pct    { font-size:20px; font-weight:800; letter-spacing:-.5px; line-height:1; }
+    .pt-widget__target { font-size:11px; color:rgba(255,255,255,.4); margin-top:3px; }
+    .pt-widget__name   { font-size:10px; color:rgba(255,255,255,.3); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
     /* ============================================================
        MAIN
     ============================================================ */
@@ -1107,6 +1131,30 @@
         Settings
       </button>
     </nav>
+
+    <!-- Profit Target Progress Widget -->
+    <div class="pt-widget" id="pt-widget">
+      <div class="pt-widget__header">
+        <span class="pt-widget__label">Profit Target</span>
+      </div>
+      <div class="pt-widget__body">
+        <div class="pt-ring-wrap">
+          <svg width="52" height="52" viewBox="0 0 52 52">
+            <circle class="pt-ring-track" cx="26" cy="26" r="21"/>
+            <circle class="pt-ring-fill" id="pt-ring-fill" cx="26" cy="26" r="21"
+              stroke="#4ade80"
+              stroke-dasharray="131.95"
+              stroke-dashoffset="131.95"/>
+          </svg>
+          <div class="pt-ring-text" id="pt-ring-text">0%</div>
+        </div>
+        <div class="pt-widget__info">
+          <div class="pt-widget__pct" id="pt-pct-text">0%</div>
+          <div class="pt-widget__target" id="pt-target-text">of $0 target</div>
+          <div class="pt-widget__name" id="pt-label-text"></div>
+        </div>
+      </div>
+    </div>
 
     <div class="sidebar__footer">
       <div class="sidebar__avatar"></div>
@@ -2788,6 +2836,46 @@ function savePreferences() {
       } else if (error) console.error('[dashboard] profile rpc ✗:', error.message);
     } catch(e) { console.error('[dashboard] profile rpc exc:', e.message); }
     return null;
+  }
+
+  // Load and render profit target widget (non-blocking)
+  (async () => {
+    try {
+      const { data: targets } = await db
+        .from('profit_targets')
+        .select('*, profit_target_trades(percentage_delta)')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle();
+      if (!targets) return;
+      const pct = (targets.profit_target_trades || [])
+        .reduce((s, t) => s + Number(t.percentage_delta), 0);
+      renderProfitWidget(pct, targets.target_amount, targets.label);
+    } catch(e) { console.warn('[pt-widget]', e.message); }
+  })();
+
+  function renderProfitWidget(pct, targetAmount, label) {
+    const widget = document.getElementById('pt-widget');
+    if (!widget) return;
+    const circumference = 2 * Math.PI * 21; // r=21
+    const clamped = Math.min(Math.max(pct, 0), 100);
+    const offset  = circumference - (clamped / 100) * circumference;
+    const color   = pct < 0 ? '#f87171' : pct < 30 ? '#fb923c' : pct < 70 ? '#fbbf24' : '#4ade80';
+    const fill    = document.getElementById('pt-ring-fill');
+    const ringTxt = document.getElementById('pt-ring-text');
+    const pctTxt  = document.getElementById('pt-pct-text');
+    const tgtTxt  = document.getElementById('pt-target-text');
+    const lblTxt  = document.getElementById('pt-label-text');
+    fill.style.stroke = color;
+    fill.setAttribute('stroke-dashoffset', offset);
+    const display = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+    ringTxt.textContent = Math.round(clamped) + '%';
+    pctTxt.textContent  = display;
+    pctTxt.style.color  = color;
+    tgtTxt.textContent  = 'of $' + Number(targetAmount).toLocaleString() + ' target';
+    lblTxt.textContent  = label || '';
+    widget.style.display = 'block';
   }
 
   let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns, closedTrades] = await Promise.all([

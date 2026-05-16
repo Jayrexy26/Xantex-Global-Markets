@@ -1,164 +1,660 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="icon" type="image/png" href="/images/favicon.png">
-  <title>Admin Panel</title>
+  <title>Xantex Admin</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',system-ui,sans-serif;background:#0d1120;color:#e8eaf0;font-size:14px;min-height:100vh}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    /* ── Layout ── */
+    .admin-wrap{display:flex;min-height:100vh}
+    .sidebar{width:220px;background:#080e1d;border-right:1px solid #1a2340;display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;z-index:10}
+    .sidebar__logo{padding:20px 20px 16px;border-bottom:1px solid #1a2340}
+    .sidebar__logo img{height:80px;width:auto}
+    .sidebar__title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#4a5568;padding:20px 20px 8px}
+    .sidebar nav{flex:1;padding:8px 12px;display:flex;flex-direction:column;gap:2px}
+    .nav-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:none;border:none;color:#94a3b8;font-size:13px;font-weight:500;cursor:pointer;width:100%;text-align:left;transition:background .15s,color .15s}
+    .nav-btn:hover{background:rgba(255,255,255,.05);color:#e8eaf0}
+    .nav-btn.active{background:rgba(26,92,255,.18);color:#fff;border-left:3px solid #1a5cff;padding-left:9px}
+    .nav-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0}
+    .sidebar__footer{padding:16px;border-top:1px solid #1a2340;font-size:12px;color:#4a5568}
+
+    .main{margin-left:220px;flex:1;display:flex;flex-direction:column}
+    .topbar{background:#080e1d;border-bottom:1px solid #1a2340;padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:5}
+    .topbar__title{font-size:18px;font-weight:700;color:#fff}
+    .topbar__badge{font-size:11px;font-weight:700;background:#1a5cff;color:#fff;padding:3px 9px;border-radius:20px;margin-left:6px}
+    .topbar__spacer{flex:1}
+    .topbar__refresh{background:rgba(255,255,255,.06);border:1px solid #1a2340;color:#94a3b8;font-size:13px;font-weight:500;padding:7px 16px;border-radius:8px;cursor:pointer;transition:background .15s}
+    .topbar__refresh:hover{background:rgba(255,255,255,.1);color:#fff}
+
+    .content{padding:28px;flex:1}
+    .page{display:none}.page.active{display:block}
+
+    /* ── Cards & Stats ── */
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+    .stat-card{background:#111827;border:1px solid #1a2340;border-radius:12px;padding:20px 22px}
+    .stat-card__label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#4a5568;margin-bottom:8px}
+    .stat-card__value{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.5px}
+    .stat-card__sub{font-size:12px;color:#4a5568;margin-top:4px}
+
+    /* ── Table ── */
+    .card{background:#111827;border:1px solid #1a2340;border-radius:12px;overflow:hidden;margin-bottom:24px}
+    .card__head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1a2340}
+    .card__title{font-size:14px;font-weight:700;color:#fff}
+    .card__actions{display:flex;gap:8px}
+    table{width:100%;border-collapse:collapse}
+    th{background:#0d1120;padding:11px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#4a5568;text-align:left;white-space:nowrap}
+    td{padding:12px 16px;border-top:1px solid #1a2340;color:#cbd5e1;vertical-align:middle;font-size:13px}
+    tr:hover td{background:rgba(255,255,255,.02)}
+    .td-em{color:#fff;font-weight:600}
+    .empty-row td{text-align:center;color:#4a5568;padding:32px}
+
+    /* ── Badges ── */
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+    .badge--pending{background:rgba(234,179,8,.15);color:#fbbf24}
+    .badge--approved{background:rgba(34,197,94,.15);color:#4ade80}
+    .badge--rejected{background:rgba(239,68,68,.15);color:#f87171}
+
+    /* ── Buttons ── */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:background .15s,opacity .15s;white-space:nowrap}
+    .btn--primary{background:#1a5cff;color:#fff}.btn--primary:hover{background:#1244cc}
+    .btn--success{background:#16a34a;color:#fff}.btn--success:hover{background:#15803d}
+    .btn--danger{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.25)}.btn--danger:hover{background:rgba(239,68,68,.25)}
+    .btn--ghost{background:rgba(255,255,255,.06);color:#94a3b8;border:1px solid #1a2340}.btn--ghost:hover{background:rgba(255,255,255,.1);color:#fff}
+    .btn--sm{padding:5px 12px;font-size:12px}
+    .btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
+
+    /* ── Progress ring (profit targets table) ── */
+    .pct-ring{position:relative;width:44px;height:44px;flex-shrink:0}
+    .pct-ring svg{transform:rotate(-90deg)}
+    .pct-ring__track{fill:none;stroke:#1a2340;stroke-width:3}
+    .pct-ring__fill{fill:none;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .4s ease,stroke .4s}
+    .pct-ring__label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+
+    /* ── Modal ── */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;display:none;align-items:center;justify-content:center}
+    .overlay.open{display:flex}
+    .modal{background:#111827;border:1px solid #1a2340;border-radius:14px;width:100%;max-width:460px;box-shadow:0 24px 60px rgba(0,0,0,.5);animation:modalIn .2s ease}
+    @keyframes modalIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+    .modal__head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #1a2340}
+    .modal__title{font-size:15px;font-weight:700;color:#fff}
+    .modal__close{background:none;border:none;color:#4a5568;font-size:20px;cursor:pointer;line-height:1;padding:0 4px}.modal__close:hover{color:#fff}
+    .modal__body{padding:20px}
+    .modal__foot{padding:14px 20px;border-top:1px solid #1a2340;display:flex;gap:10px;justify-content:flex-end}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+    .field label{font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em}
+    .field input,.field select,.field textarea{background:#0d1120;border:1.5px solid #1a2340;border-radius:8px;padding:10px 12px;font-size:14px;color:#e8eaf0;font-family:inherit;outline:none;transition:border-color .15s;width:100%}
+    .field input:focus,.field select,.field textarea:focus{border-color:#1a5cff}
+    .field textarea{resize:vertical;min-height:80px}
+    .field select option{background:#0d1120}
+    .toggle-row{display:flex;align-items:center;gap:10px;background:#0d1120;border:1.5px solid #1a2340;border-radius:8px;padding:4px;margin-bottom:14px}
+    .toggle-btn{flex:1;padding:7px;border-radius:6px;background:none;border:none;color:#94a3b8;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,color .15s}
+    .toggle-btn.active{background:#1a5cff;color:#fff}
+    .msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none}
+    .msg--error{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#f87171}
+    .msg--ok{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:#4ade80}
+    .trade-list{max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+    .trade-item{display:flex;align-items:center;justify-content:space-between;background:#0d1120;border:1px solid #1a2340;border-radius:8px;padding:10px 12px}
+    .trade-item__pct{font-size:15px;font-weight:700}
+    .trade-item__pct.pos{color:#4ade80}.trade-item__pct.neg{color:#f87171}
+    .trade-item__meta{font-size:11px;color:#4a5568;margin-top:2px}
+
+    /* ── Proof image ── */
+    .proof-thumb{width:52px;height:36px;object-fit:cover;border-radius:6px;cursor:pointer;border:1px solid #1a2340}
+    .proof-thumb:hover{opacity:.8}
+
+    /* ── Search ── */
+    .search-bar{display:flex;gap:10px;margin-bottom:16px}
+    .search-bar input{flex:1;background:#0d1120;border:1.5px solid #1a2340;border-radius:8px;padding:9px 14px;font-size:13px;color:#e8eaf0;font-family:inherit;outline:none}
+    .search-bar input:focus{border-color:#1a5cff}
+
+    @media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.stat-row{grid-template-columns:1fr 1fr}}
+  </style>
 </head>
 <body>
+<div class="admin-wrap">
 
-<h1>Admin Panel</h1>
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <img src="/images/logo.png" alt="Xantex" onerror="this.style.display='none'">
+    </div>
+    <div class="sidebar__title">Admin Panel</div>
+    <nav>
+      <button class="nav-btn active" onclick="showPage('deposits')">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Deposits
+      </button>
+      <button class="nav-btn" onclick="showPage('withdrawals')">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
+        Withdrawals
+      </button>
+      <button class="nav-btn" onclick="showPage('targets')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Profit Targets
+      </button>
+      <button class="nav-btn" onclick="showPage('users')">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users
+      </button>
+    </nav>
+    <div class="sidebar__footer">Xantex Admin v2</div>
+  </aside>
 
-<h2>Deposits</h2>
-<table border="1" id="depositTable">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>User</th>
-      <th>Amount</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar__title" id="page-title">Deposits</div>
+      <div class="topbar__spacer"></div>
+      <button class="topbar__refresh" onclick="loadCurrent()">↻ Refresh</button>
+    </div>
 
-<h2>Withdrawals</h2>
-<table border="1" id="withdrawTable">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>User</th>
-      <th>Amount</th>
-      <th>Status</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+    <div class="content">
+
+      <!-- ══ DEPOSITS ══ -->
+      <div class="page active" id="page-deposits">
+        <div class="stat-row" id="dep-stats">
+          <div class="stat-card"><div class="stat-card__label">Pending</div><div class="stat-card__value" id="dep-pending">—</div></div>
+          <div class="stat-card"><div class="stat-card__label">Approved</div><div class="stat-card__value" id="dep-approved">—</div></div>
+          <div class="stat-card"><div class="stat-card__label">Rejected</div><div class="stat-card__value" id="dep-rejected">—</div></div>
+          <div class="stat-card"><div class="stat-card__label">Total Volume</div><div class="stat-card__value" id="dep-volume">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card__head"><div class="card__title">Deposit Requests</div></div>
+          <table><thead><tr><th>User</th><th>Amount</th><th>Method</th><th>Proof</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="dep-tbody"><tr class="empty-row"><td colspan="7">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- ══ WITHDRAWALS ══ -->
+      <div class="page" id="page-withdrawals">
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-card__label">Pending</div><div class="stat-card__value" id="wdw-pending">—</div></div>
+          <div class="stat-card"><div class="stat-card__label">Approved</div><div class="stat-card__value" id="wdw-approved">—</div></div>
+          <div class="stat-card"><div class="stat-card__label">Rejected</div><div class="stat-card__value" id="wdw-rejected">—</div></div>
+          <div class="stat-card"><div class="stat-card__label">Total Volume</div><div class="stat-card__value" id="wdw-volume">—</div></div>
+        </div>
+        <div class="card">
+          <div class="card__head"><div class="card__title">Withdrawal Requests</div></div>
+          <table><thead><tr><th>User</th><th>Amount</th><th>Destination</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="wdw-tbody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- ══ PROFIT TARGETS ══ -->
+      <div class="page" id="page-targets">
+        <div class="card__head" style="background:#111827;border:1px solid #1a2340;border-radius:12px 12px 0 0;padding:16px 20px">
+          <div class="card__title">Active Profit Targets</div>
+          <div class="card__actions">
+            <button class="btn btn--primary btn--sm" onclick="openModal('setTarget')">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Set Target
+            </button>
+          </div>
+        </div>
+        <div class="card" style="border-radius:0 0 12px 12px;margin-top:0;border-top:none">
+          <table><thead><tr><th>User</th><th>Target ($)</th><th>Progress</th><th>Label</th><th>Updated</th><th>Actions</th></tr></thead>
+          <tbody id="tgt-tbody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- ══ USERS ══ -->
+      <div class="page" id="page-users">
+        <div class="search-bar">
+          <input type="text" id="user-search" placeholder="Search by email or name…" oninput="filterUsers()">
+        </div>
+        <div class="card">
+          <div class="card__head"><div class="card__title">All Users</div></div>
+          <table><thead><tr><th>Email</th><th>Name</th><th>Balance</th><th>KYC</th><th>Joined</th><th>Action</th></tr></thead>
+          <tbody id="users-tbody"><tr class="empty-row"><td colspan="6">Loading…</td></tr></tbody></table>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /admin-wrap -->
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- Reject Deposit -->
+<div class="overlay" id="modal-rejectDep">
+  <div class="modal">
+    <div class="modal__head"><div class="modal__title">Reject Deposit</div><button class="modal__close" onclick="closeModal('rejectDep')">✕</button></div>
+    <div class="modal__body">
+      <input type="hidden" id="reject-dep-id">
+      <div class="field"><label>Reason (optional)</label><input type="text" id="reject-dep-reason" placeholder="e.g. Proof unclear"></div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--ghost" onclick="closeModal('rejectDep')">Cancel</button>
+      <button class="btn btn--danger" onclick="confirmRejectDep()">Reject</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Withdrawal -->
+<div class="overlay" id="modal-rejectWdw">
+  <div class="modal">
+    <div class="modal__head"><div class="modal__title">Reject Withdrawal</div><button class="modal__close" onclick="closeModal('rejectWdw')">✕</button></div>
+    <div class="modal__body">
+      <input type="hidden" id="reject-wdw-id">
+      <div class="field"><label>Reason (optional)</label><input type="text" id="reject-wdw-reason" placeholder="e.g. Invalid destination"></div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--ghost" onclick="closeModal('rejectWdw')">Cancel</button>
+      <button class="btn btn--danger" onclick="confirmRejectWdw()">Reject</button>
+    </div>
+  </div>
+</div>
+
+<!-- Set Profit Target -->
+<div class="overlay" id="modal-setTarget">
+  <div class="modal">
+    <div class="modal__head"><div class="modal__title">Set Profit Target</div><button class="modal__close" onclick="closeModal('setTarget')">✕</button></div>
+    <div class="modal__body">
+      <div class="msg msg--error" id="st-err"></div>
+      <div class="field"><label>User</label>
+        <select id="st-user"><option value="">— Select user —</option></select>
+      </div>
+      <div class="field"><label>Target Amount ($)</label><input type="number" id="st-amount" placeholder="e.g. 1000" min="1"></div>
+      <div class="field"><label>Label (optional)</label><input type="text" id="st-label" placeholder="e.g. Q2 Challenge"></div>
+      <p style="font-size:12px;color:#4a5568">Setting a new target will replace any existing active target for this user.</p>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--ghost" onclick="closeModal('setTarget')">Cancel</button>
+      <button class="btn btn--primary" id="st-btn" onclick="submitSetTarget()">Set Target</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Trade -->
+<div class="overlay" id="modal-addTrade">
+  <div class="modal">
+    <div class="modal__head"><div class="modal__title">Add Trade Entry</div><button class="modal__close" onclick="closeModal('addTrade')">✕</button></div>
+    <div class="modal__body">
+      <div class="msg msg--error" id="at-err"></div>
+      <input type="hidden" id="at-target-id">
+      <input type="hidden" id="at-user-id">
+      <input type="hidden" id="at-target-amount">
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="at-toggle-dollar" onclick="setTradeMode('dollar')">$ Dollar Amount</button>
+        <button class="toggle-btn" id="at-toggle-pct" onclick="setTradeMode('pct')">% Manual %</button>
+      </div>
+      <div id="at-dollar-field" class="field"><label>Amount ($) — negative for loss</label><input type="number" id="at-amount" placeholder="e.g. 50 or -20" step="0.01"></div>
+      <div id="at-pct-field" class="field" style="display:none"><label>Percentage (%) — negative for loss</label><input type="number" id="at-pct" placeholder="e.g. 10 or -5" step="0.01"></div>
+      <div class="field"><label>Note (optional)</label><input type="text" id="at-note" placeholder="e.g. EUR/USD Long"></div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--ghost" onclick="closeModal('addTrade')">Cancel</button>
+      <button class="btn btn--primary" id="at-btn" onclick="submitAddTrade()">Add Trade</button>
+    </div>
+  </div>
+</div>
+
+<!-- Trade History -->
+<div class="overlay" id="modal-tradeHistory">
+  <div class="modal" style="max-width:520px">
+    <div class="modal__head">
+      <div>
+        <div class="modal__title" id="th-title">Trade History</div>
+        <div style="font-size:11px;color:#4a5568;margin-top:3px" id="th-sub"></div>
+      </div>
+      <button class="modal__close" onclick="closeModal('tradeHistory')">✕</button>
+    </div>
+    <div class="modal__body">
+      <div class="trade-list" id="th-list"><div style="color:#4a5568;text-align:center;padding:20px">Loading…</div></div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--ghost" onclick="closeModal('tradeHistory')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Proof image lightbox -->
+<div class="overlay" id="modal-proof" onclick="closeModal('proof')">
+  <img id="proof-img" src="" style="max-width:90vw;max-height:90vh;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.8)">
+</div>
 
 <script>
-
-const FUNCTION_URL = "https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/admin-api";
-
-// ⚠️ PUT YOUR VALUES HERE
+const API = "https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/admin-api";
 const ADMIN_SECRET = "Driver112#";
 const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3bnB6ampwaWdoamhocW94dHNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1Mjc4OTUsImV4cCI6MjA5MzEwMzg5NX0.lfeKjFfNsCoy1UaQ0ASIUD08fUq8mhY-1gbMPzrjYDE";
 
-// LOAD DATA
-async function loadData() {
-  try {
-    console.log("Loading admin data...");
+let _allUsers = [];
+let _tradeMode = 'dollar';
+let _currentPage = 'deposits';
 
-    const res = await fetch(FUNCTION_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-admin-secret": ADMIN_SECRET,
-        "Authorization": "Bearer " + ANON_KEY
-      },
-      body: JSON.stringify({ action: "get_data" })
-    });
-
-    const data = await res.json();
-
-    renderDeposits(data.deposits || []);
-    renderWithdrawals(data.withdrawals || []);
-
-  } catch (err) {
-    console.error(err);
-    alert("Failed to load admin data");
-  }
-}
-
-// RENDER DEPOSITS
-function renderDeposits(deposits) {
-  const tbody = document.querySelector("#depositTable tbody");
-  tbody.innerHTML = "";
-
-  deposits.forEach(d => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${d.id}</td>
-      <td>${d.user_id}</td>
-      <td>$${d.amount}</td>
-      <td>${d.status}</td>
-      <td>
-        ${d.status === "pending"
-          ? `<button onclick="approveDeposit(${d.id})">Approve</button>`
-          : "Done"}
-      </td>
-    `;
-
-    tbody.appendChild(tr);
+async function api(body) {
+  const r = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET, 'Authorization': 'Bearer ' + ANON_KEY },
+    body: JSON.stringify(body)
   });
+  return r.json();
 }
 
-// RENDER WITHDRAWALS
-function renderWithdrawals(withdrawals) {
-  const tbody = document.querySelector("#withdrawTable tbody");
-  tbody.innerHTML = "";
+// ── Navigation ──────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-btn')[['deposits','withdrawals','targets','users'].indexOf(name)].classList.add('active');
+  const titles = { deposits: 'Deposits', withdrawals: 'Withdrawals', targets: 'Profit Targets', users: 'Users' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+  _currentPage = name;
+  loadPage(name);
+}
 
-  withdrawals.forEach(w => {
-    const tr = document.createElement("tr");
+function loadCurrent() { loadPage(_currentPage); }
 
-    tr.innerHTML = `
-      <td>${w.id}</td>
-      <td>${w.user_id}</td>
-      <td>$${w.amount}</td>
-      <td>${w.status}</td>
-      <td>
-        ${w.status === "pending"
-          ? `<button onclick="approveWithdrawal(${w.id})">Approve</button>`
-          : "Done"}
+function loadPage(name) {
+  if (name === 'deposits' || name === 'withdrawals') loadDepositsWithdrawals();
+  else if (name === 'targets') loadTargets();
+  else if (name === 'users') loadUsers();
+}
+
+// ── Deposits & Withdrawals ──────────────────────────────────────────────────
+async function loadDepositsWithdrawals() {
+  const data = await api({ action: 'get_data' });
+  renderDeposits(data.deposits || []);
+  renderWithdrawals(data.withdrawals || []);
+}
+
+function renderDeposits(deps) {
+  const pending  = deps.filter(d => d.status === 'pending').length;
+  const approved = deps.filter(d => d.status === 'approved').length;
+  const rejected = deps.filter(d => d.status === 'rejected').length;
+  const volume   = deps.filter(d => d.status === 'approved').reduce((s,d) => s + Number(d.amount), 0);
+  document.getElementById('dep-pending').textContent  = pending;
+  document.getElementById('dep-approved').textContent = approved;
+  document.getElementById('dep-rejected').textContent = rejected;
+  document.getElementById('dep-volume').textContent   = '$' + volume.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  const tb = document.getElementById('dep-tbody');
+  if (!deps.length) { tb.innerHTML = '<tr class="empty-row"><td colspan="7">No deposits yet</td></tr>'; return; }
+  tb.innerHTML = deps.map(d => `
+    <tr>
+      <td class="td-em">${d.profiles?.email || d.user_id.slice(0,8)+'…'}</td>
+      <td class="td-em">$${Number(d.amount).toLocaleString()}</td>
+      <td>${d.payment_method || '—'}</td>
+      <td>${d.proof_url ? `<img class="proof-thumb" src="${d.proof_url}" onclick="viewProof('${d.proof_url}')">` : '—'}</td>
+      <td>${fmtDate(d.created_at)}</td>
+      <td><span class="badge badge--${d.status}">${d.status}</span></td>
+      <td style="display:flex;gap:6px;align-items:center">
+        ${d.status === 'pending' ? `
+          <button class="btn btn--success btn--sm" onclick="approveDeposit('${d.id}')">✓ Approve</button>
+          <button class="btn btn--danger btn--sm" onclick="openRejectDep('${d.id}')">✕ Reject</button>
+        ` : '—'}
       </td>
-    `;
-
-    tbody.appendChild(tr);
-  });
+    </tr>`).join('');
 }
 
-// APPROVE DEPOSIT
+function renderWithdrawals(wdws) {
+  const pending  = wdws.filter(w => w.status === 'pending').length;
+  const approved = wdws.filter(w => w.status === 'approved').length;
+  const rejected = wdws.filter(w => w.status === 'rejected').length;
+  const volume   = wdws.filter(w => w.status === 'approved').reduce((s,w) => s + Number(w.amount), 0);
+  document.getElementById('wdw-pending').textContent  = pending;
+  document.getElementById('wdw-approved').textContent = approved;
+  document.getElementById('wdw-rejected').textContent = rejected;
+  document.getElementById('wdw-volume').textContent   = '$' + volume.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  const tb = document.getElementById('wdw-tbody');
+  if (!wdws.length) { tb.innerHTML = '<tr class="empty-row"><td colspan="6">No withdrawals yet</td></tr>'; return; }
+  tb.innerHTML = wdws.map(w => `
+    <tr>
+      <td class="td-em">${w.profiles?.email || w.user_id.slice(0,8)+'…'}</td>
+      <td class="td-em">$${Number(w.amount).toLocaleString()}</td>
+      <td>${w.destination_name || w.destination_type || '—'}</td>
+      <td>${fmtDate(w.created_at)}</td>
+      <td><span class="badge badge--${w.status}">${w.status}</span></td>
+      <td style="display:flex;gap:6px;align-items:center">
+        ${w.status === 'pending' ? `
+          <button class="btn btn--success btn--sm" onclick="approveWithdrawal('${w.id}')">✓ Approve</button>
+          <button class="btn btn--danger btn--sm" onclick="openRejectWdw('${w.id}')">✕ Reject</button>
+        ` : '—'}
+      </td>
+    </tr>`).join('');
+}
+
 async function approveDeposit(id) {
-  await fetch(FUNCTION_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-admin-secret": ADMIN_SECRET,
-      "Authorization": "Bearer " + ANON_KEY
-    },
-    body: JSON.stringify({
-      action: "approve_deposit",
-      deposit_id: id
-    })
-  });
-
-  loadData();
+  if (!confirm('Approve this deposit?')) return;
+  await api({ action: 'approve_deposit', deposit_id: id });
+  loadDepositsWithdrawals();
 }
-
-// APPROVE WITHDRAWAL
 async function approveWithdrawal(id) {
-  await fetch(FUNCTION_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-admin-secret": ADMIN_SECRET,
-      "Authorization": "Bearer " + ANON_KEY
-    },
-    body: JSON.stringify({
-      action: "approve_withdrawal",
-      withdrawal_id: id
-    })
-  });
-
-  loadData();
+  if (!confirm('Approve this withdrawal?')) return;
+  await api({ action: 'approve_withdrawal', withdrawal_id: id });
+  loadDepositsWithdrawals();
+}
+function openRejectDep(id) { document.getElementById('reject-dep-id').value = id; document.getElementById('reject-dep-reason').value = ''; openModal('rejectDep'); }
+function openRejectWdw(id) { document.getElementById('reject-wdw-id').value = id; document.getElementById('reject-wdw-reason').value = ''; openModal('rejectWdw'); }
+async function confirmRejectDep() {
+  const id = document.getElementById('reject-dep-id').value;
+  const reason = document.getElementById('reject-dep-reason').value;
+  await api({ action: 'reject_deposit', deposit_id: id, reason });
+  closeModal('rejectDep'); loadDepositsWithdrawals();
+}
+async function confirmRejectWdw() {
+  const id = document.getElementById('reject-wdw-id').value;
+  const reason = document.getElementById('reject-wdw-reason').value;
+  await api({ action: 'reject_withdrawal', withdrawal_id: id, reason });
+  closeModal('rejectWdw'); loadDepositsWithdrawals();
 }
 
-// INIT
-loadData();
+// ── Profit Targets ──────────────────────────────────────────────────────────
+async function loadTargets() {
+  const data = await api({ action: 'get_profit_targets' });
+  renderTargets(data.targets || []);
+}
 
+function renderTargets(targets) {
+  const tb = document.getElementById('tgt-tbody');
+  if (!targets.length) { tb.innerHTML = '<tr class="empty-row"><td colspan="6">No active profit targets</td></tr>'; return; }
+  tb.innerHTML = targets.map(t => {
+    const pct = Math.min(Math.max(t.current_percentage, -100), 200);
+    const displayPct = t.current_percentage.toFixed(2);
+    const clampedForRing = Math.min(Math.max(pct, 0), 100);
+    const ringColor = pct < 0 ? '#f87171' : pct < 30 ? '#fb923c' : pct < 70 ? '#fbbf24' : '#4ade80';
+    const circumference = 2 * Math.PI * 18;
+    const offset = circumference - (clampedForRing / 100) * circumference;
+    return `<tr>
+      <td class="td-em">${t.profiles?.email || t.user_id.slice(0,12)+'…'}</td>
+      <td class="td-em">$${Number(t.target_amount).toLocaleString()}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="pct-ring">
+            <svg width="44" height="44" viewBox="0 0 44 44">
+              <circle class="pct-ring__track" cx="22" cy="22" r="18"/>
+              <circle class="pct-ring__fill" cx="22" cy="22" r="18"
+                stroke="${ringColor}"
+                stroke-dasharray="${circumference}"
+                stroke-dashoffset="${offset}"/>
+            </svg>
+            <div class="pct-ring__label">${Math.round(clampedForRing)}%</div>
+          </div>
+          <span style="font-weight:700;color:${pct>=0?'#4ade80':'#f87171'}">${displayPct}%</span>
+        </div>
+      </td>
+      <td>${t.label || '—'}</td>
+      <td>${fmtDate(t.updated_at)}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn--primary btn--sm" onclick="openAddTrade('${t.id}','${t.user_id}',${t.target_amount})">+ Trade</button>
+        <button class="btn btn--ghost btn--sm" onclick="openTradeHistory('${t.id}','${t.profiles?.email||t.user_id.slice(0,8)}',${t.target_amount})">History</button>
+        <button class="btn btn--danger btn--sm" onclick="deactivateTarget('${t.id}')">Deactivate</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function submitSetTarget() {
+  const userId = document.getElementById('st-user').value;
+  const amount = document.getElementById('st-amount').value;
+  const label  = document.getElementById('st-label').value;
+  const err = document.getElementById('st-err');
+  if (!userId) { showMsg(err, 'Select a user'); return; }
+  if (!amount || Number(amount) <= 0) { showMsg(err, 'Enter a valid target amount'); return; }
+  const btn = document.getElementById('st-btn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  const res = await api({ action: 'set_profit_target', user_id: userId, target_amount: Number(amount), label });
+  btn.textContent = 'Set Target'; btn.disabled = false;
+  if (res.error) { showMsg(err, res.error); return; }
+  closeModal('setTarget');
+  showPage('targets');
+}
+
+function openAddTrade(targetId, userId, targetAmount) {
+  document.getElementById('at-target-id').value  = targetId;
+  document.getElementById('at-user-id').value    = userId;
+  document.getElementById('at-target-amount').value = targetAmount;
+  document.getElementById('at-amount').value = '';
+  document.getElementById('at-pct').value = '';
+  document.getElementById('at-note').value = '';
+  document.getElementById('at-err').style.display = 'none';
+  setTradeMode('dollar');
+  openModal('addTrade');
+}
+
+function setTradeMode(mode) {
+  _tradeMode = mode;
+  document.getElementById('at-toggle-dollar').classList.toggle('active', mode === 'dollar');
+  document.getElementById('at-toggle-pct').classList.toggle('active', mode === 'pct');
+  document.getElementById('at-dollar-field').style.display = mode === 'dollar' ? 'flex' : 'none';
+  document.getElementById('at-pct-field').style.display   = mode === 'pct'    ? 'flex' : 'none';
+}
+
+async function submitAddTrade() {
+  const targetId     = document.getElementById('at-target-id').value;
+  const userId       = document.getElementById('at-user-id').value;
+  const targetAmount = document.getElementById('at-target-amount').value;
+  const note         = document.getElementById('at-note').value;
+  const errEl        = document.getElementById('at-err');
+  let body = { action: 'add_profit_trade', target_id: targetId, user_id: userId, note };
+  if (_tradeMode === 'dollar') {
+    const amt = document.getElementById('at-amount').value;
+    if (amt === '' || isNaN(Number(amt))) { showMsg(errEl, 'Enter a valid dollar amount'); return; }
+    body.amount = Number(amt);
+  } else {
+    const pct = document.getElementById('at-pct').value;
+    if (pct === '' || isNaN(Number(pct))) { showMsg(errEl, 'Enter a valid percentage'); return; }
+    body.percentage_delta = Number(pct);
+  }
+  const btn = document.getElementById('at-btn');
+  btn.textContent = 'Adding…'; btn.disabled = true;
+  const res = await api(body);
+  btn.textContent = 'Add Trade'; btn.disabled = false;
+  if (res.error) { showMsg(errEl, res.error); return; }
+  closeModal('addTrade');
+  loadTargets();
+}
+
+async function openTradeHistory(targetId, email, targetAmount) {
+  document.getElementById('th-title').textContent = 'Trade History';
+  document.getElementById('th-sub').textContent   = email + ' — Target: $' + Number(targetAmount).toLocaleString();
+  openModal('tradeHistory');
+  document.getElementById('th-list').innerHTML = '<div style="color:#4a5568;text-align:center;padding:20px">Loading…</div>';
+  const res = await api({ action: 'get_target_trades', target_id: targetId });
+  const trades = res.trades || [];
+  if (!trades.length) { document.getElementById('th-list').innerHTML = '<div style="color:#4a5568;text-align:center;padding:20px">No trades yet</div>'; return; }
+  document.getElementById('th-list').innerHTML = trades.map(t => {
+    const pct = Number(t.percentage_delta);
+    const amtStr = t.amount != null ? ` ($${Number(t.amount) >= 0 ? '+' : ''}${Number(t.amount).toFixed(2)})` : '';
+    return `<div class="trade-item">
+      <div>
+        <div class="trade-item__pct ${pct >= 0 ? 'pos' : 'neg'}">${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%${amtStr}</div>
+        <div class="trade-item__meta">${t.note || 'No note'} · ${fmtDate(t.created_at)}</div>
+      </div>
+      <button class="btn btn--danger btn--sm" onclick="deleteTrade('${t.id}','${targetId}','${email}',${targetAmount})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+async function deleteTrade(tradeId, targetId, email, targetAmount) {
+  if (!confirm('Delete this trade entry?')) return;
+  await api({ action: 'delete_profit_trade', trade_id: tradeId });
+  openTradeHistory(targetId, email, targetAmount);
+  loadTargets();
+}
+
+async function deactivateTarget(targetId) {
+  if (!confirm('Deactivate this profit target? The user will no longer see the progress indicator.')) return;
+  await api({ action: 'deactivate_profit_target', target_id: targetId });
+  loadTargets();
+}
+
+// ── Users ────────────────────────────────────────────────────────────────────
+async function loadUsers() {
+  const data = await api({ action: 'get_users' });
+  _allUsers = data.users || [];
+  renderUsers(_allUsers);
+  populateUserSelect(_allUsers);
+}
+
+function renderUsers(users) {
+  const tb = document.getElementById('users-tbody');
+  if (!users.length) { tb.innerHTML = '<tr class="empty-row"><td colspan="6">No users found</td></tr>'; return; }
+  tb.innerHTML = users.map(u => `
+    <tr>
+      <td class="td-em">${u.email}</td>
+      <td>${u.full_name || '—'}</td>
+      <td>$${Number(u.balance||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+      <td><span class="badge badge--${u.kyc_status === 'approved' ? 'approved' : u.kyc_status === 'pending' ? 'pending' : 'rejected'}">${u.kyc_status || 'none'}</span></td>
+      <td>${fmtDate(u.created_at)}</td>
+      <td>
+        <button class="btn btn--primary btn--sm" onclick="quickSetTarget('${u.id}','${u.email}')">Set Target</button>
+      </td>
+    </tr>`).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('user-search').value.toLowerCase();
+  renderUsers(_allUsers.filter(u => (u.email||'').toLowerCase().includes(q) || (u.full_name||'').toLowerCase().includes(q)));
+}
+
+function populateUserSelect(users) {
+  const sel = document.getElementById('st-user');
+  sel.innerHTML = '<option value="">— Select user —</option>' + users.map(u => `<option value="${u.id}">${u.email}</option>`).join('');
+}
+
+function quickSetTarget(userId, email) {
+  showPage('targets');
+  openModal('setTarget');
+  setTimeout(() => {
+    const sel = document.getElementById('st-user');
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === userId) { sel.selectedIndex = i; break; }
+    }
+  }, 100);
+}
+
+// ── Modal helpers ─────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById('modal-' + id).classList.add('open'); }
+function closeModal(id) { document.getElementById('modal-' + id).classList.remove('open'); }
+function viewProof(url) { document.getElementById('proof-img').src = url; openModal('proof'); }
+function showMsg(el, msg) { el.textContent = msg; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 4000); }
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Close overlays on outside click
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o && o.id !== 'modal-proof') closeModal(o.id.replace('modal-','')); });
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(async () => {
+  await loadDepositsWithdrawals();
+  // Preload users for the target select
+  const data = await api({ action: 'get_users' });
+  _allUsers = data.users || [];
+  populateUserSelect(_allUsers);
+})();
 </script>
-
 </body>
 </html>

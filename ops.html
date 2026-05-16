@@ -2484,7 +2484,6 @@ window.opsRejectWithdrawal = async function(id, userId) {
 
 // ── All Transactions ──────────────────────────────────────────
 async function renderTransactionsLive() {
-  renderTransactions();
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
     .from('transactions')
@@ -2511,7 +2510,6 @@ window.renderTransactionsLive = renderTransactionsLive;
 
 // ── Audit Log ─────────────────────────────────────────────────
 async function renderAuditLive() {
-  renderAudit();
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
     .from('audit_log')

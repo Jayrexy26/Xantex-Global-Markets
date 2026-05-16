@@ -13,6 +13,8 @@ body{font-family:'Inter',sans-serif;color:#111;background:#fff;font-size:15px;li
 a{text-decoration:none;color:inherit}
 button{font-family:inherit;cursor:pointer;border:none}
 img{display:block;max-width:100%}
+
+/* ── Navbar ── */
 .navbar{background:#fff;border-bottom:1px solid #e0e3e8;position:sticky;top:0;z-index:100}
 .navbar__inner{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,60px);display:flex;align-items:center;gap:32px;height:56px}
 .navbar__logo{flex-shrink:0}
@@ -38,36 +40,57 @@ img{display:block;max-width:100%}
 .btn--outline{background:transparent;border:2px solid rgba(255,255,255,.5);color:#fff}
 .btn--outline:hover{background:rgba(255,255,255,.1)}
 .btn--lg{padding:14px 36px;font-size:16px}
-.page-hero{background:#0d1120;color:#fff;padding:88px clamp(16px,4vw,60px) 80px;text-align:center}
-.page-hero__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:14px}
-.page-hero__h1{font-size:clamp(32px,5vw,54px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:18px}
-.page-hero__sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.7);max-width:600px;margin:0 auto 36px;line-height:1.65}
-.page-hero__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-.stats-bar{background:#131d35;padding:24px clamp(16px,4vw,60px)}
-.stats-bar__inner{max-width:1240px;margin:0 auto;display:flex;justify-content:center;gap:clamp(20px,4vw,64px);flex-wrap:wrap}
+
+/* ── Hero ── */
+.page-hero{position:relative;overflow:hidden;background:#09101f;color:#fff;min-height:420px;display:flex;align-items:flex-end;padding:0 clamp(16px,4vw,60px)}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(120deg,rgba(9,16,31,1) 0%,rgba(15,24,52,.85) 60%,rgba(26,92,255,.08) 100%);z-index:1}
+.page-hero__content{position:relative;z-index:2;max-width:760px;padding-bottom:60px}
+.page-hero__title-wrap{display:flex;align-items:center;gap:16px;margin-bottom:16px;opacity:0;animation:slideRight .65s ease forwards;animation-delay:.15s}
+.page-hero__dot{width:14px;height:14px;background:#e60023;flex-shrink:0}
+.page-hero__h1{font-size:clamp(40px,7vw,72px);font-weight:700;letter-spacing:-2px;line-height:1.02}
+.page-hero__sub{font-size:clamp(15px,1.8vw,20px);font-weight:600;color:rgba(255,255,255,.85);max-width:560px;margin-bottom:0;line-height:1.55;opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.45s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── Stats bar ── */
+.stats-bar{background:#131d35;padding:28px clamp(16px,4vw,60px)}
+.stats-bar__inner{max-width:1240px;margin:0 auto;display:flex;justify-content:center;gap:clamp(24px,5vw,80px);flex-wrap:wrap}
 .stats-bar__item{text-align:center}
-.stats-bar__value{font-size:22px;font-weight:700;color:#fff}
-.stats-bar__label{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+.stats-bar__value{font-size:26px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+.stats-bar__label{font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── Sections ── */
 .section{padding:80px clamp(16px,4vw,60px)}
 .section__inner{max-width:1240px;margin:0 auto}
-.section--grey{background:#f4f6f9}
-.section__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#1a5cff;margin-bottom:10px}
-.section__h2{font-size:clamp(26px,3.5vw,40px);font-weight:700;letter-spacing:-.5px;margin-bottom:14px}
-.section__lead{font-size:16px;color:#666;max-width:600px;line-height:1.7;margin-bottom:48px}
-.award-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;margin-top:40px}
-.award-card{background:#fff;border:1px solid #e0e3e8;border-radius:14px;padding:28px;text-align:center;transition:box-shadow .2s}
-.award-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
-.award-card__trophy{width:48px;height:48px;border-radius:50%;background:#fffbeb;border:2px solid #f5a623;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:22px}
-.award-card__year{font-size:12px;font-weight:700;color:#1a5cff;letter-spacing:.06em;margin-bottom:10px;text-transform:uppercase}
-.award-card__title{font-size:16px;font-weight:700;margin-bottom:6px}
-.award-card__org{font-size:13px;color:#666}
-.meaning-box{background:#fff;border:1px solid #e0e3e8;border-radius:16px;padding:40px;max-width:760px;margin:40px auto 0;text-align:center}
-.meaning-box__h3{font-size:20px;font-weight:700;margin-bottom:14px}
-.meaning-box__p{font-size:15px;color:#555;line-height:1.8}
-.cta-section{background:linear-gradient(135deg,#1a5cff 0%,#0a1128 100%);padding:80px clamp(16px,4vw,60px);text-align:center;color:#fff}
-.cta-section__h2{font-size:clamp(28px,4vw,44px);font-weight:700;letter-spacing:-.5px;margin-bottom:14px}
-.cta-section__sub{font-size:16px;color:rgba(255,255,255,.75);margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto}
-.cta-section__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.section--grey{background:#f7f8fa}
+.year-heading{font-size:clamp(28px,3vw,38px);font-weight:700;letter-spacing:-1px;color:#111;margin-bottom:32px;padding-bottom:16px;border-bottom:2px solid #e8eaed}
+.year-pill{display:inline-block;background:#1a5cff;color:#fff;font-size:13px;font-weight:700;letter-spacing:.04em;border-radius:6px;padding:4px 12px;margin-right:12px;vertical-align:middle}
+
+/* ── Award cards ── */
+.award-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:64px}
+.award-card{background:#fff;border:1px solid #e8eaed;border-radius:16px;padding:32px 24px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0;transition:box-shadow .2s,transform .2s;cursor:default}
+.award-card:hover{box-shadow:0 12px 36px rgba(0,0,0,.1);transform:translateY(-3px)}
+.award-card__img-wrap{width:100%;height:180px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.award-card__img-wrap img{max-height:170px;max-width:100%;object-fit:contain}
+.award-card__title{font-size:15px;font-weight:700;color:#111;margin-bottom:6px;line-height:1.35}
+.award-card__org{font-size:13px;color:#666;margin-bottom:10px}
+.award-card__year-badge{font-size:11px;font-weight:700;background:#f0f4ff;color:#1a5cff;border-radius:20px;padding:3px 12px;letter-spacing:.04em}
+
+/* ── Quote section ── */
+.quote-section{background:linear-gradient(135deg,#1a3fa8 0%,#0d2470 100%);padding:72px clamp(16px,4vw,60px);color:#fff;text-align:center}
+.quote-section__inner{max-width:760px;margin:0 auto}
+.quote-section__marks{font-size:64px;line-height:.8;color:rgba(255,255,255,.25);font-family:Georgia,serif;margin-bottom:8px}
+.quote-section__text{font-size:clamp(18px,2.2vw,24px);font-weight:600;line-height:1.6;color:#fff;margin-bottom:28px}
+.quote-section__attr{font-size:14px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.1em}
+
+/* ── Need Help bar ── */
+.help-bar{background:#0d1120;padding:40px clamp(16px,4vw,60px)}
+.help-bar__inner{max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.help-bar__text h3{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px}
+.help-bar__text p{font-size:14px;color:rgba(255,255,255,.5)}
+.help-bar__actions{display:flex;gap:12px;flex-wrap:wrap}
+
+/* ── Footer ── */
 footer{background:#0d1120}
 .footer-nav{padding:48px clamp(16px,4vw,60px) 32px}
 .footer-nav__inner{max-width:1240px;margin:0 auto}
@@ -81,12 +104,26 @@ footer{background:#0d1120}
 .footer-disclaimer__inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;font-size:11px;color:rgba(255,255,255,.3);line-height:1.65;margin-bottom:16px}
 .footer-disclaimer strong{color:rgba(255,255,255,.5)}
 .footer-disclaimer__copy{max-width:1240px;margin:0 auto;font-size:11px;color:rgba(255,255,255,.25)}
-@media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
-@media(max-width:768px){.award-grid{grid-template-columns:1fr 1fr}.footer-disclaimer__inner{grid-template-columns:1fr}}
-@media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}.page-hero{padding:60px 16px}.award-grid{grid-template-columns:1fr}}
+
+/* ── Reveal animations ── */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  .award-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-nav__grid{grid-template-columns:1fr 1fr}
+  .help-bar__inner{flex-direction:column;text-align:center}
+}
+@media(max-width:600px){
+  .award-grid{grid-template-columns:1fr}
+  .footer-disclaimer__inner{grid-template-columns:1fr}
+  .footer-nav__grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
+
 <header>
 <nav class="navbar">
   <div class="navbar__inner">
@@ -130,100 +167,139 @@ footer{background:#0d1120}
 </nav>
 </header>
 
+<!-- Hero -->
 <section class="page-hero">
-  <div class="page-hero__eyebrow">Awards &amp; Recognition</div>
-  <h1 class="page-hero__h1">Industry Leaders in Online Trading</h1>
-  <p class="page-hero__sub">Recognised year after year by leading financial publications for excellence in trading conditions, technology and client service.</p>
-  <div class="page-hero__actions">
-    <a href="/register.html" class="btn btn--primary btn--lg">Experience Award-Winning Trading</a>
-    <a href="/register.html" class="btn btn--outline btn--lg">Open Account</a>
+  <div class="hero-overlay"></div>
+  <div class="page-hero__content">
+    <div class="page-hero__title-wrap">
+      <span class="page-hero__dot"></span>
+      <h1 class="page-hero__h1">Celebrating<br>Excellence</h1>
+    </div>
+    <p class="page-hero__sub">Recognised by the world's leading financial institutions for outstanding trading conditions, technology, and client service.</p>
   </div>
 </section>
 
+<!-- Stats bar -->
 <div class="stats-bar">
   <div class="stats-bar__inner">
-    <div class="stats-bar__item"><div class="stats-bar__value">18+</div><div class="stats-bar__label">Awards Won</div></div>
-    <div class="stats-bar__item"><div class="stats-bar__value">Since 2015</div><div class="stats-bar__label">Consistently Recognised</div></div>
-    <div class="stats-bar__item"><div class="stats-bar__value">6</div><div class="stats-bar__label">Categories</div></div>
-    <div class="stats-bar__item"><div class="stats-bar__value">Global</div><div class="stats-bar__label">Recognition</div></div>
+    <div class="stats-bar__item reveal"><div class="stats-bar__value">10+</div><div class="stats-bar__label">Awards Won</div></div>
+    <div class="stats-bar__item reveal"><div class="stats-bar__value">2024–2025</div><div class="stats-bar__label">Consecutive Years</div></div>
+    <div class="stats-bar__item reveal"><div class="stats-bar__value">4</div><div class="stats-bar__label">Awarding Bodies</div></div>
+    <div class="stats-bar__item reveal"><div class="stats-bar__value">Global</div><div class="stats-bar__label">Recognition</div></div>
   </div>
 </div>
 
-<section class="section">
-  <div class="section__inner">
-    <div class="section__eyebrow">Our Awards</div>
-    <h2 class="section__h2">Recognised by the Industry's Best</h2>
-    <p class="section__lead">From execution quality to customer service, our awards reflect a consistent commitment to excellence across every aspect of the trading experience.</p>
-    <div class="award-grid">
-      <div class="award-card">
-        <div class="award-card__trophy">&#127942;</div>
-        <div class="award-card__year">2024</div>
-        <div class="award-card__title">Best Forex Broker</div>
-        <div class="award-card__org">Finance Magnates</div>
-      </div>
-      <div class="award-card">
-        <div class="award-card__trophy">&#127942;</div>
-        <div class="award-card__year">2024</div>
-        <div class="award-card__title">Best Trading Platform</div>
-        <div class="award-card__org">ForexExpo Dubai</div>
-      </div>
-      <div class="award-card">
-        <div class="award-card__trophy">&#127942;</div>
-        <div class="award-card__year">2023</div>
-        <div class="award-card__title">Best ECN Broker</div>
-        <div class="award-card__org">Investment Trends</div>
-      </div>
-      <div class="award-card">
-        <div class="award-card__trophy">&#127942;</div>
-        <div class="award-card__year">2023</div>
-        <div class="award-card__title">Best Mobile Trading App</div>
-        <div class="award-card__org">FX Week</div>
-      </div>
-      <div class="award-card">
-        <div class="award-card__trophy">&#127942;</div>
-        <div class="award-card__year">2023</div>
-        <div class="award-card__title">Best Customer Service</div>
-        <div class="award-card__org">LeapRate Awards</div>
-      </div>
-      <div class="award-card">
-        <div class="award-card__trophy">&#127942;</div>
-        <div class="award-card__year">2022</div>
-        <div class="award-card__title">Best Execution Quality</div>
-        <div class="award-card__org">Finance Magnates</div>
-      </div>
-      <div class="award-card">
-        <div class="award-card__trophy">&#127942;</div>
-        <div class="award-card__year">2022</div>
-        <div class="award-card__title">Most Trusted Broker</div>
-        <div class="award-card__org">Global Forex Awards</div>
-      </div>
-      <div class="award-card">
-        <div class="award-card__trophy">&#127942;</div>
-        <div class="award-card__year">2021</div>
-        <div class="award-card__title">Best Tight Spreads</div>
-        <div class="award-card__org">Forex Ratings</div>
-      </div>
-    </div>
-  </div>
-</section>
-
+<!-- Awards sections -->
 <section class="section section--grey">
   <div class="section__inner">
-    <div class="section__eyebrow">Our Standards</div>
-    <h2 class="section__h2" style="text-align:center">What Our Awards Mean</h2>
-    <div class="meaning-box">
-      <h3 class="meaning-box__h3">A Reflection of Our Commitment to You</h3>
-      <p class="meaning-box__p">Our awards are not marketing — they are independent validation from the industry's most respected publications and research firms. Each award is judged on measurable criteria: spread quality, execution speed, platform reliability, client satisfaction and regulatory standing. Winning consistently across all six categories reflects what we have always believed — that there should be no trade-off between pricing, technology and service. Our clients deserve the best of all three, and our awards confirm that we are delivering it.</p>
+
+    <!-- 2025 -->
+    <div class="year-heading reveal"><span class="year-pill">2025</span>Awards</div>
+    <div class="award-grid">
+
+      <div class="award-card reveal">
+        <div class="award-card__img-wrap">
+          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/broker-of-the-year-2025.webp" alt="Broker of the Year Global 2025">
+        </div>
+        <div class="award-card__title">Broker of the Year — Global</div>
+        <div class="award-card__org">UFAwards</div>
+        <div class="award-card__year-badge">2025</div>
+      </div>
+
+      <div class="award-card reveal">
+        <div class="award-card__img-wrap">
+          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/best-trading-experience-2025.webp" alt="Best Trading Experience LATAM 2025">
+        </div>
+        <div class="award-card__title">Best Trading Experience — LATAM</div>
+        <div class="award-card__org">UFAwards</div>
+        <div class="award-card__year-badge">2025</div>
+      </div>
+
+      <div class="award-card reveal">
+        <div class="award-card__img-wrap">
+          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/most-transparent-broker-2025-a.webp" alt="Most Transparent Broker 2025">
+        </div>
+        <div class="award-card__title">Most Transparent Broker</div>
+        <div class="award-card__org">Money Expo India</div>
+        <div class="award-card__year-badge">2025</div>
+      </div>
+
+      <div class="award-card reveal">
+        <div class="award-card__img-wrap">
+          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/most-transparent-broker-2025-b.webp" alt="Most Transparent Broker 2025">
+        </div>
+        <div class="award-card__title">Most Transparent Broker — Global</div>
+        <div class="award-card__org">Money Expo India</div>
+        <div class="award-card__year-badge">2025</div>
+      </div>
+
+      <div class="award-card reveal">
+        <div class="award-card__img-wrap">
+          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/5-star-app-2025.webp" alt="5 Star Winner App 2025">
+        </div>
+        <div class="award-card__title">5 Star Winner — App</div>
+        <div class="award-card__org">Investors' Chronicle &amp; Financial Times</div>
+        <div class="award-card__year-badge">2025</div>
+      </div>
+
+      <div class="award-card reveal">
+        <div class="award-card__img-wrap">
+          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/5-star-selective-platform-badge.webp" alt="5 Star Winner Selective Platform 2025">
+        </div>
+        <div class="award-card__title">5 Star Winner — Selective Platform</div>
+        <div class="award-card__org">Investors' Chronicle &amp; Financial Times</div>
+        <div class="award-card__year-badge">2025</div>
+      </div>
+
     </div>
+
+    <!-- 2024 -->
+    <div class="year-heading reveal"><span class="year-pill">2024</span>Awards</div>
+    <div class="award-grid" style="grid-template-columns:repeat(2,1fr);max-width:560px;">
+
+      <div class="award-card reveal">
+        <div class="award-card__img-wrap">
+          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/most-reliable-broker-2024.webp" alt="Most Reliable Broker 2024">
+        </div>
+        <div class="award-card__title">Most Reliable Broker</div>
+        <div class="award-card__org">Professional Trader Awards</div>
+        <div class="award-card__year-badge">2024</div>
+      </div>
+
+      <div class="award-card reveal">
+        <div class="award-card__img-wrap">
+          <img src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/awards/5-star-app-2024.webp" alt="5 Star Winner App 2024">
+        </div>
+        <div class="award-card__title">5 Star Winner — App</div>
+        <div class="award-card__org">Investors' Chronicle &amp; Financial Times</div>
+        <div class="award-card__year-badge">2024</div>
+      </div>
+
+    </div>
+
   </div>
 </section>
 
-<div class="cta-section">
-  <h2 class="cta-section__h2">Experience Award-Winning Trading</h2>
-  <p class="cta-section__sub">Join over one million traders who have already chosen Xantex for its award-winning conditions, technology and service.</p>
-  <div class="cta-section__actions">
-    <a href="/register.html" class="btn btn--white btn--lg">Experience Award-Winning Trading</a>
-    <a href="/register.html" class="btn btn--outline btn--lg">Open Account</a>
+<!-- Quote section -->
+<div class="quote-section">
+  <div class="quote-section__inner reveal">
+    <div class="quote-section__marks">"</div>
+    <p class="quote-section__text">These awards reflect the trust our clients place in us every day. We don't chase recognition — we earn it by delivering the best possible trading experience, consistently and transparently.</p>
+    <div class="quote-section__attr">Xantex Global Markets — Award Recognition Statement</div>
+  </div>
+</div>
+
+<!-- Need help bar -->
+<div class="help-bar">
+  <div class="help-bar__inner">
+    <div class="help-bar__text reveal">
+      <h3>Need Help Getting Started?</h3>
+      <p>Our award-winning support team is available 24/5 to assist you.</p>
+    </div>
+    <div class="help-bar__actions reveal">
+      <a href="/contact" class="btn btn--primary">Contact Support</a>
+      <a href="/register.html" class="btn btn--outline">Open Account</a>
+    </div>
   </div>
 </div>
 
@@ -232,10 +308,10 @@ footer{background:#0d1120}
     <div class="footer-nav__inner">
       <p class="footer-nav__contact">More ways to reach us: <a href="/contact">Contact Us</a> · +44 (0) 20 7776 9720 · <a href="/contact">Live Chat</a></p>
       <div class="footer-nav__grid">
-        <div class="footer-col"><h4>Markets</h4><a href="/markets/futures">Futures</a><a href="/markets/indices">Indices</a><a href="/markets/shares">Shares</a><a href="/markets/metals">Metals</a><a href="/markets/energy">Energy</a><a href="/markets/etfs">ETFs</a></div>
-        <div class="footer-col"><h4>Platforms</h4><a href="/platforms/xantex">Xantex Platform</a><a href="/platforms/tradingview">TradingView</a></div>
-        <div class="footer-col"><h4>Company</h4><a href="/about">About Xantex</a><a href="/security">Online Security</a><a href="/awards">Awards</a><a href="/benefits">Benefits</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact Us</a></div>
-        <div class="footer-col"><h4>Help</h4><a href="/contact">Help Centre</a><a href="/security">Security</a><a href="/privacy">Legal &amp; Privacy</a><a href="/about">About Us</a></div>
+        <div class="footer-col reveal"><h4>Markets</h4><a href="/markets/futures">Futures</a><a href="/markets/indices">Indices</a><a href="/markets/shares">Shares</a><a href="/markets/metals">Metals</a><a href="/markets/energy">Energy</a><a href="/markets/etfs">ETFs</a></div>
+        <div class="footer-col reveal"><h4>Platforms</h4><a href="/platforms/xantex">Xantex Platform</a><a href="/platforms/tradingview">TradingView</a></div>
+        <div class="footer-col reveal"><h4>Company</h4><a href="/about">About Xantex</a><a href="/security">Online Security</a><a href="/awards">Awards</a><a href="/benefits">Benefits</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact Us</a></div>
+        <div class="footer-col reveal"><h4>Help</h4><a href="/contact">Help Centre</a><a href="/security">Security</a><a href="/privacy">Legal &amp; Privacy</a><a href="/about">About Us</a></div>
       </div>
     </div>
   </div>
@@ -254,6 +330,9 @@ const _nBtns=document.querySelectorAll('.navbar__nav-btn[data-dropdown]');
 function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=document.getElementById(b.dataset.dropdown);if(d)d.classList.remove('open')})}
 _nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});
 document.addEventListener('click',_closeAll);
+
+const _ro=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');_ro.unobserve(x.target);}});},{threshold:.08,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>_ro.observe(el));
 </script>
 </body>
 </html>

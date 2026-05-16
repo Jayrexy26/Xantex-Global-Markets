@@ -3471,7 +3471,10 @@ window.ptPopulateUsers = async function() {
   try {
     const { users } = await adminApiCall('get_users');
     const opts = '<option value="">— Select a user —</option>' +
-      (users || []).map(u => `<option value="${u.id}">${u.full_name || u.email} (${u.email})</option>`).join('');
+      (users || []).map(u => {
+        const name = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email;
+        return `<option value="${u.id}">${name} (${u.email})</option>`;
+      }).join('');
     ['pt-user-sel', 'pt-set-user'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.innerHTML = opts;

@@ -79,7 +79,7 @@ serve(async (req) => {
 
     // ── Users ───────────────────────────────────────────────────────────────
     if (action === "get_users") {
-      const { data } = await db.from("profiles").select("id, email, full_name, balance, kyc_status, created_at").order("created_at", { ascending: false }).limit(200);
+      const { data } = await db.from("profiles").select("id, email, first_name, last_name, balance, kyc_status, created_at").order("created_at", { ascending: false }).limit(200);
       return ok({ users: data ?? [] });
     }
 

@@ -38,11 +38,15 @@ img{display:block;max-width:100%}
 .btn--outline{background:transparent;border:2px solid rgba(255,255,255,.5);color:#fff}
 .btn--outline:hover{background:rgba(255,255,255,.1)}
 .btn--lg{padding:14px 36px;font-size:16px}
-.page-hero{background:#0d1120;color:#fff;padding:88px clamp(16px,4vw,60px) 80px;text-align:center}
-.page-hero__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:14px}
-.page-hero__h1{font-size:clamp(32px,5vw,54px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:18px}
-.page-hero__sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.7);max-width:600px;margin:0 auto 36px;line-height:1.65}
-.page-hero__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.page-hero{position:relative;overflow:hidden;background:#000;color:#fff;min-height:460px;display:flex;align-items:flex-end;padding:0 clamp(16px,4vw,60px)}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:.9;z-index:0}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.72) 0%,rgba(0,0,0,.4) 55%,rgba(0,0,0,.1) 100%);z-index:1}
+.page-hero__content{position:relative;z-index:2;max-width:760px;padding-bottom:56px}
+.page-hero__title-wrap{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.page-hero__dot{width:14px;height:14px;background:#e60023;flex-shrink:0}
+.page-hero__h1{font-size:clamp(40px,7vw,76px);font-weight:700;letter-spacing:-2px;line-height:1.02}
+.page-hero__sub{font-size:clamp(15px,1.8vw,20px);font-weight:600;color:rgba(255,255,255,.9);max-width:580px;margin-bottom:32px;line-height:1.55}
+.page-hero__actions{display:flex;gap:14px;flex-wrap:wrap}
 .stats-bar{background:#131d35;padding:24px clamp(16px,4vw,60px)}
 .stats-bar__inner{max-width:1240px;margin:0 auto;display:flex;justify-content:center;gap:clamp(20px,4vw,64px);flex-wrap:wrap}
 .stats-bar__item{text-align:center}
@@ -92,7 +96,7 @@ footer{background:#0d1120}
 .footer-disclaimer__copy{max-width:1240px;margin:0 auto;font-size:11px;color:rgba(255,255,255,.25)}
 @media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){.story-grid{grid-template-columns:1fr}.reg-grid{grid-template-columns:1fr}.footer-disclaimer__inner{grid-template-columns:1fr}}
-@media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}.page-hero{padding:60px 16px}}
+@media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -140,12 +144,18 @@ footer{background:#0d1120}
 </header>
 
 <section class="page-hero">
-  <div class="page-hero__eyebrow">About Xantex</div>
-  <h1 class="page-hero__h1">A Trusted Global Broker Since 2006</h1>
-  <p class="page-hero__sub">Serving traders across 170+ countries with award-winning execution, regulated operations, and an unwavering commitment to transparency.</p>
-  <div class="page-hero__actions">
-    <a href="/register.html" class="btn btn--primary btn--lg">Open Your Account</a>
-    <a href="/awards" class="btn btn--outline btn--lg">See Our Awards</a>
+  <img class="hero-img" src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/about-hero.webp" alt="About Xantex">
+  <div class="hero-overlay"></div>
+  <div class="page-hero__content">
+    <div class="page-hero__title-wrap">
+      <span class="page-hero__dot"></span>
+      <h1 class="page-hero__h1">About Xantex</h1>
+    </div>
+    <p class="page-hero__sub">A trusted global broker serving traders across 170+ countries with award-winning execution and regulated operations.</p>
+    <div class="page-hero__actions">
+      <a href="/register.html" class="btn btn--primary btn--lg">Open Your Account</a>
+      <a href="/awards" class="btn btn--outline btn--lg">See Our Awards</a>
+    </div>
   </div>
 </section>
 

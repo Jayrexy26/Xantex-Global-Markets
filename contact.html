@@ -38,11 +38,31 @@ header{position:sticky;top:0;z-index:100}.navbar{background:#fff;border-bottom:1
 .btn--outline{background:transparent;border:2px solid rgba(255,255,255,.5);color:#fff}
 .btn--outline:hover{background:rgba(255,255,255,.1)}
 .btn--lg{padding:14px 36px;font-size:16px}
-.page-hero{background:#0d1120;color:#fff;padding:88px clamp(16px,4vw,60px) 80px;text-align:center}
-.page-hero__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:14px}
-.page-hero__h1{font-size:clamp(32px,5vw,54px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:18px}
-.page-hero__sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.7);max-width:600px;margin:0 auto 36px;line-height:1.65}
-.page-hero__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+/* Hero */
+.page-hero{position:relative;overflow:hidden;background:#080f1e;color:#fff;min-height:460px;display:flex;align-items:center;justify-content:center;padding:88px clamp(16px,4vw,60px) 80px;text-align:center}
+.page-hero__content{position:relative;z-index:2;max-width:680px}
+.page-hero__eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#60a5fa;margin-bottom:14px;opacity:0;animation:slideRight .6s ease forwards;animation-delay:.1s}
+.page-hero__h1{font-size:clamp(32px,5vw,54px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:18px;opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.3s}
+.page-hero__sub{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.75);max-width:600px;margin:0 auto 36px;line-height:1.65;opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.5s}
+.page-hero__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.7s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+/* Decorative deco */
+.hero-deco{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.hero-deco__glow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(26,92,255,.07) 0%,transparent 65%);border-radius:50%}
+.hero-deco__node{position:absolute;border-radius:50%;animation:nodePulse 3s ease-in-out infinite}
+.hero-deco__node.n1{width:10px;height:10px;left:16%;top:34%;background:rgba(26,92,255,.55);box-shadow:0 0 14px rgba(26,92,255,.5);animation-delay:0s}
+.hero-deco__node.n2{width:7px;height:7px;left:33%;top:21%;background:rgba(26,92,255,.45);box-shadow:0 0 10px rgba(26,92,255,.4);animation-delay:.9s}
+.hero-deco__node.n3{width:12px;height:12px;right:18%;top:38%;background:rgba(26,92,255,.5);box-shadow:0 0 16px rgba(26,92,255,.45);animation-delay:1.5s}
+.hero-deco__node.n4{width:6px;height:6px;right:34%;bottom:27%;background:rgba(26,92,255,.4);box-shadow:0 0 9px rgba(26,92,255,.35);animation-delay:.4s}
+.hero-deco__node.n5{width:8px;height:8px;left:54%;bottom:21%;background:rgba(26,92,255,.45);box-shadow:0 0 11px rgba(26,92,255,.4);animation-delay:2.1s}
+.hero-deco__node.n6{width:14px;height:14px;left:9%;bottom:34%;background:rgba(245,158,11,.45);box-shadow:0 0 16px rgba(245,158,11,.35);animation-delay:1.2s}
+.hero-deco__node.n7{width:9px;height:9px;right:11%;top:24%;background:rgba(245,158,11,.4);box-shadow:0 0 12px rgba(245,158,11,.3);animation-delay:2.5s}
+.hero-deco__line{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(26,92,255,.18),transparent)}
+.hero-deco__line.l1{width:160px;left:16%;top:34%;transform:rotate(22deg);transform-origin:left center}
+.hero-deco__line.l2{width:180px;left:33%;top:21%;transform:rotate(-9deg);transform-origin:left center}
+.hero-deco__line.l3{width:130px;right:18%;top:38%;transform:rotate(14deg);transform-origin:right center}
+@keyframes nodePulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
 .stats-bar{background:#131d35;padding:24px clamp(16px,4vw,60px)}
 .stats-bar__inner{max-width:1240px;margin:0 auto;display:flex;justify-content:center;gap:clamp(20px,4vw,64px);flex-wrap:wrap}
 .stats-bar__item{text-align:center}
@@ -95,6 +115,8 @@ footer{background:#0d1120}
 @media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){.contact-grid{grid-template-columns:1fr}.footer-disclaimer__inner{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
 @media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}.page-hero{padding:60px 16px}}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
 </style>
   <link rel="stylesheet" href="/css/lang.css">
 </head>
@@ -143,9 +165,24 @@ footer{background:#0d1120}
 </header>
 
 <section class="page-hero">
-  <div class="page-hero__eyebrow">Contact Us</div>
-  <h1 class="page-hero__h1">We're Here 24/5</h1>
-  <p class="page-hero__sub">Reach our multilingual support team by live chat, email or phone — any time the markets are open. Average response time: under 2 minutes.</p>
+  <div class="hero-deco">
+    <div class="hero-deco__glow"></div>
+    <span class="hero-deco__node n1"></span>
+    <span class="hero-deco__node n2"></span>
+    <span class="hero-deco__node n3"></span>
+    <span class="hero-deco__node n4"></span>
+    <span class="hero-deco__node n5"></span>
+    <span class="hero-deco__node n6"></span>
+    <span class="hero-deco__node n7"></span>
+    <div class="hero-deco__line l1"></div>
+    <div class="hero-deco__line l2"></div>
+    <div class="hero-deco__line l3"></div>
+  </div>
+  <div class="page-hero__content">
+    <div class="page-hero__eyebrow">Contact Us</div>
+    <h1 class="page-hero__h1">We're Here 24/5</h1>
+    <p class="page-hero__sub">Reach our multilingual support team by live chat, email or phone — any time the markets are open. Average response time: under 2 minutes.</p>
+  </div>
 </section>
 
 <section class="section">
@@ -287,6 +324,21 @@ function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=doc
 _nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});
 document.addEventListener('click',_closeAll);
 </script>
+  <script>
+  (function(){
+    var sel=['.section__eyebrow','.section__h2','.section__lead','.contact-card','.stats-bar__item','.cta-section__h2','.cta-section__sub','.cta-section__actions'].join(',');
+    document.querySelectorAll(sel).forEach(function(el){
+      el.classList.add('reveal');
+      var sib=[].slice.call(el.parentElement.children).filter(function(c){return c.classList.contains(el.classList[0]);});
+      var idx=sib.indexOf(el);
+      if(idx>0) el.style.transitionDelay=(idx*0.09)+'s';
+    });
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+    },{threshold:0.05,rootMargin:'0px 0px -20px 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
+  })();
+  </script>
   <script src="/js/lang.js"></script>
 </body>
 </html>

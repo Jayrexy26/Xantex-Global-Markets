@@ -30,7 +30,27 @@
       "PowerShell(py *)",
       "Bash(supabase db *)",
       "Bash(npx supabase *)",
-      "Bash(grep -v \"^\\\\s*//\")"
+      "Bash(grep -v \"^\\\\s*//\")",
+      "Bash(git reset *)",
+      "Bash(git restore *)",
+      "Bash(Copy-Item *)",
+      "WebFetch(domain:www.fxpro.com)",
+      "WebFetch(domain:www.fxpro.investments)",
+      "PowerShell(New-Item *)",
+      "Bash(mkdir -p markets platforms)",
+      "Bash(del markets\\\\forex.html)",
+      "Bash(Remove-Item \"markets\\\\forex.html\" -Force)",
+      "Bash(supabase *)",
+      "PowerShell(supabase *)",
+      "mcp__plugin_supabase_supabase__get_project_url",
+      "Bash(sed -n '139,155p' markets/energy.html)",
+      "Bash(sed -n '139,155p' markets/etfs.html)",
+      "Bash(sed -n '139,155p' markets/metals.html)",
+      "Bash(sed -n '144,160p' markets/shares.html)",
+      "Bash(sed -i 's/\\\\.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:\\\\.55;z-index:0}/.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85;z-index:0}/g' markets/energy.html markets/etfs.html markets/futures.html markets/indices.html markets/metals.html markets/shares.html)",
+      "Bash(sed -i 's/\\\\.hero-overlay{position:absolute;inset:0;background:linear-gradient\\(to right,rgba\\(10,14,28,\\\\.88\\) 0%,rgba\\(10,14,28,\\\\.6\\) 55%,rgba\\(10,14,28,\\\\.25\\) 100%\\);z-index:1}/.hero-overlay{position:absolute;inset:0;background:linear-gradient\\(to right,rgba\\(10,14,28,.5\\) 0%,rgba\\(10,14,28,.28\\) 55%,rgba\\(10,14,28,.08\\) 100%\\);z-index:1}/g' markets/energy.html markets/etfs.html markets/futures.html markets/indices.html markets/metals.html markets/shares.html)",
+      "Bash(sed -i 's/display:flex;align-items:center;gap:32px;height:72px/display:flex;align-items:center;gap:32px;height:56px/g' 'markets/*.html' 'platforms/*.html' about.html awards.html benefits.html contact.html security.html privacy.html)",
+      "Bash(sed -i 's/style=\"height:110px;width:auto;\"/style=\"height:52px;width:auto;\"/g' 'markets/*.html' 'platforms/*.html' about.html awards.html benefits.html contact.html security.html privacy.html)"
     ]
   }
 }

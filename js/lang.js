@@ -1,4 +1,6 @@
 (function(){
+  var CDN='https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/';
+
   var LANGS=[
     {code:'en', iso:'gb', name:'English',           eng:'English',              label:'EN'},
     {code:'es', iso:'es', name:'Español',            eng:'Spanish',              label:'ES'},
@@ -42,9 +44,8 @@
     {code:'ka', iso:'ge', name:'ქართული',            eng:'Georgian',             label:'KA'}
   ];
 
-  function flagImg(iso,size){
-    size=size||20;
-    return '<img src="https://flagcdn.com/w'+size+'/'+iso+'.png" width="'+size+'" height="'+(Math.round(size*0.667))+'" alt="" style="border-radius:2px;flex-shrink:0;display:block;">';
+  function flagImg(iso,w,h){
+    return '<img src="'+CDN+iso+'.svg" width="'+w+'" height="'+h+'" alt="" style="border-radius:2px;flex-shrink:0;display:block;object-fit:cover;">';
   }
 
   function getCookie(name){
@@ -63,7 +64,7 @@
     var active=LANGS.find(function(l){return l.code===lang;})||LANGS[0];
     return '<div class="lang-selector">'+
       '<button class="lang-btn" id="langBtn" aria-haspopup="true" aria-expanded="false">'+
-        flagImg(active.iso,18)+
+        flagImg(active.iso,20,14)+
         '<span id="langLabel">'+active.label+'</span>'+
         '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>'+
       '</button>'+
@@ -74,7 +75,7 @@
     var items=LANGS.map(function(l){
       var ac=l.code===activeLang?' active':'';
       return '<button class="lang-item'+ac+'" data-code="'+l.code+'" data-label="'+l.label+'" data-iso="'+l.iso+'">'+
-        '<span class="lang-item__flag">'+flagImg(l.iso,24)+'</span>'+
+        '<span class="lang-item__flag">'+flagImg(l.iso,28,20)+'</span>'+
         '<span><span class="lang-item__name">'+l.name+'</span>'+
         '<span class="lang-item__eng">'+l.eng+'</span></span>'+
       '</button>';
@@ -114,7 +115,6 @@
 
     var activeLang=getActiveLang();
 
-    // Inject button after logo
     var logo=navbar.querySelector('.navbar__logo');
     var btnDiv=document.createElement('div');
     btnDiv.innerHTML=buildBtn(activeLang);
@@ -124,18 +124,15 @@
       navbar.appendChild(btnDiv.firstElementChild);
     }
 
-    // Inject panel into body
     var panelDiv=document.createElement('div');
     panelDiv.innerHTML=buildPanel(activeLang);
     document.body.appendChild(panelDiv.firstElementChild);
 
-    // Inject hidden Google Translate element
     var gtEl=document.createElement('div');
     gtEl.id='google_translate_element';
     gtEl.style.display='none';
     document.body.appendChild(gtEl);
 
-    // Load Google Translate script
     window.googleTranslateElementInit=function(){
       new google.translate.TranslateElement({pageLanguage:'en',autoDisplay:false},'google_translate_element');
     };
@@ -171,12 +168,8 @@
       panel.querySelectorAll('.lang-item').forEach(function(el){el.classList.remove('active');});
       item.classList.add('active');
 
-      // Update button flag + label
       var btnFlag=btn.querySelector('img');
-      if(btnFlag){
-        btnFlag.src='https://flagcdn.com/w18/'+iso+'.png';
-        btnFlag.width=18;
-      }
+      if(btnFlag) btnFlag.src=CDN+iso+'.svg';
       document.getElementById('langLabel').textContent=label;
 
       panel.classList.remove('open');

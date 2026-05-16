@@ -997,6 +997,69 @@
             </div>
           </div>
         </div>
+
+        <!-- Profit Target Manager -->
+        <div class="card" style="margin-top:20px;">
+          <div class="card__head">
+            <div>
+              <div class="card__title">Profit Target Manager</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Set and track per-user profit targets with incremental trade entries</div>
+            </div>
+            <button class="btn btn--primary" onclick="ptOpenSetModal()">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Set Target
+            </button>
+          </div>
+          <div class="card__body">
+            <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px;">
+              <div class="field" style="flex:1;min-width:200px;margin:0;">
+                <label>Select User</label>
+                <select id="pt-user-sel" onchange="ptLoadUser(this.value)">
+                  <option value="">— Select a user —</option>
+                </select>
+              </div>
+              <button class="btn btn--outline" id="pt-add-trade-btn" onclick="ptOpenAddTrade()" style="display:none;">+ Add Trade Entry</button>
+              <button class="btn" id="pt-deactivate-btn" onclick="ptDeactivate()" style="display:none;background:#fff1f2;color:#e60023;border:1.5px solid #fecdd3;">Deactivate</button>
+            </div>
+            <div id="pt-empty-msg" style="color:var(--muted);font-size:13px;">Select a user to view their active profit target.</div>
+            <div id="pt-display" style="display:none;">
+              <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;margin-bottom:24px;padding:20px;background:var(--bg);border-radius:12px;border:1.5px solid var(--border);">
+                <div style="text-align:center;flex-shrink:0;">
+                  <svg width="120" height="120" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--border)" stroke-width="8"/>
+                    <circle id="pt-ring" cx="50" cy="50" r="40" fill="none" stroke="#22a06b" stroke-width="8"
+                      stroke-linecap="round" stroke-dasharray="251.33" stroke-dashoffset="251.33"
+                      transform="rotate(-90 50 50)" style="transition:stroke-dashoffset .8s cubic-bezier(.22,1,.36,1),stroke .4s;"/>
+                    <text id="pt-ring-pct" x="50" y="54" text-anchor="middle" font-size="18" font-weight="700" fill="currentColor" style="font-family:inherit;">0%</text>
+                  </svg>
+                  <div style="font-size:11px;color:var(--muted);margin-top:4px;">of target reached</div>
+                </div>
+                <div style="flex:1;min-width:140px;display:grid;gap:12px;align-content:start;">
+                  <div>
+                    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Label</div>
+                    <div id="pt-info-label" style="font-size:15px;font-weight:600;">—</div>
+                  </div>
+                  <div>
+                    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Target Amount</div>
+                    <div id="pt-info-amount" style="font-size:15px;font-weight:600;color:var(--blue);">—</div>
+                  </div>
+                  <div>
+                    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Progress</div>
+                    <div id="pt-info-progress" style="font-size:15px;font-weight:600;">—</div>
+                  </div>
+                  <div>
+                    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Created</div>
+                    <div id="pt-info-date" style="font-size:13px;color:var(--muted);">—</div>
+                  </div>
+                </div>
+              </div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Trade Entries</div>
+              <div id="pt-trades-wrap">
+                <p style="color:var(--muted);font-size:13px;">No entries yet.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ════════════════════ DEPOSITS ════════════════════ -->
@@ -1536,6 +1599,95 @@
     <div class="modal__foot">
       <button class="btn btn--outline" onclick="closeModal('modal-manual-deposit')">Cancel</button>
       <button class="btn btn--green" onclick="opsManualDeposit()">Apply Deposit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Set Profit Target -->
+<div class="modal-overlay" id="modal-pt-set">
+  <div class="modal">
+    <div class="modal__head">
+      <div class="modal__title">Set Profit Target</div>
+      <button class="modal__close" onclick="closeModal('modal-pt-set')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <div class="form-grid">
+        <div class="field field--full">
+          <label>User</label>
+          <select id="pt-set-user">
+            <option value="">— Select a user —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Target Amount (USD)</label>
+          <div style="position:relative;">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted);font-size:14px;">$</span>
+            <input type="number" id="pt-set-amount" placeholder="e.g. 10000" min="1" step="0.01" style="padding-left:28px;">
+          </div>
+        </div>
+        <div class="field">
+          <label>Label <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+          <input type="text" id="pt-set-label" placeholder="e.g. Q2 2026 Goal">
+        </div>
+      </div>
+      <div style="margin-top:12px;padding:10px 12px;background:var(--blue-lt);border-radius:8px;font-size:12px;color:var(--blue);">
+        Setting a new target will deactivate any existing active target for this user.
+      </div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="closeModal('modal-pt-set')">Cancel</button>
+      <button class="btn btn--primary" onclick="ptSaveTarget()">Set Target</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add Trade Entry -->
+<div class="modal-overlay" id="modal-pt-trade">
+  <div class="modal">
+    <div class="modal__head">
+      <div class="modal__title">Add Trade Entry</div>
+      <button class="modal__close" onclick="closeModal('modal-pt-trade')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <div id="pt-trade-target-info" style="padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:14px;"></div>
+      <div class="form-grid">
+        <div class="field field--full">
+          <label>Entry Type</label>
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button id="pt-mode-dollar" onclick="ptSetTradeMode('dollar')"
+              style="flex:1;height:40px;border-radius:8px;border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;font-size:13px;cursor:pointer;transition:.15s;">
+              $ Dollar Amount
+            </button>
+            <button id="pt-mode-pct" onclick="ptSetTradeMode('pct')"
+              style="flex:1;height:40px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;font-size:13px;cursor:pointer;transition:.15s;">
+              % Manual %
+            </button>
+          </div>
+        </div>
+        <div class="field field--full" id="pt-trade-dollar-field">
+          <label>Dollar Amount (USD)</label>
+          <div style="position:relative;">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted);font-size:14px;">$</span>
+            <input type="number" id="pt-trade-amount" placeholder="e.g. 2500" min="0" step="0.01" style="padding-left:28px;">
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Percentage will be auto-calculated from the target amount.</div>
+        </div>
+        <div class="field field--full" id="pt-trade-pct-field" style="display:none;">
+          <label>Percentage Delta (%)</label>
+          <div style="position:relative;">
+            <input type="number" id="pt-trade-pct" placeholder="e.g. 25.5" step="0.01" style="padding-right:32px;">
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted);font-size:14px;">%</span>
+          </div>
+        </div>
+        <div class="field field--full">
+          <label>Note <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+          <input type="text" id="pt-trade-note" placeholder="e.g. EUR/USD breakout, session gain…">
+        </div>
+      </div>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="closeModal('modal-pt-trade')">Cancel</button>
+      <button class="btn btn--primary" onclick="ptSaveTrade()">Add Entry</button>
     </div>
   </div>
 </div>
@@ -3274,6 +3426,249 @@ window.renderAll = async function() {
   loadDepositAddresses();
   loadReviews();
   dtPopulateAccounts();
+  ptPopulateUsers();
+};
+
+/* ============================================================
+   PROFIT TARGET MANAGER
+============================================================ */
+const ADMIN_API_URL = 'https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/admin-api';
+
+async function adminApiCall(action, extra = {}) {
+  const res = await fetch(ADMIN_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': 'Driver112#' },
+    body: JSON.stringify({ action, ...extra }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || 'Admin API error');
+  return json;
+}
+
+let _ptCurrentTarget = null;
+let _ptTradeMode = 'dollar';
+const PT_CIRC = 251.33; // 2π × r40
+
+function ptRingColor(pct) {
+  if (pct >= 100) return '#22a06b';
+  if (pct >= 75)  return '#1a5cff';
+  if (pct >= 50)  return '#f5a623';
+  return '#e60023';
+}
+
+function ptUpdateRing(pct) {
+  const ring = document.getElementById('pt-ring');
+  const pctText = document.getElementById('pt-ring-pct');
+  if (!ring || !pctText) return;
+  const clamped = Math.min(100, Math.max(0, pct));
+  ring.setAttribute('stroke-dashoffset', (PT_CIRC * (1 - clamped / 100)).toFixed(2));
+  ring.setAttribute('stroke', ptRingColor(pct));
+  pctText.textContent = pct.toFixed(1) + '%';
+  pctText.setAttribute('fill', ptRingColor(pct));
+}
+
+window.ptPopulateUsers = async function() {
+  try {
+    const { users } = await adminApiCall('get_users');
+    const opts = '<option value="">— Select a user —</option>' +
+      (users || []).map(u => `<option value="${u.id}">${u.full_name || u.email} (${u.email})</option>`).join('');
+    ['pt-user-sel', 'pt-set-user'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = opts;
+    });
+  } catch(e) { /* silent */ }
+};
+
+window.ptLoadUser = async function(userId) {
+  const display  = document.getElementById('pt-display');
+  const emptyMsg = document.getElementById('pt-empty-msg');
+  const addBtn   = document.getElementById('pt-add-trade-btn');
+  const deactBtn = document.getElementById('pt-deactivate-btn');
+  _ptCurrentTarget = null;
+
+  if (!userId) {
+    display.style.display  = 'none';
+    emptyMsg.style.display = 'block';
+    addBtn.style.display   = 'none';
+    deactBtn.style.display = 'none';
+    return;
+  }
+
+  emptyMsg.textContent = 'Loading…';
+  try {
+    const { targets } = await adminApiCall('get_profit_targets');
+    const target = (targets || []).find(t => t.user_id === userId);
+
+    if (!target) {
+      emptyMsg.textContent = 'No active profit target for this user. Use "Set Target" to create one.';
+      emptyMsg.style.display = 'block';
+      display.style.display  = 'none';
+      addBtn.style.display   = 'none';
+      deactBtn.style.display = 'none';
+      return;
+    }
+
+    _ptCurrentTarget = target;
+    const pct = target.current_percentage || 0;
+
+    document.getElementById('pt-info-label').textContent    = target.label || '(no label)';
+    document.getElementById('pt-info-amount').textContent   = fmtMoney(target.target_amount);
+    document.getElementById('pt-info-progress').textContent = pct.toFixed(2) + '%';
+    document.getElementById('pt-info-date').textContent     = fmtDate(target.created_at);
+
+    display.style.display  = 'block';
+    emptyMsg.style.display = 'none';
+    addBtn.style.display   = 'inline-flex';
+    deactBtn.style.display = 'inline-flex';
+
+    // slight delay so ring transition is visible
+    requestAnimationFrame(() => requestAnimationFrame(() => ptUpdateRing(pct)));
+
+    // Load trade entries
+    ptRenderTrades(target.id);
+  } catch(e) {
+    emptyMsg.textContent   = 'Error loading target: ' + e.message;
+    emptyMsg.style.display = 'block';
+    display.style.display  = 'none';
+  }
+};
+
+async function ptRenderTrades(targetId) {
+  const wrap = document.getElementById('pt-trades-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">Loading entries…</p>';
+  try {
+    const { trades } = await adminApiCall('get_target_trades', { target_id: targetId });
+    if (!trades?.length) {
+      wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">No trade entries yet.</p>';
+      return;
+    }
+    wrap.innerHTML = `<div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead><tr>
+          <th>Date</th><th>Delta %</th><th>Amount</th><th>Note</th><th>Actions</th>
+        </tr></thead>
+        <tbody>
+          ${trades.map(tr => `<tr>
+            <td>${fmtDate(tr.created_at)}</td>
+            <td><span style="color:${Number(tr.percentage_delta)>=0?'var(--green)':'var(--red)'};font-weight:600;">${Number(tr.percentage_delta)>=0?'+':''}${Number(tr.percentage_delta).toFixed(2)}%</span></td>
+            <td>${tr.amount != null ? fmtMoney(tr.amount) : '—'}</td>
+            <td style="color:var(--muted);">${tr.note || '—'}</td>
+            <td><button class="btn btn--red" style="font-size:11px;padding:4px 10px;" onclick="ptDeleteTrade('${tr.id}','${targetId}')">Delete</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  } catch(e) {
+    wrap.innerHTML = `<p style="color:var(--muted);font-size:13px;">Error: ${e.message}</p>`;
+  }
+}
+
+window.ptOpenSetModal = function() {
+  // Pre-select current user if one is selected in the card
+  const userSel = document.getElementById('pt-user-sel');
+  const setSel  = document.getElementById('pt-set-user');
+  if (userSel && setSel && userSel.value) setSel.value = userSel.value;
+  document.getElementById('pt-set-amount').value = '';
+  document.getElementById('pt-set-label').value  = '';
+  openModal('modal-pt-set');
+};
+
+window.ptSaveTarget = async function() {
+  const userId = document.getElementById('pt-set-user')?.value;
+  const amount = document.getElementById('pt-set-amount')?.value;
+  const label  = document.getElementById('pt-set-label')?.value?.trim();
+  if (!userId) { showToast('Select a user', 'error'); return; }
+  if (!amount || Number(amount) <= 0) { showToast('Enter a valid target amount', 'error'); return; }
+  try {
+    await adminApiCall('set_profit_target', { user_id: userId, target_amount: Number(amount), label: label || null });
+    closeModal('modal-pt-set');
+    showToast('Profit target set', 'success');
+    // Sync card user select and reload
+    const userSel = document.getElementById('pt-user-sel');
+    if (userSel) { userSel.value = userId; }
+    ptLoadUser(userId);
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
+
+window.ptOpenAddTrade = function() {
+  if (!_ptCurrentTarget) return;
+  const info = document.getElementById('pt-trade-target-info');
+  if (info) {
+    info.innerHTML = `<strong>${_ptCurrentTarget.label || '(no label)'}</strong> · Target: <strong>${fmtMoney(_ptCurrentTarget.target_amount)}</strong> · Progress: <strong>${(_ptCurrentTarget.current_percentage||0).toFixed(2)}%</strong>`;
+  }
+  document.getElementById('pt-trade-amount').value = '';
+  document.getElementById('pt-trade-pct').value    = '';
+  document.getElementById('pt-trade-note').value   = '';
+  ptSetTradeMode('dollar');
+  openModal('modal-pt-trade');
+};
+
+window.ptSetTradeMode = function(mode) {
+  _ptTradeMode = mode;
+  const dollarBtn = document.getElementById('pt-mode-dollar');
+  const pctBtn    = document.getElementById('pt-mode-pct');
+  const dollarF   = document.getElementById('pt-trade-dollar-field');
+  const pctF      = document.getElementById('pt-trade-pct-field');
+  const active    = 'border:2px solid var(--blue);background:var(--blue);color:#fff;font-weight:600;font-size:13px;cursor:pointer;transition:.15s;';
+  const inactive  = 'border:2px solid var(--border);background:transparent;color:var(--text);font-weight:600;font-size:13px;cursor:pointer;transition:.15s;';
+  if (mode === 'dollar') {
+    dollarBtn.style.cssText = 'flex:1;height:40px;border-radius:8px;' + active;
+    pctBtn.style.cssText    = 'flex:1;height:40px;border-radius:8px;' + inactive;
+    dollarF.style.display   = 'block';
+    pctF.style.display      = 'none';
+  } else {
+    dollarBtn.style.cssText = 'flex:1;height:40px;border-radius:8px;' + inactive;
+    pctBtn.style.cssText    = 'flex:1;height:40px;border-radius:8px;' + active;
+    dollarF.style.display   = 'none';
+    pctF.style.display      = 'block';
+  }
+};
+
+window.ptSaveTrade = async function() {
+  if (!_ptCurrentTarget) return;
+  const note = document.getElementById('pt-trade-note')?.value?.trim();
+  const payload = {
+    target_id: _ptCurrentTarget.id,
+    user_id:   _ptCurrentTarget.user_id,
+    note: note || null,
+  };
+  if (_ptTradeMode === 'dollar') {
+    const amt = document.getElementById('pt-trade-amount')?.value;
+    if (!amt || Number(amt) === 0) { showToast('Enter a dollar amount', 'error'); return; }
+    payload.amount = Number(amt);
+  } else {
+    const pct = document.getElementById('pt-trade-pct')?.value;
+    if (!pct || Number(pct) === 0) { showToast('Enter a percentage', 'error'); return; }
+    payload.percentage_delta = Number(pct);
+  }
+  try {
+    await adminApiCall('add_profit_trade', payload);
+    closeModal('modal-pt-trade');
+    showToast('Trade entry added', 'success');
+    ptLoadUser(_ptCurrentTarget.user_id);
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
+
+window.ptDeleteTrade = async function(tradeId, targetId) {
+  if (!confirm('Delete this trade entry? The percentage will be subtracted from progress.')) return;
+  try {
+    await adminApiCall('delete_profit_trade', { trade_id: tradeId });
+    showToast('Entry deleted', 'success');
+    if (_ptCurrentTarget) ptLoadUser(_ptCurrentTarget.user_id);
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+};
+
+window.ptDeactivate = async function() {
+  if (!_ptCurrentTarget) return;
+  if (!confirm('Deactivate this profit target? The user will no longer see it in their dashboard.')) return;
+  try {
+    await adminApiCall('deactivate_profit_target', { target_id: _ptCurrentTarget.id });
+    showToast('Target deactivated', 'success');
+    _ptCurrentTarget = null;
+    const userSel = document.getElementById('pt-user-sel');
+    ptLoadUser(userSel?.value || '');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
 };
 </script>
 </body>

@@ -74,9 +74,11 @@ img{display:block;max-width:100%}
 .reg-card__badge{display:inline-block;background:#e8eeff;color:#1a5cff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:14px;letter-spacing:.04em}
 .reg-card__title{font-size:16px;font-weight:700;margin-bottom:6px}
 .reg-card__body{font-size:13px;color:#666;line-height:1.65}
-.cta-section{background:linear-gradient(135deg,#1a5cff 0%,#0a1128 100%);padding:80px clamp(16px,4vw,60px);text-align:center;color:#fff}
+.cta-section{position:relative;overflow:hidden;background:#020818;padding:100px clamp(16px,4vw,60px);text-align:center;color:#fff}
+.cta-section__bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:.85;z-index:0}
+.cta-section__inner{position:relative;z-index:1}
 .cta-section__h2{font-size:clamp(28px,4vw,44px);font-weight:700;letter-spacing:-.5px;margin-bottom:14px}
-.cta-section__sub{font-size:16px;color:rgba(255,255,255,.75);margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto}
+.cta-section__sub{font-size:16px;color:rgba(255,255,255,.8);margin-bottom:36px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.65}
 .cta-section__actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 footer{background:#0d1120}
 .footer-nav{padding:48px clamp(16px,4vw,60px) 32px}
@@ -207,11 +209,14 @@ footer{background:#0d1120}
 </section>
 
 <div class="cta-section">
-  <h2 class="cta-section__h2">Open Your Account Today</h2>
-  <p class="cta-section__sub">Join over one million traders who trust Xantex for regulated, transparent and award-winning trading conditions.</p>
-  <div class="cta-section__actions">
-    <a href="/register.html" class="btn btn--white btn--lg">Open Your Account Today</a>
-    <a href="/awards" class="btn btn--outline btn--lg">Learn More</a>
+  <img class="cta-section__bg" src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/rocket-bg.webp" alt="">
+  <div class="cta-section__inner">
+    <h2 class="cta-section__h2">Open Your Account Today</h2>
+    <p class="cta-section__sub">Join over one million traders who trust Xantex for regulated, transparent and award-winning trading conditions.</p>
+    <div class="cta-section__actions">
+      <a href="/register.html" class="btn btn--white btn--lg">Open Your Account Today</a>
+      <a href="/awards" class="btn btn--outline btn--lg">Learn More</a>
+    </div>
   </div>
 </div>
 

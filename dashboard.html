@@ -1985,6 +1985,20 @@
 </div><!-- /layout -->
 
 <!-- ============================================================
+     PROFIT TARGET POPUP MODAL
+============================================================ -->
+<div class="modal-overlay" id="modal-pt-popup">
+  <div class="modal" style="max-width:400px;text-align:center;">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--blue-lt);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    </div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:6px;">New Trade Cycle Started</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;" id="pt-popup-msg">A new profit target has been set on your account.</div>
+    <button class="btn btn--primary" style="width:100%;" onclick="document.getElementById('modal-pt-popup').classList.remove('open')">Got it</button>
+  </div>
+</div>
+
+<!-- ============================================================
      DEPOSIT MODAL — CRYPTO ONLY
 ============================================================ -->
 <div class="modal-overlay" id="modal-deposit">
@@ -2999,6 +3013,16 @@ function savePreferences() {
       if (lblTxt)  lblTxt.textContent = target.label || '';
       widget.style.setProperty('--pt-color', color);
       widget.style.display = 'block';
+
+      // Show popup once per target
+      const seenKey = 'xantex_pt_seen_' + target.id;
+      if (!localStorage.getItem(seenKey)) {
+        const msg = document.getElementById('pt-popup-msg');
+        if (msg) msg.textContent = `Your profit target has been set to $${Number(target.target_amount).toLocaleString()}${target.label ? ' — ' + target.label : ''}.`;
+        const overlay = document.getElementById('modal-pt-popup');
+        if (overlay) overlay.classList.add('open');
+        localStorage.setItem(seenKey, '1');
+      }
     } catch(e) { console.warn('[pt-widget]', e.message); }
   }
 

@@ -2968,17 +2968,22 @@ function savePreferences() {
   // Load and render profit target widget (non-blocking)
   (async () => {
     try {
-      const { data: targets } = await db
+      const { data: target, error: tgtErr } = await db
         .from('profit_targets')
-        .select('*, profit_target_trades(percentage_delta)')
+        .select('id, target_amount, label')
         .eq('user_id', userId)
         .eq('is_active', true)
         .limit(1)
         .maybeSingle();
-      if (!targets) return;
-      const pct = (targets.profit_target_trades || [])
-        .reduce((s, t) => s + Number(t.percentage_delta), 0);
-      renderProfitWidget(pct, targets.target_amount, targets.label);
+      if (tgtErr) { console.warn('[pt-widget] target:', tgtErr.message); return; }
+      if (!target) return;
+      const { data: trades, error: trdErr } = await db
+        .from('profit_target_trades')
+        .select('percentage_delta')
+        .eq('target_id', target.id);
+      if (trdErr) console.warn('[pt-widget] trades:', trdErr.message);
+      const pct = (trades || []).reduce((s, t) => s + Number(t.percentage_delta), 0);
+      renderProfitWidget(pct, target.target_amount, target.label);
     } catch(e) { console.warn('[pt-widget]', e.message); }
   })();
 

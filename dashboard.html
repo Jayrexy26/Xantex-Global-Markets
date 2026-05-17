@@ -2071,6 +2071,7 @@
       <div class="field">
         <label>Amount you are sending (USD equivalent)</label>
         <input type="number" id="dep-amount" placeholder="e.g. 500" min="10" oninput="depUpdateConversion()">
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="dep-amount-hint">Min: $10</div>
         <div class="dep-conversion" id="dep-conversion"></div>
       </div>
 
@@ -2150,6 +2151,7 @@
       <div class="field">
         <label>Amount (USD)</label>
         <input type="number" id="wd-amount" placeholder="Minimum $10" min="10">
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;" id="wd-amount-hint">Min: $10</div>
       </div>
       <div class="field">
         <label>Withdrawal Method</label>
@@ -2934,6 +2936,26 @@ function savePreferences() {
     } catch(e) { return null; }
   }
 
+  let _limits = { min_deposit: 10, max_deposit: 0, min_withdrawal: 10, max_withdrawal: 0 };
+  async function loadLimits() {
+    try {
+      const { data } = await db.from('platform_settings')
+        .select('key,value')
+        .in('key', ['min_deposit','max_deposit','min_withdrawal','max_withdrawal']);
+      (data || []).forEach(r => { const v = parseFloat(r.value); if (!isNaN(v) && v > 0) _limits[r.key] = v; });
+    } catch(e) {}
+    const minDep = _limits.min_deposit, maxDep = _limits.max_deposit;
+    const minWd  = _limits.min_withdrawal, maxWd  = _limits.max_withdrawal;
+    const depAmtEl = document.getElementById('dep-amount');
+    if (depAmtEl) { depAmtEl.min = minDep; depAmtEl.placeholder = 'e.g. ' + minDep.toLocaleString(); }
+    const depHint = document.getElementById('dep-amount-hint');
+    if (depHint) depHint.textContent = 'Min: $' + minDep.toLocaleString() + (maxDep > 0 ? ' · Max: $' + maxDep.toLocaleString() : '');
+    const wdAmtEl = document.getElementById('wd-amount');
+    if (wdAmtEl) { wdAmtEl.min = minWd; wdAmtEl.placeholder = 'Minimum $' + minWd.toLocaleString(); }
+    const wdHint = document.getElementById('wd-amount-hint');
+    if (wdHint) wdHint.textContent = 'Min: $' + minWd.toLocaleString() + (maxWd > 0 ? ' · Max: $' + maxWd.toLocaleString() : '');
+  }
+
   // ── Direct-first loader (RPC auth.uid() is unreliable from CDN client) ─
   async function loadRows(label, rpcFn, table, extraFn) {
     // Attempt 1: direct query — userId comes from JS session, always correct
@@ -3037,6 +3059,7 @@ function savePreferences() {
     loadRows('adjTxns',       'get_my_adj_txns',    'transactions',        q => q.eq('type','adjustment')),
     loadRows('closedTrades',  'get_my_closed_trades','positions',          q => q.eq('status','closed').select('realised_pnl')),
     loadProfitTarget(),
+    loadLimits(),
   ]);
 
   // ── Suspended account check ───────────────────────────────
@@ -3627,7 +3650,9 @@ function savePreferences() {
     const accountId = document.getElementById('dep-account')?.value;
     const amount    = parseFloat(document.getElementById('dep-amount')?.value);
     if (!_depCoin) { alert('Please select a cryptocurrency first.'); return; }
-    if (!amount || amount < 10) { alert('Please enter the amount you are sending (minimum $10).'); return; }
+    const _minDep = _limits.min_deposit || 10, _maxDep = _limits.max_deposit || 0;
+    if (!amount || amount < _minDep) { alert('Minimum deposit amount is $' + _minDep.toLocaleString() + '.'); return; }
+    if (_maxDep > 0 && amount > _maxDep) { alert('Maximum deposit amount is $' + _maxDep.toLocaleString() + '.'); return; }
     if (!_depProofUrl) { alert('Please upload your payment proof first.'); return; }
     const networkLabel = _depCoin === 'USDT' ? `USDT (${_depNetwork})` : _depCoin;
     const btn = document.getElementById('dep-submit-btn');
@@ -3768,7 +3793,9 @@ function savePreferences() {
   document.getElementById('wd-submit-btn')?.addEventListener('click', () => {
     const accountId = document.getElementById('wd-account')?.value;
     const amount    = parseFloat(document.getElementById('wd-amount')?.value);
-    if (!amount || amount < 10) { alert('Enter a valid amount (minimum $10)'); return; }
+    const _minWd = _limits.min_withdrawal || 10, _maxWd = _limits.max_withdrawal || 0;
+    if (!amount || amount < _minWd) { alert('Minimum withdrawal amount is $' + _minWd.toLocaleString() + '.'); return; }
+    if (_maxWd > 0 && amount > _maxWd) { alert('Maximum withdrawal amount is $' + _maxWd.toLocaleString() + '.'); return; }
     const acct = (accounts||[]).find(a => a.id === accountId);
     if (acct && parseFloat(acct.balance) < amount) { alert('Insufficient account balance'); return; }
     let destType = 'Bank Transfer', destName = '', destRef = '';

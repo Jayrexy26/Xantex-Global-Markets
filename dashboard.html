@@ -110,14 +110,22 @@
     .sidebar__logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
 
     /* ── Profit Target Card (summary row) ── */
+    @property --pt-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
     @keyframes ptFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes pt-spin   { to { --pt-angle: 360deg; } }
     .pt-widget {
       display: none; /* shown by JS when target exists */
-      background: linear-gradient(135deg, rgba(26,92,255,.18) 0%, rgba(26,92,255,.06) 100%);
-      border: 1px solid rgba(26,92,255,.30);
       border-radius: 12px;
       padding: 20px;
-      animation: ptFadeIn .4s ease;
+      border: 1.5px solid transparent;
+      background:
+        linear-gradient(135deg, rgba(26,92,255,.12) 0%, rgba(26,92,255,.04) 100%) padding-box,
+        conic-gradient(from var(--pt-angle),
+          transparent 0%,
+          var(--pt-color, #22c55e) 18%, var(--pt-color, #22c55e) 32%, transparent 50%,
+          transparent 100%
+        ) border-box;
+      animation: ptFadeIn .4s ease, pt-spin 3s linear infinite;
     }
     .pt-widget__label  { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:rgba(26,92,255,.7); margin-bottom:14px; display:flex; align-items:center; gap:6px; }
     .pt-widget__label svg { width:14px; height:14px; fill:none; stroke:rgba(26,92,255,.7); stroke-width:2; }
@@ -2921,6 +2929,7 @@ function savePreferences() {
     pctTxt.style.color  = color;
     tgtTxt.textContent  = 'of $' + Number(targetAmount).toLocaleString() + ' target';
     lblTxt.textContent  = label || '';
+    widget.style.setProperty('--pt-color', color);
     widget.style.display = 'block';
   }
 

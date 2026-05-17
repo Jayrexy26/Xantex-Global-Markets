@@ -323,12 +323,13 @@
       <button class="reset-btn" id="reset-send-btn">Reset PIN</button>
       <button class="reset-back" id="reset-back-btn">← Back to PIN entry</button>
     </div>
-    <!-- Step 2: new PIN reveal -->
+    <!-- Step 2: email sent confirmation -->
     <div class="hidden" id="reset-reveal">
-      <p class="reset-lbl">Your new PIN — note it down before continuing:</p>
-      <div class="reveal-pin" id="reveal-pin-digits"></div>
-      <p class="reveal-warning">Do not share this PIN with anyone.</p>
-      <button class="reset-btn" id="reveal-continue-btn">Continue to Login →</button>
+      <div style="text-align:center;padding:6px 0 16px;">
+        <div style="font-size:40px;margin-bottom:12px;">✉️</div>
+        <p class="reset-lbl" style="text-align:center;" id="reset-sent-msg">Your new PIN has been sent to your email. Check your inbox and use it to sign in.</p>
+      </div>
+      <button class="reset-btn" id="reveal-continue-btn">Back to Sign In →</button>
     </div>
   </div>
 
@@ -626,14 +627,22 @@
         // Refresh local session so new PIN hash is available immediately
         await db.auth.refreshSession();
 
-        // Show the PIN reveal step
+        // If email failed to send, surface a clear error — PIN was reset but user can't get it
+        if (!result.emailSent) {
+          msgEl.className = 'reset-msg err';
+          msgEl.textContent = 'PIN was reset but the email could not be delivered. Please contact support.';
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Send New PIN';
+          return;
+        }
+
+        // Email sent — show confirmation, never show PIN on screen
         document.getElementById('reset-form').classList.add('hidden');
-        document.getElementById('reveal-pin-digits').textContent = result.pin;
         document.getElementById('reset-reveal').classList.remove('hidden');
-        document.getElementById('pin-title').textContent    = 'PIN Reset';
-        document.getElementById('pin-subtitle').textContent = result.emailSent
-          ? `Your new PIN has also been sent to ${email}`
-          : 'Use this PIN to log in, then set a new one';
+        document.getElementById('reset-sent-msg').textContent =
+          `Your new PIN has been sent to ${email}. Check your inbox and use it to sign in.`;
+        document.getElementById('pin-title').textContent    = 'Check your email';
+        document.getElementById('pin-subtitle').textContent = 'Your new PIN is on its way';
 
         document.getElementById('reveal-continue-btn').onclick = () => {
           // Reset panel back to form state for next use

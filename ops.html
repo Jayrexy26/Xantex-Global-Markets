@@ -2547,14 +2547,15 @@ window.onAnnAudienceChange = function(val) {
 async function populateAnnUserDropdown() {
   const db = window.XANTEX_DB; if (!db) return;
   const sel = document.getElementById('ann-specific-user'); if (!sel) return;
-  if (sel.options.length > 1) return; // already populated
-  const { data } = await db.from('profiles').select('id, first_name, last_name, email').order('created_at');
+  const { data } = await db.from('profiles').select('id, first_name, last_name, email').order('created_at', { ascending: false });
   if (!data?.length) return;
+  const current = sel.value;
   sel.innerHTML = '<option value="">— Select a user —</option>' +
     data.map(p => {
       const name = `${p.first_name||''} ${p.last_name||''}`.trim() || p.email;
       return `<option value="${p.id}">${name} (${p.email})</option>`;
     }).join('');
+  if (current) sel.value = current;
 }
 
 window.resetAnnForm = function() {
@@ -2616,10 +2617,14 @@ async function renderAnnouncementsLive() {
       <td style="font-weight:700;text-align:center;">${a.sent_count||0}</td>
       <td style="font-size:11px;color:var(--muted);">${_adminUser?.email?.split('@')[0]||'Admin'}</td>
       <td>
-        <label class="toggle-switch" title="${a.is_active!==false?'Popup active — click to disable':'Popup disabled — click to enable'}">
-          <input type="checkbox" ${a.is_active!==false?'checked':''} onchange="opsToggleAnnouncement('${a.id}',this.checked)">
-          <span class="toggle-slider"></span>
-        </label>
+        ${a.is_active !== false
+          ? `<button onclick="opsToggleAnnouncement('${a.id}',false)" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:none;background:#dcfce7;color:#15803d;font-size:11px;font-weight:700;cursor:pointer;">
+               <span style="width:7px;height:7px;border-radius:50%;background:#22a06b;display:inline-block;"></span>ON
+             </button>`
+          : `<button onclick="opsToggleAnnouncement('${a.id}',true)" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:none;background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:700;cursor:pointer;">
+               <span style="width:7px;height:7px;border-radius:50%;background:#e60023;display:inline-block;"></span>OFF
+             </button>`
+        }
       </td>
       <td>
         <div class="row-actions">
@@ -2637,6 +2642,7 @@ window.opsToggleAnnouncement = async function(annId, enable) {
   await db.from('notifications').update({ enabled: enable }).eq('announcement_id', annId);
   await logAudit(enable ? 'ENABLE_POPUP' : 'DISABLE_POPUP', annId, `Popup ${enable?'enabled':'disabled'} by admin`);
   showToast(`Popup ${enable ? 'enabled — will show to users' : 'disabled — users will no longer see it'}`, enable ? 'success' : 'error');
+  renderAnnouncementsLive();
 };
 
 window.opsViewProof = async function(path) {
@@ -3445,6 +3451,7 @@ window.renderAll = async function() {
   loadReviews();
   dtPopulateAccounts();
   ptPopulateUsers();
+  populateAnnUserDropdown();
 };
 
 /* ============================================================

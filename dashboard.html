@@ -2467,7 +2467,7 @@
         return {
           id: t.id, reqId: t.reference, date: t.created_at,
           type: t.type, label: t.type === 'deposit' ? 'Deposit' : 'Withdrawal',
-          amount: parseFloat(t.amount || 0), status: t.status || 'completed',
+          amount: t.type === 'withdrawal' ? -Math.abs(parseFloat(t.amount || 0)) : parseFloat(t.amount || 0), status: t.status || 'completed',
           canCancel: false,
           detail: { 'Description': desc, 'Reference': t.reference ? t.reference.slice(0,8).toUpperCase() : '—', 'Date': _fmtDateLong(t.created_at) },
         };

@@ -490,7 +490,7 @@
     const rows = [
       ...txns.filter(t => t.type==='deposit'||t.type==='withdrawal').map(t => ({
         id:t.id, date:t.created_at, label: t.type==='deposit'?'Deposit':'Withdrawal',
-        amount: parseFloat(t.amount||0), status: t.status||'completed', canCancel: false,
+        amount: t.type==='withdrawal' ? -Math.abs(parseFloat(t.amount||0)) : parseFloat(t.amount||0), status: t.status||'completed', canCancel: false,
         detail: { 'Description': (t.description||'—').replace('Deposit approved by admin','Xantex approved your deposit').replace('Withdrawal approved by admin','Xantex approved your withdrawal'), 'Reference': t.reference?t.reference.slice(0,8).toUpperCase():'—', 'Date': _fmtDateLong(t.created_at) },
       })),
       ...depReqs.filter(d=>d.status!=='approved').map(d => ({

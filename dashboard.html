@@ -3541,11 +3541,14 @@ function savePreferences() {
   };
 
   // ── Withdrawal PIN overlay ────────────────────────────────
-  let _wdPending = null; // stores validated form data until PIN confirmed
-  let _wdPinBuf  = [];   // digit buffer
+  let _wdPending  = null; // stores validated form data until PIN confirmed
+  let _wdPinBuf   = [];   // digit buffer
+  let _wdPinTries = 0;    // wrong-attempt counter (max 3)
+  const WD_PIN_MAX = 3;
 
   function wdPinReset() {
-    _wdPinBuf = [];
+    _wdPinBuf   = [];
+    _wdPinTries = 0;
     wdUpdateDots();
     const err = document.getElementById('wd-pin-err');
     if (err) err.textContent = '';
@@ -3608,8 +3611,18 @@ function savePreferences() {
     const enteredHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(entered))
       .then(h => Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join(''));
     if (enteredHash !== storedHash) {
-      if (errEl) errEl.textContent = 'Incorrect PIN. Please try again.';
-      _wdPinBuf = []; wdUpdateDots(); return;
+      _wdPinTries++;
+      _wdPinBuf = []; wdUpdateDots();
+      const left = WD_PIN_MAX - _wdPinTries;
+      if (left <= 0) {
+        document.getElementById('wd-pin-overlay').style.display = 'none';
+        _wdPending = null;
+        wdPinReset();
+        alert('Too many incorrect attempts. Your withdrawal request has been cancelled.');
+        return;
+      }
+      if (errEl) errEl.textContent = `Incorrect PIN. ${left} attempt${left === 1 ? '' : 's'} remaining.`;
+      return;
     }
 
     // PIN correct — submit withdrawal

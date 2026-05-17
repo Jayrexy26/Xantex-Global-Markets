@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
   const ANON_KEY     = Deno.env.get('SUPABASE_ANON_KEY')!
   const SERVICE_KEY  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   const RESEND_KEY   = Deno.env.get('RESEND_API_KEY') || ''
-  const FROM_EMAIL   = Deno.env.get('FROM_EMAIL') || 'Xantex Global Markets <onboarding@resend.dev>'
+  const FROM_EMAIL   = Deno.env.get('FROM_EMAIL') || 'Xantex Global Markets <noreply@xantexglobalmarkets.pro>'
 
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) return json({ error: 'Unauthorized' }, 401)

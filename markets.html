@@ -840,69 +840,53 @@ async function fetchCrypto() {
   renderCrypto();
 }
 
-// ── FOREX + METALS — open.er-api.com (ECB/market rates) ──────
-function lastWeekday() {
-  const d=new Date(); d.setDate(d.getDate()-1);
-  while(d.getDay()===0||d.getDay()===6) d.setDate(d.getDate()-1);
-  return d.toISOString().slice(0,10);
-}
+// ── FOREX + METALS — all via proxy (Yahoo Finance FX/futures) ─
 const FOREX_PAIRS = [
-  {sym:'EUR/USD',name:'Euro / US Dollar',         icon:'💱',tag:'major',base:'EUR',quote:'USD'},
-  {sym:'GBP/USD',name:'British Pound / US Dollar',icon:'💷',tag:'major',base:'GBP',quote:'USD'},
-  {sym:'USD/JPY',name:'US Dollar / Japanese Yen', icon:'💴',tag:'major',base:'USD',quote:'JPY'},
-  {sym:'USD/CAD',name:'US Dollar / Canadian Dollar',icon:'🍁',tag:'major',base:'USD',quote:'CAD'},
-  {sym:'USD/CHF',name:'US Dollar / Swiss Franc',  icon:'🇨🇭',tag:'major',base:'USD',quote:'CHF'},
-  {sym:'AUD/USD',name:'Australian / US Dollar',   icon:'🦘',tag:'major',base:'AUD',quote:'USD'},
-  {sym:'NZD/USD',name:'New Zealand / US Dollar',  icon:'🥝',tag:'minor',base:'NZD',quote:'USD'},
-  {sym:'EUR/GBP',name:'Euro / British Pound',     icon:'💶',tag:'minor',base:'EUR',quote:'GBP'},
-  {sym:'EUR/JPY',name:'Euro / Japanese Yen',      icon:'💹',tag:'minor',base:'EUR',quote:'JPY'},
-  {sym:'GBP/JPY',name:'British Pound / Yen',      icon:'💸',tag:'minor',base:'GBP',quote:'JPY'},
+  {sym:'EUR/USD',name:'Euro / US Dollar',          icon:'💱',tag:'major',yf:'EURUSD=X'},
+  {sym:'GBP/USD',name:'British Pound / US Dollar', icon:'💷',tag:'major',yf:'GBPUSD=X'},
+  {sym:'USD/JPY',name:'US Dollar / Japanese Yen',  icon:'💴',tag:'major',yf:'JPY=X'},
+  {sym:'USD/CAD',name:'US Dollar / Canadian Dollar',icon:'🍁',tag:'major',yf:'CAD=X'},
+  {sym:'USD/CHF',name:'US Dollar / Swiss Franc',   icon:'🇨🇭',tag:'major',yf:'CHF=X'},
+  {sym:'AUD/USD',name:'Australian / US Dollar',    icon:'🦘',tag:'major',yf:'AUDUSD=X'},
+  {sym:'NZD/USD',name:'New Zealand / US Dollar',   icon:'🥝',tag:'minor',yf:'NZDUSD=X'},
+  {sym:'EUR/GBP',name:'Euro / British Pound',      icon:'💶',tag:'minor',yf:'EURGBP=X'},
+  {sym:'EUR/JPY',name:'Euro / Japanese Yen',       icon:'💹',tag:'minor',yf:'EURJPY=X'},
+  {sym:'GBP/JPY',name:'British Pound / Yen',       icon:'💸',tag:'minor',yf:'GBPJPY=X'},
 ];
-function calcPair(base, quote, rates) {
-  const baseUsd = base==='USD' ? 1 : 1/rates[base];
-  return baseUsd * (rates[quote]||1);
-}
 async function fetchForexMetals() {
-  const [today, prev] = await Promise.all([
-    safeFetch('https://open.er-api.com/v6/latest/USD'),
-    safeFetch(`https://open.er-api.com/v6/${lastWeekday()}/USD`),
-  ]);
-  const rt=today?.rates, rp=prev?.rates;
-  if (!rt) return;
+  const fxSyms = FOREX_PAIRS.map(p=>p.yf);
+  const metalSyms = ['GC=F','SI=F','PL=F','PA=F','HG=F'];
+  const [fxQ, mQ] = await Promise.all([yahooBatch(fxSyms), yahooBatch(metalSyms)]);
+
   DATA.forex = FOREX_PAIRS.map(p => {
-    const mid=calcPair(p.base,p.quote,rt);
-    const midP=rp?calcPair(p.base,p.quote,rp):mid;
-    const chg=mid-midP, chgp=midP?(chg/midP)*100:0;
-    const isJpy=p.quote==='JPY', dp=isJpy?3:5, sp=isJpy?.02:.00012;
+    const v=fxQ[p.yf]; if(!v?.price) return null;
+    const isJpy=p.sym.includes('JPY'), dp=isJpy?3:5, sp=isJpy?.02:.00012;
     return {
       icon:p.icon, sym:p.sym, name:p.name,
-      bid:mid.toFixed(dp), ask:(mid+sp).toFixed(dp),
-      chg:(chg>=0?'+':'')+chg.toFixed(dp), chgRaw:chg,
-      chgp:pct(chgp), chgpRaw:chgp,
-      high:(mid*1.003).toFixed(dp), low:(mid*0.997).toFixed(dp),
+      bid:v.price.toFixed(dp), ask:(v.price+sp).toFixed(dp),
+      chg:(v.chg>=0?'+':'')+v.chg.toFixed(dp), chgRaw:v.chg,
+      chgp:pct(v.chgp), chgpRaw:v.chgp,
+      high:v.high.toFixed(dp), low:v.low.toFixed(dp),
       spread:(sp*(isJpy?100:10000)).toFixed(1), tag:p.tag,
     };
-  });
+  }).filter(Boolean);
   renderForex();
 
-  // Metals from ECB forex rates + Yahoo Finance for platinum/palladium/copper
   const metals=[];
-  if (rt.XAU) {
-    const g=1/rt.XAU, gP=rp?.XAU?1/rp.XAU:g, chg=g-gP, chgp=gP?(chg/gP)*100:0;
-    metals.push({icon:'🥇',sym:'XAU/USD',name:'Gold',bid:g.toFixed(2),ask:(g+.50).toFixed(2),chg:(chg>=0?'+':'')+chg.toFixed(2),chgRaw:chg,chgp:pct(chgp),chgpRaw:chgp,high:(g*1.004).toFixed(2),low:(g*.996).toFixed(2),unit:'Troy oz'});
-  }
-  if (rt.XAG) {
-    const s=1/rt.XAG, sP=rp?.XAG?1/rp.XAG:s, chg=s-sP, chgp=sP?(chg/sP)*100:0;
-    metals.push({icon:'🥈',sym:'XAG/USD',name:'Silver',bid:s.toFixed(3),ask:(s+.01).toFixed(3),chg:(chg>=0?'+':'')+chg.toFixed(3),chgRaw:chg,chgp:pct(chgp),chgpRaw:chgp,high:(s*1.005).toFixed(3),low:(s*.995).toFixed(3),unit:'Troy oz'});
-  }
-  const mfut = await yahooBatch(['PL=F','PA=F','HG=F']);
-  const addMetal=(q,icon,sym,name,unit,dp=2)=>{
-    if(!q?.price)return;
-    metals.push({icon,sym,name,bid:'$'+q.price.toFixed(dp),ask:'$'+(q.price+.2).toFixed(dp),chg:(q.chg>=0?'+':'')+q.chg.toFixed(dp),chgRaw:q.chg,chgp:pct(q.chgp),chgpRaw:q.chgp,high:'$'+q.high.toFixed(dp),low:'$'+q.low.toFixed(dp),unit});
+  const addMetal=(key,icon,sym,name,unit,dp=2)=>{
+    const v=mQ[key]; if(!v?.price)return;
+    metals.push({icon,sym,name,unit,
+      bid:'$'+v.price.toFixed(dp), ask:'$'+(v.price+.2).toFixed(dp),
+      chg:(v.chg>=0?'+':'')+v.chg.toFixed(dp), chgRaw:v.chg,
+      chgp:pct(v.chgp), chgpRaw:v.chgp,
+      high:'$'+v.high.toFixed(dp), low:'$'+v.low.toFixed(dp),
+    });
   };
-  addMetal(mfut['PL=F'],'⬜','XPT/USD','Platinum','Troy oz');
-  addMetal(mfut['PA=F'],'🔩','XPD/USD','Palladium','Troy oz');
-  addMetal(mfut['HG=F'],'🟤','HG/USD','Copper','Lbs',4);
+  addMetal('GC=F','🥇','XAU/USD','Gold',     'Troy oz');
+  addMetal('SI=F','🥈','XAG/USD','Silver',   'Troy oz',3);
+  addMetal('PL=F','⬜','XPT/USD','Platinum', 'Troy oz');
+  addMetal('PA=F','🔩','XPD/USD','Palladium','Troy oz');
+  addMetal('HG=F','🟤','HG/USD', 'Copper',  'Lbs',4);
   DATA.metals=metals;
   renderMetals();
 }
@@ -1132,7 +1116,7 @@ function renderStats() {
     </div>`).join('');
 }
 
-// ── MINI CHARTS (TradingView) ─────────────────────────────────
+// ── MINI CHARTS (TradingView embed widgets) ───────────────────
 const MINI_SYMS=[
   {sym:'FX:EURUSD',       label:'EUR/USD'},
   {sym:'BITSTAMP:BTCUSD', label:'BTC/USD'},
@@ -1144,12 +1128,26 @@ const MINI_SYMS=[
 function renderMiniCharts() {
   const wrap=document.getElementById('mini-charts');
   wrap.innerHTML='';
-  MINI_SYMS.forEach((m,i)=>{
+  const dark=document.body.classList.contains('dark');
+  MINI_SYMS.forEach(m=>{
     const card=document.createElement('div');
     card.className='mini-chart-card';
-    card.innerHTML=`<div class="mini-chart-card__head"><span class="mini-chart-card__sym">${m.label}</span></div><div id="mini-${i}" style="height:140px;"></div>`;
+    const wc=document.createElement('div');
+    wc.className='tradingview-widget-container';
+    wc.style.cssText='height:160px;';
+    const wd=document.createElement('div');
+    wd.className='tradingview-widget-container__widget';
+    wd.style.cssText='height:100%;';
+    wc.appendChild(wd);
+    const sc=document.createElement('script');
+    sc.type='text/javascript';
+    sc.src='https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js';
+    sc.async=true;
+    sc.textContent=JSON.stringify({symbol:m.sym,width:'100%',height:160,locale:'en',dateRange:'1M',colorTheme:dark?'dark':'light',isTransparent:true,autosize:true,largeChartUrl:'trade.html'});
+    wc.appendChild(sc);
+    card.innerHTML=`<div class="mini-chart-card__head"><span class="mini-chart-card__sym">${m.label}</span></div>`;
+    card.appendChild(wc);
     wrap.appendChild(card);
-    new TradingView.MiniWidget({container_id:`mini-${i}`,symbol:m.sym,width:'100%',height:140,locale:'en',dateRange:'1M',colorTheme:document.body.classList.contains('dark')?'dark':'light',isTransparent:true,autosize:true,largeChartUrl:'trade.html'});
   });
 }
 
@@ -1205,11 +1203,7 @@ async function loadAll() {
 // ── INIT ──────────────────────────────────────────────────────
 loadAll();
 setInterval(loadAll, 30000);
-
-const tvScript=document.createElement('script');
-tvScript.src='https://s3.tradingview.com/tv.js';
-tvScript.onload=renderMiniCharts;
-document.head.appendChild(tvScript);
+renderMiniCharts();
 
 setInterval(()=>{
   document.getElementById('last-updated').textContent='Live prices · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});

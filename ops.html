@@ -3276,6 +3276,26 @@ window.opsSubmitDirectTrade = async function() {
     await logAudit('DIRECT_TRADE', accountId,
       `${_dtDir} ${lots}L ${symbol} | P/L: ${pnl>=0?'+':''}$${pnl.toFixed(2)} | Acct #${acc.account_number}`);
 
+    // Auto-update profit target if this user has one active
+    (async () => {
+      const { data: pt } = await db
+        .from('profit_targets').select('id, target_amount')
+        .eq('user_id', acc.user_id).eq('is_active', true)
+        .order('created_at', { ascending: false }).limit(1).single();
+      if (pt) {
+        const pctDelta = (pnl / Number(pt.target_amount)) * 100;
+        await db.from('profit_target_trades').insert({
+          target_id: pt.id, user_id: acc.user_id,
+          amount: pnl, percentage_delta: pctDelta,
+          note: `${_dtDir} ${symbol} ${lots}L`,
+        });
+        await db.from('profit_targets').update({ updated_at: new Date().toISOString() }).eq('id', pt.id);
+        // Refresh PT display if this user is currently selected
+        const ptSel = document.getElementById('pt-user-sel');
+        if (ptSel?.value === acc.user_id) ptLoadUser(acc.user_id);
+      }
+    })();
+
     const msg = document.getElementById('dt-status-msg');
     if (msg) {
       msg.textContent = `✓ Trade inserted — ${_dtDir} ${lots}L ${symbol} | P/L: ${pnl>=0?'+':''}$${pnl.toFixed(2)}`;

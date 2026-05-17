@@ -411,9 +411,6 @@
     btn.disabled = true;
 
     const db = window.XANTEX_DB;
-    // Always clear any existing session before signing in so a stale
-    // session from a different account can never bleed through
-    try { await db.auth.signOut(); } catch(e) {}
     const { data: signInData, error } = await db.auth.signInWithPassword({
       email:    emailEl.value.trim(),
       password: pwEl.value,

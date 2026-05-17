@@ -863,10 +863,8 @@
           <!-- Account -->
           <div class="order-field">
             <label>Account</label>
-            <select>
-              <option>#10482931 MT4 Raw+ $14,830.50</option>
-              <option>#10483012 MT5 Instant $8,200.00</option>
-              <option>#10483144 TradingView $1,800.00</option>
+            <select id="trade-account-select">
+              <option>Loading…</option>
             </select>
           </div>
 
@@ -983,10 +981,8 @@
     <!-- Account -->
     <div class="order-field">
       <label>Account</label>
-      <select>
-        <option>#10482931 MT4 Raw+ $14,830.50</option>
-        <option>#10483012 MT5 Instant $8,200.00</option>
-        <option>#10483144 TradingView $1,800.00</option>
+      <select id="sheet-account-select">
+        <option>Loading…</option>
       </select>
     </div>
 
@@ -1436,6 +1432,35 @@
   if (!session) { window.location.href = 'login.html'; return; }
   document.body.style.visibility = 'visible';
   initNotifPopup(db, session.user.id);
+
+  // ── Load user accounts into order panel selects ───────────
+  (async () => {
+    const { data: accts } = await db
+      .from('trading_accounts')
+      .select('id,account_number,account_type,balance')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false });
+    const selects = [
+      document.getElementById('trade-account-select'),
+      document.getElementById('sheet-account-select'),
+    ];
+    selects.forEach(sel => {
+      if (!sel) return;
+      sel.innerHTML = '';
+      if (!accts || !accts.length) {
+        sel.innerHTML = '<option value="">No accounts</option>';
+        return;
+      }
+      accts.forEach(a => {
+        const bal = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const opt = document.createElement('option');
+        opt.value = a.id;
+        opt.textContent = `#${a.account_number} ${a.account_type} $${bal}`;
+        sel.appendChild(opt);
+      });
+    });
+  })();
+
   const { data: profile } = await db.from('profiles').select('first_name,last_name,avatar_url').eq('id', session.user.id).single();
   if (profile) {
     const init = ((profile.first_name?.[0] || '') + (profile.last_name?.[0] || '')).toUpperCase() || '?';

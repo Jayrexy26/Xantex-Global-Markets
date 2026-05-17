@@ -517,613 +517,218 @@
         </div>
       </div>
 
-      <!-- Market Stats -->
-      <div class="overview-stats" id="overview-stats"></div>
-
-      <!-- â”€â”€ FOREX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ── FOREX ────────────────────────────────────────────── -->
       <div class="mkt-section" id="section-forex">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">ðŸ’±</span>
-            <div>
-              <div class="section-head__title">Forex</div>
-            </div>
-            <span class="section-head__count">Major, Minor & Exotic Pairs</span>
+            <span class="section-head__icon">💱</span>
+            <div><div class="section-head__title">Forex</div></div>
+            <span class="section-head__count">Major & Minor Pairs</span>
           </div>
           <div class="section-head__right">
-            <button class="filter-btn active" onclick="filterSection('forex','all',this)">All</button>
-            <button class="filter-btn" onclick="filterSection('forex','major',this)">Major</button>
-            <button class="filter-btn" onclick="filterSection('forex','minor',this)">Minor</button>
-            <a class="trade-link" href="trade.html">Trade Forex â†’</a>
+            <a class="trade-link" href="trade.html">Trade Forex →</a>
           </div>
         </div>
-        <div class="mkt-table-wrap">
-          <table class="mkt-table" id="table-forex">
-            <thead><tr>
-              <th>Instrument</th><th>Bid</th><th>Ask</th>
-              <th>Change</th><th>Change %</th><th>High</th><th>Low</th>
-              <th>Spread</th><th>7D Chart</th><th>Sentiment</th><th></th>
-            </tr></thead>
-            <tbody id="tbody-forex"></tbody>
-          </table>
-        </div>
+        <div id="tv-forex" class="tv-widget-wrap"></div>
       </div>
 
-      <!-- â”€â”€ CRYPTO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ── CRYPTO ───────────────────────────────────────────── -->
       <div class="mkt-section" id="section-crypto">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">â‚¿</span>
+            <span class="section-head__icon">₿</span>
             <div><div class="section-head__title">Cryptocurrency</div></div>
             <span class="section-head__count">Top digital assets</span>
           </div>
           <div class="section-head__right">
-            <button class="filter-btn active" onclick="filterSection('crypto','all',this)">All</button>
-            <button class="filter-btn" onclick="filterSection('crypto','top5',this)">Top 5</button>
-            <button class="filter-btn" onclick="filterSection('crypto','defi',this)">DeFi</button>
-            <a class="trade-link" href="trade.html">Trade Crypto â†’</a>
+            <a class="trade-link" href="trade.html">Trade Crypto →</a>
           </div>
         </div>
-
-        <!-- Heatmap -->
-        <div class="heatmap" id="heatmap-crypto"></div>
-
-        <div class="mkt-table-wrap">
-          <table class="mkt-table" id="table-crypto">
-            <thead><tr>
-              <th>Asset</th><th>Price</th><th>24h Change</th>
-              <th>24h High</th><th>24h Low</th><th>Market Cap</th>
-              <th>Volume 24h</th><th>7D Chart</th><th>Sentiment</th><th></th>
-            </tr></thead>
-            <tbody id="tbody-crypto"></tbody>
-          </table>
-        </div>
+        <div id="tv-crypto" class="tv-widget-wrap"></div>
       </div>
 
-      <!-- â”€â”€ STOCKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ── STOCKS ───────────────────────────────────────────── -->
       <div class="mkt-section" id="section-stocks">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">ðŸ¢</span>
+            <span class="section-head__icon">🏢</span>
             <div><div class="section-head__title">Stocks & Shares</div></div>
             <span class="section-head__count">Global equities</span>
           </div>
           <div class="section-head__right">
-            <button class="filter-btn active" onclick="filterSection('stocks','all',this)">All</button>
-            <button class="filter-btn" onclick="filterSection('stocks','us',this)">US</button>
-            <button class="filter-btn" onclick="filterSection('stocks','uk',this)">UK</button>
-            <a class="trade-link" href="trade.html">Trade Stocks â†’</a>
+            <a class="trade-link" href="trade.html">Trade Stocks →</a>
           </div>
         </div>
-        <div class="mkt-table-wrap">
-          <table class="mkt-table" id="table-stocks">
-            <thead><tr>
-              <th>Company</th><th>Price</th><th>Change</th>
-              <th>Change %</th><th>Open</th><th>High</th><th>Low</th>
-              <th>Volume</th><th>7D Chart</th><th>Sentiment</th><th></th>
-            </tr></thead>
-            <tbody id="tbody-stocks"></tbody>
-          </table>
-        </div>
+        <div id="tv-stocks" class="tv-widget-wrap"></div>
       </div>
 
-      <!-- â”€â”€ INDICES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ── INDICES ──────────────────────────────────────────── -->
       <div class="mkt-section" id="section-indices">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">ðŸ“ˆ</span>
+            <span class="section-head__icon">📈</span>
             <div><div class="section-head__title">Indices</div></div>
             <span class="section-head__count">Global stock indices</span>
           </div>
           <div class="section-head__right">
-            <button class="filter-btn active" onclick="filterSection('indices','all',this)">All</button>
-            <button class="filter-btn" onclick="filterSection('indices','us',this)">Americas</button>
-            <button class="filter-btn" onclick="filterSection('indices','eu',this)">Europe</button>
-            <button class="filter-btn" onclick="filterSection('indices','asia',this)">Asia</button>
-            <a class="trade-link" href="trade.html">Trade Indices â†’</a>
+            <a class="trade-link" href="trade.html">Trade Indices →</a>
           </div>
         </div>
-        <div class="mkt-table-wrap">
-          <table class="mkt-table" id="table-indices">
-            <thead><tr>
-              <th>Index</th><th>Price</th><th>Change</th>
-              <th>Change %</th><th>High</th><th>Low</th>
-              <th>Region</th><th>7D Chart</th><th>Sentiment</th><th></th>
-            </tr></thead>
-            <tbody id="tbody-indices"></tbody>
-          </table>
-        </div>
+        <div id="tv-indices" class="tv-widget-wrap"></div>
       </div>
 
-      <!-- â”€â”€ METALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ── METALS ───────────────────────────────────────────── -->
       <div class="mkt-section" id="section-metals">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">ðŸ¥‡</span>
+            <span class="section-head__icon">🥇</span>
             <div><div class="section-head__title">Metals & Commodities</div></div>
             <span class="section-head__count">Precious & industrial metals</span>
           </div>
           <div class="section-head__right">
-            <a class="trade-link" href="trade.html">Trade Metals â†’</a>
+            <a class="trade-link" href="trade.html">Trade Metals →</a>
           </div>
         </div>
-        <div class="mkt-table-wrap">
-          <table class="mkt-table" id="table-metals">
-            <thead><tr>
-              <th>Metal</th><th>Bid</th><th>Ask</th>
-              <th>Change</th><th>Change %</th><th>High</th><th>Low</th>
-              <th>Unit</th><th>7D Chart</th><th>Sentiment</th><th></th>
-            </tr></thead>
-            <tbody id="tbody-metals"></tbody>
-          </table>
-        </div>
+        <div id="tv-metals" class="tv-widget-wrap"></div>
       </div>
 
-      <!-- â”€â”€ ENERGY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ── ENERGY ───────────────────────────────────────────── -->
       <div class="mkt-section" id="section-energy">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">ðŸ›¢ï¸</span>
+            <span class="section-head__icon">🛢️</span>
             <div><div class="section-head__title">Energy</div></div>
             <span class="section-head__count">Oil, gas & more</span>
           </div>
           <div class="section-head__right">
-            <a class="trade-link" href="trade.html">Trade Energy â†’</a>
+            <a class="trade-link" href="trade.html">Trade Energy →</a>
           </div>
         </div>
-        <div class="mkt-table-wrap">
-          <table class="mkt-table" id="table-energy">
-            <thead><tr>
-              <th>Instrument</th><th>Bid</th><th>Ask</th>
-              <th>Change</th><th>Change %</th><th>High</th><th>Low</th>
-              <th>Unit</th><th>7D Chart</th><th>Sentiment</th><th></th>
-            </tr></thead>
-            <tbody id="tbody-energy"></tbody>
-          </table>
-        </div>
+        <div id="tv-energy" class="tv-widget-wrap"></div>
       </div>
 
-      <!-- â”€â”€ ETFs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ── ETFs ─────────────────────────────────────────────── -->
       <div class="mkt-section" id="section-etfs">
         <div class="section-head">
           <div class="section-head__left">
-            <span class="section-head__icon">ðŸ“¦</span>
+            <span class="section-head__icon">📦</span>
             <div><div class="section-head__title">ETFs</div></div>
             <span class="section-head__count">Exchange-traded funds</span>
           </div>
           <div class="section-head__right">
-            <a class="trade-link" href="trade.html">Trade ETFs â†’</a>
+            <a class="trade-link" href="trade.html">Trade ETFs →</a>
           </div>
         </div>
-        <div class="mkt-table-wrap">
-          <table class="mkt-table" id="table-etfs">
-            <thead><tr>
-              <th>Fund</th><th>Price</th><th>Change</th>
-              <th>Change %</th><th>AUM</th><th>Expense Ratio</th>
-              <th>Volume</th><th>7D Chart</th><th>Sentiment</th><th></th>
-            </tr></thead>
-            <tbody id="tbody-etfs"></tbody>
-          </table>
-        </div>
+        <div id="tv-etfs" class="tv-widget-wrap"></div>
       </div>
 
-      <!-- â”€â”€ TradingView Mini Charts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ── Key Instrument Charts ────────────────────────────── -->
       <div style="margin-bottom:12px;">
         <div style="font-size:15px;font-weight:700;margin-bottom:14px;">Key Instrument Charts</div>
         <div class="mini-charts" id="mini-charts"></div>
-      </div>
-
-    </div><!-- /content -->
+      </div>    </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /layout -->
 
 <script>
-/* ============================================================
-   LIVE MARKET DATA
-   Sources: CoinGecko (crypto) · open.er-api.com (forex/metals) · Yahoo Finance (stocks/indices/ETFs/energy)
-============================================================ */
-
-const DATA = { forex:[], crypto:[], stocks:[], indices:[], metals:[], energy:[], etfs:[] };
-
-// ── Formatters ──────────────────────────────────────────────
-const fmtPrice = n => {
-  if (n == null || isNaN(n)) return '—';
-  const a = Math.abs(n);
-  if (a >= 10000) return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-  if (a >= 100)   return n.toFixed(2);
-  if (a >= 10)    return n.toFixed(2);
-  if (a >= 1)     return n.toFixed(4);
-  if (a >= 0.01)  return n.toFixed(4);
-  return n.toFixed(6);
-};
-const fmtVol = n => {
-  if (!n) return '—';
-  if (n >= 1e12) return '$'+(n/1e12).toFixed(2)+'T';
-  if (n >= 1e9)  return '$'+(n/1e9).toFixed(2)+'B';
-  if (n >= 1e6)  return '$'+(n/1e6).toFixed(2)+'M';
-  return '$'+n.toLocaleString();
-};
-const pct = (n, dp=2) => isNaN(n) ? '—' : (n>=0?'+':'')+Number(n).toFixed(dp)+'%';
-
-// ── Sparkline ────────────────────────────────────────────────
-function sparkline(ptsOrUp) {
-  let pts;
-  if (Array.isArray(ptsOrUp) && ptsOrUp.length > 1) {
-    const f = ptsOrUp.filter(Boolean);
-    const min = Math.min(...f), max = Math.max(...f), rng = max-min||1;
-    const sam = f.length > 8
-      ? Array.from({length:8}, (_,i) => f[Math.round(i*(f.length-1)/7)])
-      : f;
-    pts = sam.map(v => ((v-min)/rng)*80+10);
-  } else {
-    const up = ptsOrUp !== false;
-    let v=50; pts=[];
-    for (let i=0;i<8;i++) { v=Math.max(10,Math.min(90,v+(Math.random()-(up?.35:.65))*12)); pts.push(v); }
-  }
-  const w=72, h=32;
-  const c = pts.map((p,i) => `${(i/7)*w},${h-p*h/100}`).join(' ');
-  const up = pts.at(-1)>=pts[0];
-  return `<svg class="spark" viewBox="0 0 ${w} ${h}"><polyline class="${up?'spark-up':'spark-down'}" points="${c}"/></svg>`;
+// ── Helpers ──────────────────────────────────────────────────
+function tvWidget(containerId, src, cfg) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  cfg.colorTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+  el.innerHTML = '';
+  const wc = document.createElement('div');
+  wc.className = 'tradingview-widget-container';
+  const wd = document.createElement('div');
+  wd.className = 'tradingview-widget-container__widget';
+  wc.appendChild(wd);
+  const sc = document.createElement('script');
+  sc.type = 'text/javascript';
+  sc.src = 'https://s3.tradingview.com/external-embedding/' + src;
+  sc.async = true;
+  sc.textContent = JSON.stringify(cfg);
+  wc.appendChild(sc);
+  el.appendChild(wc);
 }
 
-// ── Badges ───────────────────────────────────────────────────
-function chgBadge(chgp) {
-  const s=String(chgp), up=!s.startsWith('-');
-  const arrow = up
-    ? '<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>'
-    : '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
-  return `<span class="chg-badge ${up?'up':'down'}">${arrow}${s}</span>`;
-}
-function sentBadge(chgpRaw) {
-  const v=parseFloat(chgpRaw);
-  if (isNaN(v)) return '<span class="sentiment sentiment--neut">Neutral</span>';
-  const [cls,lbl] = v>0.5?['sentiment--bull','Bullish']:v<-0.5?['sentiment--bear','Bearish']:['sentiment--neut','Neutral'];
-  return `<span class="sentiment ${cls}">${lbl}</span>`;
-}
-function tradeBtn(sym) { return `<button class="row-trade-btn" onclick="goTrade()">Trade</button>`; }
-function goTrade() { window.location.href='trade.html'; }
+function initWidgets() {
+  const dark = document.body.classList.contains('dark');
+  const theme = dark ? 'dark' : 'light';
 
-// ── Skeleton rows while loading ──────────────────────────────
-function skeleton(id, cols) {
-  document.getElementById(id).innerHTML = Array(5).fill(
-    `<tr class="mkt-row">${Array(cols).fill('<td><div style="height:11px;border-radius:4px;background:var(--border);width:75%;"></div></td>').join('')}</tr>`
-  ).join('');
-}
-
-// ── Safe fetch with timeout ──────────────────────────────────
-async function safeFetch(url) {
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(12000) });
-    return r.ok ? r.json() : null;
-  } catch { return null; }
-}
-
-// ── Yahoo Finance — via Supabase proxy (bypasses CORS) ───────
-const PROXY = 'https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/market-proxy';
-async function yahooBatch(symbols) {
-  const d = await safeFetch(`${PROXY}?symbols=${symbols.join(',')}`);
-  return d && typeof d === 'object' ? d : {};
-}
-
-// ── CRYPTO — CoinGecko (free, no key, reliable) ───────────────
-const CRYPTO_META = {
-  bitcoin:     {sym:'BTC/USD', icon:'₿',  tag:'top5'},
-  ethereum:    {sym:'ETH/USD', icon:'Ξ',  tag:'top5'},
-  solana:      {sym:'SOL/USD', icon:'◎',  tag:'top5'},
-  ripple:      {sym:'XRP/USD', icon:'✕',  tag:'top5'},
-  binancecoin: {sym:'BNB/USD', icon:'🔶', tag:'top5'},
-  cardano:     {sym:'ADA/USD', icon:'🔵', tag:'defi'},
-  polkadot:    {sym:'DOT/USD', icon:'⚫', tag:'defi'},
-  dogecoin:    {sym:'DOGE/USD',icon:'🐕', tag:'top5'},
-  'avalanche-2':{sym:'AVAX/USD',icon:'🔷',tag:'defi'},
-  chainlink:   {sym:'LINK/USD',icon:'🌐', tag:'defi'},
-};
-async function fetchCrypto() {
-  const ids = Object.keys(CRYPTO_META).join(',');
-  const d = await safeFetch(
-    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&sparkline=true&price_change_percentage=24h`
-  );
-  if (!Array.isArray(d)) return;
-  DATA.crypto = d.map(c => {
-    const m = CRYPTO_META[c.id]||{};
-    const chg=c.price_change_24h??0, chgp=c.price_change_percentage_24h??0;
-    return {
-      icon:m.icon||'🔷', sym:m.sym||c.symbol.toUpperCase()+'/USD', name:c.name,
-      price:fmtPrice(c.current_price),
-      chg:(chg>=0?'+':'')+fmtPrice(Math.abs(chg)), chgRaw:chg,
-      chgp:pct(chgp), chgpRaw:chgp,
-      high:fmtPrice(c.high_24h), low:fmtPrice(c.low_24h),
-      mcap:fmtVol(c.market_cap), vol:fmtVol(c.total_volume),
-      tag:m.tag||'top5', spark:c.sparkline_in_7d?.price||null,
-    };
+  tvWidget('tv-forex', 'embed-widget-forex-cross-rates.js', {
+    width: '100%', height: 450, locale: 'en',
+    currencies: ['EUR','USD','JPY','GBP','CHF','AUD','CAD','NZD'],
+    isTransparent: false, colorTheme: theme,
   });
-  renderCrypto();
+
+  tvWidget('tv-crypto', 'embed-widget-screener.js', {
+    width: '100%', height: 550, locale: 'en',
+    defaultColumn: 'overview', screener_type: 'crypto_mkt',
+    displayCurrency: 'USD', colorTheme: theme,
+  });
+
+  tvWidget('tv-stocks', 'embed-widget-screener.js', {
+    width: '100%', height: 550, locale: 'en',
+    defaultColumn: 'overview', defaultScreen: 'most_capitalized',
+    market: 'america', showToolbar: true, colorTheme: theme,
+  });
+
+  tvWidget('tv-indices', 'embed-widget-market-overview.js', {
+    colorTheme: theme, dateRange: '1D', showChart: true,
+    locale: 'en', isTransparent: false, width: '100%', height: 550,
+    tabs: [
+      { title: 'Americas', originalTitle: 'Americas', symbols: [
+        {s:'FOREXCOM:SPXUSD',d:'S&P 500'},{s:'FOREXCOM:NSXUSD',d:'Nasdaq 100'},
+        {s:'FOREXCOM:DJI',d:'Dow Jones 30'},{s:'FOREXCOM:RUT',d:'Russell 2000'},
+      ]},
+      { title: 'Europe', originalTitle: 'Europe', symbols: [
+        {s:'INDEX:DEU40',d:'DAX 40'},{s:'CBOE:UK100',d:'FTSE 100'},
+        {s:'INDEX:FRA40',d:'CAC 40'},{s:'INDEX:AMS',d:'AEX 25'},
+      ]},
+      { title: 'Asia', originalTitle: 'Asia', symbols: [
+        {s:'TVC:NI225',d:'Nikkei 225'},{s:'INDEX:HKI',d:'Hang Seng'},
+        {s:'ASX:XJO',d:'ASX 200'},{s:'INDEX:CSI800',d:'CSI 800'},
+      ]},
+    ],
+  });
+
+  tvWidget('tv-metals', 'embed-widget-market-overview.js', {
+    colorTheme: theme, dateRange: '1D', showChart: true,
+    locale: 'en', isTransparent: false, width: '100%', height: 420,
+    tabs: [{ title: 'Metals', originalTitle: 'Metals', symbols: [
+      {s:'TVC:GOLD',d:'Gold'},{s:'TVC:SILVER',d:'Silver'},
+      {s:'TVC:PLATINUM',d:'Platinum'},{s:'TVC:PALLADIUM',d:'Palladium'},
+      {s:'COMEX:HG1!',d:'Copper'},
+    ]}],
+  });
+
+  tvWidget('tv-energy', 'embed-widget-market-overview.js', {
+    colorTheme: theme, dateRange: '1D', showChart: true,
+    locale: 'en', isTransparent: false, width: '100%', height: 420,
+    tabs: [{ title: 'Energy', originalTitle: 'Energy', symbols: [
+      {s:'NYMEX:CL1!',d:'WTI Crude Oil'},{s:'NYMEX:BZ1!',d:'Brent Crude'},
+      {s:'NYMEX:NG1!',d:'Natural Gas'},{s:'NYMEX:RB1!',d:'RBOB Gasoline'},
+      {s:'NYMEX:HO1!',d:'Heating Oil'},
+    ]}],
+  });
+
+  tvWidget('tv-etfs', 'embed-widget-market-overview.js', {
+    colorTheme: theme, dateRange: '1D', showChart: true,
+    locale: 'en', isTransparent: false, width: '100%', height: 420,
+    tabs: [{ title: 'ETFs', originalTitle: 'ETFs', symbols: [
+      {s:'AMEX:SPY',d:'SPDR S&P 500'},{s:'NASDAQ:QQQ',d:'Invesco QQQ'},
+      {s:'AMEX:GLD',d:'SPDR Gold'},{s:'AMEX:SLV',d:'iShares Silver'},
+      {s:'AMEX:VTI',d:'Vanguard Total Market'},{s:'AMEX:XLE',d:'Energy Select'},
+      {s:'NASDAQ:ARKK',d:'ARK Innovation'},{s:'AMEX:XLK',d:'Technology Select'},
+    ]}],
+  });
 }
 
-// ── FOREX + METALS — all via proxy (Yahoo Finance FX/futures) ─
-const FOREX_PAIRS = [
-  {sym:'EUR/USD',name:'Euro / US Dollar',          icon:'💱',tag:'major',yf:'EURUSD=X'},
-  {sym:'GBP/USD',name:'British Pound / US Dollar', icon:'💷',tag:'major',yf:'GBPUSD=X'},
-  {sym:'USD/JPY',name:'US Dollar / Japanese Yen',  icon:'💴',tag:'major',yf:'JPY=X'},
-  {sym:'USD/CAD',name:'US Dollar / Canadian Dollar',icon:'🍁',tag:'major',yf:'CAD=X'},
-  {sym:'USD/CHF',name:'US Dollar / Swiss Franc',   icon:'🇨🇭',tag:'major',yf:'CHF=X'},
-  {sym:'AUD/USD',name:'Australian / US Dollar',    icon:'🦘',tag:'major',yf:'AUDUSD=X'},
-  {sym:'NZD/USD',name:'New Zealand / US Dollar',   icon:'🥝',tag:'minor',yf:'NZDUSD=X'},
-  {sym:'EUR/GBP',name:'Euro / British Pound',      icon:'💶',tag:'minor',yf:'EURGBP=X'},
-  {sym:'EUR/JPY',name:'Euro / Japanese Yen',       icon:'💹',tag:'minor',yf:'EURJPY=X'},
-  {sym:'GBP/JPY',name:'British Pound / Yen',       icon:'💸',tag:'minor',yf:'GBPJPY=X'},
-];
-async function fetchForexMetals() {
-  const fxSyms = FOREX_PAIRS.map(p=>p.yf);
-  const metalSyms = ['GC=F','SI=F','PL=F','PA=F','HG=F'];
-  const [fxQ, mQ] = await Promise.all([yahooBatch(fxSyms), yahooBatch(metalSyms)]);
-
-  DATA.forex = FOREX_PAIRS.map(p => {
-    const v=fxQ[p.yf]; if(!v?.price) return null;
-    const isJpy=p.sym.includes('JPY'), dp=isJpy?3:5, sp=isJpy?.02:.00012;
-    return {
-      icon:p.icon, sym:p.sym, name:p.name,
-      bid:v.price.toFixed(dp), ask:(v.price+sp).toFixed(dp),
-      chg:(v.chg>=0?'+':'')+v.chg.toFixed(dp), chgRaw:v.chg,
-      chgp:pct(v.chgp), chgpRaw:v.chgp,
-      high:v.high.toFixed(dp), low:v.low.toFixed(dp),
-      spread:(sp*(isJpy?100:10000)).toFixed(1), tag:p.tag,
-    };
-  }).filter(Boolean);
-  renderForex();
-
-  const metals=[];
-  const addMetal=(key,icon,sym,name,unit,dp=2)=>{
-    const v=mQ[key]; if(!v?.price)return;
-    metals.push({icon,sym,name,unit,
-      bid:'$'+v.price.toFixed(dp), ask:'$'+(v.price+.2).toFixed(dp),
-      chg:(v.chg>=0?'+':'')+v.chg.toFixed(dp), chgRaw:v.chg,
-      chgp:pct(v.chgp), chgpRaw:v.chgp,
-      high:'$'+v.high.toFixed(dp), low:'$'+v.low.toFixed(dp),
-    });
-  };
-  addMetal('GC=F','🥇','XAU/USD','Gold',     'Troy oz');
-  addMetal('SI=F','🥈','XAG/USD','Silver',   'Troy oz',3);
-  addMetal('PL=F','⬜','XPT/USD','Platinum', 'Troy oz');
-  addMetal('PA=F','🔩','XPD/USD','Palladium','Troy oz');
-  addMetal('HG=F','🟤','HG/USD', 'Copper',  'Lbs',4);
-  DATA.metals=metals;
-  renderMetals();
-}
-
-// ── STOCKS — Yahoo Finance chart API ────────────────────────
-const STOCK_LIST = [
-  {sym:'AAPL', name:'Apple Inc.',       icon:'🍎',tag:'us'},
-  {sym:'MSFT', name:'Microsoft Corp.',  icon:'🪟',tag:'us'},
-  {sym:'GOOGL',name:'Alphabet Inc.',    icon:'🔍',tag:'us'},
-  {sym:'AMZN', name:'Amazon.com Inc.',  icon:'📦',tag:'us'},
-  {sym:'TSLA', name:'Tesla Inc.',       icon:'⚡',tag:'us'},
-  {sym:'NVDA', name:'NVIDIA Corp.',     icon:'🎮',tag:'us'},
-  {sym:'META', name:'Meta Platforms',   icon:'👓',tag:'us'},
-  {sym:'JPM',  name:'JPMorgan Chase',   icon:'🏦',tag:'us'},
-  {sym:'V',    name:'Visa Inc.',        icon:'💳',tag:'us'},
-  {sym:'WMT',  name:'Walmart Inc.',     icon:'🛒',tag:'us'},
-];
-async function fetchStocks() {
-  const q = await yahooBatch(STOCK_LIST.map(s=>s.sym));
-  DATA.stocks = STOCK_LIST.map(s=>{
-    const v=q[s.sym]; if(!v?.price)return null;
-    return {icon:s.icon,sym:s.sym,name:s.name,tag:s.tag,
-      price:'$'+v.price.toFixed(2),chg:(v.chg>=0?'+':'')+v.chg.toFixed(2),chgRaw:v.chg,
-      chgp:pct(v.chgp),chgpRaw:v.chgp,
-      open:'$'+v.open.toFixed(2),high:'$'+v.high.toFixed(2),low:'$'+v.low.toFixed(2),
-      vol:fmtVol(v.vol).replace('$','')};
-  }).filter(Boolean);
-  renderStocks();
-}
-
-// ── INDICES — Yahoo Finance ──────────────────────────────────
-const INDEX_LIST = [
-  {sym:'^DJI',  name:'Dow Jones',        icon:'🗽',tag:'us',  region:'Americas'},
-  {sym:'^GSPC', name:'S&P 500',          icon:'🦅',tag:'us',  region:'Americas'},
-  {sym:'^IXIC', name:'NASDAQ Composite', icon:'💻',tag:'us',  region:'Americas'},
-  {sym:'^FTSE', name:'FTSE 100',         icon:'🎡',tag:'eu',  region:'Europe'  },
-  {sym:'^GDAXI',name:'DAX 40',           icon:'🏰',tag:'eu',  region:'Europe'  },
-  {sym:'^FCHI', name:'CAC 40',           icon:'🗼',tag:'eu',  region:'Europe'  },
-  {sym:'^AEX',  name:'AEX 25',           icon:'🌷',tag:'eu',  region:'Europe'  },
-  {sym:'^N225', name:'Nikkei 225',       icon:'🗾',tag:'asia',region:'Asia'    },
-  {sym:'^AXJO', name:'ASX 200',          icon:'🦘',tag:'asia',region:'Asia'    },
-  {sym:'^HSI',  name:'Hang Seng',        icon:'🐉',tag:'asia',region:'Asia'    },
-];
-async function fetchIndices() {
-  const q = await yahooBatch(INDEX_LIST.map(s=>s.sym));
-  DATA.indices = INDEX_LIST.map(s=>{
-    const key=s.sym; const v=q[key]; if(!v?.price)return null;
-    const dp=v.price>=1000?0:2;
-    const fmt=n=>n.toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});
-    return {icon:s.icon,sym:s.sym.replace('^',''),name:s.name,tag:s.tag,region:s.region,
-      price:fmt(v.price),chg:(v.chg>=0?'+':'')+v.chg.toFixed(dp),chgRaw:v.chg,
-      chgp:pct(v.chgp),chgpRaw:v.chgp,high:fmt(v.high),low:fmt(v.low)};
-  }).filter(Boolean);
-  renderIndices();
-}
-
-// ── ETFs — Yahoo Finance ─────────────────────────────────────
-const ETF_META = {
-  SPY: {name:'SPDR S&P 500 ETF',      icon:'📊',aum:'$544B',exp:'0.09%'},
-  QQQ: {name:'Invesco QQQ Trust',      icon:'💡',aum:'$221B',exp:'0.20%'},
-  GLD: {name:'SPDR Gold Shares',       icon:'🟡',aum:'$66B', exp:'0.40%'},
-  SLV: {name:'iShares Silver Trust',   icon:'⚪',aum:'$12B', exp:'0.50%'},
-  VTI: {name:'Vanguard Total Market',  icon:'🌎',aum:'$432B',exp:'0.03%'},
-  XLE: {name:'Energy Select SPDR',     icon:'⚡',aum:'$38B', exp:'0.09%'},
-  ARKK:{name:'ARK Innovation ETF',     icon:'🚀',aum:'$7B',  exp:'0.75%'},
-  XLK: {name:'Technology Select SPDR', icon:'📱',aum:'$64B', exp:'0.09%'},
-};
-async function fetchETFs() {
-  const syms=Object.keys(ETF_META);
-  const q=await yahooBatch(syms);
-  DATA.etfs=syms.map(sym=>{
-    const v=q[sym]; const m=ETF_META[sym];
-    if(!v?.price)return null;
-    return {icon:m.icon,sym,name:m.name,aum:m.aum,exp:m.exp,
-      price:'$'+v.price.toFixed(2),chg:(v.chg>=0?'+':'')+v.chg.toFixed(2),chgRaw:v.chg,
-      chgp:pct(v.chgp),chgpRaw:v.chgp,vol:fmtVol(v.vol).replace('$','')};
-  }).filter(Boolean);
-  renderETFs();
-}
-
-// ── ENERGY — Yahoo Finance ───────────────────────────────────
-const ENERGY_LIST = [
-  {sym:'CL=F',name:'Crude Oil WTI', icon:'🛢️',unit:'Barrel'},
-  {sym:'BZ=F',name:'Brent Crude',   icon:'⚫',unit:'Barrel'},
-  {sym:'NG=F',name:'Natural Gas',   icon:'🔥',unit:'MMBtu' },
-  {sym:'RB=F',name:'Gasoline RBOB', icon:'⛽',unit:'Gallon'},
-  {sym:'HO=F',name:'Heating Oil',   icon:'🌡️',unit:'Gallon'},
-];
-async function fetchEnergy() {
-  const q=await yahooBatch(ENERGY_LIST.map(s=>s.sym));
-  DATA.energy=ENERGY_LIST.map(s=>{
-    const v=q[s.sym]; if(!v?.price)return null;
-    return {icon:s.icon,sym:s.sym,name:s.name,unit:s.unit,
-      bid:'$'+v.price.toFixed(3),ask:'$'+(v.price+.005).toFixed(3),
-      chg:(v.chg>=0?'+':'')+v.chg.toFixed(3),chgRaw:v.chg,
-      chgp:pct(v.chgp),chgpRaw:v.chgp,
-      high:'$'+v.high.toFixed(3),low:'$'+v.low.toFixed(3)};
-  }).filter(Boolean);
-  renderEnergy();
-}
-
-// ── RENDER ───────────────────────────────────────────────────
-const noData = (id,cols,msg) => document.getElementById(id).innerHTML =
-  `<tr><td colspan="${cols}" style="text-align:center;padding:24px;color:var(--muted);">${msg}</td></tr>`;
-
-function renderForex() {
-  const tb=document.getElementById('tbody-forex');
-  if(!DATA.forex.length){noData('tbody-forex',11,'Forex data unavailable');return;}
-  tb.innerHTML=DATA.forex.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row" data-tag="${r.tag}">
-    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-    <td class="mkt-price">${r.bid}</td><td class="mkt-price">${r.ask}</td>
-    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-    <td>${chgBadge(r.chgp)}</td><td>${r.high}</td><td>${r.low}</td>
-    <td><span style="font-size:12px;color:var(--muted);">${r.spread}</span></td>
-    <td>${sparkline(up)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
-  </tr>`;}).join('');
-}
-
-function renderCrypto() {
-  const tb=document.getElementById('tbody-crypto');
-  if(!DATA.crypto.length){noData('tbody-crypto',10,'Crypto data unavailable');return;}
-  tb.innerHTML=DATA.crypto.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row" data-tag="${r.tag}">
-    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-    <td class="mkt-price">$${r.price}</td><td>${chgBadge(r.chgp)}</td>
-    <td style="color:var(--green);font-weight:600;">$${r.high}</td>
-    <td style="color:var(--red);font-weight:600;">$${r.low}</td>
-    <td style="font-size:12px;">${r.mcap}</td><td style="font-size:12px;">${r.vol}</td>
-    <td>${sparkline(r.spark)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
-  </tr>`;}).join('');
-  document.getElementById('heatmap-crypto').innerHTML=DATA.crypto.map(r=>{
-    const up=r.chgRaw>=0, intensity=Math.min(Math.abs(r.chgpRaw)/5,1);
-    const bg=up?`rgba(34,160,107,${.4+intensity*.5})`:`rgba(230,0,35,${.4+intensity*.5})`;
-    return`<div class="heat-cell" style="background:${bg}" title="${r.name}">
-      <div class="heat-cell__sym">${r.sym.split('/')[0]}</div>
-      <div class="heat-cell__chg">${r.chgp}</div></div>`;
-  }).join('');
-}
-
-function renderStocks() {
-  const tb=document.getElementById('tbody-stocks');
-  if(!DATA.stocks.length){noData('tbody-stocks',11,'Stock data unavailable — markets may be closed');return;}
-  tb.innerHTML=DATA.stocks.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row" data-tag="${r.tag}">
-    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-    <td class="mkt-price">${r.price}</td>
-    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-    <td>${chgBadge(r.chgp)}</td><td>${r.open}</td>
-    <td style="color:var(--green);">${r.high}</td><td style="color:var(--red);">${r.low}</td>
-    <td style="font-size:12px;">${r.vol}</td>
-    <td>${sparkline(r.closes)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
-  </tr>`;}).join('');
-}
-
-function renderIndices() {
-  const tb=document.getElementById('tbody-indices');
-  if(!DATA.indices.length){noData('tbody-indices',10,'Index data unavailable — markets may be closed');return;}
-  tb.innerHTML=DATA.indices.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row" data-tag="${r.tag}">
-    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-    <td class="mkt-price">${r.price}</td>
-    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-    <td>${chgBadge(r.chgp)}</td><td>${r.high}</td><td>${r.low}</td>
-    <td><span style="font-size:12px;color:var(--muted);">${r.region}</span></td>
-    <td>${sparkline(r.closes)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
-  </tr>`;}).join('');
-}
-
-function renderMetals() {
-  const tb=document.getElementById('tbody-metals');
-  if(!DATA.metals.length){noData('tbody-metals',11,'Metals data unavailable');return;}
-  tb.innerHTML=DATA.metals.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row">
-    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-    <td class="mkt-price">${r.bid}</td><td class="mkt-price">${r.ask}</td>
-    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-    <td>${chgBadge(r.chgp)}</td>
-    <td style="color:var(--green);">${r.high}</td><td style="color:var(--red);">${r.low}</td>
-    <td style="font-size:12px;color:var(--muted);">${r.unit}</td>
-    <td>${sparkline(r.closes||up)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
-  </tr>`;}).join('');
-}
-
-function renderEnergy() {
-  const tb=document.getElementById('tbody-energy');
-  if(!DATA.energy.length){noData('tbody-energy',11,'Energy data unavailable — markets may be closed');return;}
-  tb.innerHTML=DATA.energy.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row">
-    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-    <td class="mkt-price">${r.bid}</td><td class="mkt-price">${r.ask}</td>
-    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-    <td>${chgBadge(r.chgp)}</td>
-    <td style="color:var(--green);">${r.high}</td><td style="color:var(--red);">${r.low}</td>
-    <td style="font-size:12px;color:var(--muted);">${r.unit}</td>
-    <td>${sparkline(r.closes)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
-  </tr>`;}).join('');
-}
-
-function renderETFs() {
-  const tb=document.getElementById('tbody-etfs');
-  if(!DATA.etfs.length){noData('tbody-etfs',10,'ETF data unavailable — markets may be closed');return;}
-  tb.innerHTML=DATA.etfs.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row">
-    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-    <td class="mkt-price">${r.price}</td>
-    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-    <td>${chgBadge(r.chgp)}</td>
-    <td style="font-size:12px;">${r.aum}</td><td style="font-size:12px;">${r.exp}</td>
-    <td style="font-size:12px;">${r.vol}</td>
-    <td>${sparkline(r.closes)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
-  </tr>`;}).join('');
-}
-
-// ── OVERVIEW STATS ────────────────────────────────────────────
-function renderStats() {
-  const g=(cat,sym,f)=>DATA[cat].find(d=>d.sym===sym)?.[f]??'—';
-  const chgUp=(cat,sym)=>(DATA[cat].find(d=>d.sym===sym)?.chgRaw??0)>=0;
-  const stats=[
-    {label:'S&P 500',  value:g('indices','GSPC','price'), change:g('indices','GSPC','chgp'), up:chgUp('indices','GSPC')},
-    {label:'NASDAQ',   value:g('indices','IXIC','price'), change:g('indices','IXIC','chgp'), up:chgUp('indices','IXIC')},
-    {label:'Gold',     value:'$'+g('metals','XAU/USD','bid'), change:g('metals','XAU/USD','chgp'), up:chgUp('metals','XAU/USD')},
-    {label:'BTC/USD',  value:'$'+g('crypto','BTC/USD','price'), change:g('crypto','BTC/USD','chgp'), up:chgUp('crypto','BTC/USD')},
-    {label:'EUR/USD',  value:g('forex','EUR/USD','bid'), change:g('forex','EUR/USD','chgp'), up:chgUp('forex','EUR/USD')},
-    {label:'WTI Crude',value:g('energy','CL=F','bid'), change:g('energy','CL=F','chgp'), up:chgUp('energy','CL=F')},
-    {label:'Dow Jones',value:g('indices','DJI','price'), change:g('indices','DJI','chgp'), up:chgUp('indices','DJI')},
-    {label:'Silver',   value:'$'+g('metals','XAG/USD','bid'), change:g('metals','XAG/USD','chgp'), up:chgUp('metals','XAG/USD')},
-  ];
-  document.getElementById('overview-stats').innerHTML=stats.map(s=>`
-    <div class="stat-card">
-      <div class="stat-card__label">${s.label}</div>
-      <div class="stat-card__value">${s.value}</div>
-      ${s.change&&s.change!=='—'?`<div class="stat-card__change ${s.up?'up':'down'}">${s.up?'▲':'▼'} ${s.change}</div>`:''}
-    </div>`).join('');
-}
-
-// ── MINI CHARTS (TradingView embed widgets) ───────────────────
+// ── Mini Charts ───────────────────────────────────────────────
 const MINI_SYMS=[
-  {sym:'FX:EURUSD',       label:'EUR/USD'},
-  {sym:'BITSTAMP:BTCUSD', label:'BTC/USD'},
-  {sym:'FOREXCOM:XAUUSD', label:'Gold'   },
-  {sym:'FOREXCOM:SPXUSD', label:'S&P 500'},
-  {sym:'NYMEX:CL1!',      label:'WTI Oil'},
-  {sym:'NASDAQ:NVDA',     label:'NVIDIA' },
+  {sym:'FX:EURUSD',label:'EUR/USD'},{sym:'BITSTAMP:BTCUSD',label:'BTC/USD'},
+  {sym:'FOREXCOM:XAUUSD',label:'Gold'},{sym:'FOREXCOM:SPXUSD',label:'S&P 500'},
+  {sym:'NYMEX:CL1!',label:'WTI Oil'},{sym:'NASDAQ:NVDA',label:'NVIDIA'},
 ];
 function renderMiniCharts() {
   const wrap=document.getElementById('mini-charts');
@@ -1134,16 +739,15 @@ function renderMiniCharts() {
     card.className='mini-chart-card';
     const wc=document.createElement('div');
     wc.className='tradingview-widget-container';
-    wc.style.cssText='height:160px;';
     const wd=document.createElement('div');
     wd.className='tradingview-widget-container__widget';
-    wd.style.cssText='height:100%;';
+    wd.style.height='160px';
     wc.appendChild(wd);
     const sc=document.createElement('script');
     sc.type='text/javascript';
     sc.src='https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js';
     sc.async=true;
-    sc.textContent=JSON.stringify({symbol:m.sym,width:'100%',height:160,locale:'en',dateRange:'1M',colorTheme:dark?'dark':'light',isTransparent:true,autosize:true,largeChartUrl:'trade.html'});
+    sc.textContent=JSON.stringify({symbol:m.sym,width:'100%',height:160,locale:'en',dateRange:'1M',colorTheme:dark?'dark':'light',isTransparent:true,autosize:true});
     wc.appendChild(sc);
     card.innerHTML=`<div class="mini-chart-card__head"><span class="mini-chart-card__sym">${m.label}</span></div>`;
     card.appendChild(wc);
@@ -1151,63 +755,42 @@ function renderMiniCharts() {
   });
 }
 
-// ── FILTER ────────────────────────────────────────────────────
-function filterSection(section, tag, btn) {
-  btn.closest('.section-head__right').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll(`#tbody-${section} tr`).forEach(row=>{
-    row.style.display=(tag==='all'||row.dataset.tag===tag)?'':'none';
-  });
-}
-
-// ── SEARCH ────────────────────────────────────────────────────
-function searchMarkets() {
-  const q=document.getElementById('global-search').value.toLowerCase();
-  document.querySelectorAll('.mkt-row').forEach(row=>{row.style.display=row.textContent.toLowerCase().includes(q)?'':'none';});
-  document.querySelectorAll('.mkt-section').forEach(sec=>{
-    const vis=[...sec.querySelectorAll('.mkt-row')].some(r=>r.style.display!=='none');
-    sec.style.display=q&&!vis?'none':'';
-  });
-}
-
-// ── REFRESH ───────────────────────────────────────────────────
-async function refreshPrices() {
-  const btn=document.querySelector('[onclick="refreshPrices()"]');
-  btn.textContent='Refreshing…'; btn.disabled=true;
-  await loadAll();
-  btn.innerHTML=`<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Refresh`;
-  btn.disabled=false;
-}
-
-// ── DARK MODE ─────────────────────────────────────────────────
+// ── Dark mode ─────────────────────────────────────────────────
 const sunIcon=`<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
 const moonIcon=`<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
-function toggleDark(){const isDark=document.body.classList.toggle('dark');document.getElementById('dark-icon').innerHTML=isDark?sunIcon:moonIcon;localStorage.setItem('xantex-theme',isDark?'dark':'light');}
+function toggleDark(){
+  const isDark=document.body.classList.toggle('dark');
+  document.getElementById('dark-icon').innerHTML=isDark?sunIcon:moonIcon;
+  localStorage.setItem('xantex-theme',isDark?'dark':'light');
+  initWidgets();
+  renderMiniCharts();
+}
 if(localStorage.getItem('xantex-theme')==='dark'){document.body.classList.add('dark');document.getElementById('dark-icon').innerHTML=sunIcon;}
 
-// ── SIDEBAR ───────────────────────────────────────────────────
+// ── Sidebar ───────────────────────────────────────────────────
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
 document.addEventListener('click',e=>{
   const sb=document.getElementById('sidebar'),hb=document.getElementById('hamburger');
-  if(sb.classList.contains('open')&&!sb.contains(e.target)&&!hb.contains(e.target))sb.classList.remove('open');
+  if(sb&&sb.classList.contains('open')&&!sb.contains(e.target)&&!hb.contains(e.target))sb.classList.remove('open');
 });
 
-// ── MAIN LOAD ─────────────────────────────────────────────────
-async function loadAll() {
-  [['tbody-forex',11],['tbody-crypto',10],['tbody-stocks',11],['tbody-indices',10],['tbody-metals',11],['tbody-energy',11],['tbody-etfs',10]].forEach(([id,cols])=>skeleton(id,cols));
-  await Promise.allSettled([fetchCrypto(), fetchForexMetals(), fetchStocks(), fetchIndices(), fetchETFs(), fetchEnergy()]);
-  renderStats();
-  document.getElementById('last-updated').textContent='Live prices · Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+// ── Clock ─────────────────────────────────────────────────────
+setInterval(()=>{
+  const el=document.getElementById('last-updated');
+  if(el)el.textContent='Live prices · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+},1000);
+
+// ── Search (hides sections with no visible match) ─────────────
+function searchMarkets() {
+  const q=document.getElementById('global-search').value.toLowerCase();
+  document.querySelectorAll('.mkt-section').forEach(sec=>{
+    sec.style.display = (!q || sec.textContent.toLowerCase().includes(q)) ? '' : 'none';
+  });
 }
 
-// ── INIT ──────────────────────────────────────────────────────
-loadAll();
-setInterval(loadAll, 30000);
+// ── Init ──────────────────────────────────────────────────────
+initWidgets();
 renderMiniCharts();
-
-setInterval(()=>{
-  document.getElementById('last-updated').textContent='Live prices · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-},1000);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase.js"></script>

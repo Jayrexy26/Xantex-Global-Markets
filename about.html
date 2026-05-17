@@ -97,6 +97,12 @@ footer{background:#0d1120}
 @media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){.story-grid{grid-template-columns:1fr}.reg-grid{grid-template-columns:1fr}.footer-disclaimer__inner{grid-template-columns:1fr}}
 @media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.page-hero__title-wrap{opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.2s}
+.page-hero__sub{opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.4s}
+.page-hero__actions{opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.6s}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
 </style>
   <link rel="stylesheet" href="/css/lang.css">
 </head>
@@ -251,6 +257,21 @@ function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=doc
 _nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});
 document.addEventListener('click',_closeAll);
 </script>
+  <script>
+  (function(){
+    var sel=['.section__eyebrow','.section__h2','.section__lead','.story-card','.reg-card','.stats-bar__item'].join(',');
+    document.querySelectorAll(sel).forEach(function(el){
+      el.classList.add('reveal');
+      var sib=[].slice.call(el.parentElement.children).filter(function(c){return c.classList.contains(el.classList[0]);});
+      var idx=sib.indexOf(el);
+      if(idx>0) el.style.transitionDelay=(idx*0.09)+'s';
+    });
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+    },{threshold:0.05,rootMargin:'0px 0px -20px 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
+  })();
+  </script>
   <script src="/js/lang.js"></script>
   <script src="/js/platform.js"></script>
 </body>

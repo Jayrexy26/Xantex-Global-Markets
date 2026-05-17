@@ -14,11 +14,30 @@ const cors = {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
-  if (req.headers.get("x-admin-secret") !== ADMIN_SECRET) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
+  const db = createClient(SUPABASE_URL, SERVICE_KEY);
+
+  // Accept either x-admin-secret header OR a valid admin user JWT
+  const xSecret = req.headers.get("x-admin-secret");
+  let authorized = xSecret === ADMIN_SECRET;
+
+  if (!authorized) {
+    const authHeader = req.headers.get("authorization") ?? "";
+    if (authHeader.startsWith("Bearer ")) {
+      const token = authHeader.slice(7);
+      const userClient = createClient(SUPABASE_URL, SERVICE_KEY, {
+        global: { headers: { Authorization: `Bearer ${token}` } },
+      });
+      const { data: { user } } = await userClient.auth.getUser();
+      if (user) {
+        const { count } = await db.from("admin_users").select("id", { count: "exact", head: true }).eq("id", user.id);
+        authorized = (count ?? 0) > 0;
+      }
+    }
   }
 
-  const db = createClient(SUPABASE_URL, SERVICE_KEY);
+  if (!authorized) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
+  }
   const body = await req.json();
   const { action } = body;
 

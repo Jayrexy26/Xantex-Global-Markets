@@ -3809,9 +3809,15 @@ const _ADMIN_SEC = 'Driver112#';
 let _emailHistory = [];
 
 async function _adminApiCall(action, payload = {}) {
+  const db = window.XANTEX_DB;
+  const { data: { session } } = await db.auth.getSession();
   const res = await fetch(_ADMIN_API, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-secret': _ADMIN_SEC },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-secret': _ADMIN_SEC,
+      'Authorization': `Bearer ${session?.access_token ?? ''}`,
+    },
     body: JSON.stringify({ action, ...payload }),
   });
   return res.json();

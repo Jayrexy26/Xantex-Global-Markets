@@ -460,29 +460,8 @@
 </head>
 <body>
 
-<!-- LOGIN GATE -->
-<div id="login-gate" style="position:fixed;inset:0;background:#0d1120;display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;">
-  <div style="background:#1a1d27;border:1px solid #2a2d3a;border-radius:14px;padding:40px;width:100%;max-width:380px;text-align:center;">
-    <div style="font-size:11px;font-weight:800;letter-spacing:0.12em;background:var(--red);color:#fff;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:16px;">OPS ADMIN</div>
-    <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;">Xantex Control Panel</div>
-    <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Restricted access — authorised personnel only</div>
-    <div style="display:flex;flex-direction:column;gap:12px;text-align:left;">
-      <div style="display:flex;flex-direction:column;gap:4px;">
-        <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Admin Email</label>
-        <input id="admin-user" type="email" placeholder="admin@yourdomain.com" style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'">
-      </div>
-      <div style="display:flex;flex-direction:column;gap:4px;">
-        <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Password</label>
-        <input id="admin-pass" type="password" placeholder="••••••••" style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'" onkeydown="if(event.key==='Enter')adminLogin()">
-      </div>
-      <div id="login-err" style="font-size:12px;color:var(--red);display:none;">Incorrect credentials. Try again.</div>
-      <button onclick="adminLogin()" style="height:44px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;">Sign In to OPS</button>
-    </div>
-  </div>
-</div>
-
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-<div class="layout" id="main-app" style="display:none;">
+<div class="layout" id="main-app" style="visibility:hidden;">
 
   <!-- ============================================================
        SIDEBAR
@@ -582,7 +561,7 @@
         <div class="sidebar__user-name">—</div>
         <div class="sidebar__user-role">OPS</div>
       </div>
-      <button class="sidebar__logout" onclick="document.getElementById('login-gate').style.display='flex';document.getElementById('main-app').style.display='none';" title="Sign out">
+      <button class="sidebar__logout" onclick="window.XANTEX_DB?.auth.signOut().finally(()=>window.location.href='ops-login.html')" title="Sign out">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
@@ -2060,8 +2039,8 @@ window.adminLogin = async function() {
   document.querySelector('.sidebar__user-role').textContent = (_adminUser.role) + ' · OPS';
   document.querySelector('.sidebar__avatar').textContent    = initials;
   document.querySelector('.topbar__avatar').textContent     = initials;
-  document.getElementById('login-gate').style.display = 'none';
-  document.getElementById('main-app').style.display   = 'flex';
+  document.getElementById('main-app').style.visibility = 'visible';
+  document.getElementById('main-app').style.display    = 'flex';
   renderAll();
   const savedPage = localStorage.getItem('xantex-ops-page') || 'dashboard';
   const savedBtn  = document.querySelector(`.nav-item[onclick*="'${savedPage}'"]`);
@@ -2074,12 +2053,12 @@ window.adminLogin = async function() {
   if (!db) return;
 
   const { data: { session } } = await db.auth.getSession();
-  if (!session) return; // no session — stay on login gate
+  if (!session) { window.location.href = 'ops-login.html'; return; } // — stay on login gate
 
   const user = session.user;
   const { data: adminRow } = await db
     .from('admin_users').select('id, email, role').eq('id', user.id).single();
-  if (!adminRow) return; // user exists but is not admin — stay on login gate
+  if (!adminRow) { window.location.href = 'ops-login.html'; return; } // — stay on login gate
 
   _adminUser = { id: user.id, email: user.email, role: adminRow.role || 'admin' };
   const initials = user.email.slice(0, 2).toUpperCase();
@@ -2087,8 +2066,8 @@ window.adminLogin = async function() {
   document.querySelector('.sidebar__user-role').textContent = (_adminUser.role) + ' · OPS';
   document.querySelector('.sidebar__avatar').textContent    = initials;
   document.querySelector('.topbar__avatar').textContent     = initials;
-  document.getElementById('login-gate').style.display = 'none';
-  document.getElementById('main-app').style.display   = 'flex';
+  document.getElementById('main-app').style.visibility = 'visible';
+  document.getElementById('main-app').style.display    = 'flex';
   renderAll();
   const savedPage = localStorage.getItem('xantex-ops-page') || 'dashboard';
   const savedBtn  = document.querySelector(`.nav-item[onclick*="'${savedPage}'"]`);

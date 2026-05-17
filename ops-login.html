@@ -8,198 +8,79 @@
   <meta name="robots" content="noindex, nofollow">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --blue:#1a5cff; --blue-dk:#1244cc; --red:#e60023; --border:#2a2d3a; --muted:rgba(255,255,255,0.45); }
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    html, body { height:100%; font-family:'Inter',sans-serif; background:#070f1c; color:#fff; }
-
-    body { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px;
-           background: radial-gradient(ellipse at 70% 10%, rgba(26,92,255,0.15) 0%, transparent 55%),
-                       radial-gradient(ellipse at 5% 90%, rgba(230,0,35,0.08) 0%, transparent 45%), #070f1c; }
-
-    .card {
-      width:100%; max-width:420px;
-      background:rgba(255,255,255,0.04);
-      border:1px solid rgba(255,255,255,0.08);
-      border-radius:20px;
-      padding:44px 40px;
-      backdrop-filter:blur(12px);
+    :root { --blue:#1a5cff; --red:#e60023; }
+    html, body {
+      height:100%; font-family:'Inter',sans-serif;
+      background:#0d1120; display:flex; align-items:center; justify-content:center; padding:20px;
     }
-
-    .logo { text-align:center; margin-bottom:28px; }
-    .logo img { height:44px; margin:0 auto 10px; }
-    .logo-fallback { font-size:18px; font-weight:800; color:var(--red); display:none; margin-bottom:10px; }
-    .badge {
-      display:inline-block;
-      background:var(--red);
-      color:#fff;
-      font-size:10px;
-      font-weight:800;
-      letter-spacing:0.14em;
-      text-transform:uppercase;
-      padding:3px 12px;
-      border-radius:4px;
-    }
-
-    .head { margin-bottom:28px; text-align:center; }
-    .head h1 { font-size:22px; font-weight:700; letter-spacing:-0.3px; margin-bottom:6px; }
-    .head p  { font-size:13px; color:var(--muted); line-height:1.55; }
-
-    .field { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
-    .field label { font-size:12px; font-weight:600; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:0.07em; }
-    .field input {
-      height:46px;
-      background:#0f1117;
-      border:1.5px solid var(--border);
-      border-radius:10px;
-      padding:0 14px;
-      font-size:14px;
-      font-family:inherit;
-      color:#fff;
-      outline:none;
-      transition:border-color 0.15s, box-shadow 0.15s;
-    }
-    .field input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(26,92,255,0.15); }
-
-    .err-box {
-      display:none;
-      background:rgba(230,0,35,0.1);
-      border:1px solid rgba(230,0,35,0.3);
-      border-radius:8px;
-      padding:10px 14px;
-      font-size:13px;
-      color:#ff8080;
-      margin-bottom:14px;
-    }
-
-    .btn-submit {
-      width:100%; height:48px;
-      background:var(--blue);
-      color:#fff;
-      border:none;
-      border-radius:10px;
-      font-size:15px;
-      font-weight:700;
-      cursor:pointer;
-      display:flex; align-items:center; justify-content:center; gap:8px;
-      transition:background 0.15s;
-      margin-top:6px;
-    }
-    .btn-submit:hover { background:var(--blue-dk); }
-    .btn-submit:disabled { opacity:0.6; pointer-events:none; }
-
     @keyframes spin { to { transform:rotate(360deg); } }
-    .spin { width:18px; height:18px; border:2px solid rgba(255,255,255,0.35); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:none; }
-    .btn-submit.loading .btn-label { display:none; }
-    .btn-submit.loading .spin      { display:block; }
-
-    .footer-link { text-align:center; margin-top:24px; font-size:12px; color:var(--muted); }
-    .footer-link a { color:var(--blue); }
-    .footer-link a:hover { text-decoration:underline; }
-
-    .warning {
-      background:rgba(245,166,35,0.08);
-      border:1px solid rgba(245,166,35,0.2);
-      border-radius:8px;
-      padding:10px 14px;
-      font-size:12px;
-      color:rgba(245,166,35,0.8);
-      margin-bottom:20px;
-      display:flex; align-items:flex-start; gap:8px;
-    }
-    .warning svg { width:14px; height:14px; fill:none; stroke:rgba(245,166,35,0.8); stroke-width:2; flex-shrink:0; margin-top:1px; }
   </style>
 </head>
 <body>
-<div class="card">
 
-  <div class="logo">
-    <img src="/images/logo.png" alt="Xantex"
-      onerror="this.style.display='none';document.querySelector('.logo-fallback').style.display='block'">
-    <div class="logo-fallback">Xantex</div>
-    <div class="badge">OPS Admin</div>
+<div style="background:#1a1d27;border:1px solid #2a2d3a;border-radius:14px;padding:40px;width:100%;max-width:380px;text-align:center;">
+  <div style="font-size:11px;font-weight:800;letter-spacing:0.12em;background:var(--red);color:#fff;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:16px;">OPS ADMIN</div>
+  <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;">Xantex Control Panel</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Restricted access — authorised personnel only</div>
+  <div style="display:flex;flex-direction:column;gap:12px;text-align:left;">
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Admin Email</label>
+      <input id="admin-user" type="email" placeholder="admin@yourdomain.com"
+        style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;"
+        onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
+      <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Password</label>
+      <input id="admin-pass" type="password" placeholder="••••••••"
+        style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;"
+        onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div id="login-err" style="font-size:12px;color:var(--red);display:none;"></div>
+    <button id="btn-login" onclick="doLogin()"
+      style="height:44px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <span id="btn-label">Sign In to OPS</span>
+      <div id="btn-spin" style="display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;"></div>
+    </button>
   </div>
-
-  <div class="head">
-    <h1>Operator Sign In</h1>
-    <p>Restricted access — authorised personnel only</p>
-  </div>
-
-  <div class="warning">
-    <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    All access is logged and monitored. Unauthorised access is a criminal offence.
-  </div>
-
-  <div class="err-box" id="err-box"></div>
-
-  <div class="field">
-    <label>Admin Email</label>
-    <input type="email" id="admin-email" placeholder="admin@xantexglobalmarkets.pro" autocomplete="username">
-  </div>
-  <div class="field">
-    <label>Password</label>
-    <input type="password" id="admin-pass" placeholder="••••••••" autocomplete="current-password"
-           onkeydown="if(event.key==='Enter')doLogin()">
-  </div>
-
-  <button class="btn-submit" id="btn-login" onclick="doLogin()">
-    <span class="btn-label">Sign In to OPS</span>
-    <div class="spin"></div>
-  </button>
-
-  <div class="footer-link">
-    Not an admin? <a href="login.html">User login →</a>
-  </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase.js"></script>
 <script>
   const db     = window.XANTEX_DB;
-  const errBox = document.getElementById('err-box');
+  const errEl  = document.getElementById('login-err');
   const btn    = document.getElementById('btn-login');
+  const label  = document.getElementById('btn-label');
+  const spin   = document.getElementById('btn-spin');
 
-  function showErr(msg) {
-    errBox.style.display = 'block';
-    errBox.textContent = msg;
-    btn.classList.remove('loading');
-    btn.disabled = false;
+  function setLoading(on) {
+    btn.disabled = on;
+    label.style.display = on ? 'none' : '';
+    spin.style.display  = on ? 'block' : 'none';
   }
+  function showErr(msg) { errEl.style.display = 'block'; errEl.textContent = msg; setLoading(false); }
 
   async function doLogin() {
-    const email = document.getElementById('admin-email').value.trim();
+    errEl.style.display = 'none';
+    const email = document.getElementById('admin-user').value.trim();
     const pass  = document.getElementById('admin-pass').value;
-    errBox.style.display = 'none';
-
     if (!email || !pass) { showErr('Please enter your email and password.'); return; }
-
-    btn.classList.add('loading');
-    btn.disabled = true;
-
     if (!db) { showErr('Database not initialised — please refresh.'); return; }
-
-    // Always clear existing session first
+    setLoading(true);
     try { await db.auth.signOut(); } catch(e) {}
-
     const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
-    if (error) { showErr('Authentication failed: ' + error.message); return; }
-    if (!data?.user) { showErr('No user returned — please try again.'); return; }
-
+    if (error) { showErr('Auth error: ' + error.message); return; }
+    if (!data?.user) { showErr('No user returned — try again.'); return; }
     const { data: adminRow, error: adminErr } = await db
       .from('admin_users').select('id,email,role').eq('id', data.user.id).maybeSingle();
-
     if (adminErr) { showErr('Admin lookup error: ' + adminErr.message); return; }
-    if (!adminRow) {
-      await db.auth.signOut();
-      showErr('Access denied — this account does not have admin privileges.');
-      return;
-    }
-
-    // Success — go to ops panel
+    if (!adminRow) { await db.auth.signOut(); showErr('Access denied — not an admin account.'); return; }
     window.location.href = 'ops.html';
   }
 
-  // If already logged in as admin, redirect immediately
+  // If already logged in as admin, skip straight to ops
   (async () => {
     if (!db) return;
     try {

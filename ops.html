@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="/images/favicon.png">
-  <title>Xantex OPS — Admin Control Panel</title>
+  <title>Xantex OPS â€” Admin Control Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -378,7 +378,7 @@
     .sidebar-overlay.open { display: block; }
 
     /* ============================================================
-       RESPONSIVE — TABLET / MOBILE
+       RESPONSIVE â€” TABLET / MOBILE
     ============================================================ */
     @media (max-width: 900px) {
       .dash-grid { grid-template-columns: 1fr; }
@@ -447,7 +447,7 @@
       .stat-cards { grid-template-columns: 1fr; }
     }
 
-    /* ── Scrollbars ─────────────────────────────────────────── */
+    /* â”€â”€ Scrollbars â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     * { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
@@ -463,7 +463,7 @@
   <div style="background:#1a1d27;border:1px solid #2a2d3a;border-radius:14px;padding:40px;width:100%;max-width:380px;text-align:center;">
     <div style="font-size:11px;font-weight:800;letter-spacing:0.12em;background:var(--red);color:#fff;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:16px;">OPS ADMIN</div>
     <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;">Xantex Control Panel</div>
-    <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Restricted access — authorised personnel only</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Restricted access â€” authorised personnel only</div>
     <div style="display:flex;flex-direction:column;gap:12px;text-align:left;">
       <div style="display:flex;flex-direction:column;gap:4px;">
         <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Admin Email</label>
@@ -471,7 +471,7 @@
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;">
         <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Password</label>
-        <input id="admin-pass" type="password" placeholder="••••••••" style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'" onkeydown="if(event.key==='Enter')adminLogin()">
+        <input id="admin-pass" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'" onkeydown="if(event.key==='Enter')adminLogin()">
       </div>
       <div id="login-err" style="font-size:12px;color:var(--red);display:none;">Incorrect credentials. Try again.</div>
       <button onclick="adminLogin()" style="height:44px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;">Sign In to OPS</button>
@@ -510,12 +510,12 @@
       <button class="nav-item" onclick="showPage('users',this)">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         All Users
-        <span class="nav-item__badge badge-green">—</span>
+        <span class="nav-item__badge badge-green">â€”</span>
       </button>
       <button class="nav-item" onclick="showPage('verification',this)">
         <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         KYC / Verification
-        <span class="nav-item__badge badge-orange">—</span>
+        <span class="nav-item__badge badge-orange">â€”</span>
       </button>
 
       <div class="sidebar__section-label">Accounts</div>
@@ -536,12 +536,12 @@
       <button class="nav-item" onclick="showPage('deposits',this)">
         <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         Deposits
-        <span class="nav-item__badge badge-orange">—</span>
+        <span class="nav-item__badge badge-orange">â€”</span>
       </button>
       <button class="nav-item" onclick="showPage('withdrawals',this)">
         <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
         Withdrawals
-        <span class="nav-item__badge badge-red">—</span>
+        <span class="nav-item__badge badge-red">â€”</span>
       </button>
       <button class="nav-item" onclick="showPage('transactions',this)">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -575,9 +575,9 @@
     </nav>
 
     <div class="sidebar__footer">
-      <div class="sidebar__avatar">—</div>
+      <div class="sidebar__avatar">â€”</div>
       <div>
-        <div class="sidebar__user-name">—</div>
+        <div class="sidebar__user-name">â€”</div>
         <div class="sidebar__user-role">OPS</div>
       </div>
       <button class="sidebar__logout" onclick="document.getElementById('login-gate').style.display='flex';document.getElementById('main-app').style.display='none';" title="Sign out">
@@ -597,10 +597,10 @@
         <span></span><span></span><span></span>
       </button>
       <div class="topbar__title" id="page-title">Dashboard</div>
-      <span class="topbar__env">ADMIN · OPS</span>
+      <span class="topbar__env">ADMIN Â· OPS</span>
       <div class="topbar__search">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Search users, accounts…">
+        <input type="text" placeholder="Search users, accountsâ€¦">
       </div>
       <div class="topbar__right">
         <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()" title="Dark mode">
@@ -610,65 +610,68 @@
           <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <div class="topbar__notif-dot"></div>
         </button>
-        <div class="topbar__avatar">—</div>
+        <div class="topbar__avatar">â€”</div>
       </div>
     </div>
 
     <!-- CONTENT -->
     <div class="content">
 
-      <!-- ════════════════════ DASHBOARD ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• DASHBOARD â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page active" id="page-dashboard">
         <div class="page-header">
           <div>
             <div class="page-header__title">Admin Overview</div>
             <div class="page-header__sub" id="dash-date"></div>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="loadDashStats()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           <button class="btn btn--primary" onclick="showPage('users',document.querySelector('[onclick*=users]'))">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add User
           </button>
+          </div>
         </div>
 
         <div class="stat-cards">
           <div class="stat-card stat-card--blue">
             <div class="stat-card__label"><svg style="stroke:#fff" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Total Users</div>
-            <div class="stat-card__value">—</div>
+            <div class="stat-card__value">â€”</div>
             <div class="stat-card__change">Live data</div>
           </div>
           <div class="stat-card stat-card--purple">
             <div class="stat-card__label"><svg style="stroke:#fff" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>Live Accounts</div>
-            <div class="stat-card__value">—</div>
+            <div class="stat-card__value">â€”</div>
             <div class="stat-card__change">Live data</div>
           </div>
           <div class="stat-card">
             <div class="stat-card__label"><svg style="stroke:var(--green)" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Total AUM</div>
-            <div class="stat-card__value">—</div>
+            <div class="stat-card__value">â€”</div>
             <div class="stat-card__change">Live data</div>
           </div>
           <div class="stat-card">
             <div class="stat-card__label"><svg style="stroke:var(--blue)" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Open Positions</div>
-            <div class="stat-card__value">—</div>
+            <div class="stat-card__value">â€”</div>
             <div class="stat-card__change">Live data</div>
           </div>
           <div class="stat-card">
             <div class="stat-card__label"><svg style="stroke:var(--orange)" viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Pending Deposits</div>
-            <div class="stat-card__value">—</div>
+            <div class="stat-card__value">â€”</div>
             <div class="stat-card__change down">Needs review</div>
           </div>
           <div class="stat-card">
             <div class="stat-card__label"><svg style="stroke:var(--red)" viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="18" x2="12" y2="6"/></svg>Pending Withdrawals</div>
-            <div class="stat-card__value">—</div>
+            <div class="stat-card__value">â€”</div>
             <div class="stat-card__change down">Needs approval</div>
           </div>
           <div class="stat-card">
             <div class="stat-card__label"><svg style="stroke:var(--orange)" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>KYC Pending</div>
-            <div class="stat-card__value">—</div>
+            <div class="stat-card__value">â€”</div>
             <div class="stat-card__change down">Action required</div>
           </div>
           <div class="stat-card">
             <div class="stat-card__label"><svg style="stroke:var(--green)" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Today's Volume</div>
-            <div class="stat-card__value">—</div>
+            <div class="stat-card__value">â€”</div>
             <div class="stat-card__change">Today's transactions</div>
           </div>
         </div>
@@ -696,14 +699,15 @@
         </div>
       </div>
 
-      <!-- ════════════════════ ALL USERS ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ALL USERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-users">
         <div class="page-header">
           <div>
             <div class="page-header__title">User Management</div>
-            <div class="page-header__sub">Loading…</div>
+            <div class="page-header__sub">Loadingâ€¦</div>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn--outline" title="Refresh" onclick="renderUsersLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
             <button class="btn btn--outline" onclick="exportCSV('users')">
               <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export CSV
@@ -725,7 +729,7 @@
                 <button class="tab-btn" onclick="filterUsers('demo',this)">Demo</button>
                 <button class="tab-btn" onclick="filterUsers('suspended',this)">Suspended</button>
               </div>
-              <input type="text" placeholder="Search name or email…" class="filter-bar__search" oninput="searchUsers(this.value)">
+              <input type="text" placeholder="Search name or emailâ€¦" class="filter-bar__search" oninput="searchUsers(this.value)">
               <select id="country-filter" class="filter-bar__country" onchange="filterUsersByCountry(this.value)">
                 <option value="">All Countries</option>
               </select>
@@ -747,12 +751,15 @@
         </div>
       </div>
 
-      <!-- ════════════════════ KYC ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• KYC â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-verification">
         <div class="page-header">
           <div>
             <div class="page-header__title">KYC / Verification Queue</div>
-            <div class="page-header__sub">Loading…</div>
+            <div class="page-header__sub">Loadingâ€¦</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderKYCLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           </div>
         </div>
         <div class="card">
@@ -767,17 +774,20 @@
         </div>
       </div>
 
-      <!-- ════════════════════ ACCOUNTS ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ACCOUNTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-accounts">
         <div class="page-header">
           <div>
             <div class="page-header__title">Trading Accounts</div>
             <div class="page-header__sub">Manage all live and demo accounts</div>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderAccountsLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           <button class="btn btn--primary" onclick="openModal('modal-add-account')">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Create Account
           </button>
+        </div>
         </div>
         <div class="card">
           <div class="card__body--p0 table-wrap">
@@ -792,12 +802,15 @@
         </div>
       </div>
 
-      <!-- ════════════════════ BALANCES ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• BALANCES â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-balances">
         <div class="page-header">
           <div>
             <div class="page-header__title">Balances & P&L</div>
             <div class="page-header__sub">Adjust account balances and P&L directly</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderAdjLogLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           </div>
         </div>
         <div class="card" style="margin-bottom:18px;">
@@ -807,7 +820,7 @@
               <div class="field">
                 <label>Select Account</label>
                 <select id="adj-account" onchange="adjAccountSelected(this)">
-                  <option value="">— Loading accounts… —</option>
+                  <option value="">â€” Loading accountsâ€¦ â€”</option>
                 </select>
               </div>
               <div class="field">
@@ -833,7 +846,7 @@
               </div>
               <div class="field--full field">
                 <label>Reason / Notes</label>
-                <textarea placeholder="Internal reason for this adjustment (required)…" id="adj-reason"></textarea>
+                <textarea placeholder="Internal reason for this adjustment (required)â€¦" id="adj-reason"></textarea>
               </div>
             </div>
             <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -856,14 +869,17 @@
         </div>
       </div>
 
-      <!-- ════════════════════ POSITIONS ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• POSITIONS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-positions">
         <div class="page-header">
           <div>
             <div class="page-header__title">Open Positions</div>
             <div class="page-header__sub">All live trades across all accounts</div>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderPositionsLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           <button class="btn btn--red" onclick="opsForceCloseAll()">Force Close All</button>
+          </div>
         </div>
         <div class="card">
           <div class="card__body--p0 table-wrap">
@@ -893,7 +909,7 @@
               <div class="field field--full">
                 <label>Account</label>
                 <select id="dt-account" onchange="dtAccountSelected()">
-                  <option value="">— Select an account —</option>
+                  <option value="">â€” Select an account â€”</option>
                 </select>
               </div>
 
@@ -901,7 +917,7 @@
               <div class="field">
                 <label>Market</label>
                 <select id="dt-market" onchange="dtMarketChanged(this.value)">
-                  <option value="">— Select market —</option>
+                  <option value="">â€” Select market â€”</option>
                   <option value="forex">Forex</option>
                   <option value="crypto">Crypto</option>
                   <option value="stock">Stock</option>
@@ -914,7 +930,7 @@
               <div class="field">
                 <label>Pair / Instrument</label>
                 <select id="dt-pair">
-                  <option value="">— Select market first —</option>
+                  <option value="">â€” Select market first â€”</option>
                 </select>
               </div>
 
@@ -924,18 +940,18 @@
                 <div style="display:flex;gap:10px;margin-top:4px;">
                   <button id="dt-dir-buy" onclick="dtSetDir('BUY')"
                     style="flex:1;height:40px;border-radius:8px;border:2px solid var(--green);background:var(--green);color:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:.15s;">
-                    ▲ BUY
+                    â–² BUY
                   </button>
                   <button id="dt-dir-sell" onclick="dtSetDir('SELL')"
                     style="flex:1;height:40px;border-radius:8px;border:2px solid var(--border);background:transparent;color:var(--text);font-weight:700;font-size:13px;cursor:pointer;transition:.15s;">
-                    ▼ SELL
+                    â–¼ SELL
                   </button>
                 </div>
               </div>
 
               <!-- Lots -->
               <div class="field">
-                <label>Lot Size — <span id="dt-lots-val" style="font-weight:700;color:var(--blue);">1.00</span> lots</label>
+                <label>Lot Size â€” <span id="dt-lots-val" style="font-weight:700;color:var(--blue);">1.00</span> lots</label>
                 <input type="range" id="dt-lots" min="0.01" max="100" step="0.01" value="1"
                   oninput="document.getElementById('dt-lots-val').textContent=parseFloat(this.value).toFixed(2)"
                   style="width:100%;margin-top:8px;accent-color:var(--blue);">
@@ -951,12 +967,12 @@
                     style="padding-left:28px;"
                     oninput="dtPnlColor(this)">
                 </div>
-                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Positive = profit credited · Negative = loss debited</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Positive = profit credited Â· Negative = loss debited</div>
               </div>
 
               <!-- Open/Close time (optional) -->
               <div class="field">
-                <label>Trade Date &amp; Time <span style="font-weight:400;color:var(--muted);">(optional — defaults to now)</span></label>
+                <label>Trade Date &amp; Time <span style="font-weight:400;color:var(--muted);">(optional â€” defaults to now)</span></label>
                 <input type="datetime-local" id="dt-opened-at">
               </div>
 
@@ -993,7 +1009,7 @@
               <div class="field" style="flex:1;margin:0;">
                 <label>Account</label>
                 <select id="th-account" onchange="opsTHLoad(this.value)">
-                  <option value="">— Select an account —</option>
+                  <option value="">â€” Select an account â€”</option>
                 </select>
               </div>
             </div>
@@ -1020,7 +1036,7 @@
               <div class="field" style="flex:1;min-width:200px;margin:0;">
                 <label>Select User</label>
                 <select id="pt-user-sel" onchange="ptLoadUser(this.value)">
-                  <option value="">— Select a user —</option>
+                  <option value="">â€” Select a user â€”</option>
                 </select>
               </div>
               <button class="btn btn--outline" id="pt-add-trade-btn" onclick="ptOpenAddTrade()" style="display:none;">+ Add Trade Entry</button>
@@ -1042,19 +1058,19 @@
                 <div style="flex:1;min-width:140px;display:grid;gap:12px;align-content:start;">
                   <div>
                     <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Label</div>
-                    <div id="pt-info-label" style="font-size:15px;font-weight:600;">—</div>
+                    <div id="pt-info-label" style="font-size:15px;font-weight:600;">â€”</div>
                   </div>
                   <div>
                     <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Target Amount</div>
-                    <div id="pt-info-amount" style="font-size:15px;font-weight:600;color:var(--blue);">—</div>
+                    <div id="pt-info-amount" style="font-size:15px;font-weight:600;color:var(--blue);">â€”</div>
                   </div>
                   <div>
                     <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Progress</div>
-                    <div id="pt-info-progress" style="font-size:15px;font-weight:600;">—</div>
+                    <div id="pt-info-progress" style="font-size:15px;font-weight:600;">â€”</div>
                   </div>
                   <div>
                     <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Created</div>
-                    <div id="pt-info-date" style="font-size:13px;color:var(--muted);">—</div>
+                    <div id="pt-info-date" style="font-size:13px;color:var(--muted);">â€”</div>
                   </div>
                 </div>
               </div>
@@ -1067,17 +1083,20 @@
         </div>
       </div>
 
-      <!-- ════════════════════ DEPOSITS ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• DEPOSITS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-deposits">
         <div class="page-header">
           <div>
             <div class="page-header__title">Deposit Management</div>
             <div class="page-header__sub">Review, approve or reject incoming deposits</div>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderDepositsLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           <button class="btn btn--primary" onclick="opsOpenManualDepositModal()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Manual Deposit
           </button>
+          </div>
         </div>
         <div class="card">
           <div class="card__body--p0 table-wrap">
@@ -1092,12 +1111,15 @@
         </div>
       </div>
 
-      <!-- ════════════════════ WITHDRAWALS ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• WITHDRAWALS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-withdrawals">
         <div class="page-header">
           <div>
             <div class="page-header__title">Withdrawal Requests</div>
             <div class="page-header__sub">Approve or reject pending withdrawals</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderWithdrawalsLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           </div>
         </div>
         <div class="card">
@@ -1113,14 +1135,17 @@
         </div>
       </div>
 
-      <!-- ════════════════════ TRANSACTIONS ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TRANSACTIONS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-transactions">
         <div class="page-header">
           <div>
             <div class="page-header__title">All Transactions</div>
             <div class="page-header__sub">Complete financial history</div>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderTransactionsLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           <button class="btn btn--outline" onclick="exportCSV('transactions')">Export CSV</button>
+          </div>
         </div>
         <div class="card">
           <div class="card__body--p0 table-wrap">
@@ -1135,12 +1160,15 @@
         </div>
       </div>
 
-      <!-- ════════════════════ ANNOUNCEMENTS ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ANNOUNCEMENTS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-announcements">
         <div class="page-header">
           <div>
             <div class="page-header__title">Announcements</div>
             <div class="page-header__sub">Push notifications to user dashboards</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderAnnouncementsLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           </div>
         </div>
 
@@ -1152,13 +1180,13 @@
               <div class="field field--full">
                 <label>Title</label>
                 <select id="ann-title">
-                  <option value="Notice 🔔">Notice 🔔</option>
-                  <option value="Attention ⚠️">Attention ⚠️</option>
+                  <option value="Notice ðŸ””">Notice ðŸ””</option>
+                  <option value="Attention âš ï¸">Attention âš ï¸</option>
                 </select>
               </div>
               <div class="field field--full">
                 <label>Message</label>
-                <textarea placeholder="Write your announcement…" id="ann-body" style="min-height:100px;"></textarea>
+                <textarea placeholder="Write your announcementâ€¦" id="ann-body" style="min-height:100px;"></textarea>
               </div>
               <div class="field">
                 <label>Type</label>
@@ -1183,7 +1211,7 @@
               <div class="field field--full" id="ann-specific-wrap" style="display:none;">
                 <label>Select User</label>
                 <select id="ann-specific-user">
-                  <option value="">— Select a user —</option>
+                  <option value="">â€” Select a user â€”</option>
                 </select>
               </div>
             </div>
@@ -1216,12 +1244,15 @@
         </div>
       </div>
 
-      <!-- ════════════════════ MARKETS CONTROL ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MARKETS CONTROL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-markets-control">
         <div class="page-header">
           <div>
             <div class="page-header__title">Markets Control</div>
             <div class="page-header__sub">Enable/disable tradeable instruments and set spreads</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderMarketsControl()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           </div>
         </div>
         <div class="two-col-grid">
@@ -1250,7 +1281,7 @@
                 <div class="field">
                   <label>Trading Hours</label>
                   <select id="spread-hours">
-                    <option>24/5 (Mon–Fri)</option>
+                    <option>24/5 (Monâ€“Fri)</option>
                     <option>24/7</option>
                     <option>Market hours only</option>
                     <option>Suspended</option>
@@ -1264,17 +1295,20 @@
 
       </div>
 
-      <!-- ════════════════════ SETTINGS ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SETTINGS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-settings">
         <div class="page-header">
           <div>
             <div class="page-header__title">System Settings</div>
             <div class="page-header__sub">Platform-wide configuration</div>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="loadDepositAddresses()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           <button class="btn btn--green" onclick="showToast('Settings saved successfully','success')">
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             Save All
           </button>
+          </div>
         </div>
         <div class="two-col-grid">
           <div class="card">
@@ -1340,7 +1374,7 @@
                     Bitcoin (BTC)
                   </span>
                 </label>
-                <input type="text" id="dep-addr-BTC" placeholder="bc1q… or 1… or 3…" style="font-family:monospace;font-size:13px;">
+                <input type="text" id="dep-addr-BTC" placeholder="bc1qâ€¦ or 1â€¦ or 3â€¦" style="font-family:monospace;font-size:13px;">
               </div>
               <div class="field">
                 <label>
@@ -1349,7 +1383,7 @@
                     Ethereum ERC20 (ETH)
                   </span>
                 </label>
-                <input type="text" id="dep-addr-ETH" placeholder="0x…" style="font-family:monospace;font-size:13px;">
+                <input type="text" id="dep-addr-ETH" placeholder="0xâ€¦" style="font-family:monospace;font-size:13px;">
               </div>
               <div class="field">
                 <label>
@@ -1358,7 +1392,7 @@
                     Tether ERC20 (USDT)
                   </span>
                 </label>
-                <input type="text" id="dep-addr-USDT" placeholder="0x…" style="font-family:monospace;font-size:13px;">
+                <input type="text" id="dep-addr-USDT" placeholder="0xâ€¦" style="font-family:monospace;font-size:13px;">
               </div>
               <div class="field">
                 <label>
@@ -1367,7 +1401,7 @@
                     Tether TRC20 (USDT)
                   </span>
                 </label>
-                <input type="text" id="dep-addr-USDT_TRC20" placeholder="T…" style="font-family:monospace;font-size:13px;">
+                <input type="text" id="dep-addr-USDT_TRC20" placeholder="Tâ€¦" style="font-family:monospace;font-size:13px;">
               </div>
             </div>
             <div style="margin-top:16px;">
@@ -1404,16 +1438,16 @@
             </div>
             <div class="field" style="margin-bottom:12px;">
               <label>Review Text</label>
-              <textarea id="rev-body" rows="3" style="resize:vertical;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;width:100%;outline:none;" placeholder="What the client said…"></textarea>
+              <textarea id="rev-body" rows="3" style="resize:vertical;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;width:100%;outline:none;" placeholder="What the client saidâ€¦"></textarea>
             </div>
             <div class="field" style="margin-bottom:16px;">
-              <label>Stars (1–5)</label>
+              <label>Stars (1â€“5)</label>
               <select id="rev-stars" style="width:120px;height:38px;border:1.5px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;font-family:inherit;">
-                <option value="5" selected>★★★★★  (5)</option>
-                <option value="4">★★★★☆  (4)</option>
-                <option value="3">★★★☆☆  (3)</option>
-                <option value="2">★★☆☆☆  (2)</option>
-                <option value="1">★☆☆☆☆  (1)</option>
+                <option value="5" selected>â˜…â˜…â˜…â˜…â˜…  (5)</option>
+                <option value="4">â˜…â˜…â˜…â˜…â˜†  (4)</option>
+                <option value="3">â˜…â˜…â˜…â˜†â˜†  (3)</option>
+                <option value="2">â˜…â˜…â˜†â˜†â˜†  (2)</option>
+                <option value="1">â˜…â˜†â˜†â˜†â˜†  (1)</option>
               </select>
             </div>
             <div style="display:flex;gap:10px;">
@@ -1427,14 +1461,17 @@
         </div>
       </div><!-- /page-settings -->
 
-      <!-- ════════════════════ AUDIT LOG ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• AUDIT LOG â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-audit">
         <div class="page-header">
           <div>
             <div class="page-header__title">Audit Log</div>
             <div class="page-header__sub">All admin actions are recorded here</div>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderAuditLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           <button class="btn btn--outline" onclick="exportCSV('audit')">Export</button>
+          </div>
         </div>
         <div class="card">
           <div class="card__body--p0 table-wrap">
@@ -1446,22 +1483,28 @@
         </div>
       </div>
 
-      <!-- ════════════════════ ACTIVITY ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ACTIVITY â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-activity">
         <div class="page-header">
           <div><div class="page-header__title">Live Activity Feed</div><div class="page-header__sub">Real-time platform events</div></div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="renderActivityLive()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+          </div>
         </div>
         <div class="card">
           <div class="card__body" id="activity-feed" style="padding:12px 20px;max-height:600px;overflow-y:auto;"></div>
         </div>
       </div>
 
-      <!-- ════════════════════ EMAIL USERS ════════════════════ -->
+      <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• EMAIL USERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
       <div class="page" id="page-emails">
         <div class="page-header">
           <div>
             <div class="page-header__title">Email Users</div>
             <div class="page-header__sub">Send branded emails directly to clients</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn--outline" title="Refresh" onclick="emailPopulateUsers(); loadEmailHistory()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
           </div>
         </div>
 
@@ -1481,12 +1524,12 @@
                 <div id="email-dd" style="position:relative;user-select:none;">
                   <div id="email-dd-trigger" onclick="emailDdToggle()"
                     style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--muted);cursor:pointer;">
-                    <span id="email-dd-label">— Select recipient —</span>
+                    <span id="email-dd-label">â€” Select recipient â€”</span>
                     <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
                   </div>
                   <div id="email-dd-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.4);overflow:hidden;">
                     <div style="padding:8px;">
-                      <input id="email-dd-search" type="text" placeholder="Search users…" oninput="emailDdFilter(this.value)"
+                      <input id="email-dd-search" type="text" placeholder="Search usersâ€¦" oninput="emailDdFilter(this.value)"
                         style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text);outline:none;box-sizing:border-box;">
                     </div>
                     <div id="email-dd-list" style="max-height:200px;overflow-y:auto;padding:0 4px 6px;"></div>
@@ -1537,7 +1580,7 @@
   </div><!-- /main -->
 </div><!-- /layout -->
 
-<!-- ════════ MODALS ════════ -->
+<!-- â•â•â•â•â•â•â•â• MODALS â•â•â•â•â•â•â•â• -->
 
 <!-- Upgrade Plan -->
 <div class="modal-overlay" id="modal-upgrade-plan">
@@ -1555,7 +1598,7 @@
           <input type="radio" name="plan-select" value="Standard">
           <div class="plan-option__content">
             <span class="plan-option__name">Standard</span>
-            <span class="plan-option__desc">Default tier — no upgrade fee</span>
+            <span class="plan-option__desc">Default tier â€” no upgrade fee</span>
           </div>
           <span class="badge-pill pill-blue">Standard</span>
         </label>
@@ -1563,7 +1606,7 @@
           <input type="radio" name="plan-select" value="RAW+">
           <div class="plan-option__content">
             <span class="plan-option__name">RAW+</span>
-            <span class="plan-option__desc">Balance limit $50,000 — $500 fee</span>
+            <span class="plan-option__desc">Balance limit $50,000 â€” $500 fee</span>
           </div>
           <span class="badge-pill pill-blue">RAW+</span>
         </label>
@@ -1571,7 +1614,7 @@
           <input type="radio" name="plan-select" value="ELITE">
           <div class="plan-option__content">
             <span class="plan-option__name">ELITE</span>
-            <span class="plan-option__desc">Balance limit $100,000 — $1,000 fee</span>
+            <span class="plan-option__desc">Balance limit $100,000 â€” $1,000 fee</span>
           </div>
           <span class="badge-pill pill-purple">ELITE</span>
         </label>
@@ -1579,7 +1622,7 @@
           <input type="radio" name="plan-select" value="MASTER">
           <div class="plan-option__content">
             <span class="plan-option__name">MASTER</span>
-            <span class="plan-option__desc">Balance limit $1,000,000 — $5,000 fee</span>
+            <span class="plan-option__desc">Balance limit $1,000,000 â€” $5,000 fee</span>
           </div>
           <span class="badge-pill pill-orange">MASTER</span>
         </label>
@@ -1610,7 +1653,7 @@
         <div class="field"><label>Account Type</label><select><option>Live</option><option>Demo</option></select></div>
         <div class="field"><label>Platform</label><select><option>MT4</option><option>MT5</option><option>cTrader</option><option>TradingView</option></select></div>
         <div class="field"><label>Initial Balance (USD)</label><input type="number" placeholder="0.00"></div>
-        <div class="field--full field"><label>Temp Password</label><input type="text" placeholder="Auto-generate or enter…"></div>
+        <div class="field--full field"><label>Temp Password</label><input type="text" placeholder="Auto-generate or enterâ€¦"></div>
       </div>
     </div>
     <div class="modal__foot">
@@ -1629,9 +1672,9 @@
     </div>
     <div class="modal__body">
       <div class="form-grid">
-        <div class="field--full field"><label>User ID or Email</label><input type="text" placeholder="Search user…"></div>
+        <div class="field--full field"><label>User ID or Email</label><input type="text" placeholder="Search userâ€¦"></div>
         <div class="field"><label>Platform</label><select><option>MT4</option><option>MT5</option><option>cTrader</option><option>TradingView</option></select></div>
-        <div class="field"><label>Account Type</label><select><option>Live — Raw+</option><option>Live — Instant</option><option>Live — Elite</option><option>Demo</option></select></div>
+        <div class="field"><label>Account Type</label><select><option>Live â€” Raw+</option><option>Live â€” Instant</option><option>Live â€” Elite</option><option>Demo</option></select></div>
         <div class="field"><label>Currency</label><select><option>USD</option><option>EUR</option><option>GBP</option></select></div>
         <div class="field"><label>Leverage</label><select><option>1:30</option><option>1:100</option><option>1:200</option></select></div>
         <div class="field"><label>Initial Balance (USD)</label><input type="number" placeholder="0.00"></div>
@@ -1656,7 +1699,7 @@
         <div class="field--full field">
           <label>Account</label>
           <select id="manual-dep-account">
-            <option value="">— Select an account —</option>
+            <option value="">â€” Select an account â€”</option>
           </select>
         </div>
         <div class="field"><label>Amount (USD)</label><input id="manual-dep-amount" type="number" placeholder="0.00" min="0" step="0.01"></div>
@@ -1675,7 +1718,7 @@
             <option value="USDT_TRC20">Tether TRC20 (USDT)</option>
           </select>
         </div>
-        <div class="field--full field"><label>Reference / Notes</label><input id="manual-dep-notes" type="text" placeholder="Transaction reference or tx hash…"></div>
+        <div class="field--full field"><label>Reference / Notes</label><input id="manual-dep-notes" type="text" placeholder="Transaction reference or tx hashâ€¦"></div>
       </div>
     </div>
     <div class="modal__foot">
@@ -1697,7 +1740,7 @@
         <div class="field field--full">
           <label>User</label>
           <select id="pt-set-user">
-            <option value="">— Select a user —</option>
+            <option value="">â€” Select a user â€”</option>
           </select>
         </div>
         <div class="field">
@@ -1763,7 +1806,7 @@
         </div>
         <div class="field field--full">
           <label>Note <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
-          <input type="text" id="pt-trade-note" placeholder="e.g. EUR/USD breakout, session gain…">
+          <input type="text" id="pt-trade-note" placeholder="e.g. EUR/USD breakout, session gainâ€¦">
         </div>
       </div>
     </div>
@@ -1797,7 +1840,7 @@
   /* ============================================================
      PAGE NAVIGATION
   ============================================================ */
-  /* ── Page navigation ──────────────────────────────────────── */
+  /* â”€â”€ Page navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const PAGE_TITLES = {
     dashboard:'Dashboard', activity:'Live Activity', users:'User Management',
     verification:'KYC / Verification', accounts:'Trading Accounts',
@@ -1818,7 +1861,7 @@
     localStorage.setItem('xantex-ops-page', id);
   }
 
-  /* ── Modals ───────────────────────────────────────────────── */
+  /* â”€â”€ Modals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   function openModal(id) {
     const overlay = document.getElementById(id);
     const m = overlay.querySelector('.modal');
@@ -1845,7 +1888,7 @@
     if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => closeModal(el.id));
   });
 
-  /* ── Toast ────────────────────────────────────────────────── */
+  /* â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   let toastTimer;
   function showToast(msg, type = 'success') {
     const t = document.getElementById('toast');
@@ -1859,7 +1902,7 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  /* ── Dark mode ────────────────────────────────────────────── */
+  /* â”€â”€ Dark mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const sunIcon  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
   const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
   function toggleDark() {
@@ -1872,7 +1915,7 @@
     document.getElementById('dark-icon').innerHTML = sunIcon;
   }
 
-  /* ── Sidebar (mobile) ─────────────────────────────────────── */
+  /* â”€â”€ Sidebar (mobile) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('sidebar-overlay').classList.toggle('open');
@@ -1886,13 +1929,13 @@
     btn.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); });
   });
 
-  /* ── Utilities ────────────────────────────────────────────── */
+  /* â”€â”€ Utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   function toggleSelectAll(cb) {
     document.querySelectorAll('#users-tbody input[type=checkbox]').forEach(c => c.checked = cb.checked);
   }
   function exportCSV(type) { showToast(`${type}.csv exported`, 'success'); }
 
-  /* ── Instrument list (real FX/crypto/equity symbols) ─────── */
+  /* â”€â”€ Instrument list (real FX/crypto/equity symbols) â”€â”€â”€â”€â”€â”€â”€ */
   const INSTRUMENTS = [
     'EUR/USD','GBP/USD','USD/JPY','AUD/USD','USD/CAD','NZD/USD',
     'BTC/USD','ETH/USD','LTC/USD','XRP/USD',
@@ -1939,22 +1982,22 @@
     }
   }
 
-  /* ── Deposit address stubs — overridden by Supabase layer ── */
+  /* â”€â”€ Deposit address stubs â€” overridden by Supabase layer â”€â”€ */
   function loadDepositAddresses() {}
-  function saveDepositAddresses() { showToast('Authentication loading…','error'); }
+  function saveDepositAddresses() { showToast('Authentication loadingâ€¦','error'); }
 
-  /* ── Dashboard date ───────────────────────────────────────── */
+  /* â”€â”€ Dashboard date â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   (function() {
     const el = document.getElementById('dash-date');
     if (!el) return;
     const now = new Date();
-    el.textContent = now.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) + ' · All systems operational';
+    el.textContent = now.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) + ' Â· All systems operational';
   })();
 
-  /* ── Stubs — overridden by Supabase layer after load ─────── */
+  /* â”€â”€ Stubs â€” overridden by Supabase layer after load â”€â”€â”€â”€â”€â”€â”€ */
   function adminLogin() {
     const err = document.getElementById('login-err');
-    if (err) { err.style.display = 'block'; err.textContent = 'Authentication loading…'; }
+    if (err) { err.style.display = 'block'; err.textContent = 'Authentication loadingâ€¦'; }
   }
   function renderAll() {}
   function applyAdjustment() {}
@@ -1975,20 +2018,20 @@
 
 </script>
 
-<!-- ═══ Supabase integration ═══ -->
+<!-- â•â•â• Supabase integration â•â•â• -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase.js"></script>
 <script>
 /* ============================================================
-   OPS PANEL — FULL SUPABASE DATA LAYER
+   OPS PANEL â€” FULL SUPABASE DATA LAYER
 ============================================================ */
 
 let _adminUser = null;
 let _allUsers  = [];   // cached for search/filter
 
-// ── Helpers ──────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function fmtDate(ts) {
-  if (!ts) return '—';
+  if (!ts) return 'â€”';
   return new Date(ts).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
 }
 function fmtMoney(n) { return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2 }); }
@@ -1998,7 +2041,7 @@ async function logAudit(action, target, details) {
   await db.from('audit_log').insert({ admin_id: _adminUser.id, admin_email: _adminUser.email, action, target: String(target || '').slice(0,100), details: String(details || '').slice(0,255) });
 }
 
-// ── Login ─────────────────────────────────────────────────────
+// â”€â”€ Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 window.adminLogin = async function() {
   const emailOrUser = document.getElementById('admin-user').value.trim();
   const pass        = document.getElementById('admin-pass').value;
@@ -2007,13 +2050,13 @@ window.adminLogin = async function() {
   const errEl = document.getElementById('login-err');
   function showErr(msg) { errEl.style.display = 'block'; errEl.textContent = msg; }
 
-  if (!db) { showErr('Database not connected — please refresh the page.'); return; }
+  if (!db) { showErr('Database not connected â€” please refresh the page.'); return; }
 
   const { data, error } = await db.auth.signInWithPassword({ email: emailOrUser, password: pass });
 
   if (error) { showErr('Auth error: ' + error.message); return; }
 
-  if (!data?.user) { showErr('No user returned — try again.'); return; }
+  if (!data?.user) { showErr('No user returned â€” try again.'); return; }
 
   const { data: adminRow, error: adminErr } = await db.from('admin_users').select('id, email, role').eq('id', data.user.id).single();
 
@@ -2024,7 +2067,7 @@ window.adminLogin = async function() {
   _adminUser = { id: data.user.id, email: data.user.email, role: adminRow.role || 'admin' };
   const initials = data.user.email.slice(0,2).toUpperCase();
   document.querySelector('.sidebar__user-name').textContent = data.user.email.split('@')[0];
-  document.querySelector('.sidebar__user-role').textContent = (_adminUser.role) + ' · OPS';
+  document.querySelector('.sidebar__user-role').textContent = (_adminUser.role) + ' Â· OPS';
   document.querySelector('.sidebar__avatar').textContent    = initials;
   document.querySelector('.topbar__avatar').textContent     = initials;
   document.getElementById('login-gate').style.display = 'none';
@@ -2035,23 +2078,23 @@ window.adminLogin = async function() {
   showPage(savedPage, savedBtn);
 };
 
-// ── Auto-resume existing session on refresh ───────────────────
+// â”€â”€ Auto-resume existing session on refresh â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 (async function resumeSession() {
   const db = window.XANTEX_DB;
   if (!db) return;
 
   const { data: { session } } = await db.auth.getSession();
-  if (!session) return; // no session — stay on login gate
+  if (!session) return; // no session â€” stay on login gate
 
   const user = session.user;
   const { data: adminRow } = await db
     .from('admin_users').select('id, email, role').eq('id', user.id).single();
-  if (!adminRow) return; // user exists but is not admin — stay on login gate
+  if (!adminRow) return; // user exists but is not admin â€” stay on login gate
 
   _adminUser = { id: user.id, email: user.email, role: adminRow.role || 'admin' };
   const initials = user.email.slice(0, 2).toUpperCase();
   document.querySelector('.sidebar__user-name').textContent = user.email.split('@')[0];
-  document.querySelector('.sidebar__user-role').textContent = (_adminUser.role) + ' · OPS';
+  document.querySelector('.sidebar__user-role').textContent = (_adminUser.role) + ' Â· OPS';
   document.querySelector('.sidebar__avatar').textContent    = initials;
   document.querySelector('.topbar__avatar').textContent     = initials;
   document.getElementById('login-gate').style.display = 'none';
@@ -2062,7 +2105,7 @@ window.adminLogin = async function() {
   showPage(savedPage, savedBtn);
 })();
 
-// ── Dashboard Stats ───────────────────────────────────────────
+// â”€â”€ Dashboard Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadDashStats() {
   const db = window.XANTEX_DB; if (!db) return;
   const todayStart = new Date();
@@ -2088,7 +2131,7 @@ async function loadDashStats() {
   ]);
   const totalAUM  = (balData || []).reduce((s, a) => s + parseFloat(a.balance || 0), 0);
   const todayVol  = (volData || []).reduce((s, t) => s + parseFloat(t.amount || 0), 0);
-  const fmt = n => n == null ? '—' : n.toLocaleString();
+  const fmt = n => n == null ? 'â€”' : n.toLocaleString();
   const cards = document.querySelectorAll('#page-dashboard .stat-card__value');
   if (cards[0]) cards[0].textContent = fmt(userCount);
   if (cards[1]) cards[1].textContent = fmt(liveCount);
@@ -2103,9 +2146,9 @@ async function loadDashStats() {
   const wdBadge  = sel('[onclick*="withdrawals"] .nav-item__badge');
   const kycBadge = sel('[onclick*="verification"] .nav-item__badge');
   const usrBadge = sel('[onclick*="users"] .nav-item__badge');
-  if (depBadge) depBadge.textContent = pendingDep ?? '—';
-  if (wdBadge)  wdBadge.textContent  = pendingWd  ?? '—';
-  if (kycBadge) kycBadge.textContent = pendingKyc ?? '—';
+  if (depBadge) depBadge.textContent = pendingDep ?? 'â€”';
+  if (wdBadge)  wdBadge.textContent  = pendingWd  ?? 'â€”';
+  if (kycBadge) kycBadge.textContent = pendingKyc ?? 'â€”';
   if (usrBadge) usrBadge.textContent = fmt(userCount);
   const uSub = sel('#page-users .page-header__sub');
   if (uSub && userCount != null) uSub.textContent = `${userCount.toLocaleString()} registered users`;
@@ -2113,7 +2156,7 @@ async function loadDashStats() {
   if (kSub && pendingKyc != null) kSub.textContent = `${pendingKyc} pending reviews`;
 }
 
-// ── Users ─────────────────────────────────────────────────────
+// â”€â”€ Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function _loadUsers() {
   const db = window.XANTEX_DB;
   if (!db) return null;
@@ -2131,7 +2174,7 @@ async function _loadUsers() {
       id:      p.id,
       name:    `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.email,
       email:   p.email,
-      country: p.country || '—',
+      country: p.country || 'â€”',
       type:    live ? 'Live' : 'Demo',
       balance: '$' + total.toLocaleString('en-US', { minimumFractionDigits: 2 }),
       joined:  new Date(p.created_at).toLocaleDateString('en-GB'),
@@ -2188,7 +2231,7 @@ async function renderUsersLive() {
   // populate country filter
   const sel = document.getElementById('country-filter');
   if (sel) {
-    const countries = [...new Set(users.map(u => u.country).filter(c => c && c !== '—'))].sort();
+    const countries = [...new Set(users.map(u => u.country).filter(c => c && c !== 'â€”'))].sort();
     sel.innerHTML = '<option value="">All Countries</option>' + countries.map(c => `<option>${c}</option>`).join('');
   }
 }
@@ -2230,7 +2273,7 @@ window.toggleUserStatus = async function(userId, currentStatus) {
   const next = currentStatus === 'active' ? 'suspended' : 'active';
   const { error } = await db.from('profiles').update({ status: next }).eq('id', userId);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
-  await logAudit(next==='suspended'?'User Suspended':'User Activated', userId, `Status → ${next}`);
+  await logAudit(next==='suspended'?'User Suspended':'User Activated', userId, `Status â†’ ${next}`);
   showToast(`User ${next}`, next==='suspended'?'error':'success');
   renderUsersLive(); loadDashStats();
 };
@@ -2239,7 +2282,7 @@ window.deleteUser = async function(userId) {
   if (!confirm('Permanently delete this user and all their data? This cannot be undone.')) return;
   const db = window.XANTEX_DB; if (!db) return;
   const { data: { session } } = await db.auth.getSession();
-  if (!session) { showToast('Session expired — please log in again', 'error'); return; }
+  if (!session) { showToast('Session expired â€” please log in again', 'error'); return; }
   try {
     const res = await fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/delete-user', {
       method: 'POST',
@@ -2279,12 +2322,12 @@ window.saveUpgradePlan = async function() {
   renderUsersLive();
 };
 
-// ── KYC ───────────────────────────────────────────────────────
+// â”€â”€ KYC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function _kycBucketPath(url, bucket) {
   if (!url) return null;
   const marker = `/${bucket}/`;
   const idx = url.indexOf(marker);
-  // Full URL — extract just the path portion after the bucket name
+  // Full URL â€” extract just the path portion after the bucket name
   if (idx !== -1) return url.slice(idx + marker.length);
   // Already a bare path (legacy)
   return url;
@@ -2314,13 +2357,13 @@ async function renderKYCLive() {
   }));
 
   document.getElementById('kyc-tbody').innerHTML = rows.map(k => {
-    const name = k.profiles ? `${k.profiles.first_name||''} ${k.profiles.last_name||''}`.trim() || k.profiles.email : '—';
+    const name = k.profiles ? `${k.profiles.first_name||''} ${k.profiles.last_name||''}`.trim() || k.profiles.email : 'â€”';
     const docs = [k.frontSigned  && `<a href="${k.frontSigned}"  target="_blank" class="btn btn--sm btn--outline">Front</a>`,
                   k.backSigned   && `<a href="${k.backSigned}"   target="_blank" class="btn btn--sm btn--outline">Back</a>`,
                   k.selfie_url   && `<a href="${k.selfie_url}"   target="_blank" class="btn btn--sm btn--outline">Selfie</a>`].filter(Boolean).join('');
     return `<tr>
       <td><div class="user-cell"><div><div class="user-name">${name}</div><div class="user-email">${k.profiles?.email||''}</div></div></div></td>
-      <td>${k.document_type||'—'}</td>
+      <td>${k.document_type||'â€”'}</td>
       <td>${fmtDate(k.submitted_at)}</td>
       <td><span class="badge-pill ${k.status==='pending'?'pill-orange':k.status==='verified'?'pill-green':'pill-red'}">${k.status}</span></td>
       <td><div class="row-actions">
@@ -2354,7 +2397,7 @@ window.opsRejectKYC = async (kycId, userId) => {
   showToast('KYC rejected','error'); renderKYCLive(); loadDashStats();
 };
 
-// ── Trading Accounts ──────────────────────────────────────────
+// â”€â”€ Trading Accounts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function renderAccountsLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
@@ -2364,7 +2407,7 @@ async function renderAccountsLive() {
   const tbody = document.getElementById('accounts-tbody');
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px;">No accounts found</td></tr>'; return; }
   tbody.innerHTML = data.map(a => {
-    const name    = a.profiles ? `${a.profiles.first_name} ${a.profiles.last_name}` : '—';
+    const name    = a.profiles ? `${a.profiles.first_name} ${a.profiles.last_name}` : 'â€”';
     const bal     = parseFloat(a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
     const live    = a.type?.toLowerCase().includes('live');
     const active  = (a.status || 'active') === 'active';
@@ -2372,7 +2415,7 @@ async function renderAccountsLive() {
     return `<tr>
       <td style="font-weight:600;">#${accDisp}</td>
       <td>${name}</td>
-      <td><span class="badge-pill pill-blue">${a.platform || '—'}</span></td>
+      <td><span class="badge-pill pill-blue">${a.platform || 'â€”'}</span></td>
       <td><span class="badge-pill ${live?'pill-green':'pill-blue'}">${live?'Live':'Demo'}</span></td>
       <td style="font-weight:600;">$${bal}</td>
       <td>$${bal}</td>
@@ -2403,7 +2446,7 @@ window.opsToggleAccount = async function(id, currentStatus) {
   renderAccountsLive();
 };
 
-// ── Positions ─────────────────────────────────────────────────
+// â”€â”€ Positions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function renderPositionsLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
@@ -2415,18 +2458,18 @@ async function renderPositionsLive() {
   tbody.innerHTML = data.map(p => {
     const pnl  = parseFloat(p.floating_pnl || 0);
     const up   = pnl >= 0;
-    const name = p.profiles ? `${p.profiles.first_name} ${p.profiles.last_name}` : '—';
+    const name = p.profiles ? `${p.profiles.first_name} ${p.profiles.last_name}` : 'â€”';
     return `<tr>
       <td style="font-weight:600;">#${p.id.slice(0,8)}</td>
       <td>${name}</td>
-      <td>${p.account_number || '—'}</td>
+      <td>${p.account_number || 'â€”'}</td>
       <td style="font-weight:700;">${p.symbol}</td>
       <td><span class="badge-pill ${p.direction==='buy'?'pill-green':'pill-red'}">${(p.direction||'').toUpperCase()}</span></td>
       <td>${p.lots}</td>
       <td>${p.open_price}</td>
       <td>${p.current_price || p.open_price}</td>
-      <td style="color:var(--red);">${p.stop_loss || '—'}</td>
-      <td style="color:var(--green);">${p.take_profit || '—'}</td>
+      <td style="color:var(--red);">${p.stop_loss || 'â€”'}</td>
+      <td style="color:var(--green);">${p.take_profit || 'â€”'}</td>
       <td style="font-weight:700;color:${up?'var(--green)':'var(--red)'};">${up?'+':''}$${Math.abs(pnl).toFixed(2)}</td>
       <td><button class="btn btn--sm btn--red" onclick="opsForceClose('${p.id}','${p.account_id}','${p.user_id}','${pnl.toFixed(2)}')">Force Close</button></td>
     </tr>`;
@@ -2449,7 +2492,7 @@ window.opsForceClose = async function(id, accountId, userId, pnlStr) {
   renderPositionsLive();
 };
 
-// ── Deposits ──────────────────────────────────────────────────
+// â”€â”€ Deposits â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function renderDepositsLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
@@ -2459,13 +2502,13 @@ async function renderDepositsLive() {
   const tbody = document.getElementById('deposits-tbody');
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">No deposit requests</td></tr>'; return; }
   tbody.innerHTML = data.map(d => {
-    const name = d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name}` : '—';
+    const name = d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name}` : 'â€”';
     const amt  = parseFloat(d.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
     return `<tr>
       <td style="font-weight:600;">${d.id.slice(0,8).toUpperCase()}</td>
       <td>${name}</td>
       <td style="font-weight:700;">$${amt}</td>
-      <td>${d.payment_method || '—'}</td>
+      <td>${d.payment_method || 'â€”'}</td>
       <td style="font-size:12px;">${fmtDate(d.created_at)}</td>
       <td><span class="badge-pill ${d.status==='approved'?'pill-green':d.status==='pending'?'pill-orange':'pill-red'}">${d.status}</span></td>
       <td><div class="row-actions">
@@ -2481,7 +2524,7 @@ async function renderDepositsLive() {
 window.renderDepositsLive = renderDepositsLive;
 window.opsApproveDeposit = async function(id, accountId, userId, amount) {
   const db = window.XANTEX_DB; if (!db) return;
-  // Sanitise accountId — onclick passes it as a string so 'null'/'undefined' are possible
+  // Sanitise accountId â€” onclick passes it as a string so 'null'/'undefined' are possible
   const safeAccId = (!accountId || accountId === 'null' || accountId === 'undefined') ? null : accountId;
   const now = new Date().toISOString();
   const { error } = await db.from('deposit_requests').update({ status:'approved', reviewed_by: _adminUser?.id, reviewed_at: now }).eq('id', id);
@@ -2511,7 +2554,7 @@ window.opsRejectDeposit = async function(id, userId) {
   loadDashStats();
 };
 
-// ── Withdrawals ───────────────────────────────────────────────
+// â”€â”€ Withdrawals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function renderWithdrawalsLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
@@ -2521,9 +2564,9 @@ async function renderWithdrawalsLive() {
   const tbody = document.getElementById('withdrawals-tbody');
   if (!data?.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px;">No withdrawal requests</td></tr>'; return; }
   tbody.innerHTML = data.map(w => {
-    const name = w.profiles ? `${w.profiles.first_name} ${w.profiles.last_name}` : '—';
+    const name = w.profiles ? `${w.profiles.first_name} ${w.profiles.last_name}` : 'â€”';
     const amt  = parseFloat(w.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-    const dest = [w.destination_name, w.destination_ref].filter(Boolean).join(' · ') || '—';
+    const dest = [w.destination_name, w.destination_ref].filter(Boolean).join(' Â· ') || 'â€”';
     return `<tr>
       <td style="font-weight:600;">${w.id.slice(0,8).toUpperCase()}</td>
       <td>${name}</td>
@@ -2577,7 +2620,7 @@ window.opsRejectWithdrawal = async function(id, userId) {
   loadDashStats();
 };
 
-// ── All Transactions ──────────────────────────────────────────
+// â”€â”€ All Transactions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function renderTransactionsLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
@@ -2587,7 +2630,7 @@ async function renderTransactionsLive() {
     .limit(100);
   if (!data?.length) return;
   document.getElementById('txn-tbody').innerHTML = data.map(t => {
-    const name = t.profiles ? `${t.profiles.first_name} ${t.profiles.last_name}` : '—';
+    const name = t.profiles ? `${t.profiles.first_name} ${t.profiles.last_name}` : 'â€”';
     const amt  = parseFloat(t.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
     const dep  = t.type === 'deposit';
     return `<tr>
@@ -2595,7 +2638,7 @@ async function renderTransactionsLive() {
       <td>${name}</td>
       <td><span class="badge-pill ${dep?'pill-green':'pill-orange'}">${t.type}</span></td>
       <td style="font-weight:700;">$${amt}</td>
-      <td style="font-size:12px;">${t.account_id || '—'}</td>
+      <td style="font-size:12px;">${t.account_id || 'â€”'}</td>
       <td style="font-size:12px;">${fmtDate(t.created_at)}</td>
       <td><span class="badge-pill ${t.status==='approved'?'pill-green':t.status==='pending'?'pill-orange':'pill-red'}">${t.status}</span></td>
     </tr>`;
@@ -2603,7 +2646,7 @@ async function renderTransactionsLive() {
 }
 window.renderTransactionsLive = renderTransactionsLive;
 
-// ── Audit Log ─────────────────────────────────────────────────
+// â”€â”€ Audit Log â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function renderAuditLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
@@ -2617,14 +2660,14 @@ async function renderAuditLive() {
       <td style="font-size:12px;">${fmtDate(a.created_at)}</td>
       <td><span class="badge-pill pill-purple">${a.admin_email || 'Admin'}</span></td>
       <td style="font-weight:600;">${a.action}</td>
-      <td style="font-size:12px;">${a.target || '—'}</td>
-      <td style="font-size:12px;color:var(--muted);">${a.details || '—'}</td>
-      <td style="font-size:11px;color:var(--muted);">${a.ip_address || '—'}</td>
+      <td style="font-size:12px;">${a.target || 'â€”'}</td>
+      <td style="font-size:12px;color:var(--muted);">${a.details || 'â€”'}</td>
+      <td style="font-size:11px;color:var(--muted);">${a.ip_address || 'â€”'}</td>
     </tr>`).join('');
 }
 window.renderAuditLive = renderAuditLive;
 
-// ── Announcements ─────────────────────────────────────────────
+// â”€â”€ Announcements â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let _editingAnnId = null;
 
 const _annAudienceLabels = {
@@ -2645,7 +2688,7 @@ async function populateAnnUserDropdown() {
   const { data } = await db.from('profiles').select('id, first_name, last_name, email').order('created_at', { ascending: false });
   if (!data?.length) return;
   const current = sel.value;
-  sel.innerHTML = '<option value="">— Select a user —</option>' +
+  sel.innerHTML = '<option value="">â€” Select a user â€”</option>' +
     data.map(p => {
       const name = `${p.first_name||''} ${p.last_name||''}`.trim() || p.email;
       return `<option value="${p.id}">${name} (${p.email})</option>`;
@@ -2689,7 +2732,7 @@ async function _resolveAnnRecipients(db, audience, specificUserId) {
 async function renderAnnouncementsLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const tbody = document.getElementById('ann-tbody'); if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">Loading…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted);">Loadingâ€¦</td></tr>';
 
   const { data, error } = await db
     .from('announcements')
@@ -2704,11 +2747,11 @@ async function renderAnnouncementsLive() {
   tbody.innerHTML = data.map(a => `
     <tr>
       <td style="font-size:12px;white-space:nowrap;">${fmtDate(a.created_at)}</td>
-      <td style="font-weight:600;max-width:160px;">${a.title||'—'}</td>
+      <td style="font-weight:600;max-width:160px;">${a.title||'â€”'}</td>
       <td style="font-size:12px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-          title="${(a.body||'').replace(/"/g,'&quot;')}">${a.body||'—'}</td>
+          title="${(a.body||'').replace(/"/g,'&quot;')}">${a.body||'â€”'}</td>
       <td><span class="badge-pill ${typePill[a.type]||'pill-blue'}">${a.type||'info'}</span></td>
-      <td style="font-size:12px;">${_annAudienceLabels[a.audience]||a.audience||'—'}</td>
+      <td style="font-size:12px;">${_annAudienceLabels[a.audience]||a.audience||'â€”'}</td>
       <td style="font-weight:700;text-align:center;">${a.sent_count||0}</td>
       <td style="font-size:11px;color:var(--muted);">${_adminUser?.email?.split('@')[0]||'Admin'}</td>
       <td>
@@ -2736,7 +2779,7 @@ window.opsToggleAnnouncement = async function(annId, enable) {
   await db.from('announcements').update({ is_active: enable }).eq('id', annId);
   await db.from('notifications').update({ enabled: enable }).eq('announcement_id', annId);
   await logAudit(enable ? 'ENABLE_POPUP' : 'DISABLE_POPUP', annId, `Popup ${enable?'enabled':'disabled'} by admin`);
-  showToast(`Popup ${enable ? 'enabled — will show to users' : 'disabled — users will no longer see it'}`, enable ? 'success' : 'error');
+  showToast(`Popup ${enable ? 'enabled â€” will show to users' : 'disabled â€” users will no longer see it'}`, enable ? 'success' : 'error');
   renderAnnouncementsLive();
 };
 
@@ -2806,11 +2849,11 @@ window.publishAnnouncement = async function() {
 
   const btn = document.getElementById('ann-submit-btn');
   const origBtnHtml = btn?.innerHTML;
-  if (btn) { btn.disabled = true; btn.textContent = _editingAnnId ? 'Saving…' : 'Sending…'; }
+  if (btn) { btn.disabled = true; btn.textContent = _editingAnnId ? 'Savingâ€¦' : 'Sendingâ€¦'; }
 
   try {
     if (_editingAnnId) {
-      // ── EDIT MODE: update announcement, delete old notifications, reinsert fresh ──
+      // â”€â”€ EDIT MODE: update announcement, delete old notifications, reinsert fresh â”€â”€
       const recipientIds = await _resolveAnnRecipients(db, audience, specificId);
       if (!recipientIds.length) { showToast('No users matched that audience','error'); return; }
 
@@ -2833,11 +2876,11 @@ window.publishAnnouncement = async function() {
       }
 
       await logAudit('EDIT_ANNOUNCEMENT', title, `Updated by admin | Recipients: ${recipientIds.length}`);
-      showToast('Announcement updated — users will see the new message', 'success');
+      showToast('Announcement updated â€” users will see the new message', 'success');
       resetAnnForm();
       renderAnnouncementsLive();
     } else {
-      // ── NEW MODE: create announcement + bulk-insert notifications ──
+      // â”€â”€ NEW MODE: create announcement + bulk-insert notifications â”€â”€
       const recipientIds = await _resolveAnnRecipients(db, audience, specificId);
       if (!recipientIds.length) { showToast('No users matched that audience','error'); return; }
 
@@ -2872,7 +2915,7 @@ window.publishAnnouncement = async function() {
   }
 };
 
-// ── Balances & Adjustments ────────────────────────────────────
+// â”€â”€ Balances & Adjustments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let _adjAccountsCache = []; // { id, account_number, balance, user_id, userName }
 
 async function populateAdjDropdown() {
@@ -2888,14 +2931,14 @@ async function populateAdjDropdown() {
     user_id: a.user_id,
     type: a.type,
     status: a.status,
-    userName: a.profiles ? `${a.profiles.first_name||''} ${a.profiles.last_name||''}`.trim() || a.profiles.email : '—',
+    userName: a.profiles ? `${a.profiles.first_name||''} ${a.profiles.last_name||''}`.trim() || a.profiles.email : 'â€”',
     email: a.profiles?.email || '',
   }));
   const sel = document.getElementById('adj-account');
   if (!sel) return;
-  sel.innerHTML = '<option value="">— Select an account —</option>' +
+  sel.innerHTML = '<option value="">â€” Select an account â€”</option>' +
     _adjAccountsCache.map(a =>
-      `<option value="${a.id}">[${a.type?.toUpperCase()||'ACC'}] ${a.account_number} — ${a.userName} ($${a.balance.toLocaleString('en-US',{minimumFractionDigits:2})})</option>`
+      `<option value="${a.id}">[${a.type?.toUpperCase()||'ACC'}] ${a.account_number} â€” ${a.userName} ($${a.balance.toLocaleString('en-US',{minimumFractionDigits:2})})</option>`
     ).join('');
 }
 
@@ -2957,7 +3000,7 @@ window.applyAdjustment = async function() {
   });
 
   await logAudit('BALANCE_ADJUSTMENT', acc.id,
-    `${typeLabel} $${amount.toFixed(2)} | Before: $${before.toFixed(2)} → After: $${after.toFixed(2)} | ${reason}`);
+    `${typeLabel} $${amount.toFixed(2)} | Before: $${before.toFixed(2)} â†’ After: $${after.toFixed(2)} | ${reason}`);
 
   showToast(`Balance ${typeLabel.toLowerCase()}ed successfully`, 'success');
   resetAdjForm();
@@ -2967,18 +3010,18 @@ window.applyAdjustment = async function() {
   renderAdjLogLive();
 };
 
-// ── saveUser — users must register via the registration page ──
+// â”€â”€ saveUser â€” users must register via the registration page â”€â”€
 window.saveUser = function() {
   showToast('To create a user, have them register at /register.html. Supabase Auth manages user accounts.', 'error');
 };
 
-// ── Adjustment Log ────────────────────────────────────────────
+// â”€â”€ Adjustment Log â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function renderAdjLogLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const tbody = document.getElementById('adj-log-tbody');
   if (!tbody) return;
 
-  // No profiles FK exists on transactions — use trading_accounts join (FK exists) only
+  // No profiles FK exists on transactions â€” use trading_accounts join (FK exists) only
   const { data, error } = await db
     .from('transactions')
     .select('id, created_at, account_id, user_id, type, amount, description, balance_before, balance_after, trading_accounts(account_number)')
@@ -2998,12 +3041,12 @@ async function renderAdjLogLive() {
   tbody.innerHTML = data.map(t => {
     // Look up user name via the account cache (populated when Balances page loads)
     const cached  = _adjAccountsCache.find(a => a.id === t.account_id);
-    const accNum  = t.trading_accounts?.account_number || cached?.account_number || t.account_id?.slice(0,8) || '—';
-    const name    = cached?.userName || '—';
+    const accNum  = t.trading_accounts?.account_number || cached?.account_number || t.account_id?.slice(0,8) || 'â€”';
+    const name    = cached?.userName || 'â€”';
     const amt     = parseFloat(t.amount||0).toLocaleString('en-US',{minimumFractionDigits:2});
     const dep     = t.type === 'deposit';
-    const before  = t.balance_before != null ? '$'+parseFloat(t.balance_before).toLocaleString('en-US',{minimumFractionDigits:2}) : '—';
-    const after   = t.balance_after  != null ? '$'+parseFloat(t.balance_after).toLocaleString('en-US',{minimumFractionDigits:2})  : '—';
+    const before  = t.balance_before != null ? '$'+parseFloat(t.balance_before).toLocaleString('en-US',{minimumFractionDigits:2}) : 'â€”';
+    const after   = t.balance_after  != null ? '$'+parseFloat(t.balance_after).toLocaleString('en-US',{minimumFractionDigits:2})  : 'â€”';
     const typeLabel = dep ? 'Credit' : 'Debit';
     return `<tr>
       <td style="font-size:12px;white-space:nowrap;">${fmtDate(t.created_at)}</td>
@@ -3015,13 +3058,13 @@ async function renderAdjLogLive() {
       <td style="font-size:12px;font-weight:600;">${after}</td>
       <td style="font-size:11px;color:var(--muted);">${_adminUser?.email?.split('@')[0] || 'Admin'}</td>
       <td style="font-size:12px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-          title="${(t.description||'').replace(/"/g,'&quot;')}">${t.description || '—'}</td>
+          title="${(t.description||'').replace(/"/g,'&quot;')}">${t.description || 'â€”'}</td>
     </tr>`;
   }).join('');
 }
 window.renderAdjLogLive = renderAdjLogLive;
 
-// ── Activity Feed ─────────────────────────────────────────────
+// â”€â”€ Activity Feed â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function renderActivityLive() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
@@ -3037,8 +3080,8 @@ async function renderActivityLive() {
       </div>
       <div>
         <div style="font-size:13px;font-weight:600;">${a.action}</div>
-        <div style="font-size:12px;color:var(--muted);">${a.details || a.target || '—'}</div>
-        <div style="font-size:11px;color:var(--muted);">${fmtDate(a.created_at)} · ${a.admin_email || 'Admin'}</div>
+        <div style="font-size:12px;color:var(--muted);">${a.details || a.target || 'â€”'}</div>
+        <div style="font-size:11px;color:var(--muted);">${fmtDate(a.created_at)} Â· ${a.admin_email || 'Admin'}</div>
       </div>
     </div>`).join('') : empty;
   const el1 = document.getElementById('activity-feed');
@@ -3050,12 +3093,12 @@ async function renderActivityLive() {
 }
 window.renderActivityLive = renderActivityLive;
 
-// ── Manual Deposit (modal handler) ───────────────────────────
+// â”€â”€ Manual Deposit (modal handler) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 window.opsOpenManualDepositModal = async function() {
   openModal('modal-manual-deposit');
   const db = window.XANTEX_DB; if (!db) return;
   const sel = document.getElementById('manual-dep-account'); if (!sel) return;
-  sel.innerHTML = '<option value="">Loading…</option>';
+  sel.innerHTML = '<option value="">Loadingâ€¦</option>';
 
   // Fetch all trading accounts with profile name
   const { data: accounts } = await db
@@ -3067,12 +3110,12 @@ window.opsOpenManualDepositModal = async function() {
     sel.innerHTML = '<option value="">No accounts found</option>';
     return;
   }
-  sel.innerHTML = '<option value="">— Select an account —</option>' +
+  sel.innerHTML = '<option value="">â€” Select an account â€”</option>' +
     accounts.map(a => {
       const p = a.profiles;
       const name = p ? `${p.first_name||''} ${p.last_name||''}`.trim() || p.email : 'Unknown';
       const bal = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-      return `<option value="${a.id}">${name} — #${a.account_number} ($${bal})</option>`;
+      return `<option value="${a.id}">${name} â€” #${a.account_number} ($${bal})</option>`;
     }).join('');
 
   // Reset other fields
@@ -3096,7 +3139,7 @@ window.opsManualDeposit = async function() {
   if (accErr || !acc) { showToast('Account not found','error'); return; }
 
   const coinLabels = { BTC:'Bitcoin (BTC)', ETH:'Ethereum ERC20 (ETH)', USDT:'Tether ERC20 (USDT)', USDT_TRC20:'Tether TRC20 (USDT)' };
-  const method = 'Crypto — ' + (coinLabels[coin] || coin);
+  const method = 'Crypto â€” ' + (coinLabels[coin] || coin);
   const now    = new Date().toISOString();
 
   const newBal = parseFloat(acc.balance||0) + amount;
@@ -3118,14 +3161,14 @@ window.opsManualDeposit = async function() {
   if (txErr) console.error('[opsManualDeposit] tx insert failed:', txErr.message);
 
   await logAudit('MANUAL_DEPOSIT', acc.id, `#${acc.account_number}: +$${amount.toFixed(2)} via ${method}`);
-  showToast('Manual deposit applied — balance updated','success');
+  showToast('Manual deposit applied â€” balance updated','success');
   closeModal('modal-manual-deposit');
   renderDepositsLive();
   renderAccountsLive();
   loadDashStats();
 };
 
-// ── Deposit Addresses ─────────────────────────────────────────
+// â”€â”€ Deposit Addresses â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const _DEP_ADDR_KEYS = ['BTC','ETH','USDT','USDT_TRC20'];
 
 window.loadDepositAddresses = async function() {
@@ -3155,7 +3198,7 @@ window.saveDepositAddresses = async function() {
   showToast('Deposit addresses saved', 'success');
 };
 
-// ── Client Reviews CRUD ───────────────────────────────────────
+// â”€â”€ Client Reviews CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadReviews() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data, error } = await db.from('client_reviews').select('*').order('sort_order');
@@ -3167,11 +3210,11 @@ async function loadReviews() {
   list.innerHTML = data.map(r => `
     <div style="display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--border);">
       <div style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:600;">${escHtml(r.name)} <span style="color:var(--muted);font-weight:400;">· ${escHtml(r.role)}</span></div>
+        <div style="font-size:13px;font-weight:600;">${escHtml(r.name)} <span style="color:var(--muted);font-weight:400;">Â· ${escHtml(r.role)}</span></div>
         <div style="font-size:12px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:500px;">${escHtml(r.body)}</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-        <span style="color:#f5a623;font-size:13px;">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>
+        <span style="color:#f5a623;font-size:13px;">${'â˜…'.repeat(r.stars)}${'â˜†'.repeat(5-r.stars)}</span>
         <label class="toggle-switch" title="${r.active ? 'Visible' : 'Hidden'}">
           <input type="checkbox" ${r.active ? 'checked' : ''} onchange="toggleReview('${r.id}',this.checked)">
           <span class="toggle-slider"></span>
@@ -3247,7 +3290,7 @@ window.deleteReview = async function(id) {
   await loadReviews();
 };
 
-// ── Direct Trade Input ────────────────────────────────────────
+// â”€â”€ Direct Trade Input â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const _TRADE_PAIRS = {
   forex:   ['EUR/USD','GBP/USD','USD/JPY','AUD/USD','USD/CHF','NZD/USD','USD/CAD','EUR/GBP','EUR/JPY','GBP/JPY','EUR/AUD','AUD/JPY','GBP/CHF','EUR/CHF','CAD/JPY','USD/MXN','USD/ZAR','USD/SGD','USD/HKD','GBP/AUD','GBP/NZD','AUD/NZD','EUR/NZD','EUR/CAD'],
   crypto:  ['BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT','XRP/USDT','ADA/USDT','DOGE/USDT','MATIC/USDT','AVAX/USDT','LINK/USDT','LTC/USDT','DOT/USDT','UNI/USDT','ATOM/USDT','TRX/USDT','SHIB/USDT','OP/USDT','ARB/USDT','APT/USDT'],
@@ -3257,12 +3300,12 @@ const _TRADE_PAIRS = {
 };
 
 let _dtDir = 'BUY';
-let _dtAccountCache = {}; // id → { balance, user_id, account_number }
+let _dtAccountCache = {}; // id â†’ { balance, user_id, account_number }
 
 window.dtMarketChanged = function(market) {
   const sel = document.getElementById('dt-pair'); if (!sel) return;
   const pairs = _TRADE_PAIRS[market] || [];
-  if (!pairs.length) { sel.innerHTML = '<option value="">— Select market first —</option>'; return; }
+  if (!pairs.length) { sel.innerHTML = '<option value="">â€” Select market first â€”</option>'; return; }
   sel.innerHTML = pairs.map(p => `<option value="${p}">${p}</option>`).join('');
 };
 
@@ -3309,7 +3352,7 @@ window.dtResetForm = function() {
   ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   document.getElementById('dt-lots').value = 1;
   document.getElementById('dt-lots-val').textContent = '1.00';
-  document.getElementById('dt-pair').innerHTML = '<option value="">— Select market first —</option>';
+  document.getElementById('dt-pair').innerHTML = '<option value="">â€” Select market first â€”</option>';
   document.getElementById('dt-balance-display').textContent = 'Select an account';
   document.getElementById('dt-balance-display').style.color = 'var(--muted)';
   document.getElementById('dt-pnl').style.color = '';
@@ -3331,7 +3374,7 @@ window.opsSubmitDirectTrade = async function() {
 
   const db = window.XANTEX_DB; if (!db) return;
   const btn = document.querySelector('[onclick="opsSubmitDirectTrade()"]');
-  if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Submittingâ€¦'; }
 
   try {
     // Fetch account
@@ -3342,7 +3385,7 @@ window.opsSubmitDirectTrade = async function() {
     const now = new Date().toISOString();
     const openedAt = openedAtVal ? new Date(openedAtVal).toISOString() : now;
 
-    // A dummy price — not shown to user as a meaningful figure, just needed for schema
+    // A dummy price â€” not shown to user as a meaningful figure, just needed for schema
     const dummyPrice = 1.0;
 
     // Insert closed position
@@ -3399,12 +3442,12 @@ window.opsSubmitDirectTrade = async function() {
 
     const msg = document.getElementById('dt-status-msg');
     if (msg) {
-      msg.textContent = `✓ Trade inserted — ${_dtDir} ${lots}L ${symbol} | P/L: ${pnl>=0?'+':''}$${pnl.toFixed(2)}`;
+      msg.textContent = `âœ“ Trade inserted â€” ${_dtDir} ${lots}L ${symbol} | P/L: ${pnl>=0?'+':''}$${pnl.toFixed(2)}`;
       msg.style.color  = pnl >= 0 ? 'var(--green)' : 'var(--red)';
       msg.style.display = '';
       setTimeout(() => { msg.style.display='none'; }, 5000);
     }
-    showToast(`Trade submitted — ${pnl>=0?'profit':'loss'} $${Math.abs(pnl).toFixed(2)} applied`, pnl>=0?'success':'error');
+    showToast(`Trade submitted â€” ${pnl>=0?'profit':'loss'} $${Math.abs(pnl).toFixed(2)} applied`, pnl>=0?'success':'error');
 
     // Reset pair/pnl but keep account+market for quick repeat entry
     document.getElementById('dt-pnl').value = '';
@@ -3431,18 +3474,18 @@ window.dtPopulateAccounts = async function() {
     .order('account_number');
   if (!data?.length) return;
   data.forEach(a => { _dtAccountCache[a.id] = { balance: a.balance, user_id: a.user_id, account_number: a.account_number }; });
-  const opts = '<option value="">— Select an account —</option>' +
+  const opts = '<option value="">â€” Select an account â€”</option>' +
     data.map(a => {
       const p = a.profiles;
       const name = p ? `${p.first_name||''} ${p.last_name||''}`.trim() || p.email : 'Unknown';
       const bal = parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2});
-      return `<option value="${a.id}">${name} — #${a.account_number} ($${bal})</option>`;
+      return `<option value="${a.id}">${name} â€” #${a.account_number} ($${bal})</option>`;
     }).join('');
   if (sel)   sel.innerHTML   = opts;
   if (selTH) selTH.innerHTML = opts;
 };
 
-// ── User Trade History ─────────────────────────────────────────
+// â”€â”€ User Trade History â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 window.opsTHLoad = async function(accountId) {
   const wrap = document.getElementById('th-table-wrap');
   if (!accountId) {
@@ -3472,7 +3515,7 @@ window.opsTHLoad = async function(accountId) {
     return;
   }
 
-  const fmtPx = v => { const n = parseFloat(v); if (isNaN(n)) return '—'; return n >= 100 ? n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : n.toFixed(5); };
+  const fmtPx = v => { const n = parseFloat(v); if (isNaN(n)) return 'â€”'; return n >= 100 ? n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : n.toFixed(5); };
 
   wrap.innerHTML = `<div style="overflow-x:auto;">
     <table class="data-table">
@@ -3487,13 +3530,13 @@ window.opsTHLoad = async function(accountId) {
           const pnlCol  = pnl >= 0 ? 'var(--green)' : 'var(--red)';
           const dir     = (t.direction || '').toLowerCase();
           const dirPill = dir === 'buy' ? 'pill-green' : 'pill-red';
-          const date    = t.closed_at ? new Date(t.closed_at).toLocaleDateString() : '—';
+          const date    = t.closed_at ? new Date(t.closed_at).toLocaleDateString() : 'â€”';
           return `<tr>
             <td style="font-weight:600;">${t.symbol}</td>
             <td><span class="badge-pill ${dirPill}">${(t.direction||'').toUpperCase()}</span></td>
             <td>${parseFloat(t.lots).toFixed(2)}</td>
             <td>${fmtPx(t.open_price)}</td>
-            <td>${t.close_price ? fmtPx(t.close_price) : '—'}</td>
+            <td>${t.close_price ? fmtPx(t.close_price) : 'â€”'}</td>
             <td style="font-weight:600;color:${pnlCol};">${pnlStr}</td>
             <td style="color:var(--muted);font-size:12px;">${date}</td>
             <td><button class="btn btn--sm btn--red" onclick="opsTHDelete('${t.id}','${accountId}',${pnl})">Delete</button></td>
@@ -3526,7 +3569,7 @@ window.opsTHDelete = async function(positionId, accountId, pnl) {
   opsTHLoad(accountId);
 };
 
-// ── Override renderAll to use live versions ───────────────────
+// â”€â”€ Override renderAll to use live versions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 window.renderAll = async function() {
   loadDashStats();
   renderUsersLive();
@@ -3555,7 +3598,7 @@ window.renderAll = async function() {
 
 let _ptCurrentTarget = null;
 let _ptTradeMode = 'dollar';
-const PT_CIRC = 251.33; // 2π × r40
+const PT_CIRC = 251.33; // 2Ï€ Ã— r40
 
 function ptRingColor(pct) {
   if (pct >= 100) return '#22a06b';
@@ -3583,7 +3626,7 @@ window.ptPopulateUsers = async function() {
     .select('id, email, first_name, last_name')
     .order('created_at', { ascending: false });
   if (error || !users?.length) return;
-  const opts = '<option value="">— Select a user —</option>' +
+  const opts = '<option value="">â€” Select a user â€”</option>' +
     users.map(u => {
       const name = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email;
       return `<option value="${u.id}">${name} (${u.email})</option>`;
@@ -3609,7 +3652,7 @@ window.ptLoadUser = async function(userId) {
     return;
   }
 
-  emptyMsg.textContent   = 'Loading…';
+  emptyMsg.textContent   = 'Loadingâ€¦';
   emptyMsg.style.display = 'block';
   display.style.display  = 'none';
 
@@ -3667,7 +3710,7 @@ window.ptLoadUser = async function(userId) {
 async function ptRenderTrades(targetId) {
   const wrap = document.getElementById('pt-trades-wrap');
   if (!wrap) return;
-  wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">Loading entries…</p>';
+  wrap.innerHTML = '<p style="color:var(--muted);font-size:13px;">Loading entriesâ€¦</p>';
   const db = window.XANTEX_DB;
   if (!db) return;
   const { data: trades, error } = await db
@@ -3686,8 +3729,8 @@ async function ptRenderTrades(targetId) {
         ${trades.map(tr => `<tr>
           <td>${fmtDate(tr.created_at)}</td>
           <td><span style="color:${Number(tr.percentage_delta)>=0?'var(--green)':'var(--red)'};font-weight:600;">${Number(tr.percentage_delta)>=0?'+':''}${Number(tr.percentage_delta).toFixed(2)}%</span></td>
-          <td>${tr.amount != null ? fmtMoney(tr.amount) : '—'}</td>
-          <td style="color:var(--muted);">${tr.note || '—'}</td>
+          <td>${tr.amount != null ? fmtMoney(tr.amount) : 'â€”'}</td>
+          <td style="color:var(--muted);">${tr.note || 'â€”'}</td>
           <td><button class="btn btn--red" style="font-size:11px;padding:4px 10px;" onclick="ptDeleteTrade('${tr.id}','${targetId}')">Delete</button></td>
         </tr>`).join('')}
       </tbody>
@@ -3730,7 +3773,7 @@ window.ptOpenAddTrade = function() {
   if (!_ptCurrentTarget) return;
   const info = document.getElementById('pt-trade-target-info');
   if (info) {
-    info.innerHTML = `<strong>${_ptCurrentTarget.label || '(no label)'}</strong> · Target: <strong>${fmtMoney(_ptCurrentTarget.target_amount)}</strong> · Progress: <strong>${(_ptCurrentTarget.current_percentage||0).toFixed(2)}%</strong>`;
+    info.innerHTML = `<strong>${_ptCurrentTarget.label || '(no label)'}</strong> Â· Target: <strong>${fmtMoney(_ptCurrentTarget.target_amount)}</strong> Â· Progress: <strong>${(_ptCurrentTarget.current_percentage||0).toFixed(2)}%</strong>`;
   }
   document.getElementById('pt-trade-amount').value = '';
   document.getElementById('pt-trade-pct').value    = '';
@@ -3783,7 +3826,7 @@ window.ptSaveTrade = async function() {
     note:             note || null,
   }).select();
   if (error) { showToast('Error saving trade: ' + error.message, 'error'); return; }
-  if (!inserted?.length) { showToast('Trade not saved — check permissions', 'error'); return; }
+  if (!inserted?.length) { showToast('Trade not saved â€” check permissions', 'error'); return; }
   await db.from('profit_targets').update({ updated_at: new Date().toISOString() }).eq('id', _ptCurrentTarget.id);
   closeModal('modal-pt-trade');
   showToast('Trade entry added', 'success');
@@ -3921,7 +3964,7 @@ window.opsSendEmail = async function() {
   let parsed;
   try { parsed = JSON.parse(sel.value); } catch { showToast('Invalid recipient', 'error'); return; }
 
-  btn.disabled = true; btn.textContent = 'Sending…';
+  btn.disabled = true; btn.textContent = 'Sendingâ€¦';
   const result = await _adminApiCall('send_email', {
     recipient_email: parsed.email,
     recipient_name: parsed.name || null,
@@ -3937,7 +3980,7 @@ window.opsSendEmail = async function() {
   document.getElementById('email-body').value = '';
   document.getElementById('email-recipient-sel').value = '';
   const lbl = document.getElementById('email-dd-label');
-  if (lbl) { lbl.textContent = '— Select recipient —'; lbl.style.color = 'var(--muted)'; }
+  if (lbl) { lbl.textContent = 'â€” Select recipient â€”'; lbl.style.color = 'var(--muted)'; }
   await logAudit('SEND_EMAIL', parsed.email, subject);
   loadEmailHistory();
 };

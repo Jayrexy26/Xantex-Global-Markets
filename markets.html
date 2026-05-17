@@ -798,26 +798,11 @@ async function safeFetch(url) {
   } catch { return null; }
 }
 
-// ── Yahoo Finance single-symbol chart ────────────────────────
-async function yahooChart(sym) {
-  const d = await safeFetch(
-    `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=7d`
-  );
-  const res = d?.chart?.result?.[0];
-  if (!res) return null;
-  const m = res.meta;
-  const closes = (res.indicators?.quote?.[0]?.close||[]).filter(Boolean);
-  const price = m.regularMarketPrice ?? closes.at(-1);
-  if (!price) return null;
-  const prev  = m.regularMarketPreviousClose ?? closes.at(-2) ?? price;
-  const chg   = price - prev;
-  const chgp  = prev ? (chg/prev)*100 : 0;
-  return { price, chg, chgp,
-    high: m.regularMarketDayHigh ?? price,
-    low:  m.regularMarketDayLow  ?? price,
-    open: m.regularMarketOpen    ?? price,
-    vol:  m.regularMarketVolume  ?? 0,
-    closes };
+// ── Yahoo Finance — via Supabase proxy (bypasses CORS) ───────
+const PROXY = 'https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/market-proxy';
+async function yahooBatch(symbols) {
+  const d = await safeFetch(`${PROXY}?symbols=${symbols.join(',')}`);
+  return d && typeof d === 'object' ? d : {};
 }
 
 // ── CRYPTO — CoinGecko (free, no key, reliable) ───────────────
@@ -910,15 +895,14 @@ async function fetchForexMetals() {
     const s=1/rt.XAG, sP=rp?.XAG?1/rp.XAG:s, chg=s-sP, chgp=sP?(chg/sP)*100:0;
     metals.push({icon:'🥈',sym:'XAG/USD',name:'Silver',bid:s.toFixed(3),ask:(s+.01).toFixed(3),chg:(chg>=0?'+':'')+chg.toFixed(3),chgRaw:chg,chgp:pct(chgp),chgpRaw:chgp,high:(s*1.005).toFixed(3),low:(s*.995).toFixed(3),unit:'Troy oz'});
   }
-  const [plt,pld,cop] = await Promise.allSettled([yahooChart('PL=F'),yahooChart('PA=F'),yahooChart('HG=F')]);
-  const addMetal=(res,icon,sym,name,unit,dp=2)=>{
-    const v=res.status==='fulfilled'&&res.value;
-    if(!v)return;
-    metals.push({icon,sym,name,bid:'$'+v.price.toFixed(dp),ask:'$'+(v.price+.2).toFixed(dp),chg:(v.chg>=0?'+':'')+v.chg.toFixed(dp),chgRaw:v.chg,chgp:pct(v.chgp),chgpRaw:v.chgp,high:'$'+v.high.toFixed(dp),low:'$'+v.low.toFixed(dp),unit,closes:v.closes});
+  const mfut = await yahooBatch(['PL=F','PA=F','HG=F']);
+  const addMetal=(q,icon,sym,name,unit,dp=2)=>{
+    if(!q?.price)return;
+    metals.push({icon,sym,name,bid:'$'+q.price.toFixed(dp),ask:'$'+(q.price+.2).toFixed(dp),chg:(q.chg>=0?'+':'')+q.chg.toFixed(dp),chgRaw:q.chg,chgp:pct(q.chgp),chgpRaw:q.chgp,high:'$'+q.high.toFixed(dp),low:'$'+q.low.toFixed(dp),unit});
   };
-  addMetal(plt,'⬜','XPT/USD','Platinum','Troy oz');
-  addMetal(pld,'🔩','XPD/USD','Palladium','Troy oz');
-  addMetal(cop,'🟤','HG/USD','Copper','Lbs',4);
+  addMetal(mfut['PL=F'],'⬜','XPT/USD','Platinum','Troy oz');
+  addMetal(mfut['PA=F'],'🔩','XPD/USD','Palladium','Troy oz');
+  addMetal(mfut['HG=F'],'🟤','HG/USD','Copper','Lbs',4);
   DATA.metals=metals;
   renderMetals();
 }
@@ -937,15 +921,14 @@ const STOCK_LIST = [
   {sym:'WMT',  name:'Walmart Inc.',     icon:'🛒',tag:'us'},
 ];
 async function fetchStocks() {
-  const results = await Promise.allSettled(STOCK_LIST.map(s=>yahooChart(s.sym)));
-  DATA.stocks = STOCK_LIST.map((s,i)=>{
-    const v=results[i].status==='fulfilled'?results[i].value:null;
-    if(!v)return null;
+  const q = await yahooBatch(STOCK_LIST.map(s=>s.sym));
+  DATA.stocks = STOCK_LIST.map(s=>{
+    const v=q[s.sym]; if(!v?.price)return null;
     return {icon:s.icon,sym:s.sym,name:s.name,tag:s.tag,
       price:'$'+v.price.toFixed(2),chg:(v.chg>=0?'+':'')+v.chg.toFixed(2),chgRaw:v.chg,
       chgp:pct(v.chgp),chgpRaw:v.chgp,
       open:'$'+v.open.toFixed(2),high:'$'+v.high.toFixed(2),low:'$'+v.low.toFixed(2),
-      vol:fmtVol(v.vol).replace('$',''),closes:v.closes};
+      vol:fmtVol(v.vol).replace('$','')};
   }).filter(Boolean);
   renderStocks();
 }
@@ -964,15 +947,14 @@ const INDEX_LIST = [
   {sym:'^HSI',  name:'Hang Seng',        icon:'🐉',tag:'asia',region:'Asia'    },
 ];
 async function fetchIndices() {
-  const results = await Promise.allSettled(INDEX_LIST.map(s=>yahooChart(s.sym)));
-  DATA.indices = INDEX_LIST.map((s,i)=>{
-    const v=results[i].status==='fulfilled'?results[i].value:null;
-    if(!v)return null;
+  const q = await yahooBatch(INDEX_LIST.map(s=>s.sym));
+  DATA.indices = INDEX_LIST.map(s=>{
+    const key=s.sym; const v=q[key]; if(!v?.price)return null;
     const dp=v.price>=1000?0:2;
     const fmt=n=>n.toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});
     return {icon:s.icon,sym:s.sym.replace('^',''),name:s.name,tag:s.tag,region:s.region,
       price:fmt(v.price),chg:(v.chg>=0?'+':'')+v.chg.toFixed(dp),chgRaw:v.chg,
-      chgp:pct(v.chgp),chgpRaw:v.chgp,high:fmt(v.high),low:fmt(v.low),closes:v.closes};
+      chgp:pct(v.chgp),chgpRaw:v.chgp,high:fmt(v.high),low:fmt(v.low)};
   }).filter(Boolean);
   renderIndices();
 }
@@ -990,14 +972,13 @@ const ETF_META = {
 };
 async function fetchETFs() {
   const syms=Object.keys(ETF_META);
-  const results=await Promise.allSettled(syms.map(s=>yahooChart(s)));
-  DATA.etfs=syms.map((sym,i)=>{
-    const v=results[i].status==='fulfilled'?results[i].value:null;
-    const m=ETF_META[sym];
-    if(!v)return null;
+  const q=await yahooBatch(syms);
+  DATA.etfs=syms.map(sym=>{
+    const v=q[sym]; const m=ETF_META[sym];
+    if(!v?.price)return null;
     return {icon:m.icon,sym,name:m.name,aum:m.aum,exp:m.exp,
       price:'$'+v.price.toFixed(2),chg:(v.chg>=0?'+':'')+v.chg.toFixed(2),chgRaw:v.chg,
-      chgp:pct(v.chgp),chgpRaw:v.chgp,vol:fmtVol(v.vol).replace('$',''),closes:v.closes};
+      chgp:pct(v.chgp),chgpRaw:v.chgp,vol:fmtVol(v.vol).replace('$','')};
   }).filter(Boolean);
   renderETFs();
 }
@@ -1011,15 +992,14 @@ const ENERGY_LIST = [
   {sym:'HO=F',name:'Heating Oil',   icon:'🌡️',unit:'Gallon'},
 ];
 async function fetchEnergy() {
-  const results=await Promise.allSettled(ENERGY_LIST.map(s=>yahooChart(s.sym)));
-  DATA.energy=ENERGY_LIST.map((s,i)=>{
-    const v=results[i].status==='fulfilled'?results[i].value:null;
-    if(!v)return null;
+  const q=await yahooBatch(ENERGY_LIST.map(s=>s.sym));
+  DATA.energy=ENERGY_LIST.map(s=>{
+    const v=q[s.sym]; if(!v?.price)return null;
     return {icon:s.icon,sym:s.sym,name:s.name,unit:s.unit,
       bid:'$'+v.price.toFixed(3),ask:'$'+(v.price+.005).toFixed(3),
       chg:(v.chg>=0?'+':'')+v.chg.toFixed(3),chgRaw:v.chg,
       chgp:pct(v.chgp),chgpRaw:v.chgp,
-      high:'$'+v.high.toFixed(3),low:'$'+v.low.toFixed(3),closes:v.closes};
+      high:'$'+v.high.toFixed(3),low:'$'+v.low.toFixed(3)};
   }).filter(Boolean);
   renderEnergy();
 }

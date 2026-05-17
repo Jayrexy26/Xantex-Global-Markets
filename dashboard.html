@@ -2494,30 +2494,38 @@
   // ── Modals ────────────────────────────────────────────────
   function openModal(id) {
     const overlay = document.getElementById('modal-' + id);
+    if (!overlay) return;
     const m = overlay.querySelector('.modal');
-    m.classList.remove('genie-out');
+    overlay.style.display = 'flex'; // force show via inline style
     overlay.classList.add('open');
-    void m.offsetWidth;
-    m.classList.add('genie-in');
-    m.addEventListener('animationend', () => m.classList.remove('genie-in'), { once: true });
+    if (m) {
+      m.classList.remove('genie-out');
+      void m.offsetWidth;
+      m.classList.add('genie-in');
+      m.addEventListener('animationend', () => m.classList.remove('genie-in'), { once: true });
+    }
   }
   function closeModal(id) {
     const overlay = document.getElementById('modal-' + id);
     if (!overlay) return;
     const m = overlay.querySelector('.modal');
-    if (!m) { overlay.classList.remove('open'); return; }
-    m.classList.remove('genie-in');
-    m.classList.add('genie-out');
-    let done = false;
+    if (m) {
+      m.classList.remove('genie-in');
+      m.classList.add('genie-out');
+    }
     const finish = () => {
-      if (done) return;
-      done = true;
-      m.classList.remove('genie-out');
+      if (m) m.classList.remove('genie-out');
       overlay.classList.remove('open');
+      overlay.style.display = 'none'; // force hide via inline style
     };
-    m.addEventListener('animationend', finish, { once: true });
-    setTimeout(finish, 420); // fallback if animationend never fires
+    // Try animation, fall back after 350ms regardless
+    let done = false;
+    const guard = () => { if (!done) { done = true; finish(); } };
+    if (m) m.addEventListener('animationend', guard, { once: true });
+    setTimeout(guard, 350);
   }
+  window.openModal = openModal;
+  window.closeModal = closeModal;
   // Close on overlay click
   document.querySelectorAll('.modal-overlay').forEach(el => {
     el.addEventListener('click', e => {

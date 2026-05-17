@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
   if (!safe) return json({})
 
   const yahooUrl =
-    `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${safe}&lang=en-US&region=US&corsDomain=finance.yahoo.com`
+    `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(safe)}&lang=en-US&region=US&corsDomain=finance.yahoo.com`
 
   try {
     const r = await fetch(yahooUrl, {

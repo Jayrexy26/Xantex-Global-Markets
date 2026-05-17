@@ -718,491 +718,537 @@
 </div><!-- /layout -->
 
 <script>
-  /* ============================================================
-     MARKET DATA
-  ============================================================ */
-  const DATA = {
-    forex: [
-      { icon:'ðŸ’±', sym:'EUR/USD', name:'Euro / US Dollar',         bid:'1.08418', ask:'1.08432', chg:'+0.00222', chgp:'+0.21%', high:'1.08654', low:'1.08102', spread:'1.4', tag:'major', sent:'bull' },
-      { icon:'ðŸ’·', sym:'GBP/USD', name:'British Pound / US Dollar',bid:'1.26704', ask:'1.26718', chg:'-0.00228', chgp:'-0.18%', high:'1.26980', low:'1.26412', spread:'1.4', tag:'major', sent:'bear' },
-      { icon:'ðŸ’´', sym:'USD/JPY', name:'US Dollar / Japanese Yen', bid:'151.828', ask:'151.842', chg:'+0.472',   chgp:'+0.31%', high:'152.140', low:'151.420', spread:'1.4', tag:'major', sent:'bull' },
-      { icon:'ðŸ', sym:'USD/CAD', name:'US Dollar / Canadian',     bid:'1.36407', ask:'1.36421', chg:'+0.00162', chgp:'+0.12%', high:'1.36580', low:'1.36120', spread:'1.4', tag:'major', sent:'bull' },
-      { icon:'ðŸ‡¨ðŸ‡­', sym:'USD/CHF', name:'US Dollar / Swiss Franc', bid:'0.90128', ask:'0.90142', chg:'+0.00045', chgp:'+0.05%', high:'0.90280', low:'0.89940', spread:'1.4', tag:'major', sent:'neut' },
-      { icon:'ðŸ¦˜', sym:'AUD/USD', name:'Australian / US Dollar',   bid:'0.65200', ask:'0.65214', chg:'-0.00059', chgp:'-0.09%', high:'0.65380', low:'0.64980', spread:'1.4', tag:'major', sent:'bear' },
-      { icon:'ðŸ¥', sym:'NZD/USD', name:'New Zealand / US Dollar',  bid:'0.60307', ask:'0.60321', chg:'-0.00127', chgp:'-0.21%', high:'0.60540', low:'0.60180', spread:'1.4', tag:'minor', sent:'bear' },
-      { icon:'ðŸ’¶', sym:'EUR/GBP', name:'Euro / British Pound',     bid:'0.85598', ask:'0.85612', chg:'+0.00120', chgp:'+0.14%', high:'0.85720', low:'0.85380', spread:'1.4', tag:'minor', sent:'bull' },
-      { icon:'ðŸ’¹', sym:'EUR/JPY', name:'Euro / Japanese Yen',      bid:'164.507', ask:'164.521', chg:'+0.754',   chgp:'+0.46%', high:'164.820', low:'163.840', spread:'1.4', tag:'minor', sent:'bull' },
-      { icon:'ðŸ’¸', sym:'GBP/JPY', name:'British Pound / Yen',      bid:'192.326', ask:'192.340', chg:'+0.840',   chgp:'+0.44%', high:'192.680', low:'191.620', spread:'1.4', tag:'minor', sent:'bull' },
-    ],
-    crypto: [
-      { icon:'â‚¿',  sym:'BTC/USD',  name:'Bitcoin',       price:'78,450',  chg:'+1,644', chgp:'+2.14%', high:'79,120', low:'76,480', mcap:'$1.54T',  vol:'$42.8B', tag:'top5', sent:'bull' },
-      { icon:'Îž',  sym:'ETH/USD',  name:'Ethereum',      price:'2,301',   chg:'+43',    chgp:'+1.88%', high:'2,348',  low:'2,242',  mcap:'$277B',   vol:'$18.4B', tag:'top5', sent:'bull' },
-      { icon:'â—Ž',  sym:'SOL/USD',  name:'Solana',        price:'142.80',  chg:'+4.42',  chgp:'+3.21%', high:'144.20', low:'137.60', mcap:'$66.2B',  vol:'$4.1B',  tag:'top5', sent:'bull' },
-      { icon:'âœ•',  sym:'XRP/USD',  name:'Ripple',        price:'0.5124',  chg:'-0.004', chgp:'-0.84%', high:'0.524',  low:'0.508',  mcap:'$28.4B',  vol:'$1.8B',  tag:'top5', sent:'bear' },
-      { icon:'ðŸ”¶', sym:'BNB/USD',  name:'BNB',           price:'412.30',  chg:'+2.96',  chgp:'+0.72%', high:'416.40', low:'408.20', mcap:'$61.2B',  vol:'$2.4B',  tag:'top5', sent:'bull' },
-      { icon:'ðŸ”µ', sym:'ADA/USD',  name:'Cardano',       price:'0.4821',  chg:'-0.006', chgp:'-1.12%', high:'0.494',  low:'0.478',  mcap:'$17.1B',  vol:'$0.6B',  tag:'defi', sent:'bear' },
-      { icon:'âš«', sym:'DOT/USD',  name:'Polkadot',      price:'7.2340',  chg:'+0.068', chgp:'+0.95%', high:'7.380',  low:'7.120',  mcap:'$9.8B',   vol:'$0.4B',  tag:'defi', sent:'bull' },
-      { icon:'ðŸ•', sym:'DOGE/USD', name:'Dogecoin',      price:'0.1482',  chg:'+0.006', chgp:'+4.21%', high:'0.152',  low:'0.142',  mcap:'$21.4B',  vol:'$1.2B',  tag:'top5', sent:'bull' },
-      { icon:'ðŸ”·', sym:'AVAX/USD', name:'Avalanche',     price:'38.420',  chg:'+0.840', chgp:'+2.24%', high:'39.120', low:'37.240', mcap:'$15.8B',  vol:'$0.9B',  tag:'defi', sent:'bull' },
-      { icon:'ðŸŒ', sym:'LINK/USD', name:'Chainlink',     price:'14.820',  chg:'-0.180', chgp:'-1.20%', high:'15.240', low:'14.620', mcap:'$9.0B',   vol:'$0.5B',  tag:'defi', sent:'bear' },
-    ],
-    stocks: [
-      { icon:'ðŸŽ', sym:'AAPL',  name:'Apple Inc.',        price:'182.52', chg:'+1.52',  chgp:'+0.84%', open:'181.20', high:'183.40', low:'180.80', vol:'52.4M',  tag:'us', sent:'bull' },
-      { icon:'ðŸªŸ', sym:'MSFT',  name:'Microsoft Corp.',   price:'415.30', chg:'+4.58',  chgp:'+1.12%', open:'411.20', high:'416.80', low:'410.40', vol:'18.2M',  tag:'us', sent:'bull' },
-      { icon:'ðŸ”', sym:'GOOGL', name:'Alphabet Inc.',     price:'176.40', chg:'-0.56',  chgp:'-0.32%', open:'177.20', high:'178.40', low:'175.60', vol:'22.8M',  tag:'us', sent:'bear' },
-      { icon:'ðŸ“¦', sym:'AMZN',  name:'Amazon.com Inc.',   price:'192.80', chg:'+2.94',  chgp:'+1.54%', open:'190.20', high:'193.60', low:'189.80', vol:'34.6M',  tag:'us', sent:'bull' },
-      { icon:'âš¡', sym:'TSLA',  name:'Tesla Inc.',        price:'172.60', chg:'-3.76',  chgp:'-2.14%', open:'176.80', high:'177.20', low:'171.40', vol:'98.2M',  tag:'us', sent:'bear' },
-      { icon:'ðŸŽ®', sym:'NVDA',  name:'NVIDIA Corp.',      price:'875.40', chg:'+27.14', chgp:'+3.21%', open:'849.20', high:'878.60', low:'847.40', vol:'42.8M',  tag:'us', sent:'bull' },
-      { icon:'ðŸ‘“', sym:'META',  name:'Meta Platforms',    price:'510.20', chg:'+4.60',  chgp:'+0.91%', open:'506.20', high:'512.40', low:'504.80', vol:'14.2M',  tag:'us', sent:'bull' },
-      { icon:'ðŸ¦', sym:'JPM',   name:'JPMorgan Chase',    price:'198.30', chg:'+1.06',  chgp:'+0.54%', open:'197.40', high:'199.20', low:'196.80', vol:'8.4M',   tag:'us', sent:'bull' },
-      { icon:'ðŸ’³', sym:'V',     name:'Visa Inc.',         price:'278.90', chg:'+1.16',  chgp:'+0.42%', open:'277.80', high:'279.60', low:'277.20', vol:'6.2M',   tag:'us', sent:'bull' },
-      { icon:'ðŸ›’', sym:'WMT',   name:'Walmart Inc.',      price:'68.42',  chg:'+0.42',  chgp:'+0.62%', open:'68.00',  high:'68.80',  low:'67.80',  vol:'12.4M',  tag:'us', sent:'bull' },
-    ],
-    indices: [
-      { icon:'ðŸ—½', sym:'US30',    name:'Dow Jones',          price:'39,142', chg:'+121', chgp:'+0.31%', high:'39,284', low:'38,942', region:'Americas', tag:'us',   sent:'bull' },
-      { icon:'ðŸ¦…', sym:'SPX500',  name:'S&P 500',            price:'5,254',  chg:'+25',  chgp:'+0.48%', high:'5,274',  low:'5,221',  region:'Americas', tag:'us',   sent:'bull' },
-      { icon:'ðŸ’»', sym:'NAS100',  name:'NASDAQ 100',         price:'18,241', chg:'+131', chgp:'+0.72%', high:'18,312', low:'18,082', region:'Americas', tag:'us',   sent:'bull' },
-      { icon:'ðŸ', sym:'CA60',    name:'TSX 60',             price:'1,342',  chg:'+8',   chgp:'+0.60%', high:'1,348',  low:'1,334',  region:'Americas', tag:'us',   sent:'bull' },
-      { icon:'ðŸŽ¡', sym:'UK100',   name:'FTSE 100',           price:'8,312',  chg:'-12',  chgp:'-0.14%', high:'8,348',  low:'8,282',  region:'Europe',   tag:'eu',   sent:'bear' },
-      { icon:'ðŸ°', sym:'GER40',   name:'DAX 40',             price:'18,074', chg:'+40',  chgp:'+0.22%', high:'18,142', low:'17,982', region:'Europe',   tag:'eu',   sent:'bull' },
-      { icon:'ðŸ—¼', sym:'FRA40',   name:'CAC 40',             price:'8,142',  chg:'-7',   chgp:'-0.08%', high:'8,182',  low:'8,112',  region:'Europe',   tag:'eu',   sent:'neut' },
-      { icon:'ðŸŒ·', sym:'NED25',   name:'AEX 25',             price:'882',    chg:'+4',   chgp:'+0.45%', high:'886',    low:'878',    region:'Europe',   tag:'eu',   sent:'bull' },
-      { icon:'ðŸ—¾', sym:'JPN225',  name:'Nikkei 225',         price:'40,120', chg:'+322', chgp:'+0.81%', high:'40,284', low:'39,842', region:'Asia',     tag:'asia', sent:'bull' },
-      { icon:'ðŸ¦˜', sym:'AUS200',  name:'ASX 200',            price:'7,814',  chg:'+27',  chgp:'+0.34%', high:'7,842',  low:'7,782',  region:'Asia',     tag:'asia', sent:'bull' },
-      { icon:'ðŸ‰', sym:'HK50',    name:'Hang Seng',          price:'16,842', chg:'-142', chgp:'-0.84%', high:'17,042', low:'16,782', region:'Asia',     tag:'asia', sent:'bear' },
-      { icon:'ðŸŒ', sym:'CHINA50', name:'China A50',          price:'12,420', chg:'+84',  chgp:'+0.68%', high:'12,482', low:'12,342', region:'Asia',     tag:'asia', sent:'bull' },
-    ],
-    metals: [
-      { icon:'ðŸ¥‡', sym:'XAU/USD', name:'Gold',          bid:'2,340.8', ask:'2,341.5', chg:'+20.2',  chgp:'+0.87%', high:'2,354.2', low:'2,318.4', unit:'Troy oz', sent:'bull' },
-      { icon:'ðŸ¥ˆ', sym:'XAG/USD', name:'Silver',        bid:'27.830',  ask:'27.842',  chg:'+0.340', chgp:'+1.24%', high:'28.120',  low:'27.480',  unit:'Troy oz', sent:'bull' },
-      { icon:'â¬œ', sym:'XPT/USD', name:'Platinum',      bid:'981.8',   ask:'982.4',   chg:'-3.04',  chgp:'-0.31%', high:'988.2',   low:'978.4',   unit:'Troy oz', sent:'bear' },
-      { icon:'ðŸ”©', sym:'XPD/USD', name:'Palladium',     bid:'1,041.2', ask:'1,042.0', chg:'-5.64',  chgp:'-0.54%', high:'1,054.2', low:'1,038.4', unit:'Troy oz', sent:'bear' },
-      { icon:'ðŸ”¶', sym:'HG/USD',  name:'Copper',        bid:'4.1228',  ask:'4.1240',  chg:'+0.0254',chgp:'+0.62%', high:'4.1480',  low:'4.0920',  unit:'Lbs',     sent:'bull' },
-    ],
-    energy: [
-      { icon:'ðŸ›¢ï¸', sym:'WTI/USD', name:'Crude Oil WTI', bid:'82.28',   ask:'82.34',   chg:'-0.454', chgp:'-0.55%', high:'83.12',  low:'82.04',  unit:'Barrel', sent:'bear' },
-      { icon:'âš«', sym:'BRT/USD', name:'Brent Crude',   bid:'86.66',   ask:'86.72',   chg:'-0.366', chgp:'-0.42%', high:'87.42',  low:'86.28',  unit:'Barrel', sent:'bear' },
-      { icon:'ðŸ”¥', sym:'NGAS',   name:'Natural Gas',    bid:'1.8406',  ask:'1.8420',  chg:'+0.0204',chgp:'+1.12%', high:'1.8640', low:'1.8180', unit:'MMBtu',  sent:'bull' },
-      { icon:'â›½', sym:'RBOB',   name:'Gasoline RBOB',  bid:'2.6826',  ask:'2.6840',  chg:'-0.0074',chgp:'-0.28%', high:'2.7020', low:'2.6680', unit:'Gallon', sent:'bear' },
-      { icon:'ðŸŒ¡ï¸', sym:'HEAT',   name:'Heating Oil',    bid:'2.8106',  ask:'2.8120',  chg:'+0.0050',chgp:'+0.18%', high:'2.8280', low:'2.7980', unit:'Gallon', sent:'bull' },
-    ],
-    etfs: [
-      { icon:'ðŸ“Š', sym:'SPY',  name:'SPDR S&P 500 ETF',      price:'524.80', chg:'+2.52', chgp:'+0.48%', aum:'$544B', exp:'0.09%', vol:'72.4M', sent:'bull' },
-      { icon:'ðŸ’¡', sym:'QQQ',  name:'Invesco QQQ Trust',      price:'448.20', chg:'+3.18', chgp:'+0.71%', aum:'$221B', exp:'0.20%', vol:'38.2M', sent:'bull' },
-      { icon:'ðŸŸ¡', sym:'GLD',  name:'SPDR Gold Shares',       price:'215.40', chg:'+1.80', chgp:'+0.84%', aum:'$66B',  exp:'0.40%', vol:'8.4M',  sent:'bull' },
-      { icon:'âšª', sym:'SLV',  name:'iShares Silver Trust',   price:'25.820', chg:'+0.316',chgp:'+1.24%', aum:'$12B',  exp:'0.50%', vol:'14.8M', sent:'bull' },
-      { icon:'ðŸŒ', sym:'VTI',  name:'Vanguard Total Market',  price:'241.30', chg:'+0.868',chgp:'+0.36%', aum:'$432B', exp:'0.03%', vol:'3.2M',  sent:'bull' },
-      { icon:'âš¡', sym:'XLE',  name:'Energy Select SPDR',     price:'91.420', chg:'-0.388',chgp:'-0.42%', aum:'$38B',  exp:'0.09%', vol:'12.6M', sent:'bear' },
-      { icon:'ðŸš€', sym:'ARKK', name:'ARK Innovation ETF',     price:'48.120', chg:'+1.008',chgp:'+2.14%', aum:'$7B',   exp:'0.75%', vol:'22.4M', sent:'bull' },
-      { icon:'ðŸ“±', sym:'XLK',  name:'Technology Select SPDR', price:'214.80', chg:'+3.224',chgp:'+1.52%', aum:'$64B',  exp:'0.09%', vol:'8.8M',  sent:'bull' },
-    ],
-  };
+/* ============================================================
+   LIVE MARKET DATA
+   Sources: CoinGecko (crypto) · open.er-api.com (forex/metals) · Yahoo Finance (stocks/indices/ETFs/energy)
+============================================================ */
 
-  /* ============================================================
-     SPARKLINES
-  ============================================================ */
-  function sparkline(up) {
-    const pts = [];
-    let v = 50 + (Math.random() - 0.5) * 20;
-    for (let i = 0; i < 8; i++) {
-      v += (Math.random() - (up ? 0.35 : 0.65)) * 12;
-      v = Math.max(10, Math.min(90, v));
-      pts.push(v);
-    }
-    const w = 72, h = 32;
-    const minV = Math.min(...pts), maxV = Math.max(...pts), range = maxV - minV || 1;
-    const coords = pts.map((p, i) => `${(i / 7) * w},${h - ((p - minV) / range) * h}`).join(' ');
-    const cls = up ? 'spark-up' : 'spark-down';
-    return `<svg class="spark" viewBox="0 0 ${w} ${h}"><polyline class="${cls}" points="${coords}"/></svg>`;
+const DATA = { forex:[], crypto:[], stocks:[], indices:[], metals:[], energy:[], etfs:[] };
+
+// ── Formatters ──────────────────────────────────────────────
+const fmtPrice = n => {
+  if (n == null || isNaN(n)) return '—';
+  const a = Math.abs(n);
+  if (a >= 10000) return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  if (a >= 100)   return n.toFixed(2);
+  if (a >= 10)    return n.toFixed(2);
+  if (a >= 1)     return n.toFixed(4);
+  if (a >= 0.01)  return n.toFixed(4);
+  return n.toFixed(6);
+};
+const fmtVol = n => {
+  if (!n) return '—';
+  if (n >= 1e12) return '$'+(n/1e12).toFixed(2)+'T';
+  if (n >= 1e9)  return '$'+(n/1e9).toFixed(2)+'B';
+  if (n >= 1e6)  return '$'+(n/1e6).toFixed(2)+'M';
+  return '$'+n.toLocaleString();
+};
+const pct = (n, dp=2) => isNaN(n) ? '—' : (n>=0?'+':'')+Number(n).toFixed(dp)+'%';
+
+// ── Sparkline ────────────────────────────────────────────────
+function sparkline(ptsOrUp) {
+  let pts;
+  if (Array.isArray(ptsOrUp) && ptsOrUp.length > 1) {
+    const f = ptsOrUp.filter(Boolean);
+    const min = Math.min(...f), max = Math.max(...f), rng = max-min||1;
+    const sam = f.length > 8
+      ? Array.from({length:8}, (_,i) => f[Math.round(i*(f.length-1)/7)])
+      : f;
+    pts = sam.map(v => ((v-min)/rng)*80+10);
+  } else {
+    const up = ptsOrUp !== false;
+    let v=50; pts=[];
+    for (let i=0;i<8;i++) { v=Math.max(10,Math.min(90,v+(Math.random()-(up?.35:.65))*12)); pts.push(v); }
   }
+  const w=72, h=32;
+  const c = pts.map((p,i) => `${(i/7)*w},${h-p*h/100}`).join(' ');
+  const up = pts.at(-1)>=pts[0];
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}"><polyline class="${up?'spark-up':'spark-down'}" points="${c}"/></svg>`;
+}
 
-  /* ============================================================
-     ROW BUILDERS
-  ============================================================ */
-  function chgBadge(chgp) {
-    const up = !chgp.startsWith('-');
-    const arrow = up
-      ? `<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>`
-      : `<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>`;
-    return `<span class="chg-badge ${up ? 'up' : 'down'}">${arrow}${chgp}</span>`;
-  }
+// ── Badges ───────────────────────────────────────────────────
+function chgBadge(chgp) {
+  const s=String(chgp), up=!s.startsWith('-');
+  const arrow = up
+    ? '<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>'
+    : '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
+  return `<span class="chg-badge ${up?'up':'down'}">${arrow}${s}</span>`;
+}
+function sentBadge(chgpRaw) {
+  const v=parseFloat(chgpRaw);
+  if (isNaN(v)) return '<span class="sentiment sentiment--neut">Neutral</span>';
+  const [cls,lbl] = v>0.5?['sentiment--bull','Bullish']:v<-0.5?['sentiment--bear','Bearish']:['sentiment--neut','Neutral'];
+  return `<span class="sentiment ${cls}">${lbl}</span>`;
+}
+function tradeBtn(sym) { return `<button class="row-trade-btn" onclick="goTrade()">Trade</button>`; }
+function goTrade() { window.location.href='trade.html'; }
 
-  function sentBadge(s) {
-    const map = { bull: ['sentiment--bull','Bullish'], bear: ['sentiment--bear','Bearish'], neut: ['sentiment--neut','Neutral'] };
-    const [cls, label] = map[s] || map.neut;
-    return `<span class="sentiment ${cls}">${label}</span>`;
-  }
+// ── Skeleton rows while loading ──────────────────────────────
+function skeleton(id, cols) {
+  document.getElementById(id).innerHTML = Array(5).fill(
+    `<tr class="mkt-row">${Array(cols).fill('<td><div style="height:11px;border-radius:4px;background:var(--border);width:75%;"></div></td>').join('')}</tr>`
+  ).join('');
+}
 
-  function tradeBtn(sym) {
-    return `<button class="row-trade-btn" onclick="goTrade('${sym}')">Trade</button>`;
-  }
+// ── Safe fetch with timeout ──────────────────────────────────
+async function safeFetch(url) {
+  try {
+    const r = await fetch(url, { signal: AbortSignal.timeout(12000) });
+    return r.ok ? r.json() : null;
+  } catch { return null; }
+}
 
-  function goTrade(sym) { window.location.href = 'trade.html'; }
+// ── Yahoo Finance single-symbol chart ────────────────────────
+async function yahooChart(sym) {
+  const d = await safeFetch(
+    `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?interval=1d&range=7d`
+  );
+  const res = d?.chart?.result?.[0];
+  if (!res) return null;
+  const m = res.meta;
+  const closes = (res.indicators?.quote?.[0]?.close||[]).filter(Boolean);
+  const price = m.regularMarketPrice ?? closes.at(-1);
+  if (!price) return null;
+  const prev  = m.regularMarketPreviousClose ?? closes.at(-2) ?? price;
+  const chg   = price - prev;
+  const chgp  = prev ? (chg/prev)*100 : 0;
+  return { price, chg, chgp,
+    high: m.regularMarketDayHigh ?? price,
+    low:  m.regularMarketDayLow  ?? price,
+    open: m.regularMarketOpen    ?? price,
+    vol:  m.regularMarketVolume  ?? 0,
+    closes };
+}
 
-  /* ============================================================
-     RENDER TABLES
-  ============================================================ */
-  function renderForex() {
-    const tbody = document.getElementById('tbody-forex');
-    tbody.innerHTML = DATA.forex.map(r => {
-      const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
-        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">${r.bid}</td>
-        <td class="mkt-price">${r.ask}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td>${r.high}</td><td>${r.low}</td>
-        <td><span style="font-size:12px;color:var(--muted);">${r.spread}</span></td>
-        <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
-        <td>${tradeBtn(r.sym)}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  function renderCrypto() {
-    const tbody = document.getElementById('tbody-crypto');
-    tbody.innerHTML = DATA.crypto.map(r => {
-      const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
-        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">$${r.price}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td style="color:var(--green);font-weight:600;">$${r.high}</td>
-        <td style="color:var(--red);font-weight:600;">$${r.low}</td>
-        <td style="font-size:12px;">${r.mcap}</td>
-        <td style="font-size:12px;">${r.vol}</td>
-        <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
-        <td>${tradeBtn(r.sym)}</td>
-      </tr>`;
-    }).join('');
-
-    // Heatmap
-    const hm = document.getElementById('heatmap-crypto');
-    hm.innerHTML = DATA.crypto.map(r => {
-      const up = !r.chgp.startsWith('-');
-      const intensity = Math.min(Math.abs(parseFloat(r.chgp)) / 5, 1);
-      const bg = up
-        ? `rgba(34,160,107,${0.4 + intensity * 0.5})`
-        : `rgba(230,0,35,${0.4 + intensity * 0.5})`;
-      return `<div class="heat-cell" style="background:${bg};" title="${r.name}">
-        <div class="heat-cell__sym">${r.sym.split('/')[0]}</div>
-        <div class="heat-cell__chg">${r.chgp}</div>
-      </div>`;
-    }).join('');
-  }
-
-  function renderStocks() {
-    const tbody = document.getElementById('tbody-stocks');
-    tbody.innerHTML = DATA.stocks.map(r => {
-      const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
-        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">$${r.price}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td>$${r.open}</td>
-        <td style="color:var(--green);">$${r.high}</td>
-        <td style="color:var(--red);">$${r.low}</td>
-        <td style="font-size:12px;">${r.vol}</td>
-        <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
-        <td>${tradeBtn(r.sym)}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  function renderIndices() {
-    const tbody = document.getElementById('tbody-indices');
-    tbody.innerHTML = DATA.indices.map(r => {
-      const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
-        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">${r.price}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td style="color:var(--green);">${r.high}</td>
-        <td style="color:var(--red);">${r.low}</td>
-        <td><span style="font-size:12px;color:var(--muted);">${r.region}</span></td>
-        <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
-        <td>${tradeBtn(r.sym)}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  function renderMetals() {
-    const tbody = document.getElementById('tbody-metals');
-    tbody.innerHTML = DATA.metals.map(r => {
-      const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
-        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">${r.bid}</td>
-        <td class="mkt-price">${r.ask}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td style="color:var(--green);">${r.high}</td>
-        <td style="color:var(--red);">${r.low}</td>
-        <td style="font-size:12px;color:var(--muted);">${r.unit}</td>
-        <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
-        <td>${tradeBtn(r.sym)}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  function renderEnergy() {
-    const tbody = document.getElementById('tbody-energy');
-    tbody.innerHTML = DATA.energy.map(r => {
-      const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
-        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">$${r.bid}</td>
-        <td class="mkt-price">$${r.ask}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td style="color:var(--green);">$${r.high}</td>
-        <td style="color:var(--red);">$${r.low}</td>
-        <td style="font-size:12px;color:var(--muted);">${r.unit}</td>
-        <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
-        <td>${tradeBtn(r.sym)}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  function renderETFs() {
-    const tbody = document.getElementById('tbody-etfs');
-    tbody.innerHTML = DATA.etfs.map(r => {
-      const up = !r.chg.startsWith('-');
-      return `<tr class="mkt-row">
-        <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
-        <td class="mkt-price">$${r.price}</td>
-        <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
-        <td>${chgBadge(r.chgp)}</td>
-        <td style="font-size:12px;">${r.aum}</td>
-        <td style="font-size:12px;">${r.exp}</td>
-        <td style="font-size:12px;">${r.vol}</td>
-        <td>${sparkline(up)}</td>
-        <td>${sentBadge(r.sent)}</td>
-        <td>${tradeBtn(r.sym)}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  /* ============================================================
-     OVERVIEW STATS
-  ============================================================ */
-  function renderStats() {
-    const stats = [
-      { label:'S&P 500',     value:'5,254', change:'+0.48%', up:true  },
-      { label:'Nasdaq 100',  value:'18,241',change:'+0.72%', up:true  },
-      { label:'Gold',        value:'$2,341',change:'+0.87%', up:true  },
-      { label:'BTC/USD',     value:'$78,450',change:'+2.14%',up:true  },
-      { label:'EUR/USD',     value:'1.0843', change:'+0.21%',up:true  },
-      { label:'WTI Crude',   value:'$82.34', change:'-0.55%',up:false },
-      { label:'Fear & Greed',value:'68 â€” Greed', change:'',  up:true  },
-      { label:'VIX',         value:'14.82', change:'-1.24%', up:false },
-    ];
-    document.getElementById('overview-stats').innerHTML = stats.map(s => `
-      <div class="stat-card">
-        <div class="stat-card__label">${s.label}</div>
-        <div class="stat-card__value">${s.value}</div>
-        ${s.change ? `<div class="stat-card__change ${s.up?'up':'down'}">${s.up?'â–²':'â–¼'} ${s.change}</div>` : ''}
-      </div>`).join('');
-  }
-
-  /* ============================================================
-     MINI CHARTS (TradingView)
-  ============================================================ */
-  const MINI_SYMS = [
-    { sym:'FX:EURUSD',        label:'EUR/USD',  price:'1.08432', up:true  },
-    { sym:'BITSTAMP:BTCUSD',  label:'BTC/USD',  price:'78,450',  up:true  },
-    { sym:'FOREXCOM:XAUUSD',  label:'Gold',     price:'2,341.5', up:true  },
-    { sym:'FOREXCOM:SPXUSD',  label:'S&P 500',  price:'5,254',   up:true  },
-    { sym:'NYMEX:CL1!',       label:'WTI Oil',  price:'82.34',   up:false },
-    { sym:'NASDAQ:NVDA',      label:'NVIDIA',   price:'875.40',  up:true  },
-  ];
-
-  function renderMiniCharts() {
-    const wrap = document.getElementById('mini-charts');
-    MINI_SYMS.forEach((m, i) => {
-      const card = document.createElement('div');
-      card.className = 'mini-chart-card';
-      card.innerHTML = `
-        <div class="mini-chart-card__head">
-          <span class="mini-chart-card__sym">${m.label}</span>
-          <span class="mini-chart-card__price" style="color:${m.up?'var(--green)':'var(--red)'};">${m.price}</span>
-        </div>
-        <div id="mini-${i}" style="height:140px;"></div>`;
-      wrap.appendChild(card);
-
-      // Load TradingView mini chart
-      new TradingView.MiniWidget({
-        container_id: `mini-${i}`,
-        symbol: m.sym,
-        width: '100%',
-        height: 140,
-        locale: 'en',
-        dateRange: '1M',
-        colorTheme: document.body.classList.contains('dark') ? 'dark' : 'light',
-        trendLineColor: m.up ? 'rgba(34,160,107,1)' : 'rgba(230,0,35,1)',
-        underLineColor: m.up ? 'rgba(34,160,107,0.1)' : 'rgba(230,0,35,0.1)',
-        isTransparent: true,
-        autosize: true,
-        largeChartUrl: 'trade.html',
-      });
-    });
-  }
-
-  /* ============================================================
-     FILTER
-  ============================================================ */
-  function filterSection(section, tag, btn) {
-    btn.closest('.section-head__right').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const rows = document.querySelectorAll(`#tbody-${section} tr`);
-    rows.forEach(row => {
-      if (tag === 'all') { row.style.display = ''; return; }
-      // Simple filter: re-render with filtered data
-    });
-  }
-
-  /* ============================================================
-     SEARCH
-  ============================================================ */
-  function searchMarkets() {
-    const q = document.getElementById('global-search').value.toLowerCase();
-    document.querySelectorAll('.mkt-row').forEach(row => {
-      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-    });
-    document.querySelectorAll('.mkt-section').forEach(sec => {
-      const vis = [...sec.querySelectorAll('.mkt-row')].some(r => r.style.display !== 'none');
-      sec.style.display = q && !vis ? 'none' : '';
-    });
-  }
-
-  /* ============================================================
-     REFRESH
-  ============================================================ */
-  function refreshPrices() {
-    const btn = document.querySelector('[onclick="refreshPrices()"]');
-    btn.textContent = 'Refreshingâ€¦';
-    btn.disabled = true;
-    setTimeout(() => {
-      renderAll();
-      btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Refresh`;
-      btn.disabled = false;
-      document.getElementById('last-updated').textContent = 'Live prices Â· Updated just now';
-    }, 800);
-  }
-
-  function renderAll() {
-    renderStats();
-    renderForex();
-    renderCrypto();
-    renderStocks();
-    renderIndices();
-    renderMetals();
-    renderEnergy();
-    renderETFs();
-  }
-
-  /* ============================================================
-     DARK MODE
-  ============================================================ */
-  const sunIcon  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
-  const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
-  function toggleDark() {
-    const isDark = document.body.classList.toggle('dark');
-    document.getElementById('dark-icon').innerHTML = isDark ? sunIcon : moonIcon;
-    localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
-  }
-  if (localStorage.getItem('xantex-theme') === 'dark') {
-    document.body.classList.add('dark');
-    document.getElementById('dark-icon').innerHTML = sunIcon;
-  }
-
-  /* ============================================================
-     SIDEBAR
-  ============================================================ */
-  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-  document.addEventListener('click', e => {
-    const sb = document.getElementById('sidebar');
-    const hb = document.getElementById('hamburger');
-    if (sb.classList.contains('open') && !sb.contains(e.target) && !hb.contains(e.target)) {
-      sb.classList.remove('open');
-    }
+// ── CRYPTO — CoinGecko (free, no key, reliable) ───────────────
+const CRYPTO_META = {
+  bitcoin:     {sym:'BTC/USD', icon:'₿',  tag:'top5'},
+  ethereum:    {sym:'ETH/USD', icon:'Ξ',  tag:'top5'},
+  solana:      {sym:'SOL/USD', icon:'◎',  tag:'top5'},
+  ripple:      {sym:'XRP/USD', icon:'✕',  tag:'top5'},
+  binancecoin: {sym:'BNB/USD', icon:'🔶', tag:'top5'},
+  cardano:     {sym:'ADA/USD', icon:'🔵', tag:'defi'},
+  polkadot:    {sym:'DOT/USD', icon:'⚫', tag:'defi'},
+  dogecoin:    {sym:'DOGE/USD',icon:'🐕', tag:'top5'},
+  'avalanche-2':{sym:'AVAX/USD',icon:'🔷',tag:'defi'},
+  chainlink:   {sym:'LINK/USD',icon:'🌐', tag:'defi'},
+};
+async function fetchCrypto() {
+  const ids = Object.keys(CRYPTO_META).join(',');
+  const d = await safeFetch(
+    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&sparkline=true&price_change_percentage=24h`
+  );
+  if (!Array.isArray(d)) return;
+  DATA.crypto = d.map(c => {
+    const m = CRYPTO_META[c.id]||{};
+    const chg=c.price_change_24h??0, chgp=c.price_change_percentage_24h??0;
+    return {
+      icon:m.icon||'🔷', sym:m.sym||c.symbol.toUpperCase()+'/USD', name:c.name,
+      price:fmtPrice(c.current_price),
+      chg:(chg>=0?'+':'')+fmtPrice(Math.abs(chg)), chgRaw:chg,
+      chgp:pct(chgp), chgpRaw:chgp,
+      high:fmtPrice(c.high_24h), low:fmtPrice(c.low_24h),
+      mcap:fmtVol(c.market_cap), vol:fmtVol(c.total_volume),
+      tag:m.tag||'top5', spark:c.sparkline_in_7d?.price||null,
+    };
   });
+  renderCrypto();
+}
 
-  /* ============================================================
-     INIT
-  ============================================================ */
-  renderAll();
+// ── FOREX + METALS — open.er-api.com (ECB/market rates) ──────
+function lastWeekday() {
+  const d=new Date(); d.setDate(d.getDate()-1);
+  while(d.getDay()===0||d.getDay()===6) d.setDate(d.getDate()-1);
+  return d.toISOString().slice(0,10);
+}
+const FOREX_PAIRS = [
+  {sym:'EUR/USD',name:'Euro / US Dollar',         icon:'💱',tag:'major',base:'EUR',quote:'USD'},
+  {sym:'GBP/USD',name:'British Pound / US Dollar',icon:'💷',tag:'major',base:'GBP',quote:'USD'},
+  {sym:'USD/JPY',name:'US Dollar / Japanese Yen', icon:'💴',tag:'major',base:'USD',quote:'JPY'},
+  {sym:'USD/CAD',name:'US Dollar / Canadian Dollar',icon:'🍁',tag:'major',base:'USD',quote:'CAD'},
+  {sym:'USD/CHF',name:'US Dollar / Swiss Franc',  icon:'🇨🇭',tag:'major',base:'USD',quote:'CHF'},
+  {sym:'AUD/USD',name:'Australian / US Dollar',   icon:'🦘',tag:'major',base:'AUD',quote:'USD'},
+  {sym:'NZD/USD',name:'New Zealand / US Dollar',  icon:'🥝',tag:'minor',base:'NZD',quote:'USD'},
+  {sym:'EUR/GBP',name:'Euro / British Pound',     icon:'💶',tag:'minor',base:'EUR',quote:'GBP'},
+  {sym:'EUR/JPY',name:'Euro / Japanese Yen',      icon:'💹',tag:'minor',base:'EUR',quote:'JPY'},
+  {sym:'GBP/JPY',name:'British Pound / Yen',      icon:'💸',tag:'minor',base:'GBP',quote:'JPY'},
+];
+function calcPair(base, quote, rates) {
+  const baseUsd = base==='USD' ? 1 : 1/rates[base];
+  return baseUsd * (rates[quote]||1);
+}
+async function fetchForexMetals() {
+  const [today, prev] = await Promise.all([
+    safeFetch('https://open.er-api.com/v6/latest/USD'),
+    safeFetch(`https://open.er-api.com/v6/${lastWeekday()}/USD`),
+  ]);
+  const rt=today?.rates, rp=prev?.rates;
+  if (!rt) return;
+  DATA.forex = FOREX_PAIRS.map(p => {
+    const mid=calcPair(p.base,p.quote,rt);
+    const midP=rp?calcPair(p.base,p.quote,rp):mid;
+    const chg=mid-midP, chgp=midP?(chg/midP)*100:0;
+    const isJpy=p.quote==='JPY', dp=isJpy?3:5, sp=isJpy?.02:.00012;
+    return {
+      icon:p.icon, sym:p.sym, name:p.name,
+      bid:mid.toFixed(dp), ask:(mid+sp).toFixed(dp),
+      chg:(chg>=0?'+':'')+chg.toFixed(dp), chgRaw:chg,
+      chgp:pct(chgp), chgpRaw:chgp,
+      high:(mid*1.003).toFixed(dp), low:(mid*0.997).toFixed(dp),
+      spread:(sp*(isJpy?100:10000)).toFixed(1), tag:p.tag,
+    };
+  });
+  renderForex();
 
-  // Load TradingView library then mini charts
-  const tvScript = document.createElement('script');
-  tvScript.src = 'https://s3.tradingview.com/tv.js';
-  tvScript.onload = renderMiniCharts;
-  document.head.appendChild(tvScript);
+  // Metals from ECB forex rates + Yahoo Finance for platinum/palladium/copper
+  const metals=[];
+  if (rt.XAU) {
+    const g=1/rt.XAU, gP=rp?.XAU?1/rp.XAU:g, chg=g-gP, chgp=gP?(chg/gP)*100:0;
+    metals.push({icon:'🥇',sym:'XAU/USD',name:'Gold',bid:g.toFixed(2),ask:(g+.50).toFixed(2),chg:(chg>=0?'+':'')+chg.toFixed(2),chgRaw:chg,chgp:pct(chgp),chgpRaw:chgp,high:(g*1.004).toFixed(2),low:(g*.996).toFixed(2),unit:'Troy oz'});
+  }
+  if (rt.XAG) {
+    const s=1/rt.XAG, sP=rp?.XAG?1/rp.XAG:s, chg=s-sP, chgp=sP?(chg/sP)*100:0;
+    metals.push({icon:'🥈',sym:'XAG/USD',name:'Silver',bid:s.toFixed(3),ask:(s+.01).toFixed(3),chg:(chg>=0?'+':'')+chg.toFixed(3),chgRaw:chg,chgp:pct(chgp),chgpRaw:chgp,high:(s*1.005).toFixed(3),low:(s*.995).toFixed(3),unit:'Troy oz'});
+  }
+  const [plt,pld,cop] = await Promise.allSettled([yahooChart('PL=F'),yahooChart('PA=F'),yahooChart('HG=F')]);
+  const addMetal=(res,icon,sym,name,unit,dp=2)=>{
+    const v=res.status==='fulfilled'&&res.value;
+    if(!v)return;
+    metals.push({icon,sym,name,bid:'$'+v.price.toFixed(dp),ask:'$'+(v.price+.2).toFixed(dp),chg:(v.chg>=0?'+':'')+v.chg.toFixed(dp),chgRaw:v.chg,chgp:pct(v.chgp),chgpRaw:v.chgp,high:'$'+v.high.toFixed(dp),low:'$'+v.low.toFixed(dp),unit,closes:v.closes});
+  };
+  addMetal(plt,'⬜','XPT/USD','Platinum','Troy oz');
+  addMetal(pld,'🔩','XPD/USD','Palladium','Troy oz');
+  addMetal(cop,'🟤','HG/USD','Copper','Lbs',4);
+  DATA.metals=metals;
+  renderMetals();
+}
 
-  // Live clock
-  setInterval(() => {
-    const now = new Date();
-    document.getElementById('last-updated').textContent =
-      `Live prices Â· ${now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' })}`;
-  }, 1000);
+// ── STOCKS — Yahoo Finance chart API ────────────────────────
+const STOCK_LIST = [
+  {sym:'AAPL', name:'Apple Inc.',       icon:'🍎',tag:'us'},
+  {sym:'MSFT', name:'Microsoft Corp.',  icon:'🪟',tag:'us'},
+  {sym:'GOOGL',name:'Alphabet Inc.',    icon:'🔍',tag:'us'},
+  {sym:'AMZN', name:'Amazon.com Inc.',  icon:'📦',tag:'us'},
+  {sym:'TSLA', name:'Tesla Inc.',       icon:'⚡',tag:'us'},
+  {sym:'NVDA', name:'NVIDIA Corp.',     icon:'🎮',tag:'us'},
+  {sym:'META', name:'Meta Platforms',   icon:'👓',tag:'us'},
+  {sym:'JPM',  name:'JPMorgan Chase',   icon:'🏦',tag:'us'},
+  {sym:'V',    name:'Visa Inc.',        icon:'💳',tag:'us'},
+  {sym:'WMT',  name:'Walmart Inc.',     icon:'🛒',tag:'us'},
+];
+async function fetchStocks() {
+  const results = await Promise.allSettled(STOCK_LIST.map(s=>yahooChart(s.sym)));
+  DATA.stocks = STOCK_LIST.map((s,i)=>{
+    const v=results[i].status==='fulfilled'?results[i].value:null;
+    if(!v)return null;
+    return {icon:s.icon,sym:s.sym,name:s.name,tag:s.tag,
+      price:'$'+v.price.toFixed(2),chg:(v.chg>=0?'+':'')+v.chg.toFixed(2),chgRaw:v.chg,
+      chgp:pct(v.chgp),chgpRaw:v.chgp,
+      open:'$'+v.open.toFixed(2),high:'$'+v.high.toFixed(2),low:'$'+v.low.toFixed(2),
+      vol:fmtVol(v.vol).replace('$',''),closes:v.closes};
+  }).filter(Boolean);
+  renderStocks();
+}
+
+// ── INDICES — Yahoo Finance ──────────────────────────────────
+const INDEX_LIST = [
+  {sym:'^DJI',  name:'Dow Jones',        icon:'🗽',tag:'us',  region:'Americas'},
+  {sym:'^GSPC', name:'S&P 500',          icon:'🦅',tag:'us',  region:'Americas'},
+  {sym:'^IXIC', name:'NASDAQ Composite', icon:'💻',tag:'us',  region:'Americas'},
+  {sym:'^FTSE', name:'FTSE 100',         icon:'🎡',tag:'eu',  region:'Europe'  },
+  {sym:'^GDAXI',name:'DAX 40',           icon:'🏰',tag:'eu',  region:'Europe'  },
+  {sym:'^FCHI', name:'CAC 40',           icon:'🗼',tag:'eu',  region:'Europe'  },
+  {sym:'^AEX',  name:'AEX 25',           icon:'🌷',tag:'eu',  region:'Europe'  },
+  {sym:'^N225', name:'Nikkei 225',       icon:'🗾',tag:'asia',region:'Asia'    },
+  {sym:'^AXJO', name:'ASX 200',          icon:'🦘',tag:'asia',region:'Asia'    },
+  {sym:'^HSI',  name:'Hang Seng',        icon:'🐉',tag:'asia',region:'Asia'    },
+];
+async function fetchIndices() {
+  const results = await Promise.allSettled(INDEX_LIST.map(s=>yahooChart(s.sym)));
+  DATA.indices = INDEX_LIST.map((s,i)=>{
+    const v=results[i].status==='fulfilled'?results[i].value:null;
+    if(!v)return null;
+    const dp=v.price>=1000?0:2;
+    const fmt=n=>n.toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});
+    return {icon:s.icon,sym:s.sym.replace('^',''),name:s.name,tag:s.tag,region:s.region,
+      price:fmt(v.price),chg:(v.chg>=0?'+':'')+v.chg.toFixed(dp),chgRaw:v.chg,
+      chgp:pct(v.chgp),chgpRaw:v.chgp,high:fmt(v.high),low:fmt(v.low),closes:v.closes};
+  }).filter(Boolean);
+  renderIndices();
+}
+
+// ── ETFs — Yahoo Finance ─────────────────────────────────────
+const ETF_META = {
+  SPY: {name:'SPDR S&P 500 ETF',      icon:'📊',aum:'$544B',exp:'0.09%'},
+  QQQ: {name:'Invesco QQQ Trust',      icon:'💡',aum:'$221B',exp:'0.20%'},
+  GLD: {name:'SPDR Gold Shares',       icon:'🟡',aum:'$66B', exp:'0.40%'},
+  SLV: {name:'iShares Silver Trust',   icon:'⚪',aum:'$12B', exp:'0.50%'},
+  VTI: {name:'Vanguard Total Market',  icon:'🌎',aum:'$432B',exp:'0.03%'},
+  XLE: {name:'Energy Select SPDR',     icon:'⚡',aum:'$38B', exp:'0.09%'},
+  ARKK:{name:'ARK Innovation ETF',     icon:'🚀',aum:'$7B',  exp:'0.75%'},
+  XLK: {name:'Technology Select SPDR', icon:'📱',aum:'$64B', exp:'0.09%'},
+};
+async function fetchETFs() {
+  const syms=Object.keys(ETF_META);
+  const results=await Promise.allSettled(syms.map(s=>yahooChart(s)));
+  DATA.etfs=syms.map((sym,i)=>{
+    const v=results[i].status==='fulfilled'?results[i].value:null;
+    const m=ETF_META[sym];
+    if(!v)return null;
+    return {icon:m.icon,sym,name:m.name,aum:m.aum,exp:m.exp,
+      price:'$'+v.price.toFixed(2),chg:(v.chg>=0?'+':'')+v.chg.toFixed(2),chgRaw:v.chg,
+      chgp:pct(v.chgp),chgpRaw:v.chgp,vol:fmtVol(v.vol).replace('$',''),closes:v.closes};
+  }).filter(Boolean);
+  renderETFs();
+}
+
+// ── ENERGY — Yahoo Finance ───────────────────────────────────
+const ENERGY_LIST = [
+  {sym:'CL=F',name:'Crude Oil WTI', icon:'🛢️',unit:'Barrel'},
+  {sym:'BZ=F',name:'Brent Crude',   icon:'⚫',unit:'Barrel'},
+  {sym:'NG=F',name:'Natural Gas',   icon:'🔥',unit:'MMBtu' },
+  {sym:'RB=F',name:'Gasoline RBOB', icon:'⛽',unit:'Gallon'},
+  {sym:'HO=F',name:'Heating Oil',   icon:'🌡️',unit:'Gallon'},
+];
+async function fetchEnergy() {
+  const results=await Promise.allSettled(ENERGY_LIST.map(s=>yahooChart(s.sym)));
+  DATA.energy=ENERGY_LIST.map((s,i)=>{
+    const v=results[i].status==='fulfilled'?results[i].value:null;
+    if(!v)return null;
+    return {icon:s.icon,sym:s.sym,name:s.name,unit:s.unit,
+      bid:'$'+v.price.toFixed(3),ask:'$'+(v.price+.005).toFixed(3),
+      chg:(v.chg>=0?'+':'')+v.chg.toFixed(3),chgRaw:v.chg,
+      chgp:pct(v.chgp),chgpRaw:v.chgp,
+      high:'$'+v.high.toFixed(3),low:'$'+v.low.toFixed(3),closes:v.closes};
+  }).filter(Boolean);
+  renderEnergy();
+}
+
+// ── RENDER ───────────────────────────────────────────────────
+const noData = (id,cols,msg) => document.getElementById(id).innerHTML =
+  `<tr><td colspan="${cols}" style="text-align:center;padding:24px;color:var(--muted);">${msg}</td></tr>`;
+
+function renderForex() {
+  const tb=document.getElementById('tbody-forex');
+  if(!DATA.forex.length){noData('tbody-forex',11,'Forex data unavailable');return;}
+  tb.innerHTML=DATA.forex.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row" data-tag="${r.tag}">
+    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+    <td class="mkt-price">${r.bid}</td><td class="mkt-price">${r.ask}</td>
+    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+    <td>${chgBadge(r.chgp)}</td><td>${r.high}</td><td>${r.low}</td>
+    <td><span style="font-size:12px;color:var(--muted);">${r.spread}</span></td>
+    <td>${sparkline(up)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
+  </tr>`;}).join('');
+}
+
+function renderCrypto() {
+  const tb=document.getElementById('tbody-crypto');
+  if(!DATA.crypto.length){noData('tbody-crypto',10,'Crypto data unavailable');return;}
+  tb.innerHTML=DATA.crypto.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row" data-tag="${r.tag}">
+    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+    <td class="mkt-price">$${r.price}</td><td>${chgBadge(r.chgp)}</td>
+    <td style="color:var(--green);font-weight:600;">$${r.high}</td>
+    <td style="color:var(--red);font-weight:600;">$${r.low}</td>
+    <td style="font-size:12px;">${r.mcap}</td><td style="font-size:12px;">${r.vol}</td>
+    <td>${sparkline(r.spark)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
+  </tr>`;}).join('');
+  document.getElementById('heatmap-crypto').innerHTML=DATA.crypto.map(r=>{
+    const up=r.chgRaw>=0, intensity=Math.min(Math.abs(r.chgpRaw)/5,1);
+    const bg=up?`rgba(34,160,107,${.4+intensity*.5})`:`rgba(230,0,35,${.4+intensity*.5})`;
+    return`<div class="heat-cell" style="background:${bg}" title="${r.name}">
+      <div class="heat-cell__sym">${r.sym.split('/')[0]}</div>
+      <div class="heat-cell__chg">${r.chgp}</div></div>`;
+  }).join('');
+}
+
+function renderStocks() {
+  const tb=document.getElementById('tbody-stocks');
+  if(!DATA.stocks.length){noData('tbody-stocks',11,'Stock data unavailable — markets may be closed');return;}
+  tb.innerHTML=DATA.stocks.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row" data-tag="${r.tag}">
+    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+    <td class="mkt-price">${r.price}</td>
+    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+    <td>${chgBadge(r.chgp)}</td><td>${r.open}</td>
+    <td style="color:var(--green);">${r.high}</td><td style="color:var(--red);">${r.low}</td>
+    <td style="font-size:12px;">${r.vol}</td>
+    <td>${sparkline(r.closes)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
+  </tr>`;}).join('');
+}
+
+function renderIndices() {
+  const tb=document.getElementById('tbody-indices');
+  if(!DATA.indices.length){noData('tbody-indices',10,'Index data unavailable — markets may be closed');return;}
+  tb.innerHTML=DATA.indices.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row" data-tag="${r.tag}">
+    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+    <td class="mkt-price">${r.price}</td>
+    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+    <td>${chgBadge(r.chgp)}</td><td>${r.high}</td><td>${r.low}</td>
+    <td><span style="font-size:12px;color:var(--muted);">${r.region}</span></td>
+    <td>${sparkline(r.closes)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
+  </tr>`;}).join('');
+}
+
+function renderMetals() {
+  const tb=document.getElementById('tbody-metals');
+  if(!DATA.metals.length){noData('tbody-metals',11,'Metals data unavailable');return;}
+  tb.innerHTML=DATA.metals.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row">
+    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+    <td class="mkt-price">${r.bid}</td><td class="mkt-price">${r.ask}</td>
+    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+    <td>${chgBadge(r.chgp)}</td>
+    <td style="color:var(--green);">${r.high}</td><td style="color:var(--red);">${r.low}</td>
+    <td style="font-size:12px;color:var(--muted);">${r.unit}</td>
+    <td>${sparkline(r.closes||up)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
+  </tr>`;}).join('');
+}
+
+function renderEnergy() {
+  const tb=document.getElementById('tbody-energy');
+  if(!DATA.energy.length){noData('tbody-energy',11,'Energy data unavailable — markets may be closed');return;}
+  tb.innerHTML=DATA.energy.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row">
+    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+    <td class="mkt-price">${r.bid}</td><td class="mkt-price">${r.ask}</td>
+    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+    <td>${chgBadge(r.chgp)}</td>
+    <td style="color:var(--green);">${r.high}</td><td style="color:var(--red);">${r.low}</td>
+    <td style="font-size:12px;color:var(--muted);">${r.unit}</td>
+    <td>${sparkline(r.closes)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
+  </tr>`;}).join('');
+}
+
+function renderETFs() {
+  const tb=document.getElementById('tbody-etfs');
+  if(!DATA.etfs.length){noData('tbody-etfs',10,'ETF data unavailable — markets may be closed');return;}
+  tb.innerHTML=DATA.etfs.map(r=>{const up=r.chgRaw>=0;return`<tr class="mkt-row">
+    <td><div class="mkt-name"><span class="mkt-icon">${r.icon}</span><div><div class="mkt-sym">${r.sym}</div><div class="mkt-full">${r.name}</div></div></div></td>
+    <td class="mkt-price">${r.price}</td>
+    <td style="color:${up?'var(--green)':'var(--red)'};font-weight:600;">${r.chg}</td>
+    <td>${chgBadge(r.chgp)}</td>
+    <td style="font-size:12px;">${r.aum}</td><td style="font-size:12px;">${r.exp}</td>
+    <td style="font-size:12px;">${r.vol}</td>
+    <td>${sparkline(r.closes)}</td><td>${sentBadge(r.chgpRaw)}</td><td>${tradeBtn(r.sym)}</td>
+  </tr>`;}).join('');
+}
+
+// ── OVERVIEW STATS ────────────────────────────────────────────
+function renderStats() {
+  const g=(cat,sym,f)=>DATA[cat].find(d=>d.sym===sym)?.[f]??'—';
+  const chgUp=(cat,sym)=>(DATA[cat].find(d=>d.sym===sym)?.chgRaw??0)>=0;
+  const stats=[
+    {label:'S&P 500',  value:g('indices','GSPC','price'), change:g('indices','GSPC','chgp'), up:chgUp('indices','GSPC')},
+    {label:'NASDAQ',   value:g('indices','IXIC','price'), change:g('indices','IXIC','chgp'), up:chgUp('indices','IXIC')},
+    {label:'Gold',     value:'$'+g('metals','XAU/USD','bid'), change:g('metals','XAU/USD','chgp'), up:chgUp('metals','XAU/USD')},
+    {label:'BTC/USD',  value:'$'+g('crypto','BTC/USD','price'), change:g('crypto','BTC/USD','chgp'), up:chgUp('crypto','BTC/USD')},
+    {label:'EUR/USD',  value:g('forex','EUR/USD','bid'), change:g('forex','EUR/USD','chgp'), up:chgUp('forex','EUR/USD')},
+    {label:'WTI Crude',value:g('energy','CL=F','bid'), change:g('energy','CL=F','chgp'), up:chgUp('energy','CL=F')},
+    {label:'Dow Jones',value:g('indices','DJI','price'), change:g('indices','DJI','chgp'), up:chgUp('indices','DJI')},
+    {label:'Silver',   value:'$'+g('metals','XAG/USD','bid'), change:g('metals','XAG/USD','chgp'), up:chgUp('metals','XAG/USD')},
+  ];
+  document.getElementById('overview-stats').innerHTML=stats.map(s=>`
+    <div class="stat-card">
+      <div class="stat-card__label">${s.label}</div>
+      <div class="stat-card__value">${s.value}</div>
+      ${s.change&&s.change!=='—'?`<div class="stat-card__change ${s.up?'up':'down'}">${s.up?'▲':'▼'} ${s.change}</div>`:''}
+    </div>`).join('');
+}
+
+// ── MINI CHARTS (TradingView) ─────────────────────────────────
+const MINI_SYMS=[
+  {sym:'FX:EURUSD',       label:'EUR/USD'},
+  {sym:'BITSTAMP:BTCUSD', label:'BTC/USD'},
+  {sym:'FOREXCOM:XAUUSD', label:'Gold'   },
+  {sym:'FOREXCOM:SPXUSD', label:'S&P 500'},
+  {sym:'NYMEX:CL1!',      label:'WTI Oil'},
+  {sym:'NASDAQ:NVDA',     label:'NVIDIA' },
+];
+function renderMiniCharts() {
+  const wrap=document.getElementById('mini-charts');
+  wrap.innerHTML='';
+  MINI_SYMS.forEach((m,i)=>{
+    const card=document.createElement('div');
+    card.className='mini-chart-card';
+    card.innerHTML=`<div class="mini-chart-card__head"><span class="mini-chart-card__sym">${m.label}</span></div><div id="mini-${i}" style="height:140px;"></div>`;
+    wrap.appendChild(card);
+    new TradingView.MiniWidget({container_id:`mini-${i}`,symbol:m.sym,width:'100%',height:140,locale:'en',dateRange:'1M',colorTheme:document.body.classList.contains('dark')?'dark':'light',isTransparent:true,autosize:true,largeChartUrl:'trade.html'});
+  });
+}
+
+// ── FILTER ────────────────────────────────────────────────────
+function filterSection(section, tag, btn) {
+  btn.closest('.section-head__right').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll(`#tbody-${section} tr`).forEach(row=>{
+    row.style.display=(tag==='all'||row.dataset.tag===tag)?'':'none';
+  });
+}
+
+// ── SEARCH ────────────────────────────────────────────────────
+function searchMarkets() {
+  const q=document.getElementById('global-search').value.toLowerCase();
+  document.querySelectorAll('.mkt-row').forEach(row=>{row.style.display=row.textContent.toLowerCase().includes(q)?'':'none';});
+  document.querySelectorAll('.mkt-section').forEach(sec=>{
+    const vis=[...sec.querySelectorAll('.mkt-row')].some(r=>r.style.display!=='none');
+    sec.style.display=q&&!vis?'none':'';
+  });
+}
+
+// ── REFRESH ───────────────────────────────────────────────────
+async function refreshPrices() {
+  const btn=document.querySelector('[onclick="refreshPrices()"]');
+  btn.textContent='Refreshing…'; btn.disabled=true;
+  await loadAll();
+  btn.innerHTML=`<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Refresh`;
+  btn.disabled=false;
+}
+
+// ── DARK MODE ─────────────────────────────────────────────────
+const sunIcon=`<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+const moonIcon=`<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+function toggleDark(){const isDark=document.body.classList.toggle('dark');document.getElementById('dark-icon').innerHTML=isDark?sunIcon:moonIcon;localStorage.setItem('xantex-theme',isDark?'dark':'light');}
+if(localStorage.getItem('xantex-theme')==='dark'){document.body.classList.add('dark');document.getElementById('dark-icon').innerHTML=sunIcon;}
+
+// ── SIDEBAR ───────────────────────────────────────────────────
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+document.addEventListener('click',e=>{
+  const sb=document.getElementById('sidebar'),hb=document.getElementById('hamburger');
+  if(sb.classList.contains('open')&&!sb.contains(e.target)&&!hb.contains(e.target))sb.classList.remove('open');
+});
+
+// ── MAIN LOAD ─────────────────────────────────────────────────
+async function loadAll() {
+  [['tbody-forex',11],['tbody-crypto',10],['tbody-stocks',11],['tbody-indices',10],['tbody-metals',11],['tbody-energy',11],['tbody-etfs',10]].forEach(([id,cols])=>skeleton(id,cols));
+  await Promise.allSettled([fetchCrypto(), fetchForexMetals(), fetchStocks(), fetchIndices(), fetchETFs(), fetchEnergy()]);
+  renderStats();
+  document.getElementById('last-updated').textContent='Live prices · Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+loadAll();
+setInterval(loadAll, 30000);
+
+const tvScript=document.createElement('script');
+tvScript.src='https://s3.tradingview.com/tv.js';
+tvScript.onload=renderMiniCharts;
+document.head.appendChild(tvScript);
+
+setInterval(()=>{
+  document.getElementById('last-updated').textContent='Live prices · '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+},1000);
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./supabase.js"></script>`n<script src="./notif-popup.js"></script>
+<script src="./supabase.js"></script>
+<script src="./notif-popup.js"></script>
 <script>
-// Merge Supabase market_prices rows into the static DATA object,
-// then re-render. Falls back gracefully if the table is empty or missing.
 (async () => {
   const db = window.XANTEX_DB;
-  if (!db) return;
+  if (!db) { window.location.href = 'login.html'; return; }
 
-  const { data: rows, error } = await db
-    .from('market_prices')
-    .select('*')
-    .order('category');
-
-  if (error || !rows || !rows.length) return;
-
-  // Merge rows by symbol into the matching DATA category
-  const catMap = { forex:'forex', crypto:'crypto', stocks:'stocks', indices:'indices', metals:'metals', energy:'energy', etfs:'etfs' };
-
-  rows.forEach(r => {
-    const cat = catMap[r.category];
-    if (!cat) return;
-    const idx = DATA[cat].findIndex(d => d.sym === r.symbol);
-    const merged = {
-      ...(idx >= 0 ? DATA[cat][idx] : {}),
-      sym:  r.symbol,
-      name: r.name || (idx >= 0 ? DATA[cat][idx].name : r.symbol),
-      bid:  r.bid   || r.price || (idx >= 0 ? DATA[cat][idx].bid  : 'â€”'),
-      ask:  r.ask   || r.price || (idx >= 0 ? DATA[cat][idx].ask  : 'â€”'),
-      price: r.price || (idx >= 0 ? DATA[cat][idx].price : 'â€”'),
-      chg:  r.change_amount != null ? (r.change_amount >= 0 ? '+' : '') + r.change_amount : (idx >= 0 ? DATA[cat][idx].chg : '0'),
-      chgp: r.change_pct   != null ? (r.change_pct   >= 0 ? '+' : '') + r.change_pct + '%' : (idx >= 0 ? DATA[cat][idx].chgp : '0%'),
-      high: r.high_24h || (idx >= 0 ? DATA[cat][idx].high || DATA[cat][idx].high_24h : 'â€”'),
-      low:  r.low_24h  || (idx >= 0 ? DATA[cat][idx].low  || DATA[cat][idx].low_24h  : 'â€”'),
-    };
-    if (idx >= 0) DATA[cat][idx] = merged;
-    else           DATA[cat].push(merged);
-  });
-
-  renderAll();
-  document.getElementById('last-updated').textContent = 'Live prices Â· Updated from database';
-
-  // Load real user name & initials
   const { data: { session } } = await db.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
   document.body.style.visibility = 'visible';
+
   initNotifPopup(db, session.user.id);
+
   const { data: profile } = await db.from('profiles').select('first_name,last_name,avatar_url').eq('id', session.user.id).single();
   if (profile) {
     const init = ((profile.first_name?.[0] || '') + (profile.last_name?.[0] || '')).toUpperCase() || '?';
@@ -1219,6 +1265,7 @@
     });
     document.querySelectorAll('.sidebar__user-name').forEach(el => el.textContent = name);
   }
+
   document.querySelectorAll('.sidebar__logout').forEach(btn => {
     btn.onclick = async () => { await db.auth.signOut(); window.location.href = 'login.html'; };
   });
@@ -1226,4 +1273,3 @@
 </script>
 </body>
 </html>
-

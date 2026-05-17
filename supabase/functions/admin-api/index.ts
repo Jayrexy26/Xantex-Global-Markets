@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+﻿import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const ADMIN_SECRET = Deno.env.get("ADMIN_SECRET") ?? "Driver112#";
@@ -42,7 +42,7 @@ serve(async (req) => {
   const { action } = body;
 
   try {
-    // ── Deposits & Withdrawals ──────────────────────────────────────────────
+    // â”€â”€ Deposits & Withdrawals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (action === "get_data") {
       const [deps, withs] = await Promise.all([
         db.from("deposit_requests").select("*, profiles(email)").order("created_at", { ascending: false }).limit(100),
@@ -96,13 +96,13 @@ serve(async (req) => {
       return ok({ success: true });
     }
 
-    // ── Users ───────────────────────────────────────────────────────────────
+    // â”€â”€ Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (action === "get_users") {
       const { data } = await db.from("profiles").select("id, email, first_name, last_name, balance, kyc_status, created_at").order("created_at", { ascending: false }).limit(200);
       return ok({ users: data ?? [] });
     }
 
-    // ── Profit Targets ──────────────────────────────────────────────────────
+    // â”€â”€ Profit Targets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (action === "get_profit_targets") {
       const { data: targets } = await db
         .from("profit_targets")
@@ -174,7 +174,7 @@ serve(async (req) => {
       return ok({ success: true });
     }
 
-    // ── Email ──────────────────────────────────────────────────────────────────
+    // â”€â”€ Email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (action === "send_email") {
       const { recipient_email, recipient_name, recipient_user_id, subject, body_text } = body;
       if (!recipient_email || !subject || !body_text) return err("Missing fields");
@@ -251,7 +251,7 @@ function buildEmailHtml(subject: string, recipientName: string, bodyText: string
   <tr><td align="center">
     <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
       <tr>
-        <td style="background:#060d1f;border-radius:14px 14px 0 0;padding:32px 40px;text-align:center;">
+        <td style="background:#060d1f;border-radius:14px 14px 0 0;padding:16px 40px;text-align:center;">
           <img src="https://xantexglobalmarkets.pro/images/logo.png" alt="Xantex Global Markets" height="100" style="display:block;margin:0 auto;height:100px;">
         </td>
       </tr>

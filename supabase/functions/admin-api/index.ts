@@ -237,7 +237,10 @@ function err(msg: string) {
 function buildEmailHtml(subject: string, recipientName: string, bodyText: string): string {
   const safe = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const greeting = recipientName ? `Dear ${safe(recipientName)},` : "Dear Valued Client,";
-  const bodyHtml = safe(bodyText).replace(/\n/g, "<br>");
+  const bodyHtml = safe(bodyText)
+    .replace(/\*([^*\n]+)\*/g, (_m, t) => `<strong style="color:#1a5cff;text-transform:uppercase;">${t}</strong>`)
+    .replace(/#([^#\n]+)#/g, (_m, t) => `<strong>${t}</strong>`)
+    .replace(/\n/g, "<br>");
 
   return `<!DOCTYPE html>
 <html lang="en">

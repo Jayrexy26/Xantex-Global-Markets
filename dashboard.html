@@ -1061,10 +1061,76 @@
       .sett-nav__divider { display: none; }
       .sett-grid-2 { grid-template-columns: 1fr; }
     }
+    /* ── Auth Loading Screen ────────────────────────────────── */
+    #auth-loader {
+      position: fixed; inset: 0;
+      background: linear-gradient(135deg, #060d1f 0%, #0d1a3a 60%, #060d1f 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 9999; visibility: visible; gap: 0;
+      transition: opacity 0.45s ease;
+    }
+    #auth-loader.fade-out { opacity: 0; pointer-events: none; }
+    .al-glow {
+      position: absolute; width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(26,92,255,0.12) 0%, transparent 70%);
+      animation: al-pulse 3s ease-in-out infinite;
+    }
+    @keyframes al-pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.15);opacity:0.6} }
+    .al-logo { width: 160px; z-index: 1; animation: al-breathe 2.5s ease-in-out infinite; }
+    @keyframes al-breathe { 0%,100%{opacity:1;transform:translateY(0)} 50%{opacity:0.85;transform:translateY(-4px)} }
+    .al-ring-wrap { margin-top: 44px; z-index: 1; position: relative; width: 48px; height: 48px; }
+    .al-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.08);
+      border-top-color: #1a5cff;
+      animation: al-spin 0.85s linear infinite;
+    }
+    .al-ring-inner {
+      position: absolute; inset: 8px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.05);
+      border-bottom-color: rgba(26,92,255,0.4);
+      animation: al-spin 1.4s linear infinite reverse;
+    }
+    @keyframes al-spin { to { transform: rotate(360deg); } }
+    .al-text {
+      margin-top: 20px; z-index: 1;
+      font-size: 13px; color: rgba(255,255,255,0.4);
+      font-family: 'Inter', sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .al-dots::after {
+      content: ''; animation: al-dot-cycle 1.6s steps(4,end) infinite;
+    }
+    @keyframes al-dot-cycle { 0%{content:'';} 25%{content:'.';} 50%{content:'..';} 75%{content:'...';} 100%{content:'';} }
+    /* Market Watch tabs */
+    .mw-tabs { display: flex; gap: 2px; padding: 10px 16px 0; overflow-x: auto; scrollbar-width: none; }
+    .mw-tabs::-webkit-scrollbar { display: none; }
+    .mw-tab {
+      padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; white-space: nowrap;
+      color: var(--muted); background: none; border: none; cursor: pointer;
+      transition: background 0.12s, color 0.12s; flex-shrink: 0;
+    }
+    .mw-tab:hover { background: var(--bg); color: var(--text); }
+    .mw-tab.active { background: var(--blue); color: #fff; }
+    /* Positions status pill */
+    .pos-status { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .pos-status--open { background: var(--blue-lt); color: var(--blue); }
+    .pos-status--closed { background: var(--bg); color: var(--muted); }
     body { visibility: hidden; }
   </style>
 </head>
 <body>
+
+<!-- Animated auth loading screen -->
+<div id="auth-loader">
+  <div class="al-glow"></div>
+  <img class="al-logo" src="/images/logo.png" alt="Xantex Global Markets"
+    onerror="this.style.display='none'">
+  <div class="al-ring-wrap">
+    <div class="al-ring"></div>
+    <div class="al-ring-inner"></div>
+  </div>
+  <div class="al-text">Authenticating<span class="al-dots"></span></div>
+</div>
 
 <div class="layout">
 
@@ -1285,23 +1351,28 @@
             </div>
           </div>
 
-          <div class="card">
-            <div class="card__head">
+          <div class="card" style="overflow:visible;">
+            <div class="card__head" style="border-bottom:none;padding-bottom:0;">
               <div class="card__title">Market Watch</div>
-              <span class="card__action">See all →</span>
+              <a href="markets.html" class="card__action" style="text-decoration:none;">See all →</a>
             </div>
-            <div class="market-list" id="dash-market-watch">
-              <div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Loading live prices…</div>
+            <div class="mw-tabs" id="mw-tabs">
+              <button class="mw-tab active" data-cat="forex">Forex</button>
+              <button class="mw-tab" data-cat="crypto">Crypto</button>
+              <button class="mw-tab" data-cat="stocks">Stocks</button>
+              <button class="mw-tab" data-cat="indices">Indices</button>
+              <button class="mw-tab" data-cat="metals">Metals</button>
             </div>
+            <div id="dash-market-watch" style="height:340px;overflow:hidden;border-radius:0 0 12px 12px;"></div>
           </div>
         </div>
 
-        <!-- Open Positions + Quick Actions -->
+        <!-- Positions + Quick Actions -->
         <div class="grid-2" style="margin-bottom:24px;">
           <div class="card">
             <div class="card__head">
-              <div class="card__title">Open Positions</div>
-              <span class="card__action">View all →</span>
+              <div class="card__title">Positions</div>
+              <a href="trade-history.html" class="card__action" style="text-decoration:none;">View all →</a>
             </div>
             <div class="table-wrap">
               <table>
@@ -1310,14 +1381,13 @@
                     <th>Symbol</th>
                     <th>Type</th>
                     <th>Lots</th>
-                    <th>Open Price</th>
-                    <th>Current</th>
+                    <th>Price</th>
                     <th>P&L</th>
-                    <th></th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody id="positions-tbody">
-                  <tr id="positions-empty-row"><td colspan="7" style="text-align:center;color:var(--muted);padding:20px;">No open positions</td></tr>
+                  <tr id="positions-empty-row"><td colspan="6" style="text-align:center;color:var(--muted);padding:28px;font-size:13px;">No trades yet</td></tr>
                 </tbody>
               </table>
             </div>
@@ -1342,7 +1412,7 @@
                   <div class="quick-action__label">Withdraw</div>
                   <div class="quick-action__sub">Transfer out</div>
                 </div>
-                <div class="quick-action">
+                <div class="quick-action" onclick="window.location.href='trade.html'">
                   <div class="quick-action__icon" style="background:var(--blue-lt);">
                     <svg viewBox="0 0 24 24" style="stroke:var(--blue);"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                   </div>
@@ -2244,6 +2314,7 @@
     const isDark = document.body.classList.toggle('dark');
     document.getElementById('dark-icon').innerHTML = isDark ? sunIcon : moonIcon;
     localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
+    if (window._mwReload) window._mwReload();
   }
   if (localStorage.getItem('xantex-theme') === 'dark') {
     document.body.classList.add('dark');
@@ -2829,6 +2900,8 @@ function savePreferences() {
   } catch(e) { console.warn('[dashboard] kyc check:', e?.message); }
 
   document.body.style.visibility = 'visible';
+  const _loader = document.getElementById('auth-loader');
+  if (_loader) { _loader.classList.add('fade-out'); setTimeout(() => _loader.remove(), 460); }
 
   function fmt(n) { return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function timeSince(ts) {
@@ -2936,7 +3009,7 @@ function savePreferences() {
   let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns, closedTrades] = await Promise.all([
     loadProfile(),
     loadRows('accounts',      'get_my_accounts',    'trading_accounts',    q => q.order('created_at',{ascending:false})),
-    loadRows('positions',     'get_my_positions',   'positions',           q => q.eq('status','open').order('opened_at',{ascending:false})),
+    loadRows('positions',     'get_my_positions',   'positions',           q => q.order('opened_at',{ascending:false}).limit(5)),
     loadRows('txns',          'get_my_transactions','transactions',        q => q.order('created_at',{ascending:false})),
     loadRows('depReqs',       'get_my_deposits',    'deposit_requests',    q => q.order('created_at',{ascending:false})),
     loadRows('wdReqs',        'get_my_withdrawals', 'withdrawal_requests', q => q.order('created_at',{ascending:false})),
@@ -3208,15 +3281,18 @@ function savePreferences() {
   if (positions && positions.length) {
     if (tbody) {
       document.getElementById('positions-empty-row')?.remove();
-      tbody.innerHTML = positions.map(p => {
-        const isBuy = p.direction==='buy';
-        const pnl   = parseFloat(p.floating_pnl||0);
+      tbody.innerHTML = positions.slice(0,5).map(p => {
+        const isBuy  = p.direction === 'buy';
+        const isOpen = p.status === 'open';
+        const pnl    = parseFloat(p.floating_pnl || p.realised_pnl || 0);
+        const pnlClr = pnl >= 0 ? 'var(--green)' : 'var(--red)';
         return `<tr>
-          <td class="pos-symbol">${p.symbol}</td>
+          <td style="font-weight:700;font-size:13px;">${p.symbol}</td>
           <td><span class="pos-type ${isBuy?'pos-type--buy':'pos-type--sell'}">${isBuy?'Buy':'Sell'}</span></td>
-          <td>${p.lots}</td><td>${p.open_price}</td><td>${p.current_price||p.open_price}</td>
-          <td class="pos-pnl ${pnl>=0?'up':'down'}" style="color:${pnl>=0?'var(--green)':'var(--red)'};">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)}</td>
-          <td><button class="pos-close" onclick="closePosition('${p.id}')">Close</button></td>
+          <td style="font-size:12px;color:var(--muted);">${p.lots}</td>
+          <td style="font-size:12px;">${p.open_price}</td>
+          <td style="font-weight:600;color:${pnlClr};">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)}</td>
+          <td><span class="pos-status ${isOpen?'pos-status--open':'pos-status--closed'}">${isOpen?'Open':'Closed'}</span></td>
         </tr>`;
       }).join('');
     }
@@ -3761,46 +3837,82 @@ function savePreferences() {
   if (titleEl && titleEl.textContent === 'Welcome back 👋') titleEl.textContent = 'Welcome back 👋';
 });
 
-// ── Market Watch — updated by prices.js live data ────────────
+// ── Market Watch — TradingView real-time widgets ──────────────
 (function () {
-  const WATCH = [
-    { sym: 'EUR/USD', name: 'Euro / US Dollar',     icon: '💱' },
-    { sym: 'GBP/USD', name: 'British Pound / USD',  icon: '💷' },
-    { sym: 'XAU/USD', name: 'Gold / US Dollar',     icon: '🥇' },
-    { sym: 'US30',    name: 'Dow Jones',             icon: '📈' },
-    { sym: 'BTC/USD', name: 'Bitcoin / USD',         icon: '₿'  },
-    { sym: 'WTI/USD', name: 'Crude Oil WTI',         icon: '🛢️' },
-  ];
+  const CATS = {
+    forex: {
+      src: 'embed-widget-forex-cross-rates.js',
+      cfg: { width: '100%', height: 340, locale: 'en', isTransparent: true,
+             currencies: ['EUR','USD','JPY','GBP','CHF','AUD','CAD','NZD'] },
+    },
+    crypto: {
+      src: 'embed-widget-screener.js',
+      cfg: { width: '100%', height: 340, locale: 'en', isTransparent: true,
+             defaultColumn: 'overview', screener_type: 'crypto_mkt', displayCurrency: 'USD' },
+    },
+    stocks: {
+      src: 'embed-widget-screener.js',
+      cfg: { width: '100%', height: 340, locale: 'en', isTransparent: true,
+             defaultColumn: 'overview', defaultScreen: 'most_capitalized', market: 'america', showToolbar: false },
+    },
+    indices: {
+      src: 'embed-widget-market-overview.js',
+      cfg: { width: '100%', height: 340, locale: 'en', isTransparent: true,
+             dateRange: '1D', showChart: false,
+             tabs: [{ title: 'Global', originalTitle: 'Global', symbols: [
+               {s:'FOREXCOM:SPXUSD',d:'S&P 500'},{s:'FOREXCOM:NSXUSD',d:'Nasdaq 100'},
+               {s:'FOREXCOM:DJI',d:'Dow Jones'},{s:'INDEX:DEU40',d:'DAX 40'},
+               {s:'TVC:NI225',d:'Nikkei 225'},{s:'CBOE:UK100',d:'FTSE 100'},
+               {s:'INDEX:FRA40',d:'CAC 40'},{s:'ASX:XJO',d:'ASX 200'},
+             ]}] },
+    },
+    metals: {
+      src: 'embed-widget-market-overview.js',
+      cfg: { width: '100%', height: 340, locale: 'en', isTransparent: true,
+             dateRange: '1D', showChart: false,
+             tabs: [{ title: 'Metals & Energy', originalTitle: 'Metals & Energy', symbols: [
+               {s:'TVC:GOLD',d:'Gold'},{s:'TVC:SILVER',d:'Silver'},
+               {s:'TVC:PLATINUM',d:'Platinum'},{s:'NYMEX:CL1!',d:'WTI Oil'},
+               {s:'NYMEX:BZ1!',d:'Brent Oil'},{s:'NYMEX:NG1!',d:'Natural Gas'},
+             ]}] },
+    },
+  };
 
-  function buildWatch(prices) {
+  let _activeCat = 'forex';
+
+  function _loadMW(cat) {
     const container = document.getElementById('dash-market-watch');
     if (!container) return;
-    container.innerHTML = WATCH.map(w => {
-      const p    = prices[w.sym];
-      const val  = p ? window.fmtPrice(w.sym, p.ask || p.price) : '—';
-      const chgp = p ? parseFloat(p.chgp || 0) : null;
-      const up   = chgp == null ? true : chgp >= 0;
-      const chgTxt = chgp != null ? (chgp >= 0 ? '+' : '') + chgp.toFixed(2) + '%' : '—';
-      const color  = chgp == null ? '#888' : (up ? 'var(--green)' : 'var(--red)');
-      const stroke = up ? '#22a06b' : '#e60023';
-      return `<div class="market-row">
-        <div class="market-flag">${w.icon}</div>
-        <div class="market-name"><div class="market-name__sym">${w.sym}</div><div class="market-name__full">${w.name}</div></div>
-        <svg class="market-spark" viewBox="0 0 56 28">
-          <polyline points="0,20 8,16 16,18 24,10 32,12 40,6 48,8 56,4" fill="none" stroke="${stroke}" stroke-width="1.5"/>
-        </svg>
-        <div class="market-price">
-          <div class="market-price__val">${val}</div>
-          <div class="market-price__chg" style="color:${color};">${chgTxt}</div>
-        </div>
-      </div>`;
-    }).join('');
+    const dark = document.body.classList.contains('dark');
+    const { src, cfg } = CATS[cat];
+    const finalCfg = { ...cfg, colorTheme: dark ? 'dark' : 'light' };
+    container.innerHTML = '';
+    const wc = document.createElement('div');
+    wc.className = 'tradingview-widget-container';
+    wc.style.cssText = 'width:100%;height:100%;';
+    const wd = document.createElement('div');
+    wd.className = 'tradingview-widget-container__widget';
+    wc.appendChild(wd);
+    const sc = document.createElement('script');
+    sc.type = 'text/javascript';
+    sc.src = 'https://s3.tradingview.com/external-embedding/' + src;
+    sc.async = true;
+    sc.textContent = JSON.stringify(finalCfg);
+    wc.appendChild(sc);
+    container.appendChild(wc);
   }
 
-  // Build once prices arrive
-  window.addEventListener('prices:update', e => buildWatch(e.detail || {}));
-  // If prices.js already fired before this listener was added, use existing data
-  if (window.LIVE_PRICES && Object.keys(window.LIVE_PRICES).length) buildWatch(window.LIVE_PRICES);
+  document.querySelectorAll('.mw-tab').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.mw-tab').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      _activeCat = this.dataset.cat;
+      _loadMW(_activeCat);
+    });
+  });
+
+  window._mwReload = () => _loadMW(_activeCat);
+  _loadMW(_activeCat);
 })();
 </script>
 </body>

@@ -131,6 +131,15 @@ serve(async (req) => {
       // Create new
       const { data, error } = await db.from("profit_targets").insert({ user_id, target_amount: Number(target_amount), label: label ?? null, is_active: true }).select().single();
       if (error) return err(error.message);
+      // Auto-notification — stored in history only (enabled:false skips the popup)
+      const fmtAmt = Number(target_amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      await db.from("notifications").insert({
+        user_id,
+        title: "New Trade Cycle Started",
+        message: `A new trade cycle has been initiated on your account. Your profit target has been set to $${fmtAmt}${label ? ` — ${label}` : ""}.`,
+        type: "info",
+        enabled: false,
+      });
       return ok({ target: data });
     }
 
@@ -170,7 +179,18 @@ serve(async (req) => {
 
     if (action === "deactivate_profit_target") {
       const { target_id } = body;
+      // Fetch user_id before deactivating so we can send the notification
+      const { data: tgt } = await db.from("profit_targets").select("user_id").eq("id", target_id).single();
       await db.from("profit_targets").update({ is_active: false, updated_at: new Date().toISOString() }).eq("id", target_id);
+      if (tgt?.user_id) {
+        await db.from("notifications").insert({
+          user_id: tgt.user_id,
+          title: "Trade Cycle Complete",
+          message: "Your trade cycle has been successfully completed. The profit target for your account has been reached and the cycle is now closed.",
+          type: "success",
+          enabled: false,
+        });
+      }
       return ok({ success: true });
     }
 

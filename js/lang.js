@@ -54,10 +54,7 @@
   }
 
   function getActiveLang(){
-    var c=getCookie('googtrans');
-    if(!c)return 'en';
-    var p=c.split('/');
-    return p[2]||'en';
+    return localStorage.getItem('xantex-lang') || 'en';
   }
 
   function buildBtn(lang){
@@ -89,6 +86,7 @@
   }
 
   function applyLang(code){
+    localStorage.setItem('xantex-lang', code);
     if(code==='en'){
       document.cookie='googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
       document.cookie='googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain='+location.hostname;
@@ -113,7 +111,12 @@
     var navbar=document.querySelector('.navbar__inner');
     if(!navbar)return;
 
+    // Always force English unless user has explicitly saved a different preference
     var activeLang=getActiveLang();
+    if(activeLang==='en'){
+      document.cookie='googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+      document.cookie='googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain='+location.hostname;
+    }
 
     var logo=navbar.querySelector('.navbar__logo');
     var btnDiv=document.createElement('div');

@@ -2094,19 +2094,32 @@
         <p style="font-size:11px;color:var(--red);font-weight:600;">⚠ Only provide an ERC20-compatible wallet address. Wrong network = lost funds.</p>
       </div>
     </div>
-      <!-- PIN confirmation -->
-      <div class="field" style="margin-top:4px;">
-        <label style="font-weight:600;">Security PIN <span style="color:var(--red);">*</span></label>
-        <input type="password" id="wd-pin" maxlength="4" inputmode="numeric" pattern="[0-9]*"
-               placeholder="Enter your 4-digit PIN"
-               style="letter-spacing:0.3em;font-size:18px;text-align:center;">
-        <div id="wd-pin-err" style="font-size:12px;color:var(--red);margin-top:4px;display:none;"></div>
-      </div>
-    </div>
     <div class="modal__foot">
       <button class="btn btn--red" style="opacity:0.75;" onclick="closeModal('withdraw')">Cancel</button>
       <button class="btn btn--red" id="wd-submit-btn">Request Withdrawal</button>
     </div>
+  </div>
+</div>
+
+<!-- PIN confirmation overlay (shown after withdrawal form passes validation) -->
+<div id="wd-pin-overlay" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:var(--white);border-radius:20px;padding:36px 32px;max-width:360px;width:90%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.25);">
+    <div style="width:52px;height:52px;border-radius:14px;background:var(--blue-lt);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+      <svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:none;stroke:var(--blue);stroke-width:2;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:6px;">Confirm with PIN</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">Enter your 4-digit security PIN to authorise this withdrawal</div>
+    <!-- dots -->
+    <div style="display:flex;justify-content:center;gap:12px;margin-bottom:12px;" id="wd-pin-dots">
+      <span style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:transparent;display:block;transition:background .15s;"></span>
+      <span style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:transparent;display:block;transition:background .15s;"></span>
+      <span style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:transparent;display:block;transition:background .15s;"></span>
+      <span style="width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:transparent;display:block;transition:background .15s;"></span>
+    </div>
+    <div id="wd-pin-err" style="font-size:12px;color:var(--red);min-height:18px;margin-bottom:10px;"></div>
+    <!-- numpad -->
+    <div id="wd-pin-pad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 20px;"></div>
+    <button onclick="wdPinCancel()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;">Cancel</button>
   </div>
 </div>
 
@@ -3432,11 +3445,8 @@ function savePreferences() {
       ['ERC20','TRC20'].forEach(n => { const b = document.getElementById('dep-net-'+n); if(b) b.classList.toggle('active', n==='ERC20'); });
     }
     if (id === 'withdraw') {
-      // Clear PIN field on each open
-      const wdPin = document.getElementById('wd-pin');
-      const wdPinErr = document.getElementById('wd-pin-err');
-      if (wdPin) wdPin.value = '';
-      if (wdPinErr) wdPinErr.style.display = 'none';
+      // Reset PIN overlay state on each open
+      wdPinReset();
     }
     if (typeof _origOpenModal === 'function') _origOpenModal.call(this, id);
     else document.getElementById('modal-' + id)?.classList.add('open');
@@ -3530,8 +3540,95 @@ function savePreferences() {
     }
   };
 
+  // ── Withdrawal PIN overlay ────────────────────────────────
+  let _wdPending = null; // stores validated form data until PIN confirmed
+  let _wdPinBuf  = [];   // digit buffer
+
+  function wdPinReset() {
+    _wdPinBuf = [];
+    wdUpdateDots();
+    const err = document.getElementById('wd-pin-err');
+    if (err) err.textContent = '';
+  }
+
+  function wdUpdateDots() {
+    const dots = document.getElementById('wd-pin-dots')?.children;
+    if (!dots) return;
+    for (let i = 0; i < dots.length; i++) {
+      dots[i].style.background = i < _wdPinBuf.length ? 'var(--blue)' : 'transparent';
+      dots[i].style.borderColor = i < _wdPinBuf.length ? 'var(--blue)' : 'var(--border)';
+    }
+  }
+
+  function wdPinCancel() {
+    document.getElementById('wd-pin-overlay').style.display = 'none';
+    wdPinReset();
+    _wdPending = null;
+  }
+  window.wdPinCancel = wdPinCancel;
+
+  // Build numpad
+  (function buildNumpad() {
+    const pad = document.getElementById('wd-pin-pad');
+    if (!pad) return;
+    const keys = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+    keys.forEach(k => {
+      const btn = document.createElement('button');
+      btn.textContent = k;
+      btn.style.cssText = 'height:52px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:18px;font-weight:600;color:var(--text);cursor:pointer;transition:background .1s;';
+      if (!k) { btn.style.visibility = 'hidden'; pad.appendChild(btn); return; }
+      btn.addEventListener('click', () => wdPinKey(k));
+      btn.addEventListener('mousedown', () => btn.style.background = 'var(--blue-lt)');
+      btn.addEventListener('mouseup',   () => btn.style.background = '#fff');
+      btn.addEventListener('mouseleave',() => btn.style.background = '#fff');
+      pad.appendChild(btn);
+    });
+  })();
+
+  async function wdPinKey(k) {
+    const errEl = document.getElementById('wd-pin-err');
+    if (errEl) errEl.textContent = '';
+    if (k === '⌫') {
+      _wdPinBuf.pop();
+      wdUpdateDots();
+      return;
+    }
+    if (_wdPinBuf.length >= 4) return;
+    _wdPinBuf.push(k);
+    wdUpdateDots();
+    if (_wdPinBuf.length < 4) return;
+
+    // 4 digits entered — verify
+    const entered = _wdPinBuf.join('');
+    const storedHash = session?.user?.user_metadata?.trading_pin;
+    if (!storedHash) {
+      if (errEl) errEl.textContent = 'No PIN set. Please contact support.';
+      _wdPinBuf = []; wdUpdateDots(); return;
+    }
+    const enteredHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(entered))
+      .then(h => Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join(''));
+    if (enteredHash !== storedHash) {
+      if (errEl) errEl.textContent = 'Incorrect PIN. Please try again.';
+      _wdPinBuf = []; wdUpdateDots(); return;
+    }
+
+    // PIN correct — submit withdrawal
+    const overlay = document.getElementById('wd-pin-overlay');
+    overlay.style.display = 'none';
+    const { accountId, amount, destType, destName, destRef } = _wdPending;
+    _wdPending = null;
+    const { error } = await db.from('withdrawal_requests').insert({
+      user_id: userId, account_id: accountId||null, amount,
+      destination_type: destType, destination_name: destName, destination_ref: destRef, status: 'pending'
+    });
+    if (error) { alert('Error: ' + error.message); return; }
+    closeModal('withdraw');
+    alert('Withdrawal request submitted. It will be processed within 24 hours.');
+    location.reload();
+  }
+
   // ── Withdrawal submit ─────────────────────────────────────
-  document.getElementById('wd-submit-btn')?.addEventListener('click', async () => {
+  document.getElementById('wd-submit-btn')?.addEventListener('click', () => {
     const accountId = document.getElementById('wd-account')?.value;
     const amount    = parseFloat(document.getElementById('wd-amount')?.value);
     if (!amount || amount < 10) { alert('Enter a valid amount (minimum $10)'); return; }
@@ -3548,36 +3645,9 @@ function savePreferences() {
       destRef  = document.getElementById('wd-wallet-addr')?.value || '';
       if (!destRef) { alert('Please enter your wallet address'); return; }
     }
-    // ── PIN validation ──
-    const pinInput   = document.getElementById('wd-pin');
-    const pinErrEl   = document.getElementById('wd-pin-err');
-    const enteredPin = (pinInput?.value || '').trim();
-    if (pinErrEl) pinErrEl.style.display = 'none';
-    if (!enteredPin || enteredPin.length !== 4) {
-      if (pinErrEl) { pinErrEl.textContent = 'Please enter your 4-digit PIN.'; pinErrEl.style.display = 'block'; }
-      pinInput?.focus(); return;
-    }
-    const storedPinHash = session.user.user_metadata?.trading_pin;
-    if (!storedPinHash) {
-      if (pinErrEl) { pinErrEl.textContent = 'No PIN set. Please log out and set your PIN first.'; pinErrEl.style.display = 'block'; }
-      return;
-    }
-    const enteredHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(enteredPin))
-      .then(h => Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join(''));
-    if (enteredHash !== storedPinHash) {
-      if (pinErrEl) { pinErrEl.textContent = 'Incorrect PIN. Please try again.'; pinErrEl.style.display = 'block'; }
-      if (pinInput) pinInput.value = '';
-      pinInput?.focus(); return;
-    }
-    const btn = document.getElementById('wd-submit-btn');
-    btn.disabled = true; btn.textContent = 'Submitting…';
-    const { error } = await db.from('withdrawal_requests').insert({ user_id: userId, account_id: accountId||null, amount, destination_type: destType, destination_name: destName, destination_ref: destRef, status: 'pending' });
-    btn.disabled = false; btn.textContent = 'Request Withdrawal';
-    if (error) { alert('Error: '+error.message); return; }
-    if (pinInput) pinInput.value = '';
-    closeModal('withdraw');
-    alert('Withdrawal request submitted. It will be processed within 24 hours.');
-    location.reload();
+    _wdPending = { accountId, amount, destType, destName, destRef };
+    wdPinReset();
+    document.getElementById('wd-pin-overlay').style.display = 'flex';
   });
 
   // ── Save profile ──────────────────────────────────────────

@@ -702,6 +702,42 @@
     });
   }
 
+  function showForceChangePin() {
+    document.getElementById('pin-title').textContent    = 'Create a New PIN';
+    document.getElementById('pin-subtitle').textContent = 'Your temporary PIN must be changed before you continue';
+    document.getElementById('reset-pin-footer-btn').classList.add('hidden');
+    document.getElementById('pin-error').textContent = '';
+    let phase = 1, firstPin = '';
+    buildPad(async pin => {
+      const errEl = document.getElementById('pin-error');
+      if (phase === 1) {
+        firstPin = pin; phase = 2;
+        resetDots();
+        document.getElementById('pin-title').textContent    = 'Confirm New PIN';
+        document.getElementById('pin-subtitle').textContent = 'Re-enter your new PIN to confirm';
+      } else {
+        if (pin === firstPin) {
+          try {
+            const newHash = await sha256(pin);
+            await db.auth.updateUser({ data: { trading_pin: newHash, trading_pin_reset: false } });
+            sessionStorage.setItem('xantex_pin_ok', '1');
+            window.location.href = _kycStatus === 'verified' ? 'dashboard.html' : 'kyc-pending.html';
+          } catch(e) {
+            if (errEl) errEl.textContent = 'Could not save PIN. Try again.';
+            phase = 1; firstPin = ''; resetDots();
+            document.getElementById('pin-title').textContent    = 'Create a New PIN';
+            document.getElementById('pin-subtitle').textContent = 'Your temporary PIN must be changed before you continue';
+          }
+        } else {
+          if (errEl) errEl.textContent = 'PINs do not match. Try again.';
+          phase = 1; firstPin = ''; resetDots();
+          document.getElementById('pin-title').textContent    = 'Create a New PIN';
+          document.getElementById('pin-subtitle').textContent = 'Your temporary PIN must be changed before you continue';
+        }
+      }
+    });
+  }
+
   // ── Lockout helpers ───────────────────────────────────────
   const LOCKOUT_KEY  = 'xantex_lockout_'  + userId;
   const ATTEMPTS_KEY = 'xantex_attempts_' + userId;
@@ -768,8 +804,13 @@
       if (hash === current) {
         localStorage.removeItem(LOCKOUT_KEY);
         localStorage.removeItem(ATTEMPTS_KEY);
-        sessionStorage.setItem('xantex_pin_ok', '1');
-        window.location.href = _kycStatus === 'verified' ? 'dashboard.html' : 'kyc-pending.html';
+        const meta = (await db.auth.getSession()).data?.session?.user?.user_metadata;
+        if (meta?.trading_pin_reset) {
+          showForceChangePin();
+        } else {
+          sessionStorage.setItem('xantex_pin_ok', '1');
+          window.location.href = _kycStatus === 'verified' ? 'dashboard.html' : 'kyc-pending.html';
+        }
       } else {
         resetDots();
         const attempts = getAttempts() + 1;

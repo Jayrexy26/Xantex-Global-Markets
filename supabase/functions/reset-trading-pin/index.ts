@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
   const existingMeta = adminData?.user?.user_metadata || {}
 
   const { error: updateErr } = await adminClient.auth.admin.updateUserById(user.id, {
-    user_metadata: { ...existingMeta, trading_pin: hash }
+    user_metadata: { ...existingMeta, trading_pin: hash, trading_pin_reset: true }
   })
   if (updateErr) return json({ error: 'Failed to reset PIN. Please try again.' }, 500)
 

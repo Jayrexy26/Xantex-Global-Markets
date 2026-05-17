@@ -558,6 +558,11 @@
         Markets Control
       </button>
 
+      <button class="nav-item" onclick="showPage('emails',this)">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+        Email Users
+      </button>
+
       <div class="sidebar__section-label">System</div>
       <button class="nav-item" onclick="showPage('settings',this)">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1451,6 +1456,34 @@
         </div>
       </div>
 
+      <!-- ════════════════════ EMAIL USERS ════════════════════ -->
+      <div class="page" id="page-emails">
+        <div class="page-header">
+          <div>
+            <div class="page-header__title">Email Users</div>
+            <div class="page-header__sub">Send branded emails to clients</div>
+          </div>
+          <button class="btn btn--primary" onclick="openModal('modal-compose-email')" style="display:flex;align-items:center;gap:8px;">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Compose Email
+          </button>
+        </div>
+        <div class="card">
+          <div class="card__head" style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="card__title">Sent Emails</div>
+            <button class="btn btn--outline btn--sm" onclick="loadEmailHistory()">Refresh</button>
+          </div>
+          <div class="card__body--p0 table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Recipient</th><th>Name</th><th>Subject</th><th>Sent</th><th></th></tr></thead>
+              <tbody id="email-history-body">
+                <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:28px;">Loading&hellip;</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /layout -->
@@ -1688,6 +1721,50 @@
     <div class="modal__foot">
       <button class="btn btn--outline" onclick="closeModal('modal-pt-trade')">Cancel</button>
       <button class="btn btn--primary" onclick="ptSaveTrade()">Add Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- Compose Email Modal -->
+<div class="modal-overlay" id="modal-compose-email">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal__head">
+      <div class="modal__title">Compose Email</div>
+      <button class="modal__close" onclick="closeModal('modal-compose-email')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body">
+      <div class="form-group">
+        <label class="form-label">Recipient</label>
+        <select id="email-recipient-sel" class="form-control">
+          <option value="">— Select user —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <input id="email-subject" type="text" class="form-control" placeholder="e.g. Important account update">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea id="email-body" class="form-control" rows="9" placeholder="Type your message here…" style="resize:vertical;min-height:160px;"></textarea>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin:0;">The email will be sent with the Xantex branded template and your signature.</p>
+    </div>
+    <div class="modal__foot">
+      <button class="btn btn--outline" onclick="closeModal('modal-compose-email')">Cancel</button>
+      <button class="btn btn--primary" id="email-send-btn" onclick="opsSendEmail()">Send Email</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Email Modal -->
+<div class="modal-overlay" id="modal-view-email">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal__head">
+      <div class="modal__title" id="view-email-subject">Email Preview</div>
+      <button class="modal__close" onclick="closeModal('modal-view-email')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal__body" style="padding:0;">
+      <iframe id="view-email-frame" srcdoc="" sandbox="allow-same-origin" style="width:100%;height:520px;border:none;border-radius:0 0 12px 12px;display:block;"></iframe>
     </div>
   </div>
 </div>
@@ -3716,6 +3793,113 @@ window.ptDeactivate = async function() {
   _ptCurrentTarget = null;
   const userSel = document.getElementById('pt-user-sel');
   ptLoadUser(userSel?.value || '');
+};
+
+/* ============================================================
+   EMAIL USERS
+============================================================ */
+const _ADMIN_API = 'https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/admin-api';
+const _ADMIN_SEC = 'Driver112#';
+let _emailHistory = [];
+
+async function _adminApiCall(action, payload = {}) {
+  const res = await fetch(_ADMIN_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': _ADMIN_SEC },
+    body: JSON.stringify({ action, ...payload }),
+  });
+  return res.json();
+}
+
+async function loadEmailHistory() {
+  const tbody = document.getElementById('email-history-body');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:28px;">Loading&hellip;</td></tr>';
+  const data = await _adminApiCall('get_email_history');
+  _emailHistory = data.emails ?? [];
+  if (!_emailHistory.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:28px;">No emails sent yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = _emailHistory.map(e => `
+    <tr>
+      <td>${e.recipient_email}</td>
+      <td>${e.recipient_name || '&mdash;'}</td>
+      <td>${e.subject}</td>
+      <td>${fmtDate(e.sent_at)}</td>
+      <td><button class="btn btn--sm btn--outline" onclick="viewEmailModal('${e.id}')">View</button></td>
+    </tr>`).join('');
+}
+
+async function emailPopulateUsers() {
+  const sel = document.getElementById('email-recipient-sel');
+  if (!sel) return;
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data: profiles } = await db.from('profiles').select('id,email,first_name,last_name').order('email');
+  sel.innerHTML = '<option value="">— Select user —</option>';
+  (profiles ?? []).forEach(p => {
+    const name = [p.first_name, p.last_name].filter(Boolean).join(' ') || '';
+    const label = name ? `${p.email} (${name})` : p.email;
+    const opt = document.createElement('option');
+    opt.value = JSON.stringify({ id: p.id, email: p.email, name });
+    opt.textContent = label;
+    sel.appendChild(opt);
+  });
+}
+
+window.opsSendEmail = async function() {
+  const sel = document.getElementById('email-recipient-sel');
+  const subject = document.getElementById('email-subject').value.trim();
+  const bodyText = document.getElementById('email-body').value.trim();
+  const btn = document.getElementById('email-send-btn');
+  if (!sel?.value) { showToast('Please select a recipient', 'error'); return; }
+  if (!subject) { showToast('Subject is required', 'error'); return; }
+  if (!bodyText) { showToast('Message body is required', 'error'); return; }
+
+  let parsed;
+  try { parsed = JSON.parse(sel.value); } catch { showToast('Invalid recipient', 'error'); return; }
+
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const result = await _adminApiCall('send_email', {
+    recipient_email: parsed.email,
+    recipient_name: parsed.name || null,
+    recipient_user_id: parsed.id || null,
+    subject,
+    body_text: bodyText,
+  });
+  btn.disabled = false; btn.textContent = 'Send Email';
+
+  if (result.error) { showToast('Error: ' + result.error, 'error'); return; }
+  showToast('Email sent successfully', 'success');
+  closeModal('modal-compose-email');
+  document.getElementById('email-subject').value = '';
+  document.getElementById('email-body').value = '';
+  await logAudit('SEND_EMAIL', parsed.email, subject);
+  loadEmailHistory();
+};
+
+window.viewEmailModal = function(id) {
+  const email = _emailHistory.find(e => e.id === id);
+  if (!email) return;
+  document.getElementById('view-email-subject').textContent = email.subject;
+  document.getElementById('view-email-frame').srcdoc = email.body_html;
+  openModal('modal-view-email');
+};
+
+// Hook into renderAll and page switch
+const _origRenderAll = window.renderAll;
+window.renderAll = async function() {
+  await _origRenderAll?.();
+  emailPopulateUsers();
+};
+
+const _origShowPage = window.showPage || function(){};
+window.showPage = function(id, btn) {
+  _origShowPage(id, btn);
+  if (id === 'emails') {
+    emailPopulateUsers();
+    loadEmailHistory();
+  }
 };
 </script>
 </body>

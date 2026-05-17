@@ -1080,6 +1080,7 @@
       email,
       password,
       options: {
+        emailRedirectTo: window.location.origin + '/session.html',
         data: {
           first_name:    firstName,
           last_name:     lastName,
@@ -1191,7 +1192,28 @@
       } catch(e) {}
       setTimeout(() => { window.location.href = 'session.html'; }, 800);
     } else {
-      // Email confirmation required — hide overlay and show static success screen
+      // Email confirmation required.
+      // Persist uploaded files to IndexedDB so session.html can upload them after confirmation.
+      if (data.user) {
+        try {
+          const _idbFront  = document.getElementById('upload-id').files[0] || null;
+          const _idbBack   = document.getElementById('upload-id-back').files[0] || null;
+          const _idbSelfie = document.getElementById('upload-selfie').files[0] || null;
+          await new Promise(res => {
+            const r = indexedDB.open('xantex_kyc', 1);
+            r.onupgradeneeded = e => e.target.result.createObjectStore('pending', { keyPath: 'id' });
+            r.onsuccess = e => {
+              const idb = e.target.result;
+              const tx  = idb.transaction('pending', 'readwrite');
+              tx.objectStore('pending').put({ id: data.user.id, docType: idType, idFrontFile: _idbFront, idBackFile: _idbBack, selfieFile: _idbSelfie });
+              tx.oncomplete = () => { idb.close(); res(); };
+              tx.onerror    = () => { idb.close(); res(); };
+            };
+            r.onerror = () => res();
+          });
+        } catch(e) { /* non-fatal — KYC upload deferred until after login */ }
+      }
+      // Hide overlay and show static success screen
       overlay.classList.remove('visible');
       [1,2,3].forEach(i => document.getElementById('step-' + i).style.display = 'none');
       ['step-ind-1','step-ind-2','step-ind-3'].forEach(id => {

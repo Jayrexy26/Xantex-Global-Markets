@@ -382,6 +382,53 @@
     if (ban) { clearTimeout(_loadTimer); await db.auth.signOut(); window.location.href = 'login.html?account=deleted'; return; }
   } catch(e) {}
 
+  // ── Deferred KYC upload (email signups whose files were saved before email confirmation) ──
+  try {
+    await new Promise(res => {
+      const r = indexedDB.open('xantex_kyc', 1);
+      r.onupgradeneeded = e => e.target.result.createObjectStore('pending', { keyPath: 'id' });
+      r.onsuccess = async e => {
+        const idb   = e.target.result;
+        const tx    = idb.transaction('pending', 'readwrite');
+        const store = tx.objectStore('pending');
+        const req   = store.get(userId);
+        req.onsuccess = async () => {
+          const rec = req.result;
+          if (!rec) { idb.close(); res(); return; }
+          store.delete(userId);
+          try {
+            const upFile = async (bucket, file, path) => {
+              const ext = file.name.split('.').pop().toLowerCase();
+              const { error } = await db.storage.from(bucket).upload(`${path}.${ext}`, file, { upsert: true });
+              return error ? null : `${path}.${ext}`;
+            };
+            let frontUrl = null, backUrl = null, selfieUrl = null;
+            if (rec.idFrontFile)  frontUrl  = await upFile('kyc-docs', rec.idFrontFile,  `${userId}/id-front`);
+            if (rec.idBackFile)   backUrl   = await upFile('kyc-docs', rec.idBackFile,   `${userId}/id-back`);
+            if (rec.selfieFile) {
+              const ext = rec.selfieFile.name.split('.').pop().toLowerCase();
+              const { error } = await db.storage.from('avatars').upload(`${userId}/avatar.${ext}`, rec.selfieFile, { upsert: true });
+              if (!error) {
+                const { data: { publicUrl } } = db.storage.from('avatars').getPublicUrl(`${userId}/avatar.${ext}`);
+                selfieUrl = publicUrl;
+                await db.from('profiles').update({ avatar_url: publicUrl }).eq('id', userId);
+              }
+            }
+            await db.from('kyc_submissions').insert({
+              user_id: userId, document_type: rec.docType || 'National ID',
+              front_url: frontUrl, back_url: backUrl, selfie_url: selfieUrl, status: 'pending',
+            });
+            await db.from('profiles').update({ kyc_status: 'pending' }).eq('id', userId);
+          } catch(uploadErr) { console.error('Deferred KYC upload failed:', uploadErr); }
+          idb.close();
+          res();
+        };
+        req.onerror = () => { idb.close(); res(); };
+      };
+      r.onerror = () => res();
+    });
+  } catch(e) {}
+
   // ── Suspend + KYC check ───────────────────────────────────
   let _kycStatus = 'verified';
   try {

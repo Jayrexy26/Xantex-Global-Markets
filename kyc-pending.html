@@ -452,7 +452,15 @@
   }
 
   if (!_hasSubmission) {
-    applyNoSubmission();
+    // Google/OAuth users bypassed the 3-step registration and need to submit docs here.
+    // Email signup users already uploaded their docs during registration — show pending state.
+    const provider = session.user.app_metadata?.provider || '';
+    const isOAuth  = provider === 'google' || provider === 'google.com' || provider === 'github';
+    if (isOAuth) {
+      applyNoSubmission();
+    } else {
+      applyStatus(_kycStatus);
+    }
   } else {
     applyStatus(_kycStatus);
   }

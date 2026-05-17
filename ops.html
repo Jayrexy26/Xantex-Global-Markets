@@ -1307,11 +1307,11 @@
           <div class="card">
             <div class="card__head"><div class="card__title">Feature Toggles</div></div>
             <div class="card__body" style="padding:12px 20px;">
-              <div class="toggle-wrap"><div><div class="toggle-wrap__label">New Registrations</div><div class="toggle-wrap__sub">Allow new users to register</div></div><label class="toggle-switch"><input type="checkbox" id="toggle-new-reg" checked><span class="toggle-slider"></span></label></div>
+              <div class="toggle-wrap"><div><div class="toggle-wrap__label">New Registrations</div><div class="toggle-wrap__sub">Allow new users to register</div></div><label class="toggle-switch"><input type="checkbox" id="toggle-new-reg" checked onchange="saveToggleSetting('registration_enabled',this.checked)"><span class="toggle-slider"></span></label></div>
               <div class="toggle-wrap"><div><div class="toggle-wrap__label">Demo Accounts</div><div class="toggle-wrap__sub">Allow demo account creation</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
               <div class="toggle-wrap"><div><div class="toggle-wrap__label">Crypto Trading</div><div class="toggle-wrap__sub">Enable crypto instruments</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
               <div class="toggle-wrap"><div><div class="toggle-wrap__label">Auto KYC Approval</div><div class="toggle-wrap__sub">Auto-approve low-risk users</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
-              <div class="toggle-wrap"><div><div class="toggle-wrap__label">Maintenance Mode</div><div class="toggle-wrap__sub">Show maintenance page to users</div></div><label class="toggle-switch"><input type="checkbox" id="toggle-maintenance"><span class="toggle-slider"></span></label></div>
+              <div class="toggle-wrap"><div><div class="toggle-wrap__label">Maintenance Mode</div><div class="toggle-wrap__sub">Show maintenance page to users</div></div><label class="toggle-switch"><input type="checkbox" id="toggle-maintenance" onchange="saveToggleSetting('maintenance_mode',this.checked)"><span class="toggle-slider"></span></label></div>
               <div class="toggle-wrap"><div><div class="toggle-wrap__label">2FA Required</div><div class="toggle-wrap__sub">Force 2FA for all users</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
             </div>
           </div>
@@ -3160,6 +3160,15 @@ window.loadSystemSettings = async function() {
   if (regEl) regEl.checked = s.registration_enabled !== 'false';
   const mEl = document.getElementById('toggle-maintenance');
   if (mEl) mEl.checked = s.maintenance_mode === 'true';
+};
+
+window.saveToggleSetting = async function(key, checked) {
+  const db = window.XANTEX_DB; if (!db) return;
+  const value = checked ? 'true' : 'false';
+  const { error } = await db.from('platform_settings').upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  await logAudit('UPDATE_SETTING', key, key + ' set to ' + value);
+  showToast((checked ? 'Enabled' : 'Disabled') + ': ' + key.replace(/_/g,' '), checked ? 'success' : 'error');
 };
 
 window.saveSystemSettings = async function() {

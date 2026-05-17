@@ -1461,26 +1461,63 @@
         <div class="page-header">
           <div>
             <div class="page-header__title">Email Users</div>
-            <div class="page-header__sub">Send branded emails to clients</div>
+            <div class="page-header__sub">Send branded emails directly to clients</div>
           </div>
-          <button class="btn btn--primary" onclick="openModal('modal-compose-email')" style="display:flex;align-items:center;gap:8px;">
-            <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Compose Email
-          </button>
         </div>
-        <div class="card">
-          <div class="card__head" style="display:flex;align-items:center;justify-content:space-between;">
-            <div class="card__title">Sent Emails</div>
-            <button class="btn btn--outline btn--sm" onclick="loadEmailHistory()">Refresh</button>
+
+        <div style="display:grid;grid-template-columns:400px 1fr;gap:20px;align-items:start;">
+
+          <!-- Compose panel -->
+          <div class="card" style="position:sticky;top:24px;">
+            <div class="card__head">
+              <div class="card__title" style="display:flex;align-items:center;gap:8px;">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:var(--blue);stroke-width:2;flex-shrink:0;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+                New Email
+              </div>
+            </div>
+            <div class="card__body" style="display:flex;flex-direction:column;gap:16px;">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">To</label>
+                <select id="email-recipient-sel" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text);outline:none;appearance:auto;">
+                  <option value="">— Select recipient —</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Subject</label>
+                <input id="email-subject" type="text" placeholder="e.g. Important account update"
+                  style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text);outline:none;box-sizing:border-box;">
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Message</label>
+                <textarea id="email-body" rows="10" placeholder="Type your message here&#8230;"
+                  style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text);outline:none;resize:vertical;box-sizing:border-box;font-family:inherit;line-height:1.6;"></textarea>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:flex-start;gap:8px;">
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:var(--blue);stroke-width:2;flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <p style="margin:0;font-size:12px;color:var(--muted);line-height:1.5;">Sent using the Xantex branded template with logo, your message, support contact and signature.</p>
+              </div>
+              <button id="email-send-btn" onclick="opsSendEmail()" class="btn btn--primary" style="width:100%;justify-content:center;padding:12px;">
+                Send Email
+              </button>
+            </div>
           </div>
-          <div class="card__body--p0 table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Recipient</th><th>Name</th><th>Subject</th><th>Sent</th><th></th></tr></thead>
-              <tbody id="email-history-body">
-                <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:28px;">Loading&hellip;</td></tr>
-              </tbody>
-            </table>
+
+          <!-- History panel -->
+          <div class="card">
+            <div class="card__head" style="display:flex;align-items:center;justify-content:space-between;">
+              <div class="card__title">Sent History</div>
+              <button class="btn btn--outline btn--sm" onclick="loadEmailHistory()">Refresh</button>
+            </div>
+            <div class="card__body--p0 table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Recipient</th><th>Subject</th><th>Sent</th><th></th></tr></thead>
+                <tbody id="email-history-body">
+                  <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:32px;">Loading&hellip;</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
+
         </div>
       </div>
 
@@ -1721,37 +1758,6 @@
     <div class="modal__foot">
       <button class="btn btn--outline" onclick="closeModal('modal-pt-trade')">Cancel</button>
       <button class="btn btn--primary" onclick="ptSaveTrade()">Add Entry</button>
-    </div>
-  </div>
-</div>
-
-<!-- Compose Email Modal -->
-<div class="modal-overlay" id="modal-compose-email">
-  <div class="modal" style="max-width:580px;">
-    <div class="modal__head">
-      <div class="modal__title">Compose Email</div>
-      <button class="modal__close" onclick="closeModal('modal-compose-email')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="modal__body">
-      <div class="form-group">
-        <label class="form-label">Recipient</label>
-        <select id="email-recipient-sel" class="form-control">
-          <option value="">— Select user —</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Subject</label>
-        <input id="email-subject" type="text" class="form-control" placeholder="e.g. Important account update">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Message</label>
-        <textarea id="email-body" class="form-control" rows="9" placeholder="Type your message here…" style="resize:vertical;min-height:160px;"></textarea>
-      </div>
-      <p style="font-size:12px;color:var(--muted);margin:0;">The email will be sent with the Xantex branded template and your signature.</p>
-    </div>
-    <div class="modal__foot">
-      <button class="btn btn--outline" onclick="closeModal('modal-compose-email')">Cancel</button>
-      <button class="btn btn--primary" id="email-send-btn" onclick="opsSendEmail()">Send Email</button>
     </div>
   </div>
 </div>
@@ -3818,15 +3824,17 @@ async function loadEmailHistory() {
   const data = await _adminApiCall('get_email_history');
   _emailHistory = data.emails ?? [];
   if (!_emailHistory.length) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:28px;">No emails sent yet</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:32px;">No emails sent yet</td></tr>';
     return;
   }
   tbody.innerHTML = _emailHistory.map(e => `
     <tr>
-      <td>${e.recipient_email}</td>
-      <td>${e.recipient_name || '&mdash;'}</td>
+      <td>
+        <div style="font-size:13px;color:var(--text);">${e.recipient_email}</div>
+        ${e.recipient_name ? `<div style="font-size:11px;color:var(--muted);">${e.recipient_name}</div>` : ''}
+      </td>
       <td>${e.subject}</td>
-      <td>${fmtDate(e.sent_at)}</td>
+      <td style="white-space:nowrap;">${fmtDate(e.sent_at)}</td>
       <td><button class="btn btn--sm btn--outline" onclick="viewEmailModal('${e.id}')">View</button></td>
     </tr>`).join('');
 }
@@ -3871,9 +3879,9 @@ window.opsSendEmail = async function() {
 
   if (result.error) { showToast('Error: ' + result.error, 'error'); return; }
   showToast('Email sent successfully', 'success');
-  closeModal('modal-compose-email');
   document.getElementById('email-subject').value = '';
   document.getElementById('email-body').value = '';
+  document.getElementById('email-recipient-sel').value = '';
   await logAudit('SEND_EMAIL', parsed.email, subject);
   loadEmailHistory();
 };

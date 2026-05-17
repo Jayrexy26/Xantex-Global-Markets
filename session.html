@@ -466,7 +466,15 @@
               user_id: userId, document_type: rec.docType || 'National ID',
               front_url: frontUrl, back_url: backUrl, selfie_url: selfieUrl, status: 'pending',
             });
-            await db.from('profiles').update({ kyc_status: 'pending' }).eq('id', userId);
+            // Sync phone/country/DOB from user_metadata (trigger only sets name fields)
+            const _meta = session.user.user_metadata || {};
+            const _profilePatch = { kyc_status: 'pending' };
+            if (_meta.phone        && _meta.phone        !== '') _profilePatch.phone         = _meta.phone;
+            if (_meta.country      && _meta.country      !== '') _profilePatch.country       = _meta.country;
+            if (_meta.date_of_birth&& _meta.date_of_birth!== '') _profilePatch.date_of_birth = _meta.date_of_birth;
+            if (_meta.first_name   && _meta.first_name   !== '') _profilePatch.first_name    = _meta.first_name;
+            if (_meta.last_name    && _meta.last_name    !== '') _profilePatch.last_name     = _meta.last_name;
+            await db.from('profiles').update(_profilePatch).eq('id', userId);
           } catch(uploadErr) { console.error('Deferred KYC upload failed:', uploadErr); }
           idb.close();
           res();

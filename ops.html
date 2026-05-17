@@ -1476,11 +1476,23 @@
               </div>
             </div>
             <div class="card__body" style="display:flex;flex-direction:column;gap:16px;">
-              <div>
+              <div style="position:relative;">
                 <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">To</label>
-                <select id="email-recipient-sel" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text);outline:none;appearance:auto;">
-                  <option value="">— Select recipient —</option>
-                </select>
+                <div id="email-dd" style="position:relative;user-select:none;">
+                  <div id="email-dd-trigger" onclick="emailDdToggle()"
+                    style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--muted);cursor:pointer;">
+                    <span id="email-dd-label">— Select recipient —</span>
+                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                  <div id="email-dd-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.4);overflow:hidden;">
+                    <div style="padding:8px;">
+                      <input id="email-dd-search" type="text" placeholder="Search users…" oninput="emailDdFilter(this.value)"
+                        style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text);outline:none;box-sizing:border-box;">
+                    </div>
+                    <div id="email-dd-list" style="max-height:200px;overflow-y:auto;padding:0 4px 6px;"></div>
+                  </div>
+                </div>
+                <input type="hidden" id="email-recipient-sel">
               </div>
               <div>
                 <label style="display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Subject</label>
@@ -3845,21 +3857,57 @@ async function loadEmailHistory() {
     </tr>`).join('');
 }
 
+let _emailUsers = [];
+
 async function emailPopulateUsers() {
-  const sel = document.getElementById('email-recipient-sel');
-  if (!sel) return;
   const db = window.XANTEX_DB; if (!db) return;
   const { data: profiles } = await db.from('profiles').select('id,email,first_name,last_name').order('email');
-  sel.innerHTML = '<option value="">— Select user —</option>';
-  (profiles ?? []).forEach(p => {
+  _emailUsers = (profiles ?? []).map(p => {
     const name = [p.first_name, p.last_name].filter(Boolean).join(' ') || '';
-    const label = name ? `${p.email} (${name})` : p.email;
-    const opt = document.createElement('option');
-    opt.value = JSON.stringify({ id: p.id, email: p.email, name });
-    opt.textContent = label;
-    sel.appendChild(opt);
+    return { id: p.id, email: p.email, name, label: name ? `${p.email} (${name})` : p.email };
   });
+  emailDdRender(_emailUsers);
 }
+
+function emailDdRender(users) {
+  const list = document.getElementById('email-dd-list');
+  if (!list) return;
+  list.innerHTML = users.map(u => `
+    <div onclick="emailDdSelect(${JSON.stringify(JSON.stringify(u))})"
+      style="padding:8px 10px;font-size:13px;color:var(--text);border-radius:6px;cursor:pointer;"
+      onmouseenter="this.style.background='var(--surface)'" onmouseleave="this.style.background=''">${u.label}</div>
+  `).join('') || '<div style="padding:8px 10px;font-size:12px;color:var(--muted);">No users found</div>';
+}
+
+function emailDdToggle() {
+  const menu = document.getElementById('email-dd-menu');
+  const search = document.getElementById('email-dd-search');
+  if (!menu) return;
+  const open = menu.style.display === 'block';
+  menu.style.display = open ? 'none' : 'block';
+  if (!open) { search?.focus(); emailDdRender(_emailUsers); }
+}
+
+function emailDdFilter(q) {
+  const filtered = _emailUsers.filter(u => u.label.toLowerCase().includes(q.toLowerCase()));
+  emailDdRender(filtered);
+}
+
+function emailDdSelect(jsonStr) {
+  const u = JSON.parse(jsonStr);
+  document.getElementById('email-recipient-sel').value = JSON.stringify(u);
+  document.getElementById('email-dd-label').textContent = u.label;
+  document.getElementById('email-dd-label').style.color = 'var(--text)';
+  document.getElementById('email-dd-menu').style.display = 'none';
+}
+
+document.addEventListener('click', e => {
+  const dd = document.getElementById('email-dd');
+  if (dd && !dd.contains(e.target)) {
+    const menu = document.getElementById('email-dd-menu');
+    if (menu) menu.style.display = 'none';
+  }
+});
 
 window.opsSendEmail = async function() {
   const sel = document.getElementById('email-recipient-sel');
@@ -3888,6 +3936,8 @@ window.opsSendEmail = async function() {
   document.getElementById('email-subject').value = '';
   document.getElementById('email-body').value = '';
   document.getElementById('email-recipient-sel').value = '';
+  const lbl = document.getElementById('email-dd-label');
+  if (lbl) { lbl.textContent = '— Select recipient —'; lbl.style.color = 'var(--muted)'; }
   await logAudit('SEND_EMAIL', parsed.email, subject);
   loadEmailHistory();
 };

@@ -2965,50 +2965,41 @@ function savePreferences() {
     return null;
   }
 
-  // Load and render profit target widget (non-blocking)
-  (async () => {
+  async function loadProfitTarget() {
     try {
-      const { data: target, error: tgtErr } = await db
+      const { data: rows } = await db
         .from('profit_targets')
         .select('id, target_amount, label')
         .eq('user_id', userId)
         .eq('is_active', true)
-        .limit(1)
-        .maybeSingle();
-      if (tgtErr) { console.warn('[pt-widget] target:', tgtErr.message); return; }
+        .order('created_at', { ascending: false })
+        .limit(1);
+      const target = rows && rows[0];
       if (!target) return;
-      const { data: trades, error: trdErr } = await db
+      const { data: trades } = await db
         .from('profit_target_trades')
         .select('percentage_delta')
         .eq('target_id', target.id);
-      if (trdErr) console.warn('[pt-widget] trades:', trdErr.message);
       const pct = (trades || []).reduce((s, t) => s + Number(t.percentage_delta), 0);
-      renderProfitWidget(pct, target.target_amount, target.label);
+      const widget = document.getElementById('pt-widget');
+      if (!widget) return;
+      const circumference = 2 * Math.PI * 29;
+      const clamped = Math.min(Math.max(pct, 0), 100);
+      const offset  = circumference - (clamped / 100) * circumference;
+      const color   = pct < 0 ? 'rgba(239,68,68,0.9)' : pct < 30 ? 'rgba(249,115,22,0.9)' : pct < 70 ? 'rgba(234,179,8,0.9)' : 'rgba(34,197,94,0.9)';
+      const fill    = document.getElementById('pt-ring-fill');
+      const ringTxt = document.getElementById('pt-ring-text');
+      const pctTxt  = document.getElementById('pt-pct-text');
+      const tgtTxt  = document.getElementById('pt-target-text');
+      const lblTxt  = document.getElementById('pt-label-text');
+      if (fill)    { fill.style.stroke = color; fill.setAttribute('stroke-dashoffset', offset); }
+      if (ringTxt) ringTxt.textContent = Math.round(clamped) + '%';
+      if (pctTxt)  { pctTxt.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%'; pctTxt.style.color = color; }
+      if (tgtTxt)  tgtTxt.textContent = 'of $' + Number(target.target_amount).toLocaleString() + ' target';
+      if (lblTxt)  lblTxt.textContent = target.label || '';
+      widget.style.setProperty('--pt-color', color);
+      widget.style.display = 'block';
     } catch(e) { console.warn('[pt-widget]', e.message); }
-  })();
-
-  function renderProfitWidget(pct, targetAmount, label) {
-    const widget = document.getElementById('pt-widget');
-    if (!widget) return;
-    const circumference = 2 * Math.PI * 29; // r=29
-    const clamped = Math.min(Math.max(pct, 0), 100);
-    const offset  = circumference - (clamped / 100) * circumference;
-    const color   = pct < 0 ? 'rgba(239,68,68,0.9)' : pct < 30 ? 'rgba(249,115,22,0.9)' : pct < 70 ? 'rgba(234,179,8,0.9)' : 'rgba(34,197,94,0.9)';
-    const fill    = document.getElementById('pt-ring-fill');
-    const ringTxt = document.getElementById('pt-ring-text');
-    const pctTxt  = document.getElementById('pt-pct-text');
-    const tgtTxt  = document.getElementById('pt-target-text');
-    const lblTxt  = document.getElementById('pt-label-text');
-    fill.style.stroke = color;
-    fill.setAttribute('stroke-dashoffset', offset);
-    const display = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
-    ringTxt.textContent = Math.round(clamped) + '%';
-    pctTxt.textContent  = display;
-    pctTxt.style.color  = color;
-    tgtTxt.textContent  = 'of $' + Number(targetAmount).toLocaleString() + ' target';
-    lblTxt.textContent  = label || '';
-    widget.style.setProperty('--pt-color', color);
-    widget.style.display = 'block';
   }
 
   let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns, closedTrades] = await Promise.all([
@@ -3021,6 +3012,7 @@ function savePreferences() {
     rpcCfg(),
     loadRows('adjTxns',       'get_my_adj_txns',    'transactions',        q => q.eq('type','adjustment')),
     loadRows('closedTrades',  'get_my_closed_trades','positions',          q => q.eq('status','closed').select('realised_pnl')),
+    loadProfitTarget(),
   ]);
 
   // ── Suspended account check ───────────────────────────────

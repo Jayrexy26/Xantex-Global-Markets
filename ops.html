@@ -3777,14 +3777,8 @@ window.ptSaveTarget = async function() {
   const label  = document.getElementById('pt-set-label')?.value?.trim();
   if (!userId) { showToast('Select a user', 'error'); return; }
   if (!amount || Number(amount) <= 0) { showToast('Enter a valid target amount', 'error'); return; }
-  const db = window.XANTEX_DB;
-  if (!db) return;
-  await db.from('profit_targets')
-    .update({ is_active: false, updated_at: new Date().toISOString() })
-    .eq('user_id', userId).eq('is_active', true);
-  const { error } = await db.from('profit_targets')
-    .insert({ user_id: userId, target_amount: Number(amount), label: label || null, is_active: true });
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  const res = await _adminApiCall('set_profit_target', { user_id: userId, target_amount: Number(amount), label: label || null });
+  if (!res?.target) { showToast('Error setting target', 'error'); return; }
   closeModal('modal-pt-set');
   showToast('Profit target set', 'success');
   const userSel = document.getElementById('pt-user-sel');
@@ -3868,11 +3862,8 @@ window.ptDeleteTrade = async function(tradeId) {
 window.ptDeactivate = async function() {
   if (!_ptCurrentTarget) return;
   if (!confirm('Deactivate this profit target? The user will no longer see it in their dashboard.')) return;
-  const db = window.XANTEX_DB; if (!db) return;
-  const { error } = await db.from('profit_targets')
-    .update({ is_active: false, updated_at: new Date().toISOString() })
-    .eq('id', _ptCurrentTarget.id);
-  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  const res = await _adminApiCall('deactivate_profit_target', { target_id: _ptCurrentTarget.id });
+  if (!res?.success) { showToast('Error deactivating target', 'error'); return; }
   showToast('Target deactivated', 'success');
   _ptCurrentTarget = null;
   const userSel = document.getElementById('pt-user-sel');

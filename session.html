@@ -630,7 +630,7 @@
         // If email failed to send, surface a clear error — PIN was reset but user can't get it
         if (!result.emailSent) {
           msgEl.className = 'reset-msg err';
-          msgEl.textContent = 'PIN was reset but the email could not be delivered.' + (result.emailError ? ' (' + result.emailError + ')' : ' Please contact support.');
+          msgEl.textContent = 'PIN was reset but the email could not be delivered. Please contact support.';
           sendBtn.disabled = false;
           sendBtn.textContent = 'Send New PIN';
           return;

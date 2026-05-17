@@ -78,7 +78,6 @@ Deno.serve(async (req) => {
 
   // Send email via Resend (best-effort — PIN is already updated even if email fails)
   let emailSent = false
-  let emailError = ''
   if (RESEND_KEY && user.email) {
     try {
       const res = await fetch('https://api.resend.com/emails', {
@@ -95,17 +94,11 @@ Deno.serve(async (req) => {
         }),
       })
       emailSent = res.ok
-      if (!res.ok) {
-        emailError = await res.text()
-        console.error('Resend error:', emailError)
-      }
+      if (!res.ok) console.error('Resend error:', await res.text())
     } catch (e) {
-      emailError = String(e)
       console.error('Email send exception:', e)
     }
-  } else {
-    emailError = RESEND_KEY ? 'No user email' : 'RESEND_API_KEY not set'
   }
 
-  return json({ success: true, emailSent, emailError })
+  return json({ success: true, emailSent })
 })

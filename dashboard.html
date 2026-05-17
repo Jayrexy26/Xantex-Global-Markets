@@ -109,29 +109,28 @@
     .sidebar__logout:hover { color: var(--red); }
     .sidebar__logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
 
-    /* ── Profit Target Widget ── */
+    /* ── Profit Target Card (summary row) ── */
+    @keyframes ptFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
     .pt-widget {
       display: none; /* shown by JS when target exists */
-      margin: 0 12px 12px;
-      background: linear-gradient(135deg, rgba(26,92,255,.12) 0%, rgba(26,92,255,.04) 100%);
-      border: 1px solid rgba(26,92,255,.25);
+      background: linear-gradient(135deg, rgba(26,92,255,.18) 0%, rgba(26,92,255,.06) 100%);
+      border: 1px solid rgba(26,92,255,.30);
       border-radius: 12px;
-      padding: 12px 14px;
+      padding: 20px;
       animation: ptFadeIn .4s ease;
     }
-    @keyframes ptFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-    .pt-widget__header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-    .pt-widget__label  { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,.35); }
-    .pt-widget__body   { display:flex; align-items:center; gap:12px; }
-    .pt-ring-wrap      { position:relative; width:52px; height:52px; flex-shrink:0; }
+    .pt-widget__label  { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:rgba(26,92,255,.7); margin-bottom:14px; display:flex; align-items:center; gap:6px; }
+    .pt-widget__label svg { width:14px; height:14px; fill:none; stroke:rgba(26,92,255,.7); stroke-width:2; }
+    .pt-widget__body   { display:flex; align-items:center; gap:16px; }
+    .pt-ring-wrap      { position:relative; width:72px; height:72px; flex-shrink:0; }
     .pt-ring-wrap svg  { transform:rotate(-90deg); }
-    .pt-ring-track     { fill:none; stroke:rgba(255,255,255,.07); stroke-width:4; }
-    .pt-ring-fill      { fill:none; stroke-width:4; stroke-linecap:round; transition:stroke-dashoffset .8s cubic-bezier(.22,1,.36,1), stroke .5s; }
-    .pt-ring-text      { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#fff; }
+    .pt-ring-track     { fill:none; stroke:rgba(0,0,0,.08); stroke-width:5; }
+    .pt-ring-fill      { fill:none; stroke-width:5; stroke-linecap:round; transition:stroke-dashoffset .8s cubic-bezier(.22,1,.36,1), stroke .5s; }
+    .pt-ring-text      { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:var(--text); }
     .pt-widget__info   { flex:1; min-width:0; }
-    .pt-widget__pct    { font-size:20px; font-weight:800; letter-spacing:-.5px; line-height:1; }
-    .pt-widget__target { font-size:11px; color:rgba(255,255,255,.4); margin-top:3px; }
-    .pt-widget__name   { font-size:10px; color:rgba(255,255,255,.3); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .pt-widget__pct    { font-size:26px; font-weight:700; letter-spacing:-.5px; line-height:1; margin-bottom:5px; }
+    .pt-widget__target { font-size:12px; color:var(--muted); }
+    .pt-widget__name   { font-size:11px; color:var(--muted); margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
     /* ============================================================
        MAIN
@@ -1132,30 +1131,6 @@
       </button>
     </nav>
 
-    <!-- Profit Target Progress Widget -->
-    <div class="pt-widget" id="pt-widget">
-      <div class="pt-widget__header">
-        <span class="pt-widget__label">Profit Target</span>
-      </div>
-      <div class="pt-widget__body">
-        <div class="pt-ring-wrap">
-          <svg width="52" height="52" viewBox="0 0 52 52">
-            <circle class="pt-ring-track" cx="26" cy="26" r="21"/>
-            <circle class="pt-ring-fill" id="pt-ring-fill" cx="26" cy="26" r="21"
-              stroke="#4ade80"
-              stroke-dasharray="131.95"
-              stroke-dashoffset="131.95"/>
-          </svg>
-          <div class="pt-ring-text" id="pt-ring-text">0%</div>
-        </div>
-        <div class="pt-widget__info">
-          <div class="pt-widget__pct" id="pt-pct-text">0%</div>
-          <div class="pt-widget__target" id="pt-target-text">of $0 target</div>
-          <div class="pt-widget__name" id="pt-label-text"></div>
-        </div>
-      </div>
-    </div>
-
     <div class="sidebar__footer">
       <div class="sidebar__avatar"></div>
       <div>
@@ -1248,6 +1223,32 @@
             <div class="summary-card__value card-loading" id="card-margin">—</div>
             <div class="summary-card__change card-loading" id="card-margin-sub" style="color:var(--muted);">Loading…</div>
           </div>
+
+          <!-- Profit Target Card — shown by JS when an active target exists -->
+          <div class="pt-widget" id="pt-widget">
+            <div class="pt-widget__label">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              Profit Target
+            </div>
+            <div class="pt-widget__body">
+              <div class="pt-ring-wrap">
+                <svg width="72" height="72" viewBox="0 0 72 72">
+                  <circle class="pt-ring-track" cx="36" cy="36" r="29"/>
+                  <circle class="pt-ring-fill" id="pt-ring-fill" cx="36" cy="36" r="29"
+                    stroke="#4ade80"
+                    stroke-dasharray="182.21"
+                    stroke-dashoffset="182.21"/>
+                </svg>
+                <div class="pt-ring-text" id="pt-ring-text">0%</div>
+              </div>
+              <div class="pt-widget__info">
+                <div class="pt-widget__pct" id="pt-pct-text">0%</div>
+                <div class="pt-widget__target" id="pt-target-text">of $0 target</div>
+                <div class="pt-widget__name" id="pt-label-text"></div>
+              </div>
+            </div>
+          </div>
+
           <div class="summary-card">
             <div class="summary-card__label">
               <svg viewBox="0 0 24 24"><path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -2903,10 +2904,10 @@ function savePreferences() {
   function renderProfitWidget(pct, targetAmount, label) {
     const widget = document.getElementById('pt-widget');
     if (!widget) return;
-    const circumference = 2 * Math.PI * 21; // r=21
+    const circumference = 2 * Math.PI * 29; // r=29
     const clamped = Math.min(Math.max(pct, 0), 100);
     const offset  = circumference - (clamped / 100) * circumference;
-    const color   = pct < 0 ? '#f87171' : pct < 30 ? '#fb923c' : pct < 70 ? '#fbbf24' : '#4ade80';
+    const color   = pct < 0 ? '#ef4444' : pct < 30 ? '#f97316' : pct < 70 ? '#eab308' : '#22c55e';
     const fill    = document.getElementById('pt-ring-fill');
     const ringTxt = document.getElementById('pt-ring-text');
     const pctTxt  = document.getElementById('pt-pct-text');

@@ -2478,8 +2478,10 @@
     const r = (window._txnRows || [])[i];
     if (!r || !r.canCancel) return;
     if (!confirm('Cancel this request? This cannot be undone.')) return;
+    const _db = window.XANTEX_DB;
+    if (!_db) { alert('Not connected. Please refresh.'); return; }
     const table = r.type === 'deposit_request' ? 'deposit_requests' : 'withdrawal_requests';
-    const { error } = await db.from(table).update({ status: 'cancelled' }).eq('id', r.reqId).eq('status', 'pending');
+    const { error } = await _db.from(table).update({ status: 'cancelled' }).eq('id', r.reqId).eq('status', 'pending');
     if (error) { alert('Could not cancel: ' + error.message); return; }
     if (r.type === 'deposit_request') {
       window._dashData.depReqs = (window._dashData.depReqs||[]).map(d => d.id===r.reqId ? {...d,status:'cancelled'} : d);
@@ -2501,13 +2503,20 @@
   }
   function closeModal(id) {
     const overlay = document.getElementById('modal-' + id);
+    if (!overlay) return;
     const m = overlay.querySelector('.modal');
+    if (!m) { overlay.classList.remove('open'); return; }
     m.classList.remove('genie-in');
     m.classList.add('genie-out');
-    m.addEventListener('animationend', () => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
       m.classList.remove('genie-out');
       overlay.classList.remove('open');
-    }, { once: true });
+    };
+    m.addEventListener('animationend', finish, { once: true });
+    setTimeout(finish, 420); // fallback if animationend never fires
   }
   // Close on overlay click
   document.querySelectorAll('.modal-overlay').forEach(el => {

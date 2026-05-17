@@ -902,17 +902,18 @@
 
     // KYC status
     const kycStatus = _profile.kyc_status || 'not_submitted';
-    const kycBadge  = { approved:'sett-badge--on', pending:'sett-badge--warn', rejected:'sett-badge--off', not_submitted:'sett-badge--off', submitted:'sett-badge--warn' };
-    const kycLabel  = { approved:'Verified', pending:'Pending Review', rejected:'Rejected', not_submitted:'Not Verified', submitted:'Under Review' };
+    const isVerified = kycStatus === 'verified';
+    const kycBadge  = { verified:'sett-badge--on', approved:'sett-badge--on', pending:'sett-badge--warn', rejected:'sett-badge--off', not_submitted:'sett-badge--off', submitted:'sett-badge--warn' };
+    const kycLabel  = { verified:'Verified', approved:'Verified', pending:'Pending Review', rejected:'Rejected', not_submitted:'Not Verified', submitted:'Under Review' };
     const badgeEl   = document.getElementById('badge-kyc');
     if (badgeEl) { badgeEl.textContent = kycLabel[kycStatus]||kycStatus; badgeEl.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
     const kycsub = document.getElementById('kyc-security-sub');
-    if (kycsub) kycsub.textContent = kycStatus === 'approved' ? 'Your identity is verified' : 'Upload your documents to verify your identity';
+    if (kycsub) kycsub.textContent = isVerified ? 'Your identity is verified' : 'Upload your documents to verify your identity';
 
     // KYC banner
-    const bannerTitles = { approved:'Identity Verified', pending:'Verification Pending', rejected:'Verification Rejected', not_submitted:'Verification Required', submitted:'Documents Under Review' };
-    const bannerSubs   = { approved:'Your account is fully verified. All features are unlocked.', pending:'We are reviewing your documents. This may take up to 24 hours.', rejected:'Your documents were rejected. Please re-upload with correct documents.', not_submitted:'Please upload your identity documents to unlock full trading access.', submitted:'Your documents are under review by our compliance team.' };
-    const bannerColors = { approved:'var(--green)', pending:'var(--orange)', rejected:'var(--red)', not_submitted:'var(--blue)', submitted:'var(--orange)' };
+    const bannerTitles = { verified:'Identity Verified', approved:'Identity Verified', pending:'Verification Pending', rejected:'Verification Rejected', not_submitted:'Verification Required', submitted:'Documents Under Review' };
+    const bannerSubs   = { verified:'Your account is fully verified. All features are unlocked.', approved:'Your account is fully verified. All features are unlocked.', pending:'We are reviewing your documents. This may take up to 24 hours.', rejected:'Your documents were rejected. Please re-upload with correct documents.', not_submitted:'Please upload your identity documents to unlock full trading access.', submitted:'Your documents are under review by our compliance team.' };
+    const bannerColors = { verified:'var(--green)', approved:'var(--green)', pending:'var(--orange)', rejected:'var(--red)', not_submitted:'var(--blue)', submitted:'var(--orange)' };
     const bannerTitle  = document.getElementById('kyc-banner-title');
     const bannerSub    = document.getElementById('kyc-banner-sub');
     const bannerBadge  = document.getElementById('kyc-banner-badge');
@@ -921,14 +922,14 @@
     if (bannerSub)   bannerSub.textContent   = bannerSubs[kycStatus]   || '';
     if (bannerBadge) { bannerBadge.textContent = kycLabel[kycStatus]||kycStatus; bannerBadge.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
     if (bannerIcon)  bannerIcon.style.background = (bannerColors[kycStatus]||'var(--blue)') + '22';
-    const docBadgeCls = kycStatus === 'approved' ? 'sett-badge--on' : kycStatus === 'rejected' ? 'sett-badge--off' : 'sett-badge--warn';
-    const docBadgeTxt = kycStatus === 'approved' ? 'Verified' : kycStatus === 'not_submitted' ? 'Not uploaded' : 'Under review';
+    const docBadgeCls = isVerified ? 'sett-badge--on' : kycStatus === 'rejected' ? 'sett-badge--off' : 'sett-badge--warn';
+    const docBadgeTxt = isVerified ? 'Verified' : kycStatus === 'not_submitted' ? 'Not uploaded' : 'Under review';
     ['doc-id-badge','doc-address-badge','doc-selfie-badge'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) { el.textContent = docBadgeTxt; el.className = 'sett-badge ' + docBadgeCls; if (kycStatus === 'approved') el.style.color = '#22a06b'; else el.style.color = ''; }
+      if (el) { el.textContent = docBadgeTxt; el.className = 'sett-badge ' + docBadgeCls; el.style.color = isVerified ? '#22a06b' : ''; }
     });
     const foot = document.getElementById('kyc-upload-foot');
-    if (foot) foot.style.display = kycStatus === 'approved' ? 'none' : '';
+    if (foot) foot.style.display = isVerified ? 'none' : '';
 
     // Preferences — language + locked fields
     const prefDark = document.getElementById('pref-dark');

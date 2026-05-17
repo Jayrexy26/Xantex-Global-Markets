@@ -1042,6 +1042,19 @@
 
     if (!s3valid) return;
 
+    // Check registration_enabled platform setting before proceeding
+    try {
+      const _regCheck = await db.from('platform_settings').select('value').eq('key','registration_enabled').maybeSingle();
+      if (_regCheck?.data?.value === 'false') {
+        const _errDiv = document.createElement('div');
+        _errDiv.style.cssText = 'background:#fff0f0;border:1px solid #fbc5c5;border-radius:8px;padding:12px 14px;font-size:13px;color:#a32d2d;margin-bottom:12px;';
+        _errDiv.textContent = 'New account registrations are temporarily disabled. Please contact support.';
+        const _form = document.getElementById('step-3');
+        _form?.insertBefore(_errDiv, _form.querySelector('button.btn-submit:last-of-type'));
+        return;
+      }
+    } catch(e) {}
+
     const email     = document.getElementById('email').value.trim();
     const password  = document.getElementById('password').value;
     const firstName = document.getElementById('first-name').value.trim();

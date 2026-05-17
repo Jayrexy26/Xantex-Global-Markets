@@ -1306,7 +1306,7 @@
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
           <button class="btn btn--outline" title="Refresh" onclick="loadDepositAddresses()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
-          <button class="btn btn--green" onclick="showToast('Settings saved successfully','success')">
+          <button class="btn btn--green" onclick="saveSystemSettings()">
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             Save All
           </button>
@@ -1328,11 +1328,11 @@
           <div class="card">
             <div class="card__head"><div class="card__title">Feature Toggles</div></div>
             <div class="card__body" style="padding:12px 20px;">
-              <div class="toggle-wrap"><div><div class="toggle-wrap__label">New Registrations</div><div class="toggle-wrap__sub">Allow new users to register</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+              <div class="toggle-wrap"><div><div class="toggle-wrap__label">New Registrations</div><div class="toggle-wrap__sub">Allow new users to register</div></div><label class="toggle-switch"><input type="checkbox" id="toggle-new-reg" checked><span class="toggle-slider"></span></label></div>
               <div class="toggle-wrap"><div><div class="toggle-wrap__label">Demo Accounts</div><div class="toggle-wrap__sub">Allow demo account creation</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
               <div class="toggle-wrap"><div><div class="toggle-wrap__label">Crypto Trading</div><div class="toggle-wrap__sub">Enable crypto instruments</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
               <div class="toggle-wrap"><div><div class="toggle-wrap__label">Auto KYC Approval</div><div class="toggle-wrap__sub">Auto-approve low-risk users</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
-              <div class="toggle-wrap"><div><div class="toggle-wrap__label">Maintenance Mode</div><div class="toggle-wrap__sub">Show maintenance page to users</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+              <div class="toggle-wrap"><div><div class="toggle-wrap__label">Maintenance Mode</div><div class="toggle-wrap__sub">Show maintenance page to users</div></div><label class="toggle-switch"><input type="checkbox" id="toggle-maintenance"><span class="toggle-slider"></span></label></div>
               <div class="toggle-wrap"><div><div class="toggle-wrap__label">2FA Required</div><div class="toggle-wrap__sub">Force 2FA for all users</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
             </div>
           </div>
@@ -3161,6 +3161,50 @@ window.opsManualDeposit = async function() {
 // â”€â”€ Deposit Addresses â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const _DEP_ADDR_KEYS = ['BTC','ETH','USDT','USDT_TRC20'];
 
+// ── System Settings ───────────────────────────────────────────
+const _SYS_SETTING_KEYS = ['platform_name','support_email','support_phone','registration_enabled','maintenance_mode','min_deposit','max_deposit','min_withdrawal','max_withdrawal'];
+
+window.loadSystemSettings = async function() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const { data } = await db.from('platform_settings').select('key,value').in('key', _SYS_SETTING_KEYS);
+  if (!data) return;
+  const s = Object.fromEntries(data.map(r => [r.key, r.value]));
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
+  set('setting-platform-name',  s.platform_name);
+  set('setting-support-email',  s.support_email);
+  set('setting-support-phone',  s.support_phone);
+  set('setting-min-deposit',    s.min_deposit);
+  set('setting-max-deposit',    s.max_deposit);
+  set('setting-min-withdrawal', s.min_withdrawal);
+  set('setting-max-withdrawal', s.max_withdrawal);
+  const regEl = document.getElementById('toggle-new-reg');
+  if (regEl) regEl.checked = s.registration_enabled !== 'false';
+  const mEl = document.getElementById('toggle-maintenance');
+  if (mEl) mEl.checked = s.maintenance_mode === 'true';
+};
+
+window.saveSystemSettings = async function() {
+  const db = window.XANTEX_DB; if (!db) return;
+  const g  = id => (document.getElementById(id)?.value || '').trim();
+  const gc = id => document.getElementById(id)?.checked;
+  const now = new Date().toISOString();
+  const rows = [
+    { key: 'platform_name',        value: g('setting-platform-name'),    updated_at: now },
+    { key: 'support_email',        value: g('setting-support-email'),    updated_at: now },
+    { key: 'support_phone',        value: g('setting-support-phone'),    updated_at: now },
+    { key: 'registration_enabled', value: gc('toggle-new-reg') ? 'true' : 'false', updated_at: now },
+    { key: 'maintenance_mode',     value: gc('toggle-maintenance') ? 'true' : 'false', updated_at: now },
+    { key: 'min_deposit',          value: g('setting-min-deposit'),      updated_at: now },
+    { key: 'max_deposit',          value: g('setting-max-deposit'),      updated_at: now },
+    { key: 'min_withdrawal',       value: g('setting-min-withdrawal'),   updated_at: now },
+    { key: 'max_withdrawal',       value: g('setting-max-withdrawal'),   updated_at: now },
+  ];
+  const { error } = await db.from('platform_settings').upsert(rows, { onConflict: 'key' });
+  if (error) { showToast('Error saving settings: ' + error.message, 'error'); return; }
+  await logAudit('UPDATE_SYSTEM_SETTINGS', 'platform_settings', 'System settings updated');
+  showToast('All settings saved successfully', 'success');
+};
+
 window.loadDepositAddresses = async function() {
   const db = window.XANTEX_DB; if (!db) return;
   const { data } = await db
@@ -3575,6 +3619,7 @@ window.renderAll = async function() {
   renderAdjLogLive();
   renderActivityLive();
   renderMarketsControl();
+  loadSystemSettings();
   loadDepositAddresses();
   loadReviews();
   dtPopulateAccounts();

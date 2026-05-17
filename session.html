@@ -362,6 +362,11 @@
   const _urlCode   = _sp.get('code');
   const _urlType   = _sp.get('type') || 'signup';
 
+  if (_tokenHash || _urlCode) {
+    // Sign out any existing session so a stale admin/other session can never bleed through
+    try { await db.auth.signOut(); } catch(e) {}
+  }
+
   if (_tokenHash) {
     // OTP / token-hash confirmation (Supabase default for email signups)
     try {

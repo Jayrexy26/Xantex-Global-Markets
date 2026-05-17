@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <title>Scheduled Maintenance — Xantex Global Markets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:    #1a5cff;
+      --blue-dk: #1244cc;
+      --blue-lt: #e8eeff;
+      --red:     #e60023;
+      --bg:      #f4f6f9;
+      --text:    #111111;
+      --muted:   #666666;
+      --border:  #e0e3e8;
+      --green:   #22a06b;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; background: #070f1c; color: #fff; }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      background: radial-gradient(ellipse at 60% 0%, rgba(26,92,255,0.18) 0%, transparent 60%),
+                  radial-gradient(ellipse at 10% 80%, rgba(230,0,35,0.10) 0%, transparent 50%),
+                  #070f1c;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 56px 48px;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .icon-wrap {
+      width: 80px; height: 80px;
+      background: rgba(26,92,255,0.15);
+      border: 1px solid rgba(26,92,255,0.3);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+    }
+    .icon-wrap svg { width: 38px; height: 38px; stroke: #1a5cff; fill: none; stroke-width: 1.8; }
+
+    .logo {
+      margin: 0 auto 32px;
+    }
+    .logo img { height: 48px; margin: 0 auto; }
+    .logo-text { font-size: 20px; font-weight: 800; color: var(--red); display: none; }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    .sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.65;
+      margin-bottom: 36px;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(34,160,107,0.12);
+      border: 1px solid rgba(34,160,107,0.3);
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #22a06b;
+      flex-shrink: 0;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+    .status-text { font-size: 13px; color: #22a06b; font-weight: 500; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .info-cell {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-align: left;
+    }
+    .info-cell__label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+    .info-cell__val   { font-size: 14px; font-weight: 600; color: #fff; }
+
+    .contact {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding-top: 24px;
+      margin-top: 4px;
+    }
+    .contact a { color: #1a5cff; }
+    .contact a:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .card { padding: 36px 24px; }
+      h1 { font-size: 22px; }
+      .info-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="card">
+
+    <div class="logo">
+      <img src="/images/logo.png" alt="Xantex Global Markets"
+        onerror="this.style.display='none';document.querySelector('.logo-text').style.display='block'">
+      <div class="logo-text">Xantex</div>
+    </div>
+
+    <div class="icon-wrap">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+
+    <h1>Scheduled Maintenance</h1>
+    <p class="sub">We're performing planned maintenance to improve your experience. Our systems will be back online shortly. We apologise for any inconvenience.</p>
+
+    <div class="status-bar">
+      <div class="status-dot"></div>
+      <div class="status-text">Our team is actively working — systems will be restored soon</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="info-cell__label">Status</div>
+        <div class="info-cell__val">Under Maintenance</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-cell__label">Estimated Duration</div>
+        <div class="info-cell__val">Typically &lt; 1 hour</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-cell__label">Current Time</div>
+        <div class="info-cell__val" id="current-time">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-cell__label">Your Funds</div>
+        <div class="info-cell__val" style="color:#22a06b;">Fully Safe</div>
+      </div>
+    </div>
+
+    <div class="contact">
+      For urgent assistance contact us at
+      <a href="mailto:support@xantexglobalmarkets.pro" id="support-email-link">support@xantexglobalmarkets.pro</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
+<script>
+  // Update clock
+  function tick() {
+    const el = document.getElementById('current-time');
+    if (el) el.textContent = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // If maintenance mode is off, redirect home
+  (async () => {
+    try {
+      const db = window.XANTEX_DB;
+      if (!db) return;
+      const { data } = await db.from('platform_settings').select('key,value').in('key', ['maintenance_mode', 'support_email']);
+      if (!data) return;
+      const settings = Object.fromEntries(data.map(r => [r.key, r.value]));
+      if (settings.maintenance_mode !== 'true') {
+        window.location.href = 'login.html';
+        return;
+      }
+      if (settings.support_email) {
+        const a = document.getElementById('support-email-link');
+        if (a) { a.href = 'mailto:' + settings.support_email; a.textContent = settings.support_email; }
+      }
+    } catch(e) {}
+  })();
+</script>
+</body>
+</html>

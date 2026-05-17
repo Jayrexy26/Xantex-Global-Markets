@@ -380,7 +380,7 @@
                   <div class="sett-avatar-name" id="sett-avatar-name">—</div>
                   <div class="sett-avatar-email" id="sett-avatar-email">—</div>
                   <div class="sett-avatar-actions">
-                    <button class="btn btn--outline" style="font-size:12px;padding:6px 14px;height:32px;" onclick="document.getElementById('avatar-upload').click()">Change Photo</button>
+                    <button class="btn btn--primary" style="font-size:12px;padding:6px 14px;height:32px;" onclick="document.getElementById('avatar-upload').click()">Change Photo</button>
                     <div id="avatar-upload-status" style="font-size:12px;color:var(--green);display:flex;align-items:center;"></div>
                   </div>
                 </div>
@@ -392,17 +392,17 @@
               </div>
               <div class="sett-card__head">
                 <div class="sett-card__title">Personal Information</div>
-                <div class="sett-card__sub">Your name and personal details</div>
+                <div class="sett-card__sub">Your profile details as registered — contact support to make changes</div>
               </div>
               <div class="sett-card__body">
                 <div class="sett-grid-2">
-                  <div class="sett-field"><label>First Name</label><input type="text" id="prof-fname" placeholder="Enter first name"></div>
-                  <div class="sett-field"><label>Last Name</label><input type="text" id="prof-lname" placeholder="Enter last name"></div>
+                  <div class="sett-field"><label>First Name</label><input type="text" id="prof-fname" readonly style="opacity:0.7;cursor:default;"></div>
+                  <div class="sett-field"><label>Last Name</label><input type="text" id="prof-lname" readonly style="opacity:0.7;cursor:default;"></div>
                 </div>
                 <div class="sett-grid-2">
-                  <div class="sett-field"><label>Date of Birth</label><input type="date" id="prof-dob"></div>
+                  <div class="sett-field"><label>Date of Birth</label><input type="date" id="prof-dob" readonly style="opacity:0.7;cursor:default;"></div>
                   <div class="sett-field"><label>Nationality</label>
-                    <select id="prof-nationality">
+                    <select id="prof-nationality" disabled style="opacity:0.7;cursor:default;">
                       <option value="">— Select nationality —</option>
                       <option>American</option><option>British</option><option>Canadian</option>
                       <option>Australian</option><option>German</option><option>French</option>
@@ -416,17 +416,17 @@
               <div class="sett-card__head" style="padding-top:0;">
                 <div style="border-top:1px solid var(--border);padding-top:18px;">
                   <div class="sett-card__title">Contact Information</div>
-                  <div class="sett-card__sub">Email and phone cannot be changed here — contact support</div>
+                  <div class="sett-card__sub">Contact support to update your information</div>
                 </div>
               </div>
               <div class="sett-card__body">
                 <div class="sett-grid-2">
-                  <div class="sett-field"><label>Email Address</label><input type="email" id="prof-email" readonly></div>
-                  <div class="sett-field"><label>Phone Number</label><input type="tel" id="prof-phone" placeholder="+1 234 567 8900"></div>
+                  <div class="sett-field"><label>Email Address</label><input type="email" id="prof-email" readonly style="opacity:0.7;cursor:default;"></div>
+                  <div class="sett-field"><label>Phone Number</label><input type="tel" id="prof-phone" readonly style="opacity:0.7;cursor:default;"></div>
                 </div>
                 <div class="sett-grid-2">
                   <div class="sett-field"><label>Country of Residence</label>
-                    <select id="prof-country">
+                    <select id="prof-country" disabled style="opacity:0.7;cursor:default;">
                       <option value="">— Select country —</option>
                       <option>United States</option><option>United Kingdom</option><option>Canada</option>
                       <option>Australia</option><option>Germany</option><option>France</option>
@@ -435,13 +435,9 @@
                       <option>Brazil</option><option>Other</option>
                     </select>
                   </div>
-                  <div class="sett-field"><label>City</label><input type="text" id="prof-city" placeholder="Your city"></div>
+                  <div class="sett-field"><label>City</label><input type="text" id="prof-city" readonly style="opacity:0.7;cursor:default;"></div>
                 </div>
-                <div class="sett-field"><label>Account ID (for support)</label><input type="text" id="prof-uid" readonly style="font-family:monospace;font-size:11px;"></div>
-              </div>
-              <div class="sett-card__foot">
-                <button class="btn btn--primary" onclick="saveProfile()" id="save-profile-btn">Save Changes</button>
-                <span id="save-profile-msg" style="font-size:12px;color:var(--green);"></span>
+                <div class="sett-field"><label>Account ID (for support)</label><input type="text" id="prof-uid" readonly style="font-family:monospace;font-size:11px;opacity:0.7;"></div>
               </div>
             </div>
           </div><!-- /sett-profile -->
@@ -603,59 +599,39 @@
             <div class="sett-card">
               <div class="sett-card__head">
                 <div class="sett-card__title">Regional Settings</div>
-                <div class="sett-card__sub">Language, timezone and display preferences</div>
+                <div class="sett-card__sub">Language and display preferences</div>
               </div>
               <div class="sett-card__body">
                 <div class="sett-grid-2">
-                  <div class="sett-field">
-                    <label>Language</label>
-                    <select id="pref-lang">
-                      <option value="en" selected>English</option>
-                      <option value="fr">FranÃ§ais</option>
-                      <option value="de">Deutsch</option>
-                      <option value="es">EspaÃ±ol</option>
-                      <option value="pt">PortuguÃªs</option>
-                      <option value="ar">Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©</option>
-                      <option value="zh">ä¸­æ–‡</option>
-                    </select>
+                  <!-- Searchable language picker -->
+                  <div class="sett-field" style="position:relative;">
+                    <label>Display Language</label>
+                    <input type="text" id="lang-search-input" placeholder="Search language…" autocomplete="off"
+                           style="padding-right:32px;"
+                           oninput="filterLangs(this.value)" onfocus="openLangDropdown()" onblur="setTimeout(closeLangDropdown,180)">
+                    <svg viewBox="0 0 24 24" style="position:absolute;right:10px;top:34px;width:14px;height:14px;fill:none;stroke:var(--muted);stroke-width:2;pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <div id="lang-dropdown" style="display:none;position:absolute;z-index:200;top:100%;left:0;right:0;background:var(--white);border:1.5px solid var(--border);border-radius:8px;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:2px;"></div>
+                    <input type="hidden" id="pref-lang" value="en">
                   </div>
+                  <!-- Timezone — auto-locked to account country -->
                   <div class="sett-field">
-                    <label>Timezone</label>
-                    <select id="pref-tz">
-                      <option value="UTC">UTC / GMT+0</option>
-                      <option value="America/New_York">Eastern Time (ET)</option>
-                      <option value="America/Chicago">Central Time (CT)</option>
-                      <option value="America/Los_Angeles">Pacific Time (PT)</option>
-                      <option value="Europe/London">London (BST)</option>
-                      <option value="Europe/Berlin">Central European (CET)</option>
-                      <option value="Africa/Lagos">Lagos (WAT)</option>
-                      <option value="Africa/Nairobi">Nairobi (EAT)</option>
-                      <option value="Asia/Dubai">Dubai (GST)</option>
-                      <option value="Asia/Tokyo">Tokyo (JST)</option>
-                      <option value="Australia/Sydney">Sydney (AEST)</option>
-                    </select>
+                    <label>Timezone <span style="font-size:10px;color:var(--muted);font-weight:400;">(set by country)</span></label>
+                    <input type="text" id="pref-tz-display" readonly style="opacity:0.7;cursor:default;">
+                    <input type="hidden" id="pref-tz">
                   </div>
                 </div>
                 <div class="sett-grid-2">
+                  <!-- Currency — locked to USD -->
                   <div class="sett-field">
-                    <label>Display Currency</label>
-                    <select id="pref-currency">
-                      <option value="USD" selected>USD — US Dollar</option>
-                      <option value="EUR">EUR — Euro</option>
-                      <option value="GBP">GBP — British Pound</option>
-                      <option value="NGN">NGN — Nigerian Naira</option>
-                      <option value="GHS">GHS — Ghanaian Cedi</option>
-                      <option value="KES">KES — Kenyan Shilling</option>
-                      <option value="ZAR">ZAR — South African Rand</option>
-                    </select>
+                    <label>Display Currency <span style="font-size:10px;color:var(--muted);font-weight:400;">(locked)</span></label>
+                    <input type="text" value="USD — US Dollar" readonly style="opacity:0.7;cursor:default;">
+                    <input type="hidden" id="pref-currency" value="USD">
                   </div>
+                  <!-- Date format — auto-set from locale -->
                   <div class="sett-field">
-                    <label>Date Format</label>
-                    <select id="pref-datefmt">
-                      <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                      <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                      <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                    </select>
+                    <label>Date Format <span style="font-size:10px;color:var(--muted);font-weight:400;">(auto)</span></label>
+                    <input type="text" id="pref-datefmt-display" readonly style="opacity:0.7;cursor:default;">
+                    <input type="hidden" id="pref-datefmt">
                   </div>
                 </div>
               </div>
@@ -859,11 +835,9 @@
   }
 
   function savePreferences() {
-    const vals = { 'xantex-lang': 'pref-lang', 'xantex-tz': 'pref-tz', 'xantex-currency': 'pref-currency', 'xantex-datefmt': 'pref-datefmt' };
-    Object.entries(vals).forEach(([key, id]) => {
-      const el = document.getElementById(id);
-      if (el) localStorage.setItem(key, el.value);
-    });
+    // Only language is user-selectable; tz/currency/datefmt are locked
+    const langEl = document.getElementById('pref-lang');
+    if (langEl) localStorage.setItem('xantex-lang', langEl.value);
     const msg = document.getElementById('pref-save-msg');
     if (msg) { msg.textContent = 'Preferences saved ✓'; setTimeout(() => { msg.textContent=''; }, 3000); }
   }
@@ -873,6 +847,8 @@
     if (!db) return;
     const { data: { session } } = await db.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
+    // Maintenance check
+    try { const { data: _mRow } = await db.from('platform_settings').select('value').eq('key','maintenance_mode').maybeSingle(); if (_mRow?.value === 'true') { window.location.href = 'maintenance.html'; return; } } catch(e) {}
     document.body.style.visibility = 'visible';
     const userId = session.user.id;
     initNotifPopup(db, userId);
@@ -946,25 +922,75 @@
     if (bannerBadge) { bannerBadge.textContent = kycLabel[kycStatus]||kycStatus; bannerBadge.className = 'sett-badge ' + (kycBadge[kycStatus]||'sett-badge--off'); }
     if (bannerIcon)  bannerIcon.style.background = (bannerColors[kycStatus]||'var(--blue)') + '22';
     const docBadgeCls = kycStatus === 'approved' ? 'sett-badge--on' : kycStatus === 'rejected' ? 'sett-badge--off' : 'sett-badge--warn';
-    const docBadgeTxt = kycStatus === 'approved' ? 'Approved' : kycStatus === 'not_submitted' ? 'Not uploaded' : 'Under review';
+    const docBadgeTxt = kycStatus === 'approved' ? 'Verified' : kycStatus === 'not_submitted' ? 'Not uploaded' : 'Under review';
     ['doc-id-badge','doc-address-badge','doc-selfie-badge'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) { el.textContent = docBadgeTxt; el.className = 'sett-badge ' + docBadgeCls; }
+      if (el) { el.textContent = docBadgeTxt; el.className = 'sett-badge ' + docBadgeCls; if (kycStatus === 'approved') el.style.color = '#22a06b'; else el.style.color = ''; }
     });
     const foot = document.getElementById('kyc-upload-foot');
     if (foot) foot.style.display = kycStatus === 'approved' ? 'none' : '';
 
-    // Preferences — restore saved values
+    // Preferences — language + locked fields
     const prefDark = document.getElementById('pref-dark');
     if (prefDark) prefDark.checked = document.body.classList.contains('dark');
-    const langEl = document.getElementById('pref-lang');
-    const tzEl   = document.getElementById('pref-tz');
-    const curEl  = document.getElementById('pref-currency');
-    const fmtEl  = document.getElementById('pref-datefmt');
-    if (langEl) langEl.value = localStorage.getItem('xantex-lang') || 'en';
-    if (tzEl)   tzEl.value   = localStorage.getItem('xantex-tz')   || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-    if (curEl)  curEl.value  = localStorage.getItem('xantex-currency') || 'USD';
-    if (fmtEl)  fmtEl.value  = localStorage.getItem('xantex-datefmt')  || 'MM/DD/YYYY';
+
+    // Language: searchable selector
+    const _savedLang = localStorage.getItem('xantex-lang') || 'en';
+    const _langHidden = document.getElementById('pref-lang');
+    const _langInput  = document.getElementById('lang-search-input');
+    if (_langHidden) _langHidden.value = _savedLang;
+    const _langMatch = window._XANTEX_LANGS?.find(l => l.code === _savedLang);
+    if (_langInput) _langInput.value = _langMatch ? _langMatch.name : 'English';
+
+    // Timezone: locked to profile country
+    const _COUNTRY_TZ = {
+      'United States':'America/New_York','United Kingdom':'Europe/London','Canada':'America/Toronto',
+      'Australia':'Australia/Sydney','Germany':'Europe/Berlin','France':'Europe/Paris',
+      'Nigeria':'Africa/Lagos','Ghana':'Africa/Accra','South Africa':'Africa/Johannesburg',
+      'Kenya':'Africa/Nairobi','India':'Asia/Kolkata','China':'Asia/Shanghai',
+      'Brazil':'America/Sao_Paulo','Japan':'Asia/Tokyo','UAE':'Asia/Dubai',
+      'Saudi Arabia':'Asia/Riyadh','Egypt':'Africa/Cairo','Pakistan':'Asia/Karachi',
+      'Bangladesh':'Asia/Dhaka','Indonesia':'Asia/Jakarta','Malaysia':'Asia/Kuala_Lumpur',
+      'Philippines':'Asia/Manila','Thailand':'Asia/Bangkok','Vietnam':'Asia/Ho_Chi_Minh',
+      'Turkey':'Europe/Istanbul','Mexico':'America/Mexico_City','Argentina':'America/Argentina/Buenos_Aires',
+      'Colombia':'America/Bogota','Chile':'America/Santiago','Peru':'America/Lima',
+      'Spain':'Europe/Madrid','Italy':'Europe/Rome','Netherlands':'Europe/Amsterdam',
+      'Sweden':'Europe/Stockholm','Norway':'Europe/Oslo','Denmark':'Europe/Copenhagen',
+      'Poland':'Europe/Warsaw','Russia':'Europe/Moscow','Ukraine':'Europe/Kiev',
+      'New Zealand':'Pacific/Auckland','Singapore':'Asia/Singapore','Hong Kong':'Asia/Hong_Kong',
+      'South Korea':'Asia/Seoul','Taiwan':'Asia/Taipei',
+    };
+    const _userCountry = _profile.country || '';
+    const _userTz      = _COUNTRY_TZ[_userCountry] || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const _tzHidden    = document.getElementById('pref-tz');
+    const _tzDisplay   = document.getElementById('pref-tz-display');
+    if (_tzHidden)  _tzHidden.value  = _userTz;
+    if (_tzDisplay) _tzDisplay.value = _userTz.replace('_', ' ');
+    localStorage.setItem('xantex-tz', _userTz);
+
+    // Currency: locked to USD
+    localStorage.setItem('xantex-currency', 'USD');
+
+    // Date format: auto-detect from browser locale
+    const _localeDateFmt = (() => {
+      try {
+        const parts = new Intl.DateTimeFormat().formatToParts(new Date());
+        const order = parts.filter(p => ['day','month','year'].includes(p.type)).map(p => p.type);
+        if (order[0] === 'year') return 'YYYY-MM-DD';
+        if (order[0] === 'day')  return 'DD/MM/YYYY';
+        return 'MM/DD/YYYY';
+      } catch(e) { return 'DD/MM/YYYY'; }
+    })();
+    const _fmtHidden  = document.getElementById('pref-datefmt');
+    const _fmtDisplay = document.getElementById('pref-datefmt-display');
+    const _today = new Date();
+    const _fmtExample = _localeDateFmt
+      .replace('DD', String(_today.getDate()).padStart(2,'0'))
+      .replace('MM', String(_today.getMonth()+1).padStart(2,'0'))
+      .replace('YYYY', _today.getFullYear());
+    if (_fmtHidden)  _fmtHidden.value  = _localeDateFmt;
+    if (_fmtDisplay) _fmtDisplay.value = _localeDateFmt + '  (e.g. ' + _fmtExample + ')';
+    localStorage.setItem('xantex-datefmt', _localeDateFmt);
 
     // Notification toggles — restore saved states
     ['notif-deposit','notif-withdrawal','notif-balance','notif-kyc','notif-news','notif-promos','notif-platform'].forEach(id => {
@@ -1113,6 +1139,88 @@
       if (btn) settTab(hash, btn);
     }
   })();
+
+  // ── Language search dropdown ──────────────────────────────
+  window._XANTEX_LANGS = [
+    {code:'en',name:'English'},{code:'fr',name:'Français'},{code:'de',name:'Deutsch'},
+    {code:'es',name:'Español'},{code:'pt',name:'Português'},{code:'ar',name:'العربية'},
+    {code:'zh',name:'中文 (简体)'},{code:'zh-TW',name:'中文 (繁體)'},{code:'ja',name:'日本語'},
+    {code:'ko',name:'한국어'},{code:'hi',name:'हिन्दी'},{code:'bn',name:'বাংলা'},
+    {code:'ur',name:'اردو'},{code:'fa',name:'فارسی'},{code:'tr',name:'Türkçe'},
+    {code:'ru',name:'Русский'},{code:'uk',name:'Українська'},{code:'pl',name:'Polski'},
+    {code:'nl',name:'Nederlands'},{code:'sv',name:'Svenska'},{code:'no',name:'Norsk'},
+    {code:'da',name:'Dansk'},{code:'fi',name:'Suomi'},{code:'it',name:'Italiano'},
+    {code:'el',name:'Ελληνικά'},{code:'cs',name:'Čeština'},{code:'sk',name:'Slovenčina'},
+    {code:'hu',name:'Magyar'},{code:'ro',name:'Română'},{code:'bg',name:'Български'},
+    {code:'hr',name:'Hrvatski'},{code:'sr',name:'Srpski'},{code:'sl',name:'Slovenščina'},
+    {code:'lt',name:'Lietuvių'},{code:'lv',name:'Latviešu'},{code:'et',name:'Eesti'},
+    {code:'he',name:'עברית'},{code:'id',name:'Bahasa Indonesia'},{code:'ms',name:'Bahasa Melayu'},
+    {code:'th',name:'ภาษาไทย'},{code:'vi',name:'Tiếng Việt'},{code:'tl',name:'Filipino'},
+    {code:'sw',name:'Kiswahili'},{code:'ha',name:'Hausa'},{code:'ig',name:'Igbo'},
+    {code:'yo',name:'Yorùbá'},{code:'am',name:'አማርኛ'},{code:'so',name:'Soomaali'},
+    {code:'af',name:'Afrikaans'},{code:'zu',name:'isiZulu'},{code:'xh',name:'isiXhosa'},
+    {code:'ny',name:'Chichewa'},{code:'mg',name:'Malagasy'},{code:'rw',name:'Kinyarwanda'},
+    {code:'ky',name:'Кыргызча'},{code:'kk',name:'Қазақша'},{code:'uz',name:'Oʻzbekcha'},
+    {code:'az',name:'Azərbaycan'},{code:'ka',name:'ქართული'},{code:'hy',name:'Հայերեն'},
+    {code:'mn',name:'Монгол'},{code:'ne',name:'नेपाली'},{code:'si',name:'සිංහල'},
+    {code:'my',name:'မြန်မာဘာသာ'},{code:'km',name:'ភាសាខ្មែរ'},{code:'lo',name:'ລາວ'},
+    {code:'ta',name:'தமிழ்'},{code:'te',name:'తెలుగు'},{code:'kn',name:'ಕನ್ನಡ'},
+    {code:'ml',name:'മലയാളം'},{code:'gu',name:'ગુજરાતી'},{code:'mr',name:'मराठी'},
+    {code:'pa',name:'ਪੰਜਾਬੀ'},
+  ];
+
+  let _langOpen = false;
+
+  window.filterLangs = function(q) {
+    const dd = document.getElementById('lang-dropdown');
+    if (!dd) return;
+    const lower = q.toLowerCase();
+    const matches = window._XANTEX_LANGS.filter(l => l.name.toLowerCase().includes(lower) || l.code.toLowerCase().includes(lower));
+    renderLangDropdown(matches);
+    dd.style.display = matches.length ? 'block' : 'none';
+    _langOpen = true;
+  };
+
+  window.openLangDropdown = function() {
+    const inp = document.getElementById('lang-search-input');
+    filterLangs(inp?.value || '');
+  };
+
+  window.closeLangDropdown = function() {
+    const dd = document.getElementById('lang-dropdown');
+    if (dd) dd.style.display = 'none';
+    _langOpen = false;
+  };
+
+  function renderLangDropdown(list) {
+    const dd = document.getElementById('lang-dropdown');
+    if (!dd) return;
+    const currentCode = document.getElementById('pref-lang')?.value || 'en';
+    dd.innerHTML = list.slice(0, 80).map(l => `
+      <div onclick="selectLang('${l.code}','${l.name.replace(/'/g,'&#39;')}')"
+           style="padding:9px 14px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;
+                  ${l.code === currentCode ? 'background:var(--blue-lt);color:var(--blue);font-weight:600;' : ''}
+                  border-bottom:1px solid var(--border);"
+           onmouseover="this.style.background='var(--blue-lt)'" onmouseout="this.style.background='${l.code === currentCode ? 'var(--blue-lt)' : ''}'">
+        ${l.name}
+        ${l.code === currentCode ? '<svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:var(--blue);stroke-width:2.5;margin-left:auto;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+      </div>`).join('');
+  }
+
+  window.selectLang = function(code, name) {
+    const hidden = document.getElementById('pref-lang');
+    const inp    = document.getElementById('lang-search-input');
+    if (hidden) hidden.value = code;
+    if (inp)    inp.value    = name;
+    localStorage.setItem('xantex-lang', code);
+    closeLangDropdown();
+  };
+
+  // Init dropdown on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('lang-search-input');
+    if (inp) renderLangDropdown(window._XANTEX_LANGS);
+  });
 </script>
 </body>
 </html>

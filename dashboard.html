@@ -2094,6 +2094,15 @@
         <p style="font-size:11px;color:var(--red);font-weight:600;">⚠ Only provide an ERC20-compatible wallet address. Wrong network = lost funds.</p>
       </div>
     </div>
+      <!-- PIN confirmation -->
+      <div class="field" style="margin-top:4px;">
+        <label style="font-weight:600;">Security PIN <span style="color:var(--red);">*</span></label>
+        <input type="password" id="wd-pin" maxlength="4" inputmode="numeric" pattern="[0-9]*"
+               placeholder="Enter your 4-digit PIN"
+               style="letter-spacing:0.3em;font-size:18px;text-align:center;">
+        <div id="wd-pin-err" style="font-size:12px;color:var(--red);margin-top:4px;display:none;"></div>
+      </div>
+    </div>
     <div class="modal__foot">
       <button class="btn btn--red" style="opacity:0.75;" onclick="closeModal('withdraw')">Cancel</button>
       <button class="btn btn--red" id="wd-submit-btn">Request Withdrawal</button>
@@ -2745,6 +2754,12 @@ function savePreferences() {
   if (!session) { window.location.href = 'login.html'; return; }
   const userId = session.user.id;
   console.log('[dashboard] auth uid:', userId, '|', session.user.email);
+
+  // ── Maintenance mode check ────────────────────────────────
+  try {
+    const { data: _mRow } = await db.from('platform_settings').select('value').eq('key','maintenance_mode').maybeSingle();
+    if (_mRow?.value === 'true') { window.location.href = 'maintenance.html'; return; }
+  } catch(e) {}
 
   // ── Active notification popup ──────────────────────────────
   initNotifPopup(db, userId);
@@ -3416,6 +3431,13 @@ function savePreferences() {
       // Reset USDT network to ERC20
       ['ERC20','TRC20'].forEach(n => { const b = document.getElementById('dep-net-'+n); if(b) b.classList.toggle('active', n==='ERC20'); });
     }
+    if (id === 'withdraw') {
+      // Clear PIN field on each open
+      const wdPin = document.getElementById('wd-pin');
+      const wdPinErr = document.getElementById('wd-pin-err');
+      if (wdPin) wdPin.value = '';
+      if (wdPinErr) wdPinErr.style.display = 'none';
+    }
     if (typeof _origOpenModal === 'function') _origOpenModal.call(this, id);
     else document.getElementById('modal-' + id)?.classList.add('open');
   };
@@ -3526,11 +3548,33 @@ function savePreferences() {
       destRef  = document.getElementById('wd-wallet-addr')?.value || '';
       if (!destRef) { alert('Please enter your wallet address'); return; }
     }
+    // ── PIN validation ──
+    const pinInput   = document.getElementById('wd-pin');
+    const pinErrEl   = document.getElementById('wd-pin-err');
+    const enteredPin = (pinInput?.value || '').trim();
+    if (pinErrEl) pinErrEl.style.display = 'none';
+    if (!enteredPin || enteredPin.length !== 4) {
+      if (pinErrEl) { pinErrEl.textContent = 'Please enter your 4-digit PIN.'; pinErrEl.style.display = 'block'; }
+      pinInput?.focus(); return;
+    }
+    const storedPinHash = session.user.user_metadata?.trading_pin;
+    if (!storedPinHash) {
+      if (pinErrEl) { pinErrEl.textContent = 'No PIN set. Please log out and set your PIN first.'; pinErrEl.style.display = 'block'; }
+      return;
+    }
+    const enteredHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(enteredPin))
+      .then(h => Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join(''));
+    if (enteredHash !== storedPinHash) {
+      if (pinErrEl) { pinErrEl.textContent = 'Incorrect PIN. Please try again.'; pinErrEl.style.display = 'block'; }
+      if (pinInput) pinInput.value = '';
+      pinInput?.focus(); return;
+    }
     const btn = document.getElementById('wd-submit-btn');
     btn.disabled = true; btn.textContent = 'Submitting…';
     const { error } = await db.from('withdrawal_requests').insert({ user_id: userId, account_id: accountId||null, amount, destination_type: destType, destination_name: destName, destination_ref: destRef, status: 'pending' });
     btn.disabled = false; btn.textContent = 'Request Withdrawal';
     if (error) { alert('Error: '+error.message); return; }
+    if (pinInput) pinInput.value = '';
     closeModal('withdraw');
     alert('Withdrawal request submitted. It will be processed within 24 hours.');
     location.reload();

@@ -3575,10 +3575,10 @@ function savePreferences() {
     keys.forEach(k => {
       const btn = document.createElement('button');
       btn.textContent = k;
-      btn.style.cssText = 'height:52px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:18px;font-weight:600;color:var(--text);cursor:pointer;transition:background .1s;';
+      btn.style.cssText = 'height:52px;border-radius:10px;border:1.5px solid #e0e3e8;background:#fff;font-size:18px;font-weight:600;color:#111111;cursor:pointer;transition:background .1s;';
       if (!k) { btn.style.visibility = 'hidden'; pad.appendChild(btn); return; }
       btn.addEventListener('click', () => wdPinKey(k));
-      btn.addEventListener('mousedown', () => btn.style.background = 'var(--blue-lt)');
+      btn.addEventListener('mousedown', () => btn.style.background = '#e8eeff');
       btn.addEventListener('mouseup',   () => btn.style.background = '#fff');
       btn.addEventListener('mouseleave',() => btn.style.background = '#fff');
       pad.appendChild(btn);

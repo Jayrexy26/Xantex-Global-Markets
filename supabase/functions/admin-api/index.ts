@@ -227,7 +227,16 @@ serve(async (req) => {
       const { data: prof } = await db.from(“profiles”).select(“email,first_name,last_name”).eq(“id”, user_id).single();
       if (!prof?.email) return err(“User not found”);
       const n = [prof.first_name, prof.last_name].filter(Boolean).join(“ “) || prof.email;
-      await sendUserEmail(prof.email, n, `Your Account Has Been Upgraded to ${plan}`, “plan_upgraded”, { plan });
+      await Promise.all([
+        sendUserEmail(prof.email, n, `Your Account Has Been Upgraded to ${plan}`, “plan_upgraded”, { plan }),
+        db.from(“notifications”).insert({
+          user_id,
+          title: `Account Upgraded to ${plan}`,
+          message: plan,
+          type: “plan_upgrade_popup”,
+          enabled: true,
+        }),
+      ]);
       return ok({ sent: true });
     }
 

@@ -3054,6 +3054,7 @@ function savePreferences() {
       }
     } catch(e) { console.warn('[pt-widget]', e.message); }
   }
+  window._reloadProfitTarget = loadProfitTarget;
 
   let [profile, accounts, positions, txns, depReqs, wdReqs, cryptoCfg, adjTxns, closedTrades] = await Promise.all([
     loadProfile(),
@@ -4054,13 +4055,16 @@ function savePreferences() {
     if (typeof window.initNotifPopup === 'function') window.initNotifPopup(db, uid);
     if (typeof window._renderNotifications === 'function') window._renderNotifications();
   }, 800);
+  const _reloadPT = _deb(() => { if (typeof window._reloadProfitTarget === 'function') window._reloadProfitTarget(); }, 800);
   db.channel('dashboard-rt')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'trading_accounts',   filter: `user_id=eq.${uid}` }, _reload)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'deposit_requests',   filter: `user_id=eq.${uid}` }, _reload)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'withdrawal_requests',filter: `user_id=eq.${uid}` }, _reload)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'positions',          filter: `user_id=eq.${uid}` }, _reload)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications',      filter: `user_id=eq.${uid}` }, _reloadN)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'trading_accounts',    filter: `user_id=eq.${uid}` }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'deposit_requests',    filter: `user_id=eq.${uid}` }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'withdrawal_requests', filter: `user_id=eq.${uid}` }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'positions',           filter: `user_id=eq.${uid}` }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications',       filter: `user_id=eq.${uid}` }, _reloadN)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'profit_targets',      filter: `user_id=eq.${uid}` }, _reloadPT)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'profit_target_trades',filter: `user_id=eq.${uid}` }, _reloadPT)
     .subscribe();
 })();
 </script>

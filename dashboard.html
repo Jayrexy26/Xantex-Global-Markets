@@ -2416,7 +2416,7 @@
     try {
       const { data: { session } } = await db.auth.getSession();
       if (!session) return;
-      const { data: notifs } = await db.from('notifications').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false });
+      const { data: notifs } = await db.from('notifications').select('*').eq('user_id', session.user.id).neq('type', 'plan_upgrade_popup').order('created_at', { ascending: false });
       if (!notifs || !notifs.length) {
         body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">No notifications yet</div>';
         return;
@@ -3075,7 +3075,7 @@ function savePreferences() {
 
   // ── Notification bell dot ─────────────────────────────────
   try {
-    const { data: notifRows } = await db.from('notifications').select('id').eq('user_id', userId);
+    const { data: notifRows } = await db.from('notifications').select('id').eq('user_id', userId).neq('type', 'plan_upgrade_popup');
     const nc = (notifRows || []).length;
     if (nc > 0) {
       const dot = document.getElementById('notif-bell-dot');

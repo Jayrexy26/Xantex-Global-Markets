@@ -229,13 +229,22 @@ serve(async (req) => {
       const n = [prof.first_name, prof.last_name].filter(Boolean).join(“ “) || prof.email;
       await Promise.all([
         sendUserEmail(prof.email, n, `Your Account Has Been Upgraded to ${plan}`, “plan_upgraded”, { plan }),
-        db.from(“notifications”).insert({
-          user_id,
-          title: `Account Upgraded to ${plan}`,
-          message: plan,
-          type: “plan_upgrade_popup”,
-          enabled: true,
-        }),
+        db.from(“notifications”).insert([
+          {
+            user_id,
+            title: `Account Upgraded to ${plan}`,
+            message: plan,
+            type: “plan_upgrade_popup”,
+            enabled: true,
+          },
+          {
+            user_id,
+            title: `Account Upgraded to ${plan}`,
+            message: `Your account has been successfully upgraded to the ${plan} plan. Enjoy your new features and increased balance limit.`,
+            type: “account”,
+            enabled: true,
+          },
+        ]),
       ]);
       return ok({ sent: true });
     }

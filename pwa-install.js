@@ -1,14 +1,12 @@
 // pwa-install.js — Smart install banner for Android/Chrome and iOS
 (function () {
-  const DISMISSED_KEY = 'xantex_pwa_dismissed';
   const INSTALLED_KEY = 'xantex_pwa_installed';
 
-  // Don't show if already installed (running as standalone) or previously dismissed
+  // Only hide if already installed (running as standalone app)
   if (
     window.matchMedia('(display-mode: standalone)').matches ||
     window.navigator.standalone === true ||
-    localStorage.getItem(INSTALLED_KEY) ||
-    localStorage.getItem(DISMISSED_KEY)
+    localStorage.getItem(INSTALLED_KEY)
   ) return;
 
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
@@ -101,7 +99,6 @@
   }
 
   function dismiss() {
-    localStorage.setItem(DISMISSED_KEY, '1');
     document.getElementById('xpwa-banner')?.remove();
     document.getElementById('xpwa-overlay-bg')?.remove();
     document.getElementById('xpwa-ios-sheet')?.remove();

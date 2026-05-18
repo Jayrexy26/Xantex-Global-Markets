@@ -574,6 +574,8 @@
         overlay.classList.remove('open');
       }, { once: true });
     }
+    window.openModal  = openModal;
+    window.closeModal = closeModal;
     document.getElementById('modal-txn-detail').addEventListener('click', e => {
       if(e.target===e.currentTarget) closeModal('modal-txn-detail');
     });

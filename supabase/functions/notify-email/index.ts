@@ -135,6 +135,24 @@ serve(async (req) => {
       return ok({ sent: true });
     }
 
+    // ── Withdrawal cancelled by user (admin notification) ─────
+    if (type === "withdrawal_cancelled") {
+      if (!userId) return new Response(JSON.stringify({ error: "JWT required" }), { status: 401, headers: { ...cors, "Content-Type": "application/json" } });
+      const fmt = fmtAmt(body.amount);
+      const subject = `Withdrawal Cancelled by Client — $${fmt}`;
+      await sendEmail(ADMIN_EMAIL, "Admin", subject, adminEmailHtml(subject, `
+        <p style="margin:0 0 16px;font-size:15px;color:#374151;">A client has cancelled their pending withdrawal request.</p>
+        ${adminTable([
+          ["Client", `${esc(userName)} (${esc(email)})`],
+          ["Amount", `<span style="color:#dc2626;font-weight:700;">$${fmt}</span>`],
+          ["Method", esc(body.method || "—")],
+          ["Cancelled At", new Date().toUTCString()],
+        ])}
+        ${opsLink()}
+      `));
+      return ok({ sent: true });
+    }
+
     // ── Password reset (admin notification) ───────────────────
     if (type === "password_reset") {
       const resetEmail = email || body.email || "Unknown";

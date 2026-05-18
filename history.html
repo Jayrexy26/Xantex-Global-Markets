@@ -553,6 +553,13 @@
       const table = isWithdrawal ? 'withdrawal_requests' : 'deposit_requests';
       const {error}=await db.from(table).update({status:'cancelled'}).eq('id',r.id).eq('status','pending');
       if(error){alert('Could not cancel: '+error.message);return;}
+      if (isWithdrawal) {
+        fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/notify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({ type: 'withdrawal_cancelled', amount: Math.abs(r.amount), method: r.detail?.['Method'] || '—' }),
+        }).catch(() => {});
+      }
       location.reload();
     };
 

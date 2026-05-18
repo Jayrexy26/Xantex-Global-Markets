@@ -4011,8 +4011,8 @@ function savePreferences() {
   #popup-card {
     width: 100%; max-width: 400px;
     border-radius: 20px;
-    border: 2.5px solid transparent;
-    animation: genieIn .5s cubic-bezier(.34,1.1,.64,1) both, popup-spin 3.5s linear infinite;
+    border: 5px solid transparent;
+    animation: genieIn .5s cubic-bezier(.34,1.1,.64,1) both, popup-spin 2s linear infinite;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     overflow: hidden;
   }
@@ -4062,7 +4062,7 @@ function showPlanUpgradePopup(plan) {
 
   // Spinning conic-gradient border (same technique as account-types.html)
   const card = document.getElementById('popup-card');
-  card.style.background = `linear-gradient(#fff,#fff) padding-box, conic-gradient(from var(--popup-angle), transparent 0%, ${info.c1} 18%, ${info.c2} 28%, transparent 44%) border-box`;
+  card.style.background = `linear-gradient(#fff,#fff) padding-box, conic-gradient(from var(--popup-angle), transparent 0%, ${info.c1} 10%, ${info.c2} 40%, transparent 60%) border-box`;
 
   document.getElementById('popup-hero').style.background = info.gradient;
   document.getElementById('popup-plan-name').textContent = plan;

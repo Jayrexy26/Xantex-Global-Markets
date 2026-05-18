@@ -25,7 +25,7 @@
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; overflow-x: hidden; }
+    html { scroll-behavior: smooth; overflow-x:clip; }
     body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.6; }
     img { display: block; max-width: 100%; }
     a { text-decoration: none; color: inherit; }
@@ -59,7 +59,7 @@
     .sidebar__logout svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
 
     /* MAIN */
-    .main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+    .main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; overflow-x:clip; display: flex; flex-direction: column; min-height: 100vh; }
 
     /* TOPBAR */
     .topbar { height: var(--topbar-h); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; position: sticky; top: 0; z-index: 100; }

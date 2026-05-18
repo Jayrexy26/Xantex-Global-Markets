@@ -29,7 +29,7 @@
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; height: 100%; overflow-x: hidden; }
+    html { scroll-behavior: smooth; height: 100%; overflow-x:clip; }
     /* Custom scrollbars */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -447,7 +447,7 @@
       /* Clamp everything to viewport — no horizontal scroll */
       html, body {
         height: auto;
-        overflow-x: hidden;
+        overflow-x:clip;
         overflow-y: auto;
         width: 100%;
       }

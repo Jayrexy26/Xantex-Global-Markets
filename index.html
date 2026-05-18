@@ -32,8 +32,8 @@
        RESET
     ============================================================ */
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    html { scroll-behavior: smooth; overflow-x: hidden; }
-    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); font-size: 15px; line-height: 1.6; overflow-x: hidden; }
+    html { scroll-behavior: smooth; overflow-x:clip; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); font-size: 15px; line-height: 1.6; overflow-x:clip; }
     img, video { display: block; max-width: 100%; }
     a { text-decoration: none; color: inherit; }
     button { font-family: inherit; cursor: pointer; }
@@ -1423,59 +1423,20 @@
 <footer>
   <div class="footer-nav">
     <div class="footer-nav__inner">
-      <p class="footer-nav__contact">
-        More ways to reach us: <a href="/contact">Contact Us</a>,
-        call <a href="tel:+442077769720" data-plat="phone" style="color:#60a5fa;">+44 (0) 20 7776 9720</a> (24/5) or <a href="/live-chat">live chat</a>
-      </p>
+      <p class="footer-nav__contact">More ways to reach us: <a href="/contact">Contact Us</a> · +44 (0) 20 7776 9720 · <a href="/contact">Live Chat</a></p>
       <div class="footer-nav__grid">
-        <div class="footer-col">
-          <h4>Markets</h4>
-          <a href="/markets/futures">Futures</a>
-          <a href="/markets/indices">Indices</a>
-          <a href="/markets/shares">Shares</a>
-          <a href="/markets/metals">Metals</a>
-          <a href="/markets/energy">Energy</a>
-          <a href="/markets/etfs">ETFs</a>
-        </div>
-        <div class="footer-col">
-          <h4>Platforms</h4>
-          <a href="/platforms/xantex">Xantex Platform</a>
-          <a href="/platforms/tradingview">TradingView</a>
-        </div>
-        <div class="footer-col">
-          <h4>Company</h4>
-          <a href="/about">About Xantex</a>
-          <a href="/security">Online Security</a>
-          <a href="/awards">Awards</a>
-          <a href="/benefits">Benefits</a>
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/contact">Contact Us</a>
-        </div>
-        <div class="footer-col">
-          <h4>Help &amp; Tools</h4>
-          <a href="/help">Help Centre</a>
-          <a href="/education">Education</a>
-          <a href="/economic-calendar">Economic Calendar</a>
-          <a href="/vps">VPS Hosting</a>
-          <a href="/risk-disclosure">Risk Disclosure</a>
-          <a href="/legal">Legal Documents</a>
-        </div>
+        <div class="footer-col"><h4>Markets</h4><a href="/markets/futures">Futures</a><a href="/markets/indices">Indices</a><a href="/markets/shares">Shares</a><a href="/markets/metals">Metals</a><a href="/markets/energy">Energy</a><a href="/markets/etfs">ETFs</a></div>
+        <div class="footer-col"><h4>Platforms</h4><a href="/platforms/xantex">Xantex Platform</a><a href="/platforms/tradingview">TradingView</a></div>
+        <div class="footer-col"><h4>Company</h4><a href="/about">About Xantex</a><a href="/security">Online Security</a><a href="/awards">Awards</a><a href="/benefits">Benefits</a><a href="/privacy">Privacy Policy</a><a href="/contact">Contact Us</a></div>
+        <div class="footer-col"><h4>Help</h4><a href="/contact">Help Centre</a><a href="/security">Security</a><a href="/privacy">Legal &amp; Privacy</a><a href="/about">About Us</a></div>
       </div>
     </div>
   </div>
-
-  <!-- Disclaimer -->
   <div class="footer-disclaimer">
     <div class="footer-disclaimer__inner">
-      <div>
-        <strong>Trade Responsibly:</strong> Trading financial instruments carry a high level of risk and may not be suitable for all investors. Please ensure that you understand the risks involved as you may lose all your invested capital. Past performance of trading instruments is not a reliable indicator of future performance. Please read our 'Risk Disclosure Notice'.
-      </div>
-      <div>
-        <strong>Xantex Group Limited</strong> is the holding company of Xantex UK Limited and Xantex Global Markets Ltd. (licence no. 3082529), Xndex Global Markets Ltd (license no. SIA-D127), Prime Ash Capital Limited (licence no. GB21026568), and FxPro Markets Ltd.
-      </div>
-      <div>
-        Xantex doesn't offer services to residents of certain jurisdictions, including Nigeria, Iran and Oman. This website is not intended for European residents.
-      </div>
+      <div><strong>Trade Responsibly:</strong> CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage. 71.2% of retail investor accounts lose money when trading CFDs with this provider.</div>
+      <div><strong>Xantex Global Markets Ltd</strong> is authorised and regulated. Licence no. 3082529. Registered in England &amp; Wales.</div>
+      <div>This website is not intended for residents of jurisdictions where trading is restricted. Past performance is not indicative of future results.</div>
     </div>
     <div class="footer-disclaimer__copy">© 2026 Xantex Global Markets. All rights reserved.</div>
   </div>

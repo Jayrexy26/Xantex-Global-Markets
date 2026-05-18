@@ -25,14 +25,14 @@
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; overflow-x: hidden; }
+    html { scroll-behavior: smooth; overflow-x:clip; }
     body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); font-size: 14px; line-height: 1.6; }
     img { display: block; max-width: 100%; }
     a { text-decoration: none; color: inherit; }
     button { font-family: inherit; cursor: pointer; }
     ul { list-style: none; }
 
-    .layout { display: flex; min-height: 100vh; width: 100%; overflow-x: hidden; }
+    .layout { display: flex; min-height: 100vh; width: 100%; overflow-x:clip; }
 
     /* ── Sidebar ── */
     .sidebar {
@@ -86,7 +86,7 @@
     }
 
     /* ── Main ── */
-    .main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+    .main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x:clip; }
 
     /* ── Topbar ── */
     .topbar {

@@ -48,6 +48,7 @@
     warning: '#f5a623',
     success: '#22a06b',
     urgent:  '#e60023',
+    account: '#1a5cff',
   };
 
   function _injectStyles() {
@@ -63,9 +64,14 @@
     if (el) el.remove();
   }
 
-  function _showPopup(notif) {
-    _removePopup(); // prevent duplicates
+  function _showPopup(notif, db) {
+    _removePopup();
     _injectStyles();
+
+    // Mark as seen (enabled = false) so it never pops up again, but stays in panel
+    if (db && notif.id) {
+      db.from('notifications').update({ enabled: false }).eq('id', notif.id).then(() => {}).catch(() => {});
+    }
 
     const color = TYPE_COLORS[notif.type] || TYPE_COLORS['info'];
     const overlay = document.createElement('div');
@@ -82,7 +88,6 @@
           <button id="xnp-btn" onclick="document.getElementById('xnp-overlay').remove()">Got it</button>
         </div>
       </div>`;
-    // Close on overlay click (outside the box)
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
     document.body.appendChild(overlay);
   }
@@ -92,13 +97,14 @@
     try {
       const { data, error } = await db
         .from('notifications')
-        .select('id, title, message, enabled, created_at')
+        .select('id, title, message, type, enabled, created_at')
         .eq('user_id', userId)
         .eq('enabled', true)
+        .neq('type', 'plan_upgrade_popup')
         .order('created_at', { ascending: false })
         .limit(1);
       if (error) console.warn('[notif-popup] query error:', error.message);
-      if (data?.length) _showPopup(data[0]);
+      if (data?.length) _showPopup(data[0], db);
     } catch (_) {}
   };
 })();

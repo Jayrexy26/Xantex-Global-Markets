@@ -400,6 +400,16 @@
     } catch(e) {}
   }
 
+  // Mobile retry: localStorage write can lag behind the page navigation on Android/iOS.
+  // Wait 800 ms and try again before falling through to other fallbacks.
+  if (!session) {
+    await new Promise(r => setTimeout(r, 800));
+    try {
+      const { data } = await db.auth.getSession();
+      session = data?.session;
+    } catch(e) {}
+  }
+
   // Mobile fallback: restore session from tokens stored in sessionStorage by login/register
   if (!session) {
     try {
@@ -413,12 +423,13 @@
   }
   try { sessionStorage.removeItem('xantex_tmp_at'); sessionStorage.removeItem('xantex_tmp_rt'); } catch(e) {}
 
-  // Last resort: if a code/hash/token is in the URL but Supabase JS hasn't fired yet,
-  // wait up to 6 s for the SIGNED_IN event to confirm the async exchange is complete.
-  if (!session && (_tokenHash || _urlCode || window.location.hash.includes('access_token'))) {
+  // Universal auth-state-change wait: covers regular logins AND email-confirmation flows.
+  // Supabase JS fires SIGNED_IN once its internal session hydration from localStorage
+  // (or a code exchange) completes — this catches the gap on slow mobile devices.
+  if (!session) {
     session = await new Promise(resolve => {
       let resolved = false;
-      const t = setTimeout(() => { if (!resolved) { resolved = true; resolve(null); } }, 6000);
+      const t = setTimeout(() => { if (!resolved) { resolved = true; resolve(null); } }, 4000);
       const { data: { subscription } } = db.auth.onAuthStateChange((event, s) => {
         if (!resolved && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && s) {
           resolved = true; clearTimeout(t);

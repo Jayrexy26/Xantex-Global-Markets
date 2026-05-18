@@ -1,4 +1,4 @@
-const CACHE = 'xantex-v1';
+const CACHE = 'xantex-v2';
 
 const PRECACHE = [
   '/',
@@ -43,6 +43,9 @@ self.addEventListener('activate', e => {
 //  - HTML pages → network first, fall back to cache
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
+
+  // Only handle http/https — skip chrome-extension://, data:, blob:, etc.
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
 
   // Never cache Supabase, Resend, or third-party API calls
   if (

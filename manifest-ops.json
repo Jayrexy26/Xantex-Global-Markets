@@ -3,7 +3,7 @@
   "short_name": "Xantex OPS",
   "description": "Xantex Global Markets — Admin Operations Panel",
   "start_url": "/ops-login.html",
-  "scope": "/",
+  "scope": "/ops",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#7f1d1d",

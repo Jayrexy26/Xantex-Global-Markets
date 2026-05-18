@@ -43,10 +43,13 @@
        NAVBAR
     ============================================================ */
     header {
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 100;
     }
+    main { margin-top: 56px; }
     .navbar {
       background: var(--white);
       border-bottom: 1px solid var(--border);
@@ -719,6 +722,7 @@
 
       /* --- Navbar --- */
       .navbar { padding: 0 20px; height: 64px; }
+      main { margin-top: 64px; }
       .mobile-menu { top: 64px; }
       .navbar__logo img { height: 100px !important; }
       .navbar__lang { display: none; }

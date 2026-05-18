@@ -1202,6 +1202,12 @@
       try {
         sessionStorage.setItem('xantex_tmp_at', session.access_token);
         sessionStorage.setItem('xantex_tmp_rt', session.refresh_token);
+        // Notify admin of new registration
+        fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/notify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({ type: 'register' }),
+        }).catch(() => {});
       } catch(e) {}
       setTimeout(() => { window.location.href = 'session.html'; }, 800);
     } else {
@@ -1226,6 +1232,12 @@
           });
         } catch(e) { /* non-fatal — KYC upload deferred until after login */ }
       }
+      // Notify admin (no session — use notify-key)
+      fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/notify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-notify-key': 'xantex-notify-2026' },
+        body: JSON.stringify({ type: 'register', email, first_name: firstName, last_name: lastName, country }),
+      }).catch(() => {});
       // Hide overlay and show static success screen
       overlay.classList.remove('visible');
       [1,2,3].forEach(i => document.getElementById('step-' + i).style.display = 'none');

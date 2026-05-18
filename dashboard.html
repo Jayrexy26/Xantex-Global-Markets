@@ -3666,6 +3666,12 @@ function savePreferences() {
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;"><polyline points="20 6 9 17 4 12"/></svg> I\'ve Made Payment';
     if (error) { alert('Error: ' + error.message); return; }
+    // Notify admin of deposit request
+    fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/notify-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ type: 'deposit_requested', amount, method: 'Crypto — ' + networkLabel }),
+    }).catch(() => {});
     closeModal('deposit');
     alert('Payment submitted! We will credit your account after verification — usually within 30 minutes.');
     location.reload();
@@ -3785,6 +3791,12 @@ function savePreferences() {
       destination_type: destType, destination_name: destName, destination_ref: destRef, status: 'pending'
     });
     if (error) { alert('Error: ' + error.message); return; }
+    // Notify admin of withdrawal request
+    fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/notify-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ type: 'withdrawal_requested', amount, destType, destRef }),
+    }).catch(() => {});
     closeModal('withdraw');
     alert('Withdrawal request submitted. It will be processed within 24 hours.');
     location.reload();

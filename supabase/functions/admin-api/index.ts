@@ -58,10 +58,16 @@ serve(async (req) => {
       await db.from("deposit_requests").update({ status: "approved" }).eq("id", deposit_id);
       await db.from("transactions").insert({ user_id: dep.user_id, type: "deposit", amount: dep.amount, status: "completed", notes: "Deposit approved" });
       await db.from("profiles").update({ balance: db.rpc("increment_balance", { uid: dep.user_id, amt: dep.amount }) }).eq("id", dep.user_id);
-      const { data: prof } = await db.from("profiles").select("balance").eq("id", dep.user_id).single();
+      const { data: prof } = await db.from("profiles").select("balance,email,first_name,last_name,plan").eq("id", dep.user_id).single();
       const newBal = (prof?.balance ?? 0) + Number(dep.amount);
       await db.from("profiles").update({ balance: newBal }).eq("id", dep.user_id);
       await db.from("notifications").insert({ user_id: dep.user_id, title: "Deposit Approved", message: `Your deposit of $${dep.amount} has been approved and credited to your account.` });
+      if (prof?.email) {
+        const fmtA = Number(dep.amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const fmtB = Number(newBal).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const n = [prof.first_name, prof.last_name].filter(Boolean).join(" ") || prof.email;
+        await sendUserEmail(prof.email, n, "Your Deposit Has Been Approved", "deposit_approved", { amount: fmtA, balance: fmtB, plan: prof.plan || "Starter" });
+      }
       return ok({ success: true });
     }
 
@@ -71,10 +77,15 @@ serve(async (req) => {
       if (!w) return err("Withdrawal not found");
       await db.from("withdrawal_requests").update({ status: "approved" }).eq("id", withdrawal_id);
       await db.from("transactions").insert({ user_id: w.user_id, type: "withdrawal", amount: -Math.abs(w.amount), status: "completed", notes: "Withdrawal approved" });
-      const { data: prof } = await db.from("profiles").select("balance").eq("id", w.user_id).single();
+      const { data: prof } = await db.from("profiles").select("balance,email,first_name,last_name,plan").eq("id", w.user_id).single();
       const newBal = (prof?.balance ?? 0) - Math.abs(Number(w.amount));
       await db.from("profiles").update({ balance: newBal }).eq("id", w.user_id);
       await db.from("notifications").insert({ user_id: w.user_id, title: "Withdrawal Approved", message: `Your withdrawal of $${w.amount} has been approved and is being processed.` });
+      if (prof?.email) {
+        const fmtA = Number(w.amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const n = [prof.first_name, prof.last_name].filter(Boolean).join(" ") || prof.email;
+        await sendUserEmail(prof.email, n, "Your Withdrawal Has Been Processed", "withdrawal_approved", { amount: fmtA, destType: w.destination_type || "—", plan: prof.plan || "Starter" });
+      }
       return ok({ success: true });
     }
 
@@ -140,6 +151,11 @@ serve(async (req) => {
         type: "info",
         enabled: false,
       });
+      const { data: ptProf } = await db.from("profiles").select("email,first_name,last_name,plan").eq("id", user_id).single();
+      if (ptProf?.email) {
+        const n = [ptProf.first_name, ptProf.last_name].filter(Boolean).join(" ") || ptProf.email;
+        await sendUserEmail(ptProf.email, n, "New Trade Cycle Initiated on Your Account", "profit_target_set", { amount: fmtAmt, label: label || null, plan: ptProf.plan || "Starter" });
+      }
       return ok({ target: data });
     }
 
@@ -194,8 +210,29 @@ serve(async (req) => {
       return ok({ success: true });
     }
 
+    // ── KYC & Plan notifications ──────────────────────────────────────────────
+    if (action === “notify_kyc_approved”) {
+      const { user_id } = body;
+      if (!user_id) return err(“user_id required”);
+      const { data: prof } = await db.from(“profiles”).select(“email,first_name,last_name,plan”).eq(“id”, user_id).single();
+      if (!prof?.email) return err(“User not found”);
+      const n = [prof.first_name, prof.last_name].filter(Boolean).join(“ “) || prof.email;
+      await sendUserEmail(prof.email, n, “Your Identity Verification Is Complete”, “kyc_approved”, { plan: prof.plan || “Starter” });
+      return ok({ sent: true });
+    }
+
+    if (action === “notify_plan_upgraded”) {
+      const { user_id, plan } = body;
+      if (!user_id || !plan) return err(“user_id and plan required”);
+      const { data: prof } = await db.from(“profiles”).select(“email,first_name,last_name”).eq(“id”, user_id).single();
+      if (!prof?.email) return err(“User not found”);
+      const n = [prof.first_name, prof.last_name].filter(Boolean).join(“ “) || prof.email;
+      await sendUserEmail(prof.email, n, `Your Account Has Been Upgraded to ${plan}`, “plan_upgraded”, { plan });
+      return ok({ sent: true });
+    }
+
     // â”€â”€ Email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    if (action === "send_email") {
+    if (action === “send_email”) {
       const { recipient_email, recipient_name, recipient_user_id, subject, body_text } = body;
       if (!recipient_email || !subject || !body_text) return err("Missing fields");
 
@@ -252,6 +289,126 @@ function ok(data: object) {
 }
 function err(msg: string) {
   return new Response(JSON.stringify({ error: msg }), { status: 400, headers: { ...cors, "Content-Type": "application/json" } });
+}
+
+async function sendUserEmail(to: string, toName: string, subject: string, tmpl: string, data: Record<string, any>) {
+  const resendKey = Deno.env.get("RESEND_API_KEY");
+  if (!resendKey) return;
+  const html = buildPlanEmailHtml(subject, toName, tmpl, data);
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: "Xantex Global Markets <noreply@xantexglobalmarkets.pro>", to: [to], subject, html }),
+  }).catch(() => {});
+}
+
+function planAccent(plan: string): string {
+  const p = (plan || "").toLowerCase();
+  if (p.includes("diamond"))  return "#60d4f0";
+  if (p.includes("platinum")) return "#94a3b8";
+  if (p.includes("gold"))     return "#f59e0b";
+  if (p.includes("silver"))   return "#9ca3af";
+  if (p.includes("bronze"))   return "#cd7f32";
+  return "#1a5cff";
+}
+
+function buildPlanEmailHtml(subject: string, recipientName: string, tmpl: string, data: Record<string, any>): string {
+  const s = (v: unknown) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const accent = planAccent(data.plan || "Starter");
+  const greeting = recipientName ? `Dear ${s(recipientName)},` : "Dear Valued Client,";
+
+  let badge = "", content = "";
+
+  if (tmpl === "deposit_approved") {
+    badge = `<div style="display:inline-block;background:#dcfce7;border:1px solid #86efac;border-radius:6px;padding:6px 16px;margin-bottom:20px;"><span style="font-size:13px;font-weight:700;color:#166534;">DEPOSIT APPROVED</span></div>`;
+    content = `
+      <p style="margin:0 0 20px;font-size:15px;color:#4b5563;line-height:1.7;">Your deposit has been confirmed and credited to your trading account. Your funds are now available for trading.</p>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <tr style="background:#f8fafc;"><td style="padding:14px 18px;font-size:13px;font-weight:600;color:#374151;border:1px solid #e5e7eb;width:45%;">Deposit Amount</td><td style="padding:14px 18px;font-size:16px;font-weight:700;color:#166534;border:1px solid #e5e7eb;">$${s(data.amount)}</td></tr>
+        <tr><td style="padding:14px 18px;font-size:13px;font-weight:600;color:#374151;border:1px solid #e5e7eb;">Updated Balance</td><td style="padding:14px 18px;font-size:16px;font-weight:700;color:#0d1117;border:1px solid #e5e7eb;">$${s(data.balance)}</td></tr>
+      </table>
+      <p style="margin:0;font-size:14px;color:#6b7280;">Log in to your <a href="https://xantexglobalmarkets.pro/dashboard.html" style="color:${accent};">dashboard</a> to start trading.</p>`;
+  } else if (tmpl === "withdrawal_approved") {
+    badge = `<div style="display:inline-block;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:6px 16px;margin-bottom:20px;"><span style="font-size:13px;font-weight:700;color:#991b1b;">WITHDRAWAL PROCESSED</span></div>`;
+    content = `
+      <p style="margin:0 0 20px;font-size:15px;color:#4b5563;line-height:1.7;">Your withdrawal request has been approved and is being processed. Please allow 1–5 business days for funds to arrive.</p>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <tr style="background:#f8fafc;"><td style="padding:14px 18px;font-size:13px;font-weight:600;color:#374151;border:1px solid #e5e7eb;width:45%;">Withdrawal Amount</td><td style="padding:14px 18px;font-size:16px;font-weight:700;color:#991b1b;border:1px solid #e5e7eb;">$${s(data.amount)}</td></tr>
+        <tr><td style="padding:14px 18px;font-size:13px;font-weight:600;color:#374151;border:1px solid #e5e7eb;">Method</td><td style="padding:14px 18px;font-size:14px;color:#4b5563;border:1px solid #e5e7eb;">${s(data.destType)}</td></tr>
+      </table>
+      <p style="margin:0;font-size:14px;color:#6b7280;">Questions? Contact us at <a href="mailto:help.xantexglobalmarkets@gmail.com" style="color:${accent};">help.xantexglobalmarkets@gmail.com</a>.</p>`;
+  } else if (tmpl === "kyc_approved") {
+    badge = `<div style="display:inline-block;background:#dcfce7;border:1px solid #86efac;border-radius:6px;padding:6px 16px;margin-bottom:20px;"><span style="font-size:13px;font-weight:700;color:#166534;">IDENTITY VERIFIED</span></div>`;
+    content = `
+      <p style="margin:0 0 20px;font-size:15px;color:#4b5563;line-height:1.7;">Congratulations! Your identity has been successfully verified. You now have full access to all Xantex Global Markets features and services.</p>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:20px 24px;margin-bottom:24px;">
+        <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#166534;">What this means for you:</p>
+        <ul style="margin:0;padding-left:20px;font-size:14px;color:#4b5563;line-height:2.2;">
+          <li>Full withdrawal privileges unlocked</li>
+          <li>Higher deposit limits available</li>
+          <li>Access to all account tiers and features</li>
+          <li>Enhanced account security status</li>
+        </ul>
+      </div>
+      <p style="margin:0;font-size:14px;color:#6b7280;">Log in to your <a href="https://xantexglobalmarkets.pro/dashboard.html" style="color:${accent};">dashboard</a> to explore all features.</p>`;
+  } else if (tmpl === "profit_target_set") {
+    badge = `<div style="display:inline-block;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:6px 16px;margin-bottom:20px;"><span style="font-size:13px;font-weight:700;color:#1e40af;">NEW TRADE CYCLE</span></div>`;
+    content = `
+      <p style="margin:0 0 20px;font-size:15px;color:#4b5563;line-height:1.7;">A new trade cycle has been initiated on your account. Our trading team will actively work to achieve your profit target.</p>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <tr style="background:#f8fafc;"><td style="padding:14px 18px;font-size:13px;font-weight:600;color:#374151;border:1px solid #e5e7eb;width:45%;">Profit Target</td><td style="padding:14px 18px;font-size:16px;font-weight:700;color:${accent};border:1px solid #e5e7eb;">$${s(data.amount)}</td></tr>
+        ${data.label ? `<tr><td style="padding:14px 18px;font-size:13px;font-weight:600;color:#374151;border:1px solid #e5e7eb;">Cycle Label</td><td style="padding:14px 18px;font-size:14px;color:#4b5563;border:1px solid #e5e7eb;">${s(data.label)}</td></tr>` : ""}
+      </table>
+      <p style="margin:0;font-size:14px;color:#6b7280;">Monitor your trade cycle progress in your <a href="https://xantexglobalmarkets.pro/dashboard.html" style="color:${accent};">dashboard</a>.</p>`;
+  } else if (tmpl === "plan_upgraded") {
+    const planName = s(data.plan || "Premium");
+    badge = `<div style="display:inline-block;background:linear-gradient(90deg,${accent}22,${accent}11);border:1px solid ${accent}55;border-radius:6px;padding:6px 16px;margin-bottom:20px;"><span style="font-size:13px;font-weight:700;color:${accent};">ACCOUNT UPGRADED</span></div>`;
+    content = `
+      <p style="margin:0 0 20px;font-size:15px;color:#4b5563;line-height:1.7;">Your Xantex Global Markets account has been upgraded to the <strong style="color:${accent};">${planName}</strong> tier. Welcome to an enhanced trading experience.</p>
+      <div style="background:linear-gradient(135deg,#060d1f 0%,#0d1b3e 100%);border-radius:12px;padding:28px;margin-bottom:24px;text-align:center;">
+        <p style="margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:.1em;color:${accent};text-transform:uppercase;">Your New Plan</p>
+        <p style="margin:0;font-size:32px;font-weight:800;color:#fff;">${planName}</p>
+      </div>
+      <p style="margin:0;font-size:14px;color:#6b7280;">Log in to your <a href="https://xantexglobalmarkets.pro/dashboard.html" style="color:${accent};">dashboard</a> to explore your new plan benefits.</p>`;
+  }
+
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${s(subject)}</title></head>
+<body style="margin:0;padding:0;background:#eef1f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef1f6;padding:48px 16px;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+      <tr><td style="background:#060d1f;border-radius:14px 14px 0 0;padding:16px 40px;text-align:center;">
+        <img src="https://xantexglobalmarkets.pro/images/logo.png" alt="Xantex Global Markets" height="100" style="display:block;margin:0 auto;height:100px;">
+      </td></tr>
+      <tr><td style="background:linear-gradient(90deg,${accent} 0%,${accent}bb 100%);height:4px;font-size:0;">&nbsp;</td></tr>
+      <tr><td style="background:#ffffff;padding:44px 44px 32px;border-left:1px solid #e2e6ee;border-right:1px solid #e2e6ee;">
+        <p style="margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.1em;color:${accent};text-transform:uppercase;">Xantex Global Markets</p>
+        <h1 style="margin:0 0 20px;font-size:26px;font-weight:700;color:#0d1117;line-height:1.3;">${s(subject)}</h1>
+        <p style="margin:0 0 20px;font-size:15px;color:#4b5563;line-height:1.7;">${greeting}</p>
+        ${badge}
+        ${content}
+      </td></tr>
+      <tr><td style="background:#f8fafc;border-left:1px solid #e2e6ee;border-right:1px solid #e2e6ee;padding:24px 44px;">
+        <p style="margin:0 0 12px;font-size:13px;color:#4b5563;line-height:1.7;">If you require assistance, contact our support team at <a href="mailto:help.xantexglobalmarkets@gmail.com" style="color:${accent};text-decoration:none;">help.xantexglobalmarkets@gmail.com</a>.</p>
+        <p style="margin:0;font-size:13px;color:#4b5563;line-height:1.7;">Warm regards,<br><strong style="color:#0d1117;">Xantex Global Markets</strong><br>Client Relations Team</p>
+      </td></tr>
+      <tr><td style="background:#f0f4ff;border-left:1px solid #e2e6ee;border-right:1px solid #e2e6ee;padding:20px 44px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="text-align:center;border-right:1px solid #e2e6ee;padding:0 16px 0 0;"><p style="margin:0;font-size:18px;font-weight:700;color:#0d1117;">150+</p><p style="margin:4px 0 0;font-size:11px;color:#9ca3af;">Instruments</p></td>
+          <td style="text-align:center;border-right:1px solid #e2e6ee;padding:0 16px;"><p style="margin:0;font-size:18px;font-weight:700;color:#0d1117;">1:500</p><p style="margin:4px 0 0;font-size:11px;color:#9ca3af;">Max Leverage</p></td>
+          <td style="text-align:center;padding:0 0 0 16px;"><p style="margin:0;font-size:18px;font-weight:700;color:#0d1117;">24/7</p><p style="margin:4px 0 0;font-size:11px;color:#9ca3af;">Support</p></td>
+        </tr></table>
+      </td></tr>
+      <tr><td style="background:#060d1f;border-radius:0 0 14px 14px;padding:28px 44px;text-align:center;">
+        <p style="margin:0 0 8px;font-size:13px;color:#8b9cb3;">Xantex Global Markets Ltd &bull; International Financial Services</p>
+        <p style="margin:0 0 12px;font-size:12px;"><a href="https://xantexglobalmarkets.pro" style="color:${accent};text-decoration:none;">xantexglobalmarkets.pro</a> &nbsp;&bull;&nbsp; <a href="https://xantexglobalmarkets.pro/contact.html" style="color:#4a5568;text-decoration:none;">Contact Support</a></p>
+        <p style="margin:0;font-size:11px;color:#374151;">&copy; 2026 Xantex Global Markets. All rights reserved.</p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
 }
 
 function buildEmailHtml(subject: string, recipientName: string, bodyText: string): string {

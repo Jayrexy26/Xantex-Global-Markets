@@ -2286,6 +2286,11 @@ window.saveUpgradePlan = async function() {
   const { error } = await db.from('profiles').update({ plan }).eq('id', userId);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   await logAudit('Plan Changed', userId, `Account plan set to ${plan}`);
+  fetch(_ADMIN_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': _ADMIN_SEC },
+    body: JSON.stringify({ action: 'notify_plan_upgraded', user_id: userId, plan }),
+  }).catch(() => {});
   showToast(`Plan updated to ${plan}`, 'success');
   closeModal('modal-upgrade-plan');
   renderUsersLive();
@@ -2354,6 +2359,11 @@ window.opsApproveKYC = async (kycId, userId) => {
     db.from('profiles').update({ kyc_status:'verified' }).eq('id', userId),
   ]);
   await logAudit('KYC Approved', userId, `Submission ${kycId}`);
+  fetch(_ADMIN_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': _ADMIN_SEC },
+    body: JSON.stringify({ action: 'notify_kyc_approved', user_id: userId }),
+  }).catch(() => {});
   showToast('KYC approved','success'); renderKYCLive(); loadDashStats();
 };
 window.opsRejectKYC = async (kycId, userId) => {

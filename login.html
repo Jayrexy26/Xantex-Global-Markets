@@ -449,6 +449,12 @@
         if (s?.access_token && s?.refresh_token) {
           sessionStorage.setItem('xantex_tmp_at', s.access_token);
           sessionStorage.setItem('xantex_tmp_rt', s.refresh_token);
+          // Fire-and-forget login notification email
+          fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/notify-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${s.access_token}` },
+            body: JSON.stringify({ type: 'login', user_agent: navigator.userAgent }),
+          }).catch(() => {});
         }
       } catch(e) {}
       window.location.href = 'session.html';

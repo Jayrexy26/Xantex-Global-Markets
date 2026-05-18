@@ -275,7 +275,7 @@ function loginEmailHtml(name: string, plan: string, info: { time: string; ip: st
     <tr style="background:#f8fafc;"><td style="padding:12px 16px;font-size:13px;font-weight:600;color:#374151;border:1px solid #e5e7eb;">IP Address</td><td style="padding:12px 16px;font-size:13px;color:#4b5563;border:1px solid #e5e7eb;">${esc(info.ip)}</td></tr>
   </table>
   <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px 20px;">
-    <p style="margin:0;font-size:14px;color:#374151;line-height:1.7;"><strong>Not you?</strong> If you did not sign in, please contact support immediately at <a href="mailto:help.xantexglobalmarkets@gmail.com" style="color:${accent};">help.xantexglobalmarkets@gmail.com</a>.</p>
+    <p style="margin:0;font-size:14px;color:#374151;line-height:1.7;"><strong>Not you?</strong> If you did not sign in, please <a href="https://xantexglobalmarkets.pro/forgot-password.html" style="color:${accent};font-weight:600;">change your password</a> and PIN or contact support immediately at <a href="mailto:help.xantexglobalmarkets@gmail.com" style="color:${accent};">help.xantexglobalmarkets@gmail.com</a>.</p>
   </div>
 </td></tr>
 <tr><td style="background:#f0f4ff;border-left:1px solid #e2e6ee;border-right:1px solid #e2e6ee;padding:20px 44px;">

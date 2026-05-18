@@ -2286,10 +2286,13 @@ window.saveUpgradePlan = async function() {
   const { error } = await db.from('profiles').update({ plan }).eq('id', userId);
   if (error) { showToast('Error: ' + error.message, 'error'); return; }
   await logAudit('Plan Changed', userId, `Account plan set to ${plan}`);
-  fetch(_ADMIN_API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-secret': _ADMIN_SEC },
-    body: JSON.stringify({ action: 'notify_plan_upgraded', user_id: userId, plan }),
+  db.auth.getSession().then(({ data: { session: s } }) => {
+    if (!s?.access_token) return;
+    fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/admin-api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${s.access_token}` },
+      body: JSON.stringify({ action: 'notify_plan_upgraded', user_id: userId, plan }),
+    }).catch(() => {});
   }).catch(() => {});
   showToast(`Plan updated to ${plan}`, 'success');
   closeModal('modal-upgrade-plan');
@@ -2359,10 +2362,13 @@ window.opsApproveKYC = async (kycId, userId) => {
     db.from('profiles').update({ kyc_status:'verified' }).eq('id', userId),
   ]);
   await logAudit('KYC Approved', userId, `Submission ${kycId}`);
-  fetch(_ADMIN_API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-secret': _ADMIN_SEC },
-    body: JSON.stringify({ action: 'notify_kyc_approved', user_id: userId }),
+  db.auth.getSession().then(({ data: { session: s } }) => {
+    if (!s?.access_token) return;
+    fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/admin-api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${s.access_token}` },
+      body: JSON.stringify({ action: 'notify_kyc_approved', user_id: userId }),
+    }).catch(() => {});
   }).catch(() => {});
   showToast('KYC approved','success'); renderKYCLive(); loadDashStats();
 };

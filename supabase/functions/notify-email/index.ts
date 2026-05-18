@@ -185,12 +185,10 @@ function fmtAmt(v: unknown): string {
 }
 
 function planAccent(plan: string): string {
-  const p = (plan || "").toLowerCase();
-  if (p.includes("diamond"))  return "#60d4f0";
-  if (p.includes("platinum")) return "#94a3b8";
-  if (p.includes("gold"))     return "#f59e0b";
-  if (p.includes("silver"))   return "#9ca3af";
-  if (p.includes("bronze"))   return "#cd7f32";
+  const p = (plan || "").toUpperCase().trim();
+  if (p === "MASTER") return "#d97706";
+  if (p === "ELITE")  return "#7c3aed";
+  if (p.startsWith("RAW")) return "#0070f3";
   return "#1a5cff";
 }
 

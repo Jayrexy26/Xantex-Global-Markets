@@ -303,12 +303,10 @@ async function sendUserEmail(to: string, toName: string, subject: string, tmpl: 
 }
 
 function planAccent(plan: string): string {
-  const p = (plan || "").toLowerCase();
-  if (p.includes("diamond"))  return "#60d4f0";
-  if (p.includes("platinum")) return "#94a3b8";
-  if (p.includes("gold"))     return "#f59e0b";
-  if (p.includes("silver"))   return "#9ca3af";
-  if (p.includes("bronze"))   return "#cd7f32";
+  const p = (plan || "").toUpperCase().trim();
+  if (p === "MASTER") return "#d97706";
+  if (p === "ELITE")  return "#7c3aed";
+  if (p.startsWith("RAW")) return "#0070f3";
   return "#1a5cff";
 }
 
@@ -362,14 +360,27 @@ function buildPlanEmailHtml(subject: string, recipientName: string, tmpl: string
       <p style="margin:0;font-size:14px;color:#6b7280;">Monitor your trade cycle progress in your <a href="https://xantexglobalmarkets.pro/dashboard.html" style="color:${accent};">dashboard</a>.</p>`;
   } else if (tmpl === "plan_upgraded") {
     const planName = s(data.plan || "Premium");
-    badge = `<div style="display:inline-block;background:linear-gradient(90deg,${accent}22,${accent}11);border:1px solid ${accent}55;border-radius:6px;padding:6px 16px;margin-bottom:20px;"><span style="font-size:13px;font-weight:700;color:${accent};">ACCOUNT UPGRADED</span></div>`;
+    const planKey  = (data.plan || "").toUpperCase().trim();
+    type PlanInfo = { fee: string; limit: string; gradient: string; features: string[] };
+    const PLANS: Record<string, PlanInfo> = {
+      "MASTER": { fee: "$5,000", limit: "$1,000,000", gradient: "linear-gradient(135deg,#f59e0b,#d97706)", features: ["24/7 Priority Support","Professional Charts & Analytics","SMS & Email Trade Alerts","Copy Trading Access","Advanced AI Integration & UI"] },
+      "ELITE":  { fee: "$1,000", limit: "$100,000",   gradient: "linear-gradient(135deg,#7c3aed,#c084fc)", features: ["24/7 Priority Support","Professional Charts & Analytics","SMS & Email Trade Alerts","Copy Trading Access"] },
+      "RAW+":   { fee: "$500",   limit: "$50,000",     gradient: "linear-gradient(135deg,#1a5cff,#00c6ff)", features: ["24/7 Priority Support","Professional Charts & Analytics"] },
+    };
+    const info: PlanInfo | undefined = PLANS[planKey];
+    const featuresHtml = info ? info.features.map(f =>
+      `<li style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;font-size:14px;color:#374151;"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:${accent};flex-shrink:0;margin-top:1px;"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span><span>${s(f)}</span></li>`
+    ).join("") : "";
+    const limitBadge = info ? `<div style="display:flex;align-items:center;gap:10px;background:${accent}18;border:1px solid ${accent}44;border-radius:8px;padding:12px 16px;margin-top:20px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="${accent}" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><span style="font-size:13px;font-weight:700;color:${accent};">Balance Limit: ${s(info.limit)}</span></div>` : "";
+    badge = `<div style="display:inline-block;background:${accent}18;border:1px solid ${accent}55;border-radius:6px;padding:6px 16px;margin-bottom:20px;"><span style="font-size:13px;font-weight:700;color:${accent};">ACCOUNT UPGRADED</span></div>`;
     content = `
       <p style="margin:0 0 20px;font-size:15px;color:#4b5563;line-height:1.7;">Your Xantex Global Markets account has been upgraded to the <strong style="color:${accent};">${planName}</strong> tier. Welcome to an enhanced trading experience.</p>
-      <div style="background:linear-gradient(135deg,#060d1f 0%,#0d1b3e 100%);border-radius:12px;padding:28px;margin-bottom:24px;text-align:center;">
-        <p style="margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:.1em;color:${accent};text-transform:uppercase;">Your New Plan</p>
-        <p style="margin:0;font-size:32px;font-weight:800;color:#fff;">${planName}</p>
+      <div style="background:${info?.gradient ?? `linear-gradient(135deg,#060d1f,#0d1b3e)`};border-radius:12px;padding:28px;margin-bottom:24px;text-align:center;">
+        <p style="margin:0 0 6px;font-size:12px;font-weight:600;letter-spacing:.12em;color:rgba(255,255,255,0.65);text-transform:uppercase;">Your New Plan</p>
+        <p style="margin:0;font-size:36px;font-weight:800;color:#fff;letter-spacing:-0.5px;">${planName}</p>
       </div>
-      <p style="margin:0;font-size:14px;color:#6b7280;">Log in to your <a href="https://xantexglobalmarkets.pro/dashboard.html" style="color:${accent};">dashboard</a> to explore your new plan benefits.</p>`;
+      ${featuresHtml ? `<div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:24px;margin-bottom:24px;"><p style="margin:0 0 16px;font-size:14px;font-weight:700;color:#0d1117;">What's included in your plan:</p><ul style="margin:0;padding:0;list-style:none;">${featuresHtml}</ul>${limitBadge}</div>` : ""}
+      <p style="margin:0;font-size:14px;color:#6b7280;">Log in to your <a href="https://xantexglobalmarkets.pro/dashboard.html" style="color:${accent};">dashboard</a> to explore your new benefits.</p>`;
   }
 
   return `<!DOCTYPE html>

@@ -2438,6 +2438,7 @@
         </div>`).join('');
     } catch(e) { body.innerHTML = '<div style="padding:20px;color:var(--muted);">Could not load notifications</div>'; }
   }
+  window._renderNotifications = _renderNotifications;
 
   // ── Transaction history renderer ───────────────────────────
   const _HIST_STATUS = {
@@ -4020,7 +4021,10 @@ function savePreferences() {
   const uid = session.user.id;
   const _deb = (fn, ms) => { let t; return () => { clearTimeout(t); t = setTimeout(fn, ms); }; };
   const _reload  = _deb(() => { if (typeof loadRows === 'function') loadRows(); }, 800);
-  const _reloadN = _deb(() => { if (typeof _renderNotifications === 'function') _renderNotifications(); }, 800);
+  const _reloadN = _deb(() => {
+    if (typeof window.initNotifPopup === 'function') window.initNotifPopup(db, uid);
+    if (typeof window._renderNotifications === 'function') window._renderNotifications();
+  }, 800);
   db.channel('dashboard-rt')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'trading_accounts',   filter: `user_id=eq.${uid}` }, _reload)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'deposit_requests',   filter: `user_id=eq.${uid}` }, _reload)

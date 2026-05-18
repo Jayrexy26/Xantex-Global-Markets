@@ -50,6 +50,7 @@
     .navbar {
       background: var(--white);
       border-bottom: 1px solid var(--border);
+      height: 56px;
       display: flex;
       align-items: center;
       padding: 0 var(--pad);
@@ -639,7 +640,7 @@
     .mobile-menu {
       display: none;
       position: fixed;
-      top: 0;
+      top: 56px;
       left: 0;
       right: 0;
       bottom: 0;
@@ -714,7 +715,8 @@
       :root { --pad: 20px; --sp-lg: 52px; --sp-md: 40px; }
 
       /* --- Navbar --- */
-      .navbar { padding: 0 20px; }
+      .navbar { padding: 0 20px; height: 64px; }
+      .mobile-menu { top: 64px; }
       .navbar__lang { display: none; }
       .navbar__nav { display: none; }
       .navbar__actions { display: none; }
@@ -854,7 +856,7 @@
   <nav class="navbar" aria-label="Main navigation">
     <div class="navbar__inner">
       <div class="navbar__logo">
-        <a href="/"><img src="/images/logo.png" alt="Xantex logo" style="height:130px;width:auto;display:block;"></a>
+        <a href="/"><img src="/images/logo.png" alt="Xantex logo" style="height:40px;width:auto;display:block;"></a>
       </div>
 
 
@@ -1488,7 +1490,6 @@
     hamburger.classList.toggle('open', open);
     hamburger.setAttribute('aria-expanded', open);
     document.body.style.overflow = open ? 'hidden' : '';
-    if (open) mobileMenu.style.top = document.querySelector('.navbar').offsetHeight + 'px';
   });
   document.addEventListener('click', e => {
     if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {

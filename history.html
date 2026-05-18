@@ -590,6 +590,23 @@
     document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(el => closeModal(el.id)); });
   })();
 </script>
+
+<script>
+(async () => {
+  const db = window.XANTEX_DB;
+  if (!db) return;
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) return;
+  const uid = session.user.id;
+  let _t;
+  const _reload = () => { clearTimeout(_t); _t = setTimeout(() => location.reload(), 1200); };
+  db.channel('history-rt')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions',       filter: `user_id=eq.${uid}` }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'deposit_requests',   filter: `user_id=eq.${uid}` }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'withdrawal_requests',filter: `user_id=eq.${uid}` }, _reload)
+    .subscribe();
+})();
+</script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}</script>
 </body>
 </html>

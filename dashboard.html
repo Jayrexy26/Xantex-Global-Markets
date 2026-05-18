@@ -4011,6 +4011,27 @@ function savePreferences() {
 })();
 </script>
 
+<script>
+(async () => {
+  const db = window.XANTEX_DB;
+  if (!db) return;
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) return;
+  const uid = session.user.id;
+  const _deb = (fn, ms) => { let t; return () => { clearTimeout(t); t = setTimeout(fn, ms); }; };
+  const _reload  = _deb(() => { if (typeof loadRows === 'function') loadRows(); }, 800);
+  const _reloadN = _deb(() => { if (typeof _renderNotifications === 'function') _renderNotifications(); }, 800);
+  db.channel('dashboard-rt')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'trading_accounts',   filter: `user_id=eq.${uid}` }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'deposit_requests',   filter: `user_id=eq.${uid}` }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'withdrawal_requests',filter: `user_id=eq.${uid}` }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'positions',          filter: `user_id=eq.${uid}` }, _reload)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications',      filter: `user_id=eq.${uid}` }, _reloadN)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, _reload)
+    .subscribe();
+})();
+</script>
+
 <!-- ── Plan upgrade congratulations popup ─────────────────────── -->
 <style>
   @property --popup-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }

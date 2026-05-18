@@ -2337,7 +2337,7 @@
     localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
     if (window._mwReload) window._mwReload();
   }
-  if (localStorage.getItem('xantex-theme') === 'dark') {
+  if (localStorage.getItem('xantex-theme') !== 'light') {
     document.body.classList.add('dark');
     document.addEventListener('DOMContentLoaded', () => {
       const el = document.getElementById('dark-icon');

@@ -1879,7 +1879,7 @@
     document.getElementById('dark-icon').innerHTML = isDark ? sunIcon : moonIcon;
     localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
   }
-  if (localStorage.getItem('xantex-theme') === 'dark') {
+  if (localStorage.getItem('xantex-theme') !== 'light') {
     document.body.classList.add('dark');
     document.getElementById('dark-icon').innerHTML = sunIcon;
   }

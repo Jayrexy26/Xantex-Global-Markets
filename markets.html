@@ -782,7 +782,7 @@ function toggleDark(){
   initWidgets();
   renderMiniCharts();
 }
-if(localStorage.getItem('xantex-theme')==='dark'){document.body.classList.add('dark');document.getElementById('dark-icon').innerHTML=sunIcon;}
+if(localStorage.getItem('xantex-theme')!=='light'){document.body.classList.add('dark');document.getElementById('dark-icon').innerHTML=sunIcon;}
 
 // ── Sidebar ───────────────────────────────────────────────────
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}

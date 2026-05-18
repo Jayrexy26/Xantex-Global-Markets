@@ -79,6 +79,21 @@
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 199;
     }
 
+    /* ── Sidebar footer ── */
+    .sidebar__footer {
+      padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; gap: 10px; margin-top: auto;
+    }
+    .sidebar__avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--blue); display: flex; align-items: center;
+      justify-content: center; font-size: 13px; font-weight: 700;
+      color: #fff; flex-shrink: 0;
+      background-size: cover; background-position: center;
+    }
+    .sidebar__user-name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar__user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+
     /* ── Main ── */
     .main { flex: 1; margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; }
 
@@ -381,10 +396,17 @@
         Settings
       </button>
     </nav>
-    <button class="sidebar__logout" onclick="signOut()">
-      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Sign Out
-    </button>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__avatar" id="sidebar-avatar"></div>
+      <div style="flex:1;min-width:0;">
+        <div class="sidebar__user-name" id="sidebar-name">—</div>
+        <div class="sidebar__user-role">Live account</div>
+      </div>
+      <button style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;padding:4px;flex-shrink:0;" onclick="signOut()" title="Sign out">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
   </aside>
   <div class="sidebar__overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
@@ -595,19 +617,28 @@ document.addEventListener('click', function(e) {
 
   const userId = session.user.id;
 
-  // Avatar
+  // Avatar + sidebar name
   try {
     const { data: prof } = await db.from('profiles').select('first_name,last_name,avatar_url').eq('id', userId).maybeSingle();
-    const av = document.getElementById('topbar-avatar');
-    if (prof?.avatar_url) {
-      av.style.backgroundImage = `url(${prof.avatar_url})`;
-      av.style.backgroundSize = 'cover';
-      av.style.backgroundPosition = 'center';
-      av.textContent = '';
-    } else {
-      const fn = prof?.first_name || '', ln = prof?.last_name || '';
-      av.textContent = ((fn[0]||'') + (ln[0]||'')).toUpperCase() || '?';
-    }
+    const fn = prof?.first_name || '', ln = prof?.last_name || '';
+    const initials = ((fn[0]||'') + (ln[0]||'')).toUpperCase() || '?';
+    const fullName = [fn, ln].filter(Boolean).join(' ') || '—';
+
+    const sidebarAv = document.getElementById('sidebar-avatar');
+    const sidebarName = document.getElementById('sidebar-name');
+    if (sidebarName) sidebarName.textContent = fullName;
+
+    [document.getElementById('topbar-avatar'), sidebarAv].forEach(av => {
+      if (!av) return;
+      if (prof?.avatar_url) {
+        av.style.backgroundImage = `url('${prof.avatar_url}')`;
+        av.style.backgroundSize = 'cover';
+        av.style.backgroundPosition = 'center';
+        av.textContent = '';
+      } else {
+        av.textContent = initials;
+      }
+    });
   } catch(e) {}
 })();
 

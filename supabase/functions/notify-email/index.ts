@@ -69,10 +69,19 @@ serve(async (req) => {
       const time = new Date().toUTCString();
       let location = "Unknown";
       try {
-        const geo = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`).then(r => r.json());
-        if (geo.city && geo.country_name) location = `${geo.city}, ${geo.country_name}`;
-        else if (geo.country_name) location = geo.country_name;
-        else if (geo.error) location = "Unknown";
+        // Primary: freeipapi.com (no rate limits, HTTPS, returns cityName + countryName)
+        const g1 = await fetch(`https://freeipapi.com/api/json/${encodeURIComponent(ip)}`)
+          .then(r => r.json()).catch(() => null);
+        if (g1?.countryName && g1.countryName !== "Unknown") {
+          location = g1.cityName && g1.cityName !== "-" ? `${g1.cityName}, ${g1.countryName}` : g1.countryName;
+        } else {
+          // Fallback: ipapi.co
+          const g2 = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`)
+            .then(r => r.json()).catch(() => null);
+          if (g2 && !g2.error && g2.country_name) {
+            location = g2.city ? `${g2.city}, ${g2.country_name}` : g2.country_name;
+          }
+        }
       } catch (_) {}
       const { browser, device } = parseDevice(ua);
       await sendEmail(email, userName, "New Sign-In to Your Xantex Account", loginEmailHtml(userName, plan, { time, ip, location, browser, device }));

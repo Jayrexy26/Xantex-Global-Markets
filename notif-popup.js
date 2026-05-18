@@ -68,11 +68,6 @@
     _removePopup();
     _injectStyles();
 
-    // Mark as seen (enabled = false) so it never pops up again, but stays in panel
-    if (db && notif.id) {
-      db.from('notifications').update({ enabled: false }).eq('id', notif.id).then(() => {}).catch(() => {});
-    }
-
     const color = TYPE_COLORS[notif.type] || TYPE_COLORS['info'];
     const overlay = document.createElement('div');
     overlay.id = 'xnp-overlay';

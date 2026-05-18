@@ -2176,8 +2176,9 @@
       <div id="wd-crypto-info" style="display:none;">
         <div class="field">
           <label>Cryptocurrency</label>
-          <select id="wd-crypto-coin">
+          <select id="wd-crypto-coin" onchange="wdCoinChanged(this.value)">
             <option value="">— choose a coin —</option>
+            <option value="BTC">BTC — Bitcoin</option>
             <option value="ETH">ETH — Ethereum</option>
             <option value="USDT">USDT — Tether (ERC20)</option>
             <option value="USDC">USDC — USD Coin (ERC20)</option>
@@ -2190,8 +2191,8 @@
             <option value="AAVE">AAVE — Aave (ERC20)</option>
           </select>
         </div>
-        <div class="field"><label>Your Wallet Address (ERC20 Network)</label><input type="text" id="wd-wallet-addr" placeholder="0x…" style="font-family:monospace;font-size:12px;"></div>
-        <p style="font-size:11px;color:var(--red);font-weight:600;">⚠ Only provide an ERC20-compatible wallet address. Wrong network = lost funds.</p>
+        <div class="field"><label id="wd-wallet-label">Your Wallet Address (ERC20 Network)</label><input type="text" id="wd-wallet-addr" placeholder="0x…" style="font-family:monospace;font-size:12px;"></div>
+        <p id="wd-crypto-warn" style="font-size:11px;color:var(--red);font-weight:600;">⚠ Only provide an ERC20-compatible wallet address. Wrong network = lost funds.</p>
       </div>
     </div>
     <div class="modal__foot">
@@ -3697,6 +3698,21 @@ function savePreferences() {
 
   // ── Withdrawal method toggle ──────────────────────────────
   let _wdMethod = 'bank';
+  window.wdCoinChanged = function(coin) {
+    const label = document.getElementById('wd-wallet-label');
+    const input = document.getElementById('wd-wallet-addr');
+    const warn  = document.getElementById('wd-crypto-warn');
+    if (coin === 'BTC') {
+      label.textContent = 'Your Wallet Address (Bitcoin Network)';
+      input.placeholder = 'bc1… or 1… or 3…';
+      warn.textContent  = '⚠ Only provide a Bitcoin (BTC) network address. Sending to a wrong network = permanent loss.';
+    } else {
+      label.textContent = 'Your Wallet Address (ERC20 Network)';
+      input.placeholder = '0x…';
+      warn.textContent  = '⚠ Only provide an ERC20-compatible wallet address. Wrong network = lost funds.';
+    }
+  };
+
   window.wdSelectMethod = function(m) {
     _wdMethod = m;
     const bankBtn   = document.getElementById('wd-btn-bank');

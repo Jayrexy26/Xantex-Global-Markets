@@ -640,7 +640,7 @@
     .mobile-menu {
       display: none;
       position: fixed;
-      top: 72px;
+      top: 56px;
       left: 0;
       right: 0;
       bottom: 0;
@@ -675,6 +675,12 @@
       margin-top: 28px;
     }
     .mobile-menu__actions .btn { width: 100%; justify-content: center; padding: 14px; font-size: 16px; }
+    .mmenu-sub { display: none; flex-direction: column; padding: 4px 0 8px 16px; }
+    .mmenu-sub.open { display: flex; }
+    .mmenu-sub__link { padding: 11px 0; font-size: 15px; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border); }
+    .mmenu-sub__link:hover { color: var(--blue); }
+    .mobile-menu__btn.open svg { transform: rotate(180deg); }
+    .mobile-menu__btn svg { transition: transform 0.2s; }
 
     /* ============================================================
        RESPONSIVE — TABLET  (≤ 1024px)
@@ -710,6 +716,7 @@
 
       /* --- Navbar --- */
       .navbar { padding: 0 20px; height: 64px; }
+      .mobile-menu { top: 64px; }
       .navbar__lang { display: none; }
       .navbar__nav { display: none; }
       .navbar__actions { display: none; }
@@ -849,7 +856,7 @@
   <nav class="navbar" aria-label="Main navigation">
     <div class="navbar__inner">
       <div class="navbar__logo">
-        <a href="/"><img src="/images/logo.png" alt="Xantex logo" style="height:130px;width:auto;display:block;"></a>
+        <a href="/"><img src="/images/logo.png" alt="Xantex logo" style="height:40px;width:auto;display:block;"></a>
       </div>
 
 
@@ -908,9 +915,35 @@
 
   <!-- Mobile slide-down menu -->
   <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobile navigation">
-    <button class="mobile-menu__btn">Markets <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
-    <button class="mobile-menu__btn">Platforms <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
-    <button class="mobile-menu__btn">Company <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    <div class="mmenu-section">
+      <button class="mobile-menu__btn" onclick="toggleMobileSection(this)">Markets <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="mmenu-sub">
+        <a href="/markets/futures" class="mmenu-sub__link">Futures</a>
+        <a href="/markets/indices" class="mmenu-sub__link">Indices</a>
+        <a href="/markets/shares" class="mmenu-sub__link">Shares</a>
+        <a href="/markets/metals" class="mmenu-sub__link">Metals</a>
+        <a href="/markets/energy" class="mmenu-sub__link">Energy</a>
+        <a href="/markets/etfs" class="mmenu-sub__link">ETFs</a>
+      </div>
+    </div>
+    <div class="mmenu-section">
+      <button class="mobile-menu__btn" onclick="toggleMobileSection(this)">Platforms <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="mmenu-sub">
+        <a href="/platforms/xantex" class="mmenu-sub__link">Xantex Platform</a>
+        <a href="/platforms/tradingview" class="mmenu-sub__link">TradingView</a>
+      </div>
+    </div>
+    <div class="mmenu-section">
+      <button class="mobile-menu__btn" onclick="toggleMobileSection(this)">Company <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="mmenu-sub">
+        <a href="/about" class="mmenu-sub__link">About Xantex</a>
+        <a href="/security" class="mmenu-sub__link">Online Security</a>
+        <a href="/awards" class="mmenu-sub__link">Awards</a>
+        <a href="/benefits" class="mmenu-sub__link">Benefits</a>
+        <a href="/privacy" class="mmenu-sub__link">Privacy Policy</a>
+        <a href="/contact" class="mmenu-sub__link">Contact Us</a>
+      </div>
+    </div>
     <div class="mobile-menu__actions">
       <a href="register.html" class="btn btn--primary">Register</a>
       <a href="login.html" class="btn btn--outline">Login</a>
@@ -1444,6 +1477,12 @@
 </footer>
 
 <script>
+  function toggleMobileSection(btn) {
+    const sub = btn.nextElementSibling;
+    const isOpen = sub.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+  }
+
   const hamburger = document.getElementById('hamburger');
   const mobileMenu = document.getElementById('mobileMenu');
   hamburger.addEventListener('click', () => {

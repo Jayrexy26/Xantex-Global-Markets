@@ -1883,9 +1883,9 @@
   function toggleDark() {
     const isDark = document.body.classList.toggle('dark');
     document.getElementById('dark-icon').innerHTML = isDark ? sunIcon : moonIcon;
-    localStorage.setItem('xantex-theme', isDark ? 'dark' : 'light');
+    localStorage.setItem('xantex-ops-theme', isDark ? 'dark' : 'light');
   }
-  if (localStorage.getItem('xantex-theme') !== 'light') {
+  if (localStorage.getItem('xantex-ops-theme') !== 'light') {
     document.body.classList.add('dark');
     document.getElementById('dark-icon').innerHTML = sunIcon;
   }

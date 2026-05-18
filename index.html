@@ -269,6 +269,17 @@
     .hero__award-title { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); }
     .hero__award-sep   { width: 1px; height: 36px; background: rgba(255,255,255,0.2); }
 
+    /* Hero canvas + ticker cards */
+    #hero-canvas { position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none; }
+    #hero-tickers { position:absolute; right:clamp(40px,5vw,100px); top:50%; transform:translateY(-45%); z-index:2; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+    .htcard { background:rgba(10,20,50,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 16px; min-width:170px; opacity:0; transform:translateX(24px); transition:opacity .6s ease, transform .6s ease; }
+    .htcard.visible { opacity:1; transform:translateX(0); }
+    .htcard__sym { font-size:10px; font-weight:700; letter-spacing:0.1em; color:rgba(255,255,255,0.45); text-transform:uppercase; margin-bottom:5px; }
+    .htcard__price { font-size:17px; font-weight:700; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:-0.3px; }
+    .htcard__change { font-size:12px; font-weight:600; margin-top:3px; display:flex; align-items:center; gap:4px; }
+    .htcard__change.up { color:#22c55e; } .htcard__change.down { color:#ef4444; }
+    @media(max-width:1100px){ #hero-tickers { display:none; } }
+
     /* ============================================================
        TRUST BAR
     ============================================================ */
@@ -959,6 +970,8 @@
   ============================================================ -->
   <section class="hero" aria-label="Hero banner">
     <div class="hero__overlay" aria-hidden="true"></div>
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
+    <div id="hero-tickers" aria-hidden="true"></div>
 
     <!-- TradingView Ticker -->
     <div class="ticker-wrap">
@@ -1647,5 +1660,125 @@
   <script src="/js/platform.js"></script>
 <script src="/pwa-install.js"></script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}</script>
+<script>
+(function(){
+  /* ── Ticker cards ─────────────────────────────────────────── */
+  var TICKERS=[
+    {sym:'BTC/USD', price:97234.50, chg:2.34,  dec:2},
+    {sym:'EUR/USD', price:1.08471,  chg:-0.12, dec:5},
+    {sym:'XAU/USD', price:2347.20,  chg:0.56,  dec:2},
+    {sym:'S&P 500', price:5234.18,  chg:0.89,  dec:2},
+  ];
+  function fmt(n,d){return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+  var tickerEl=document.getElementById('hero-tickers');
+  if(tickerEl){
+    TICKERS.forEach(function(t,i){
+      var card=document.createElement('div'); card.className='htcard';
+      var up=t.chg>=0;
+      card.innerHTML='<div class="htcard__sym">'+t.sym+'</div>'
+        +'<div class="htcard__price" id="htp'+i+'">'+fmt(t.price,t.dec)+'</div>'
+        +'<div class="htcard__change '+(up?'up':'down')+'" id="htc'+i+'">'+(up?'▲ +':'▼ ')+Math.abs(t.chg).toFixed(2)+'%</div>';
+      tickerEl.appendChild(card);
+      setTimeout(function(){card.classList.add('visible');},900+i*160);
+    });
+    setInterval(function(){
+      TICKERS.forEach(function(t,i){
+        t.price=Math.max(0.0001,t.price*(1+(Math.random()-0.49)*0.001));
+        t.chg+=(Math.random()-0.5)*0.04;
+        var up=t.chg>=0;
+        var pe=document.getElementById('htp'+i),ce=document.getElementById('htc'+i);
+        if(pe) pe.textContent=fmt(t.price,t.dec);
+        if(ce){ce.className='htcard__change '+(up?'up':'down');ce.textContent=(up?'▲ +':'▼ ')+Math.abs(t.chg).toFixed(2)+'%';}
+      });
+    },1800);
+  }
+
+  /* ── Canvas ───────────────────────────────────────────────── */
+  var canvas=document.getElementById('hero-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  function resize(){var r=canvas.parentElement.getBoundingClientRect();canvas.width=r.width;canvas.height=r.height;}
+  resize(); window.addEventListener('resize',resize);
+
+  var LINES=[
+    {col:'rgba(26,92,255,0.75)',  glow:'rgba(26,92,255,0.18)',  yB:0.48,amp:0.13,spd:0.28,fr:3.2,ph:0},
+    {col:'rgba(34,197,94,0.65)',  glow:'rgba(34,197,94,0.14)',  yB:0.64,amp:0.10,spd:0.18,fr:4.5,ph:2.1},
+    {col:'rgba(251,191,36,0.55)', glow:'rgba(251,191,36,0.11)', yB:0.35,amp:0.09,spd:0.13,fr:5.8,ph:4.3},
+  ];
+
+  var NC=20, candles=[];
+  for(var ci=0;ci<NC;ci++) candles.push(mkC(ci/NC));
+  function mkC(age){
+    var up=Math.random()>0.42,mid=0.38+Math.random()*0.28,body=0.035+Math.random()*0.09,wick=body+0.02+Math.random()*0.05;
+    return{up:up,o:mid+(up?-body/2:body/2),c:mid+(up?body/2:-body/2),h:mid+wick/2,l:mid-wick/2,age:age};
+  }
+
+  var SYMS=['₿','$','€','£','¥','Ξ','◈'],parts=[];
+  for(var pi=0;pi<28;pi++) parts.push(mkP(true));
+  function mkP(rand){return{x:Math.random(),y:rand?Math.random():1.05,vy:0.0008+Math.random()*0.0018,sym:SYMS[Math.floor(Math.random()*SYMS.length)],sz:9+Math.random()*11,mop:0.12+Math.random()*0.18,life:0};}
+
+  var T=0,lastCT=0;
+  function draw(){
+    var W=canvas.width,H=canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    /* Grid */
+    ctx.lineWidth=1; ctx.strokeStyle='rgba(255,255,255,0.025)';
+    for(var gi=1;gi<7;gi++){ctx.beginPath();ctx.moveTo(0,H*gi/7);ctx.lineTo(W,H*gi/7);ctx.stroke();}
+    for(var gj=1;gj<12;gj++){ctx.beginPath();ctx.moveTo(W*gj/12,0);ctx.lineTo(W*gj/12,H);ctx.stroke();}
+
+    /* Lines */
+    LINES.forEach(function(ln){
+      var pts=[];
+      for(var x=0;x<=W;x+=2){
+        var p=x/W;
+        var y=H*ln.yB+Math.sin(p*ln.fr+T*ln.spd+ln.ph)*H*ln.amp+Math.sin(p*ln.fr*2.4+T*ln.spd*1.8+ln.ph*1.6)*H*ln.amp*0.38+Math.sin(p*ln.fr*5.3+T*ln.spd*0.55)*H*ln.amp*0.18;
+        pts.push([x,y]);
+      }
+      ctx.beginPath();ctx.moveTo(pts[0][0],H);
+      pts.forEach(function(p){ctx.lineTo(p[0],p[1]);});
+      ctx.lineTo(pts[pts.length-1][0],H);ctx.closePath();
+      var g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,ln.glow);g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;ctx.fill();
+      ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.forEach(function(p){ctx.lineTo(p[0],p[1]);});
+      ctx.strokeStyle=ln.col.replace(/[\d.]+\)$/,'0.18)');ctx.lineWidth=7;ctx.shadowColor=ln.col;ctx.shadowBlur=14;ctx.stroke();
+      ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.forEach(function(p){ctx.lineTo(p[0],p[1]);});
+      ctx.strokeStyle=ln.col;ctx.lineWidth=1.8;ctx.shadowBlur=0;ctx.stroke();
+      var lp=pts[pts.length-1];
+      ctx.beginPath();ctx.arc(lp[0],lp[1],3.5,0,Math.PI*2);
+      ctx.fillStyle=ln.col;ctx.shadowColor=ln.col;ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0;
+    });
+
+    /* Candles – right 38% */
+    var cw=W*0.38/NC,cx0=W*0.62;
+    candles.forEach(function(c,i){
+      var x=cx0+i*cw+cw*0.1,bw=cw*0.55,scl=H*0.42,off=H*0.22;
+      var bTop=Math.min(c.o,c.c)*scl+off,bBot=Math.max(c.o,c.c)*scl+off,wTop=c.h*scl+off,wBot=c.l*scl+off;
+      var a=Math.min(1,c.age*2.5);
+      var col=c.up?'rgba(34,197,94,'+a*0.8+')':'rgba(239,68,68,'+a*0.8+')';
+      ctx.beginPath();ctx.moveTo(x+bw/2,wTop);ctx.lineTo(x+bw/2,wBot);
+      ctx.strokeStyle=col;ctx.lineWidth=1.2;ctx.stroke();
+      ctx.shadowColor=c.up?'rgba(34,197,94,0.35)':'rgba(239,68,68,0.35)';ctx.shadowBlur=8;
+      ctx.fillStyle=col;ctx.fillRect(x,bTop,bw,Math.max(1.5,bBot-bTop));ctx.shadowBlur=0;
+      c.age=Math.min(1,c.age+0.006);
+    });
+    if(T-lastCT>1.8){candles.shift();candles.push(mkC(0));lastCT=T;}
+
+    /* Particles */
+    parts.forEach(function(p,i){
+      p.y-=p.vy;p.life+=0.012;
+      if(p.y<-0.08){parts[i]=mkP(false);return;}
+      var fade=Math.min(p.life*1.5,1)*Math.min(p.y*8,1);
+      ctx.globalAlpha=p.mop*fade;
+      ctx.fillStyle='#fff';ctx.font='bold '+p.sz+'px Arial';
+      ctx.fillText(p.sym,p.x*W,p.y*H);
+      ctx.globalAlpha=1;
+    });
+
+    T+=0.016;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
 </body>
 </html>

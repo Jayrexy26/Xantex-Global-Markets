@@ -3319,6 +3319,35 @@ function savePreferences() {
     ['card-balance-sub','card-margin-sub'].forEach(id => { const el=document.getElementById(id); if(el){ el.textContent='No accounts'; el.classList.remove('card-loading'); } });
   }
 
+  window._reloadBalance = async function() {
+    try {
+      const { data: accts } = await db.from('trading_accounts').select('*').eq('user_id', userId).order('created_at', {ascending:false});
+      const _set = (id, v, style) => { const el=document.getElementById(id); if(el){el.textContent=v;el.classList.remove('card-loading');if(style)Object.assign(el.style,style);} };
+      const total = (accts||[]).reduce((s,a)=>s+(parseFloat(a.balance)||0),0);
+      if (accts && accts.length) {
+        const totalFree = accts.reduce((s,a)=>s+(parseFloat(a.free_margin)||parseFloat(a.balance)||0),0);
+        const live = accts.filter(a=>a.type==='live');
+        _set('card-balance', fmt(total));
+        _set('card-balance-sub', `${accts.length} account${accts.length!==1?'s':''}`, {color:''});
+        _set('card-margin', fmt(totalFree));
+        _set('card-margin-sub', `${live.length} live account${live.length!==1?'s':''}`);
+        const list = document.querySelector('.account-list');
+        if (list) {
+          const pm = {MT4:'account-icon--mt4',MT5:'account-icon--mt5',cTrader:'account-icon--ct',TradingView:'account-icon--tv'};
+          list.innerHTML = accts.map(a => {
+            const cls=pm[a.platform]||'account-icon--mt4', bal=parseFloat(a.balance||0).toLocaleString('en-US',{minimumFractionDigits:2}), pnl=parseFloat(a.equity||a.balance||0)-parseFloat(a.balance||0), isLive=a.type==='live';
+            return `<div class="account-row"><div class="account-icon ${cls}">${(a.platform||'MT').slice(0,2).toUpperCase()}</div><div class="account-col"><div class="account-col__id">#${a.account_number||a.id.slice(0,8)}</div><div class="account-col__type">${a.platform||'—'} · ${a.account_type||'—'} · ${a.currency||'USD'}</div></div><span class="account-status ${isLive?'account-status--live':'account-status--demo'}">${isLive?'Live':'Demo'}</span><div class="account-balance"><div class="account-balance__val">$${bal}</div><div class="account-balance__pnl ${pnl>=0?'up':'down'}" style="color:${pnl>=0?'var(--green)':'var(--red)'};">${pnl>=0?'+':''}$${Math.abs(pnl).toFixed(2)} P&L</div></div></div>`;
+          }).join('');
+          const opts=accts.map(a=>`<option value="${a.id}">#${a.account_number||a.id.slice(0,8)} — ${a.platform} ${a.account_type} ${fmt(a.balance)}</option>`).join('');
+          ['dep-account','wd-account','trade-account'].forEach(id=>{const el=document.getElementById(id);if(el&&opts)el.innerHTML=opts;});
+        }
+      } else {
+        ['card-balance','card-margin'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='$0.00';el.classList.remove('card-loading');}});
+        ['card-balance-sub','card-margin-sub'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='No accounts';el.classList.remove('card-loading');}});
+      }
+    } catch(e) { console.warn('[reloadBalance]', e.message); }
+  };
+
   // ── Positions table & Realised P&L card ──────────────────
   const tbody = document.getElementById('positions-tbody');
 
@@ -4020,7 +4049,7 @@ function savePreferences() {
   if (!session) return;
   const uid = session.user.id;
   const _deb = (fn, ms) => { let t; return () => { clearTimeout(t); t = setTimeout(fn, ms); }; };
-  const _reload  = _deb(() => { if (typeof loadRows === 'function') loadRows(); }, 800);
+  const _reload  = _deb(() => { if (typeof window._reloadBalance === 'function') window._reloadBalance(); }, 800);
   const _reloadN = _deb(() => {
     if (typeof window.initNotifPopup === 'function') window.initNotifPopup(db, uid);
     if (typeof window._renderNotifications === 'function') window._renderNotifications();

@@ -95,7 +95,7 @@ footer{background:#0d1120}
 .footer-disclaimer strong{color:rgba(255,255,255,.5)}
 .footer-disclaimer__copy{max-width:1240px;margin:0 auto;font-size:11px;color:rgba(255,255,255,.25)}
 @media(max-width:900px){.footer-nav__grid{grid-template-columns:1fr 1fr}}
-@media(max-width:768px){.navbar__logo img{height:100px!important}.story-grid{grid-template-columns:1fr}.reg-grid{grid-template-columns:1fr}.footer-disclaimer__inner{grid-template-columns:1fr}}
+@media(max-width:768px){.navbar__logo img{height:100px!important}.navbar__nav{display:none}.navbar__actions{display:none}.navbar__hamburger{display:flex}.story-grid{grid-template-columns:1fr}.reg-grid{grid-template-columns:1fr}.footer-disclaimer__inner{grid-template-columns:1fr}}
 @media(max-width:480px){.footer-nav__grid{grid-template-columns:1fr}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 .page-hero__title-wrap{opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.2s}
@@ -103,7 +103,23 @@ footer{background:#0d1120}
 .page-hero__actions{opacity:0;animation:fadeUp .7s ease forwards;animation-delay:.6s}
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
 .reveal.visible{opacity:1;transform:translateY(0)}
-</style>
+.navbar__hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;padding:4px;margin-left:auto;cursor:pointer;flex-shrink:0}
+.navbar__hamburger span{display:block;width:22px;height:2px;background:#111;border-radius:2px;transition:transform .25s,opacity .25s}
+.navbar__hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.navbar__hamburger.open span:nth-child(2){opacity:0}
+.navbar__hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-menu{display:none;position:fixed;top:56px;left:0;right:0;bottom:0;background:#fff;z-index:99;padding:24px 20px;overflow-y:auto;flex-direction:column;border-top:1px solid #e0e3e8}
+.mobile-menu.open{display:flex}
+.mmenu-section{border-bottom:1px solid #e0e3e8}
+.mmenu-btn{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:18px 0;font-size:16px;font-weight:500;color:#111;cursor:pointer}
+.mmenu-btn svg{width:16px;height:16px;fill:none;stroke:#666;stroke-width:2;transition:transform .2s}
+.mmenu-btn.open svg{transform:rotate(180deg)}
+.mmenu-sub{display:none;flex-direction:column;padding:4px 0 12px 12px}
+.mmenu-sub.open{display:flex}
+.mmenu-sub a{padding:11px 0;font-size:15px;color:#111;text-decoration:none;border-bottom:1px solid #f0f0f0}
+.mmenu-sub a:hover{color:#1a5cff}
+.mmenu-actions{display:flex;flex-direction:column;gap:12px;margin-top:28px}
+.mmenu-actions .btn{width:100%;justify-content:center;padding:14px;font-size:16px}</style>
   <link rel="stylesheet" href="/css/lang.css">
   <link rel="manifest" href="/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -153,7 +169,41 @@ footer{background:#0d1120}
     </div>
   </div>
 </nav>
-</header>
+<div class="mobile-menu" id="nav-mobile-menu">
+  <div class="mmenu-section">
+    <button class="mmenu-btn" onclick="toggleMmenu(this)">Markets <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+    <div class="mmenu-sub">
+      <a href="/markets/futures">Futures</a>
+      <a href="/markets/indices">Indices</a>
+      <a href="/markets/shares">Shares</a>
+      <a href="/markets/metals">Metals</a>
+      <a href="/markets/energy">Energy</a>
+      <a href="/markets/etfs">ETFs</a>
+    </div>
+  </div>
+  <div class="mmenu-section">
+    <button class="mmenu-btn" onclick="toggleMmenu(this)">Platforms <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+    <div class="mmenu-sub">
+      <a href="/platforms/xantex">Xantex Platform</a>
+      <a href="/platforms/tradingview">TradingView</a>
+    </div>
+  </div>
+  <div class="mmenu-section">
+    <button class="mmenu-btn" onclick="toggleMmenu(this)">Company <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>
+    <div class="mmenu-sub">
+      <a href="/about">About Xantex</a>
+      <a href="/security">Online Security</a>
+      <a href="/awards">Awards</a>
+      <a href="/benefits">Benefits</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/contact">Contact Us</a>
+    </div>
+  </div>
+  <div class="mmenu-actions">
+    <a href="/register.html" class="btn btn--primary">Register</a>
+    <a href="/login.html" class="btn btn--ghost">Login</a>
+  </div>
+</div></header>
 
 <section class="page-hero">
   <img class="hero-img" src="https://ywnpzjjpighjhhqoxtsj.supabase.co/storage/v1/object/public/media/images/about-hero.webp" alt="About Xantex" style="object-position:center 35%;">
@@ -261,6 +311,9 @@ const _nBtns=document.querySelectorAll('.navbar__nav-btn[data-dropdown]');
 function _closeAll(){_nBtns.forEach(b=>{b.classList.remove('active');const d=document.getElementById(b.dataset.dropdown);if(d)d.classList.remove('open')})}
 _nBtns.forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const dd=document.getElementById(btn.dataset.dropdown);const open=dd&&dd.classList.contains('open');_closeAll();if(!open&&dd){dd.classList.add('open');btn.classList.add('active')}})});
 document.addEventListener('click',_closeAll);
+function toggleMmenu(btn){var sub=btn.nextElementSibling;var open=sub.classList.toggle('open');btn.classList.toggle('open',open);}
+var _hbg=document.getElementById('nav-hamburger'),_mm=document.getElementById('nav-mobile-menu');
+if(_hbg&&_mm){_hbg.addEventListener('click',function(){var o=_mm.classList.toggle('open');_hbg.classList.toggle('open',o);document.body.style.overflow=o?'hidden':'';});document.addEventListener('click',function(e){if(!_hbg.contains(e.target)&&!_mm.contains(e.target)){_mm.classList.remove('open');_hbg.classList.remove('open');document.body.style.overflow='';}});}
 </script>
   <script>
   (function(){

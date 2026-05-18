@@ -3809,9 +3809,6 @@ function savePreferences() {
       destination_type: destType, destination_name: destName, destination_ref: destRef, status: 'pending'
     });
     if (error) { alert('Error: ' + error.message); return; }
-    // Immediately deduct balance so the held amount is reflected
-    const { data: balData } = await db.from('profiles').select('balance').eq('id', userId).single();
-    await db.from('profiles').update({ balance: Math.max(0, (balData?.balance ?? 0) - amount) }).eq('id', userId);
     // Notify admin of withdrawal request
     fetch('https://ywnpzjjpighjhhqoxtsj.supabase.co/functions/v1/notify-email', {
       method: 'POST',

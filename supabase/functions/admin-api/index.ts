@@ -76,10 +76,9 @@ serve(async (req) => {
       const { data: w } = await db.from("withdrawal_requests").select("*").eq("id", withdrawal_id).single();
       if (!w) return err("Withdrawal not found");
       await db.from("withdrawal_requests").update({ status: "approved" }).eq("id", withdrawal_id);
+      // Balance already deducted at submission — just log the transaction
       await db.from("transactions").insert({ user_id: w.user_id, type: "withdrawal", amount: -Math.abs(w.amount), status: "completed", notes: "Withdrawal approved" });
-      const { data: prof } = await db.from("profiles").select("balance,email,first_name,last_name,plan").eq("id", w.user_id).single();
-      const newBal = (prof?.balance ?? 0) - Math.abs(Number(w.amount));
-      await db.from("profiles").update({ balance: newBal }).eq("id", w.user_id);
+      const { data: prof } = await db.from("profiles").select("email,first_name,last_name,plan").eq("id", w.user_id).single();
       await db.from("notifications").insert({ user_id: w.user_id, title: "Withdrawal Approved", message: `Your withdrawal of $${w.amount} has been approved and is being processed.` });
       if (prof?.email) {
         const fmtA = Number(w.amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -103,7 +102,8 @@ serve(async (req) => {
       const { data: w } = await db.from("withdrawal_requests").select("*").eq("id", withdrawal_id).single();
       if (!w) return err("Withdrawal not found");
       await db.from("withdrawal_requests").update({ status: "rejected" }).eq("id", withdrawal_id);
-      await db.from("notifications").insert({ user_id: w.user_id, title: "Withdrawal Rejected", message: reason ?? "Your withdrawal request was not approved. Please contact support." });
+      // Balance refund handled by DB trigger (pending → rejected)
+      await db.from("notifications").insert({ user_id: w.user_id, title: "Withdrawal Rejected", message: reason ?? "Your withdrawal request was not approved and the amount has been returned to your account balance. Please contact support." });
       return ok({ success: true });
     }
 

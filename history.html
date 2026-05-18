@@ -553,12 +553,6 @@
       const table = isWithdrawal ? 'withdrawal_requests' : 'deposit_requests';
       const {error}=await db.from(table).update({status:'cancelled'}).eq('id',r.id).eq('status','pending');
       if(error){alert('Could not cancel: '+error.message);return;}
-      // Refund held balance for withdrawal cancellation
-      if (isWithdrawal) {
-        const refundAmt = Math.abs(r.amount);
-        const { data: prof } = await db.from('profiles').select('balance').eq('id', userId).single();
-        await db.from('profiles').update({ balance: (prof?.balance ?? 0) + refundAmt }).eq('id', userId);
-      }
       location.reload();
     };
 

@@ -351,40 +351,47 @@
   const db = window.XANTEX_DB;
   if (!db) { window.location.href = 'login.html'; return; }
 
-  // Failsafe: if loading hangs on mobile (slow network), redirect after 12 s
-  const _loadTimer = setTimeout(() => { window.location.href = 'login.html'; }, 12000);
+  // Failsafe: if the entire page hangs (slow network + slow device), bail after 18 s
+  const _loadTimer = setTimeout(() => { window.location.href = 'login.html'; }, 18000);
 
   try {
 
   // ── Auth check ────────────────────────────────────────────
-  let session;
+  // onAuthStateChange is registered FIRST — before any await — so it cannot
+  // miss the INITIAL_SESSION / SIGNED_IN event that Supabase fires when it
+  // finishes reading localStorage. On slow Android/iOS devices this is the
+  // only reliable way to catch the session that login.html just created.
+  let _authSub;
+  const _authStatePromise = new Promise(resolve => {
+    const { data: { subscription } } = db.auth.onAuthStateChange((event, s) => {
+      if (s && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')) {
+        resolve(s);
+      }
+    });
+    _authSub = subscription;
+  });
 
-  // Email confirmation links can arrive in three formats depending on project config:
-  //   1. ?token_hash=...&type=signup  (OTP / newer Supabase default)
-  //   2. ?code=...                    (PKCE flow)
-  //   3. #access_token=...            (implicit flow — handled by getSession below)
-  const _sp = new URLSearchParams(window.location.search);
+  // Email confirmation URL flows (token_hash / PKCE code)
+  const _sp        = new URLSearchParams(window.location.search);
   const _tokenHash = _sp.get('token_hash');
   const _urlCode   = _sp.get('code');
   const _urlType   = _sp.get('type') || 'signup';
 
+  let session;
+
   if (_tokenHash || _urlCode) {
-    // Sign out any existing session so a stale admin/other session can never bleed through
     try { await db.auth.signOut(); } catch(e) {}
   }
 
   if (_tokenHash) {
-    // OTP / token-hash confirmation (Supabase default for email signups)
     try {
       const { data } = await db.auth.verifyOtp({ token_hash: _tokenHash, type: _urlType });
       session = data?.session;
     } catch(e) {}
-    // Clean up URL so refresh doesn't re-attempt verification
     try { window.history.replaceState({}, '', window.location.pathname); } catch(e) {}
   }
 
   if (!session && _urlCode) {
-    // PKCE code — exchange for session (requires code_verifier saved during signUp)
     try {
       const { data } = await db.auth.exchangeCodeForSession(_urlCode);
       session = data?.session;
@@ -392,55 +399,34 @@
     try { window.history.replaceState({}, '', window.location.pathname); } catch(e) {}
   }
 
-  // Existing session from localStorage (also handles implicit-flow #access_token hash)
+  // Race all three session sources concurrently — whichever resolves first wins.
+  // Promise.race ignores null/undefined (stalls forever) so only a real session resolves.
   if (!session) {
-    try {
-      const { data } = await db.auth.getSession();
-      session = data?.session;
-    } catch(e) {}
-  }
+    const _nonNull = p => p.then(s => s || new Promise(() => {}));
 
-  // Mobile retry: localStorage write can lag behind the page navigation on Android/iOS.
-  // Wait 800 ms and try again before falling through to other fallbacks.
-  if (!session) {
-    await new Promise(r => setTimeout(r, 800));
-    try {
-      const { data } = await db.auth.getSession();
-      session = data?.session;
-    } catch(e) {}
-  }
+    const _getSession = db.auth.getSession().then(({ data }) => data?.session).catch(() => null);
 
-  // Mobile fallback: restore session from tokens stored in sessionStorage by login/register
-  if (!session) {
-    try {
+    const _ssRestore = (async () => {
       const at = sessionStorage.getItem('xantex_tmp_at');
       const rt = sessionStorage.getItem('xantex_tmp_rt');
-      if (at && rt) {
+      if (!at || !rt) return null;
+      try {
         const { data } = await db.auth.setSession({ access_token: at, refresh_token: rt });
-        session = data?.session;
-      }
-    } catch(e) {}
-  }
-  try { sessionStorage.removeItem('xantex_tmp_at'); sessionStorage.removeItem('xantex_tmp_rt'); } catch(e) {}
+        return data?.session || null;
+      } catch(e) { return null; }
+    })();
 
-  // Universal auth-state-change wait: covers regular logins AND email-confirmation flows.
-  // Supabase JS fires SIGNED_IN once its internal session hydration from localStorage
-  // (or a code exchange) completes — this catches the gap on slow mobile devices.
-  if (!session) {
-    session = await new Promise(resolve => {
-      let resolved = false;
-      const t = setTimeout(() => { if (!resolved) { resolved = true; resolve(null); } }, 4000);
-      const { data: { subscription } } = db.auth.onAuthStateChange((event, s) => {
-        if (!resolved && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && s) {
-          resolved = true; clearTimeout(t);
-          try { window.history.replaceState({}, '', window.location.pathname); } catch(e) {}
-          resolve(s);
-          setTimeout(() => subscription.unsubscribe(), 0);
-        }
-      });
-      if (resolved) setTimeout(() => subscription.unsubscribe(), 0);
-    });
+    session = await Promise.race([
+      _authStatePromise,          // INITIAL_SESSION / SIGNED_IN from Supabase internal hydration
+      _nonNull(_getSession),      // getSession() — fast path if localStorage already written
+      _nonNull(_ssRestore),       // sessionStorage tokens stored by login.html before navigation
+      new Promise(r => setTimeout(r, 10000, null)) // 10 s hard timeout
+    ]);
   }
+
+  try { _authSub?.unsubscribe(); } catch(e) {}
+  try { sessionStorage.removeItem('xantex_tmp_at'); sessionStorage.removeItem('xantex_tmp_rt'); } catch(e) {}
+  try { window.history.replaceState({}, '', window.location.pathname); } catch(e) {}
 
   if (!session) { clearTimeout(_loadTimer); window.location.href = 'login.html'; return; }
 

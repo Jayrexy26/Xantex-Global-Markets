@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="/images/favicon.png">
-  <title>Admin Login â€” Xantex OPS</title>
+  <title>Admin Login — Xantex OPS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <link rel="manifest" href="/manifest-ops.json">
@@ -28,7 +28,7 @@
 <div style="background:#1a1d27;border:1px solid #2a2d3a;border-radius:14px;padding:40px;width:100%;max-width:380px;text-align:center;">
   <div style="font-size:11px;font-weight:800;letter-spacing:0.12em;background:var(--red);color:#fff;padding:3px 10px;border-radius:4px;display:inline-block;margin-bottom:16px;">OPS ADMIN</div>
   <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;">Xantex Control Panel</div>
-  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Restricted access â€” authorised personnel only</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;">Restricted access — authorised personnel only</div>
   <div style="display:flex;flex-direction:column;gap:12px;text-align:left;">
     <div style="display:flex;flex-direction:column;gap:4px;">
       <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Admin Email</label>
@@ -38,7 +38,7 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:4px;">
       <label style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.07em;">Password</label>
-      <input id="admin-pass" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+      <input id="admin-pass" type="password" placeholder="••••••••"
         style="height:42px;background:#0f1117;border:1.5px solid #2a2d3a;border-radius:8px;padding:0 14px;font-size:14px;color:#fff;outline:none;font-family:inherit;"
         onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#2a2d3a'"
         onkeydown="if(event.key==='Enter')doLogin()">
@@ -73,16 +73,16 @@
     const email = document.getElementById('admin-user').value.trim();
     const pass  = document.getElementById('admin-pass').value;
     if (!email || !pass) { showErr('Please enter your email and password.'); return; }
-    if (!db) { showErr('Database not initialised â€” please refresh.'); return; }
+    if (!db) { showErr('Database not initialised — please refresh.'); return; }
     setLoading(true);
     try { await db.auth.signOut(); } catch(e) {}
     const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
     if (error) { showErr('Auth error: ' + error.message); return; }
-    if (!data?.user) { showErr('No user returned â€” try again.'); return; }
+    if (!data?.user) { showErr('No user returned — try again.'); return; }
     const { data: adminRow, error: adminErr } = await db
       .from('admin_users').select('id,email,role').eq('id', data.user.id).maybeSingle();
     if (adminErr) { showErr('Admin lookup error: ' + adminErr.message); return; }
-    if (!adminRow) { await db.auth.signOut(); showErr('Access denied â€” not an admin account.'); return; }
+    if (!adminRow) { await db.auth.signOut(); showErr('Access denied — not an admin account.'); return; }
     window.location.href = 'ops.html';
   }
 
